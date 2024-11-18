@@ -1,0 +1,42 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas   = ["user_schema"]
+}
+
+enum Role {
+  MEMBER
+  ADMIN
+@@schema("user_schema")
+}
+
+model user_table {
+  user_id         String   @id @default(uuid()) @db.Uuid
+  user_date_created DateTime @default(now())
+  user_first_name String
+  user_last_name  String
+  user_email      String   @unique
+  user_password   String
+  user_role       Role     @default(MEMBER)
+  user_step       String
+
+  notes note_table[]
+
+  @@schema("user_schema")
+}
+
+model note_table {
+  note_id      String      @id @default(uuid()) @db.Uuid
+  note_text    String
+
+  user_id      String      @db.Uuid
+  user         user_table  @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("user_schema")
+}
