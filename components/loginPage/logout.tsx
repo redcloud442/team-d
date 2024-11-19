@@ -3,7 +3,7 @@
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 
-export default function Logout() {
+const LogOut = () => {
   const router = useRouter();
   const supabase = createClientComponentClient();
 
@@ -17,4 +17,6 @@ export default function Logout() {
       <button onClick={handleSignOut}>Sign out</button>
     </>
   );
-}
+};
+
+export default LogOut;

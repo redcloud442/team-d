@@ -9,13 +9,14 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import Text from "../ui/text";
 
 type FormData = {
   email: string;
   password: string;
 };
 
-export default function LoginPage() {
+const LoginPage = () => {
   const {
     register,
     handleSubmit,
@@ -25,38 +26,26 @@ export default function LoginPage() {
   const router = useRouter();
   const supabase = createClientComponentClient();
 
-  const handleSignUp = async (data: FormData) => {
-    const { email, password } = data;
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${location.origin}/auth/callback`,
-      },
-    });
-    if (error) {
-      setErrorMessage(error.message);
-    } else {
-      router.refresh();
-    }
-  };
-
   const handleSignIn = async (data: FormData) => {
-    const { email, password } = data;
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
-      setErrorMessage(error.message);
-    } else {
-      router.refresh();
+    try {
+      const { email, password } = data;
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        setErrorMessage(error.message);
+      } else {
+        router.push("/");
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
 
   return (
     <Card className="w-[400px] mx-auto p-4 ">
-        <CardTitle>Login Page</CardTitle>
+      <CardTitle>Login Page</CardTitle>
       <CardContent className="p-4">
         {errorMessage && (
           <Alert className="mb-4" variant="destructive">
@@ -102,11 +91,7 @@ export default function LoginPage() {
               <p className="text-sm text-red-500">{errors.password.message}</p>
             )}
           </div>
-          <Button
-
-            type="button"
-            onClick={handleSubmit(handleSignUp)}
-          >
+          <Button type="button" onClick={() => router.push("/auth/register")}>
             Sign up
           </Button>
           <Button variant="secondary" type="submit">
@@ -115,10 +100,12 @@ export default function LoginPage() {
         </form>
       </CardContent>
       <CardFooter>
-        <p className="text-sm text-gray-500">
+        <Text>
           By signing up, you agree to our Terms of Service and Privacy Policy.
-        </p>
+        </Text>
       </CardFooter>
     </Card>
   );
-}
+};
+
+export default LoginPage;
