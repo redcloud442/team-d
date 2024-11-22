@@ -1,27 +1,28 @@
 "use client";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { createClientSide } from "@/utils/supabase/client";
 import { user_table } from "@prisma/client";
 import {
+  BanknoteIcon,
   Calendar,
+  ChevronDown,
   ChevronUp,
+  HistoryIcon,
   Home,
   Inbox,
   Search,
@@ -37,10 +38,29 @@ type Props = {
 
 const items = [
   { title: "Home", url: "/", icon: Home },
-  { title: "Inbox", url: "/inbox", icon: Inbox },
-  { title: "Calendar", url: "/calendar", icon: Calendar },
-  { title: "Search", url: "/search", icon: Search },
-  { title: "Settings", url: "/settings", icon: Settings },
+  {
+    title: "Top Up",
+    url: "/top-up",
+    icon: Inbox,
+    subItems: [
+      { icon: HistoryIcon, title: "Top Up History", url: "/top-up/history" },
+    ],
+  },
+  { title: "Packages", url: "/packages", icon: Calendar },
+  {
+    title: "Withdraw",
+    url: "/withdraw",
+    icon: Search,
+    subItems: [
+      {
+        icon: BanknoteIcon,
+        title: "Withdrawal History",
+        url: "/withdraw/history",
+      },
+    ],
+  },
+  { title: "Ally Bounty", url: "/ally-bounty", icon: Settings },
+  { title: "Legion Bounty", url: "/legion-bounty", icon: Settings },
 ];
 
 const AppSidebar = ({ userData }: Props) => {
@@ -61,7 +81,16 @@ const AppSidebar = ({ userData }: Props) => {
 
   return (
     <Sidebar>
-      {/* Sidebar Content */}
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton>
+              ALLIANCE 1
+              <ChevronDown className="ml-auto" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application Menu</SidebarGroupLabel>
@@ -69,10 +98,10 @@ const AppSidebar = ({ userData }: Props) => {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton size="lg" asChild>
                     <Link
                       href={item.url}
-                      className={`flex items-center space-x-2 px-4 py-2 rounded-md ${
+                      className={`flex text-lg items-center space-x-2 px-4 py-4 rounded-md ${
                         isActive(item.url)
                           ? "bg-blue-100 text-blue-500 font-bold"
                           : "hover:bg-gray-100 text-gray-800"
@@ -82,6 +111,27 @@ const AppSidebar = ({ userData }: Props) => {
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
+                  {item.subItems && (
+                    <SidebarMenuSub>
+                      {item.subItems.map((subItem) => (
+                        <SidebarMenuSubItem key={subItem.title}>
+                          <SidebarMenuSubButton size="md" asChild>
+                            <Link
+                              href={subItem.url}
+                              className={`flex text-md items-center space-x-2 px-4 py-2 rounded-md ${
+                                isActive(subItem.url)
+                                  ? "bg-blue-50 text-blue-500 font-semibold"
+                                  : "hover:bg-gray-50 text-gray-700"
+                              }`}
+                            >
+                              <subItem.icon className="w-4 h-4" />
+                              <span>{subItem.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -91,29 +141,13 @@ const AppSidebar = ({ userData }: Props) => {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton>
-                  <div className="flex items-center space-x-2 w-full">
-                    <User2 className="w-5 h-5" />
-                    <span className="truncate">{userData.user_email}</span>
-                    <ChevronUp className="ml-auto w-4 h-4" />
-                  </div>
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                side="top"
-                align="center"
-                className="w-[--radix-popper-anchor-width]"
-              >
-                <DropdownMenuItem onClick={() => router.push("/profile")}>
-                  <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <span>Sign out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <SidebarMenuButton onClick={handleSignOut}>
+              <div className="flex items-center space-x-2 w-full">
+                <User2 className="w-5 h-5" />
+                <span className="truncate">{userData.user_email}</span>
+                <ChevronUp className="ml-auto w-4 h-4" />
+              </div>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

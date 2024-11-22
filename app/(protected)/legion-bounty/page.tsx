@@ -1,13 +1,13 @@
-import DashboardPage from "@/components/DashboardPage/DashboardPage";
+import LegionBountyPage from "@/components/LegionBountyPage/LegionBountyPage";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Dascboard",
-  description: "List of records",
+  title: "Legion Bounty",
+  description: "Legion Bounty Page",
   openGraph: {
-    url: "/",
+    url: "/legion-bounty",
   },
 };
 
@@ -17,7 +17,7 @@ const Page = async () => {
   if (result.redirect) {
     redirect(result.redirect);
   }
-
-  return <DashboardPage />;
+  return <LegionBountyPage />;
 };
+
 export default Page;

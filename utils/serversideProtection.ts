@@ -1,8 +1,6 @@
-import { PrismaClient } from "@prisma/client";
-
+import { user_table } from "@prisma/client";
+import prisma from "./prisma";
 import { createClientServerSide } from "./supabase/server";
-
-const prisma = new PrismaClient();
 
 export const protectionRegisteredUser = async () => {
   const supabase = await createClientServerSide();
@@ -16,17 +14,32 @@ export const protectionRegisteredUser = async () => {
 export const protectionAdminUser = async () => {
   try {
     const supabase = await createClientServerSide();
-    const { data } = await supabase.auth.getUser();
+    const { data, error } = await supabase.auth.getUser();
 
-    if (!data?.user) {
+    if (error || !data?.user) {
       return { redirect: "/auth/login" };
     }
 
+    const userId = data.user.id;
+
+    // Fetch the user profile
     const profile = await prisma.user_table.findUnique({
-      where: { user_id: data.user.id },
+      where: { user_id: userId },
     });
 
-    if (profile?.user_role !== "ADMIN") {
+    if (!profile) {
+      return { redirect: "/500" }; // Redirect if the profile is not found
+    }
+
+    // Check if the user is an admin in the alliance
+    const teamMember = await prisma.alliance_member_table.findFirst({
+      where: { alliance_member_user_id: profile.user_id },
+    });
+
+    if (
+      !teamMember?.alliance_member_alliance_id ||
+      teamMember.alliance_member_role !== "ADMIN"
+    ) {
       return { redirect: "/500" };
     }
 
@@ -34,6 +47,7 @@ export const protectionAdminUser = async () => {
       profile,
     };
   } catch (e) {
+    console.error("Error in protectionAdminUser:", e);
     return { redirect: "/error" };
   }
 };
@@ -51,14 +65,25 @@ export const protectionMemberUser = async () => {
       where: { user_id: data.user.id },
     });
 
-    if (profile?.user_role !== "MEMBER" && profile?.user_role !== "ADMIN") {
+    if (!profile) return { redirect: "/500" };
+
+    const teamMember = await prisma.alliance_member_table.findFirst({
+      where: { alliance_member_user_id: profile.user_id },
+    });
+
+    if (
+      !teamMember?.alliance_member_alliance_id ||
+      (teamMember.alliance_member_role !== "ADMIN" &&
+        teamMember.alliance_member_role !== "MEMBER")
+    ) {
       return { redirect: "/500" };
     }
-
     return {
-      profile,
+      profile: profile as user_table,
     };
   } catch (e) {
+    console.log(e);
+
     return { redirect: "/error" };
   }
 };

@@ -1,13 +1,14 @@
-import DashboardPage from "@/components/DashboardPage/DashboardPage";
+import PackagesPage from "@/components/PackagesPage/PackagesPage";
+import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Dascboard",
-  description: "List of records",
+  title: "Packages",
+  description: "List of Packages",
   openGraph: {
-    url: "/",
+    url: "/Packages",
   },
 };
 
@@ -18,6 +19,9 @@ const Page = async () => {
     redirect(result.redirect);
   }
 
-  return <DashboardPage />;
+  const packages = await prisma.package_table.findMany();
+
+  return <PackagesPage packages={packages} />;
 };
+
 export default Page;

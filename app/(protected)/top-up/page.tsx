@@ -1,13 +1,13 @@
-import DashboardPage from "@/components/DashboardPage/DashboardPage";
+import TopUpPage from "@/components/TopUpPage/TopUpPage";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Dascboard",
-  description: "List of records",
+  title: "Top Up",
+  description: "Top Up Page",
   openGraph: {
-    url: "/",
+    url: "/top-up",
   },
 };
 
@@ -17,7 +17,7 @@ const Page = async () => {
   if (result.redirect) {
     redirect(result.redirect);
   }
-
-  return <DashboardPage />;
+  return <TopUpPage />;
 };
+
 export default Page;

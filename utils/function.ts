@@ -26,3 +26,28 @@ export const sanitizeData = (data: RegisterFormData) => {
     confirmPassword: sanitizeString(data.confirmPassword),
   };
 };
+
+// Utility function to escape special characters in strings
+export const escapeString = (value: string): string => {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+};
+
+// Recursive function to escape all string values in an object
+export const escapeFormData = <T>(data: T): T => {
+  if (typeof data === "string") {
+    return escapeString(data) as T;
+  } else if (Array.isArray(data)) {
+    return data.map((item) => escapeFormData(item)) as unknown as T;
+  } else if (typeof data === "object" && data !== null) {
+    return Object.keys(data).reduce((acc, key) => {
+      acc[key as keyof T] = escapeFormData(data[key as keyof T]);
+      return acc;
+    }, {} as T);
+  }
+  return data;
+};

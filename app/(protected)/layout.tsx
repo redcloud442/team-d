@@ -1,8 +1,10 @@
+import { Button } from "@/components/ui/button";
 import AppSidebar from "@/components/ui/side-bar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { prisma } from "@/utils/prisma/prisma";
-import { createClientServerSide } from "@/utils/supabase/server";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { protectionMemberUser } from "@/utils/serversideProtection";
+import { Banknote, Coins, History, Package } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import "../globals.css";
 
@@ -16,25 +18,58 @@ export default async function AppLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClientServerSide();
-  const { data: user, error } = await supabase.auth.getUser();
+  const { profile, redirect: redirectTo } = await protectionMemberUser();
 
-  if (error || !user?.user?.id) redirect("/500");
+  if (redirectTo) {
+    redirect(redirectTo);
+  }
+  if (!profile) redirect("/500");
 
-  const userData = await prisma.user_table.findUnique({
-    where: {
-      user_id: user.user.id,
+  const dashboardRoutes = [
+    {
+      label: "Top Up",
+      href: "/top-up",
+      icon: <Coins />,
     },
-  });
-
-  if (!userData) redirect("/500");
+    {
+      label: "Packages",
+      href: "/packages",
+      icon: <Package />,
+    },
+    {
+      label: "Top Up History",
+      href: "/top-up/history",
+      icon: <History />,
+    },
+    {
+      label: "Withdraw",
+      href: "/withdraw",
+      icon: <Banknote />,
+    },
+  ];
 
   return (
     <SidebarProvider>
-      <AppSidebar userData={userData} />
-      <main>
-        <SidebarTrigger />
-        {children}
+      <AppSidebar userData={profile} />
+      <main className="min-h-screen w-full bg-gray-100 flex flex-col">
+        <div className="flex justify-center py-8 px-4">
+          <div className="flex flex-wrap justify-center md:justify-between w-full max-w-5xl gap-4">
+            {dashboardRoutes.map((route, index) => (
+              <Link href={route.href} key={index} className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  className="flex items-center justify-center w-full sm:w-auto px-4 py-2"
+                >
+                  {route.icon}
+                  <span className="ml-2">{route.label}</span>
+                </Button>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Children Content */}
+        <div className="flex-grow">{children}</div>
       </main>
     </SidebarProvider>
   );

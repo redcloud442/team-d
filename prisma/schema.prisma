@@ -7,49 +7,148 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
-  schemas   = ["user_schema"]
+  schemas   = ["user_schema","alliance_schema","packages_schema"]
 }
 
 enum Role {
   MEMBER
   ADMIN
-@@schema("user_schema")
+@@schema("alliance_schema")
+}
+
+enum ReferralType {
+  DIRECT
+  INDIRECT
+  @@schema("alliance_schema")
 }
 
 model user_table {
-  user_id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_date_created DateTime @default(now())
-  user_first_name String?
-  user_last_name  String?
-  user_email      String   @unique
-  user_password   String
-  user_role       Role     @default(MEMBER)
-  user_step       String
+  user_id               String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_date_created     DateTime        @default(now())
+  user_first_name       String?
+  user_last_name        String?
+  user_email            String          @unique
+  user_password         String
 
-  referral_Link       user_referal_link_table[]
-  referals         user_referal_table[]
-
+  alliance_member_table alliance_member_table[]
   @@schema("user_schema")
 }
 
-model user_referal_link_table {
-  user_referal_link_id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_referal_link       String
-  user_referal_link_user_id    String      @db.Uuid
 
-  user                  user_table  @relation(fields: [user_referal_link_user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
-  user_referal_table user_referal_table[]
+model alliance_table {
+  alliance_id               String                     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  alliance_name             String
+  alliance_date_created     DateTime                   @default(now())
 
-  @@schema("user_schema")
+  alliance_member_table                    alliance_member_table[]
+
+
+  @@schema("alliance_schema")
 }
 
-model user_referal_table {
-  user_referal_id        String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_referal_user_id   String                @db.Uuid
-  user_referal_referal_link_id   String                @db.Uuid
+model alliance_member_table {
+  alliance_member_id              String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  alliance_member_role            Role                  @default(MEMBER)
+  alliance_member_date_created    DateTime              @default(now())
 
-  user                   user_table           @relation(fields: [user_referal_user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
-  referal                user_referal_link_table @relation(fields: [user_referal_referal_link_id], references: [user_referal_link_id], onDelete: Cascade, onUpdate: Cascade)
+  alliance_member_alliance_id     String                @db.Uuid
+  alliance_member_user_id         String                @db.Uuid
 
-  @@schema("user_schema")
+  user_table                 user_table            @relation(fields: [alliance_member_user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
+  alliance_table                 alliance_table        @relation(fields: [alliance_member_alliance_id], references: [alliance_id], onDelete: Cascade, onUpdate: Cascade)
+
+  alliance_earnings_table              alliance_earnings_table[]
+  package_member_connection_table      package_member_connection_table[]
+  alliance_referral_link_table         alliance_referral_link_table[]
+  alliance_referral_table              alliance_referral_table[]
+
+  @@schema("alliance_schema")
+}
+
+model alliance_referral_link_table {
+  alliance_referral_link_id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  alliance_referral_link             String
+  alliance_referral_link_member_id   String    @db.Uuid
+
+  alliance_member_table              alliance_member_table @relation(fields: [alliance_referral_link_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
+
+  alliance_referral_table            alliance_referral_table[]
+
+  @@schema("alliance_schema")
+}
+
+model alliance_referral_table {
+  alliance_referral_id               String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  alliance_referral_bonus_amount     Float     @default(0.0)
+  alliance_referral_date             DateTime  @default(now())
+
+  alliance_referral_member_id        String    @db.Uuid
+  alliance_referral_link_id          String    @db.Uuid
+  alliance_referral_from_member_id   String?   @db.Uuid
+
+  alliance_member_table              alliance_member_table @relation(fields: [alliance_referral_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
+  alliance_referral_link_table       alliance_referral_link_table @relation(fields: [alliance_referral_link_id], references: [alliance_referral_link_id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("alliance_schema")
+}
+
+model alliance_earnings_table {
+  alliance_earnings_id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  alliance_olympus_earnings    Float    @default(0.0)
+  alliance_ally_bounty         Float    @default(0.0)
+  alliance_legion_bounty       Float    @default(0.0)
+  alliance_earnings_member_id  String   @db.Uuid
+
+  alliance_member_table            alliance_member_table              @relation(fields: [alliance_earnings_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
+
+  alliance_top_up_history_table  alliance_top_up_history_table[]
+  alliance_withdrawal_history_table alliance_withdrawal_history_table[]
+  @@schema("alliance_schema")
+}
+
+model alliance_top_up_history_table {
+  alliance_top_up_id                  String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  alliance_top_up_amount              Float       @default(0.0)
+  alliance_top_up_date                DateTime    @default(now())
+  alliance_top_up_type                String
+  alliance_top_up_alliance_earnings_id String      @db.Uuid
+
+  alliance_earnings_table             alliance_earnings_table @relation(fields: [alliance_top_up_alliance_earnings_id], references: [alliance_earnings_id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("alliance_schema")
+}
+
+model alliance_withdrawal_history_table {
+  alliance_withdrawal_id                 String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  alliance_withdrawal_amount             Float       @default(0.0)
+  alliance_withdrawal_date               DateTime    @default(now())
+  alliance_withdrawal_status             String      @default("APPROVE")
+  alliance_withdrawal_alliance_earnings_id String     @db.Uuid
+
+  alliance_earnings_table                alliance_earnings_table @relation(fields: [alliance_withdrawal_alliance_earnings_id], references: [alliance_earnings_id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("alliance_schema")
+}
+
+model package_table {
+  package_id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  package_name       String
+  package_description String
+  package_percentage Float    @default(0.0)
+  packages_days      Int
+
+  package_member_connection_table package_member_connection_table[]
+  @@schema("packages_schema")
+
+}
+
+
+model package_member_connection_table {
+  package_member_connection_id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  package_member_package_id            String   @db.Uuid
+  package_member_member_id             String   @db.Uuid
+
+  package_table                           package_table              @relation(fields: [package_member_package_id], references: [package_id], onDelete: Cascade, onUpdate: Cascade)
+  alliance_member_table                   alliance_member_table              @relation(fields: [package_member_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
+  @@schema("packages_schema")
 }
