@@ -1,3 +1,13 @@
+
+
+DELETE FROM storage.buckets;
+
+CREATE POLICY buckets_policy ON storage.buckets FOR ALL TO PUBLIC USING (true) WITH CHECK (true);
+
+INSERT INTO storage.buckets (id, name) VALUES ('REQUEST_ATTACHMENTS', 'REQUEST_ATTACHMENTS');
+
+UPDATE storage.buckets SET public = true;
+
 CREATE OR REPLACE FUNCTION create_user_trigger(
   input_data JSON
 )
@@ -33,7 +43,7 @@ plv8.subtransaction(function() {
     INSERT INTO alliance_schema.alliance_member_table (alliance_member_role, alliance_member_alliance_id, alliance_member_user_id)
     VALUES ($1, $2, $3)
     RETURNING alliance_member_id
-   `,['MEMBER','be59a796-50c6-4c41-8925-93631734a848',userId])[0].alliance_member_id;
+   `,['MEMBER','35f77cd9-636a-41fa-a346-9cb711e7a338',userId])[0].alliance_member_id;
 
 
   const insertReferalQuery = `
@@ -86,6 +96,50 @@ plv8.subtransaction(function() {
     user: result[0]
   };
 });
+$$ LANGUAGE plv8;
+
+
+CREATE OR REPLACE FUNCTION create_top_up_request(
+  input_data JSON
+)
+RETURNS JSON
+SET search_path TO ''
+AS $$
+let returnData;
+
+plv8.subtransaction(function() {
+  const {
+    TopUpFormValues,
+    teamMemberId
+  } = input_data;
+
+  if (!TopUpFormValues) {
+    throw new Error('TopUpFormValues is required');
+  }
+
+  const { amount, topUpMode, accountName, accountNumber, fileUrl } = TopUpFormValues;
+
+  if (!amount || !topUpMode || !accountName || !accountNumber || !teamMemberId) {
+    throw new Error('All fields (amount, topUpMode, accountName, accountNumber, and teamMemberId) are required');
+  }
+
+  const topUpRequest = plv8.execute(`
+    INSERT INTO alliance_schema.alliance_top_up_request_table (
+      alliance_top_up_request_amount,
+      alliance_top_up_request_type,
+      alliance_top_up_request_name,
+      alliance_top_up_request_account,
+      alliance_top_up_request_attachment,
+      alliance_top_up_request_member_id
+    ) VALUES ($1, $2, $3, $4,$5,$6)
+    RETURNING alliance_top_up_request_id
+  `, [amount, topUpMode, accountName, accountNumber,fileUrl, teamMemberId]);
+
+  returnData = {
+    success: true,
+  };
+});
+return returnData;
 $$ LANGUAGE plv8;
 
 

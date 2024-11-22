@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { LRUCache } from "lru-cache";
 import { RegisterFormData } from "./types";
 
 export const hashData = async (data: string) => {
@@ -37,12 +38,23 @@ export const escapeString = (value: string): string => {
     .replace(/'/g, "&#39;");
 };
 
-// Recursive function to escape all string values in an object
 export const escapeFormData = <T>(data: T): T => {
+  const escapeString = (str: string): string => {
+    return str.replace(/</g, "&lt;").replace(/>/g, "&gt;").trim();
+  };
+
   if (typeof data === "string") {
     return escapeString(data) as T;
   } else if (Array.isArray(data)) {
     return data.map((item) => escapeFormData(item)) as unknown as T;
+  } else if (data instanceof File) {
+    // Handle file objects
+    const escapedFile = new File(
+      [data],
+      escapeString(data.name), // Escape the file name
+      { type: data.type }
+    );
+    return escapedFile as unknown as T;
   } else if (typeof data === "object" && data !== null) {
     return Object.keys(data).reduce((acc, key) => {
       acc[key as keyof T] = escapeFormData(data[key as keyof T]);
@@ -50,4 +62,23 @@ export const escapeFormData = <T>(data: T): T => {
     }, {} as T);
   }
   return data;
+};
+
+const rateLimiter = new LRUCache({
+  max: 1000,
+  ttl: 60 * 1000, // 1 minute time-to-live
+});
+
+export const applyRateLimit = async (teamMemberId: string) => {
+  if (!teamMemberId) {
+    throw new Error("teamMemberId is required for rate limiting.");
+  }
+
+  const currentCount = (rateLimiter.get(teamMemberId) as number) || 0;
+
+  if (currentCount >= 5) {
+    throw new Error("Too many requests. Please try again later.");
+  }
+
+  rateLimiter.set(teamMemberId, currentCount + 1);
 };

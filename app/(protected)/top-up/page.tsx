@@ -12,12 +12,14 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const result = await protectionMemberUser();
+  const { teamMemberProfile, redirect: redirectTo } =
+    await protectionMemberUser();
 
-  if (result.redirect) {
-    redirect(result.redirect);
-  }
-  return <TopUpPage />;
+  if (redirectTo) redirect(redirectTo);
+
+  if (!teamMemberProfile) redirect("/");
+
+  return <TopUpPage teamMemberProfile={teamMemberProfile} />;
 };
 
 export default Page;

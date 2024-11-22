@@ -1,4 +1,4 @@
-import { user_table } from "@prisma/client";
+import { alliance_member_table, user_table } from "@prisma/client";
 import prisma from "./prisma";
 import { createClientServerSide } from "./supabase/server";
 
@@ -80,6 +80,7 @@ export const protectionMemberUser = async () => {
     }
     return {
       profile: profile as user_table,
+      teamMemberProfile: teamMember as alliance_member_table,
     };
   } catch (e) {
     console.log(e);

@@ -5,10 +5,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { PhilippinePeso } from "lucide-react";
 
 type Props = {
   title: string;
-  value: string;
+  value: number;
   description?: string;
   descriptionClassName?: string;
   children?: React.ReactNode; // For dynamic content like charts or additional components
@@ -25,7 +26,9 @@ const CardAmount = ({
     <Card className="w-full sm:max-w-lg">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
-        <CardDescription className="text-xl font-bold">{value}</CardDescription>
+        <CardDescription className="flex gap-x-2 text-xl font-bold">
+          <PhilippinePeso /> {value}
+        </CardDescription>
         {description && (
           <CardDescription className={descriptionClassName}>
             {description}

@@ -1,10 +1,11 @@
 import DashboardPage from "@/components/DashboardPage/DashboardPage";
+import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Dascboard",
+  title: "Dashboard",
   description: "List of records",
   openGraph: {
     url: "/",
@@ -12,12 +13,31 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const result = await protectionMemberUser();
+  const { profile, redirect: redirectTo } = await protectionMemberUser();
 
-  if (result.redirect) {
-    redirect(result.redirect);
+  if (redirectTo) {
+    redirect(redirectTo);
   }
 
-  return <DashboardPage />;
+  if (!profile) {
+    redirect("/500");
+  }
+
+  const earnings = await prisma.alliance_earnings_table.findFirst({
+    where: {
+      alliance_earnings_member_id: profile.user_id,
+    },
+  });
+
+  const safeEarnings = earnings || {
+    alliance_earnings_member_id: profile.user_id,
+    alliance_earnings_id: "",
+    alliance_ally_bounty: 0,
+    alliance_legion_bounty: 0,
+    alliance_olympus_earnings: 0,
+  };
+
+  return <DashboardPage earnings={safeEarnings} />;
 };
+
 export default Page;

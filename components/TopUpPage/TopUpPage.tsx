@@ -16,12 +16,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { createTopUpRequest } from "@/services/TopUp/TopUp";
 import { escapeFormData } from "@/utils/function";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { alliance_member_table } from "@prisma/client";
+import { Loader } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 import FileUpload from "../ui/dropZone";
-
+type Props = {
+  teamMemberProfile: alliance_member_table;
+};
 const topUpFormSchema = z.object({
   amount: z
     .string()
@@ -32,17 +38,25 @@ const topUpFormSchema = z.object({
   accountNumber: z.string().min(1, "Field is required"),
   file: z
     .instanceof(File)
-    .refine((file) => !!file, { message: "File is required" }), // File upload validation
+    .refine((file) => !!file, { message: "File is required" })
+    .refine(
+      (file) =>
+        ["image/jpeg", "image/png", "image/jpg"].includes(file.type) &&
+        file.size <= 5 * 1024 * 1024, // 5MB limit
+      { message: "File must be a valid image and less than 5MB." }
+    ),
 });
 
-type TopUpFormValues = z.infer<typeof topUpFormSchema>;
+export type TopUpFormValues = z.infer<typeof topUpFormSchema>;
 
-const TopUpPage = () => {
+const TopUpPage = ({ teamMemberProfile }: Props) => {
+  const { toast } = useToast();
   const {
     control,
     handleSubmit,
     setValue,
-    formState: { errors },
+    reset,
+    formState: { errors, isSubmitting },
   } = useForm<TopUpFormValues>({
     resolver: zodResolver(topUpFormSchema),
     defaultValues: {
@@ -54,12 +68,30 @@ const TopUpPage = () => {
     },
   });
 
-  const onSubmit = (data: TopUpFormValues) => {
+  const onSubmit = async (data: TopUpFormValues) => {
     try {
       const sanitizedData = escapeFormData(data);
-      console.log(sanitizedData);
+
+      await createTopUpRequest({
+        TopUpFormValues: sanitizedData,
+        teamMemberId: teamMemberProfile.alliance_member_id,
+      });
+
+      toast({
+        title: "Top Up Successfully",
+        description: "Please wait for it to be approved",
+        variant: "success",
+      });
+
+      reset();
     } catch (e) {
-      console.log(e);
+      const errorMessage =
+        e instanceof Error ? e.message : "An unexpected error occurred.";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   };
 
@@ -192,14 +224,12 @@ const TopUpPage = () => {
                 />
                 {errors.file && (
                   <p className="text-red-500 text-sm mt-1">
-                    {typeof errors.file === "string"
-                      ? errors.file
-                      : errors.file?.message}
+                    {errors.file?.message}
                   </p>
                 )}
               </div>
-              <Button type="submit" className="w-full" variant="default">
-                Submit
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting && <Loader />} Submit
               </Button>
             </form>
           </CardContent>

@@ -1,10 +1,8 @@
-import { Button } from "@/components/ui/button";
+import LayoutButton from "@/components/ui/LayoutButton";
 import AppSidebar from "@/components/ui/side-bar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { protectionMemberUser } from "@/utils/serversideProtection";
-import { Banknote, Coins, History, Package } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import "../globals.css";
 
@@ -25,48 +23,11 @@ export default async function AppLayout({
   }
   if (!profile) redirect("/500");
 
-  const dashboardRoutes = [
-    {
-      label: "Top Up",
-      href: "/top-up",
-      icon: <Coins />,
-    },
-    {
-      label: "Packages",
-      href: "/packages",
-      icon: <Package />,
-    },
-    {
-      label: "Top Up History",
-      href: "/top-up/history",
-      icon: <History />,
-    },
-    {
-      label: "Withdraw",
-      href: "/withdraw",
-      icon: <Banknote />,
-    },
-  ];
-
   return (
     <SidebarProvider>
       <AppSidebar userData={profile} />
       <main className="min-h-screen w-full bg-gray-100 flex flex-col">
-        <div className="flex justify-center py-8 px-4">
-          <div className="flex flex-wrap justify-center md:justify-between w-full max-w-5xl gap-4">
-            {dashboardRoutes.map((route, index) => (
-              <Link href={route.href} key={index} className="w-full sm:w-auto">
-                <Button
-                  size="lg"
-                  className="flex items-center justify-center w-full sm:w-auto px-4 py-2"
-                >
-                  {route.icon}
-                  <span className="ml-2">{route.label}</span>
-                </Button>
-              </Link>
-            ))}
-          </div>
-        </div>
+        <LayoutButton />
 
         {/* Children Content */}
         <div className="flex-grow">{children}</div>
