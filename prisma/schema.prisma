@@ -98,7 +98,7 @@ model alliance_earnings_table {
   alliance_olympus_earnings    Float    @default(0.0)
   alliance_ally_bounty         Float    @default(0.0)
   alliance_legion_bounty       Float    @default(0.0)
-  alliance_earnings_member_id  String   @db.Uuid
+  alliance_earnings_member_id  String   @db.Uuid @unique
 
   alliance_member_table            alliance_member_table @relation(fields: [alliance_earnings_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
 

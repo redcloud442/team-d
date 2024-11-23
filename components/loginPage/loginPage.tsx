@@ -1,13 +1,14 @@
 "use client";
 
-import { Alert } from "@/components/ui/alert"; // ShadCN Alert component
-import { Button } from "@/components/ui/button"; // ShadCN Button component
-import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card"; // ShadCN Card components
-import { Input } from "@/components/ui/input"; // ShadCN Input component
-import { Label } from "@/components/ui/label"; // ShadCN Label component
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { loginValidation } from "@/services/auth/auth";
+import { escapeFormData } from "@/utils/function";
+import { createClientSide } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Text from "../ui/text";
 
@@ -20,26 +21,32 @@ const LoginPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<FormData>();
-  const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClientSide();
+  const { toast } = useToast();
 
   const handleSignIn = async (data: FormData) => {
     try {
-      const { email, password } = data;
-      const { error } = await supabase.auth.signInWithPassword({
+      const sanitizedData = escapeFormData(data);
+
+      const { email, password } = sanitizedData;
+
+      const result = await loginValidation(supabase, {
         email,
         password,
       });
-      if (error) {
-        setErrorMessage(error.message);
-      } else {
-        router.push("/");
-      }
+
+      router.push(result);
     } catch (e) {
-      console.log(e);
+      const errorMessage =
+        e instanceof Error ? e.message : "An unexpected error occurred.";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   };
 
@@ -47,11 +54,6 @@ const LoginPage = () => {
     <Card className="w-[400px] mx-auto p-4 ">
       <CardTitle>Login Page</CardTitle>
       <CardContent className="p-4">
-        {errorMessage && (
-          <Alert className="mb-4" variant="destructive">
-            {errorMessage}
-          </Alert>
-        )}
         <form
           className="flex flex-col gap-4"
           onSubmit={handleSubmit(handleSignIn)}
@@ -94,7 +96,7 @@ const LoginPage = () => {
           <Button type="button" onClick={() => router.push("/auth/register")}>
             Sign up
           </Button>
-          <Button variant="secondary" type="submit">
+          <Button disabled={isSubmitting} variant="secondary" type="submit">
             Sign in
           </Button>
         </form>

@@ -16,7 +16,11 @@ export default async function AppLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { profile, redirect: redirectTo } = await protectionMemberUser();
+  const {
+    profile,
+    redirect: redirectTo,
+    teamMemberProfile,
+  } = await protectionMemberUser();
 
   if (redirectTo) {
     redirect(redirectTo);
@@ -25,9 +29,11 @@ export default async function AppLayout({
 
   return (
     <SidebarProvider>
-      <AppSidebar userData={profile} />
+      <AppSidebar userData={profile} teamMemberProfile={teamMemberProfile} />
       <main className="min-h-screen w-full bg-gray-100 flex flex-col">
-        <LayoutButton />
+        {teamMemberProfile.alliance_member_role === "MEMBER" && (
+          <LayoutButton />
+        )}
 
         {/* Children Content */}
         <div className="flex-grow">{children}</div>

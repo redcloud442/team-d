@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createTriggerUser } from "@/services/auth/auth";
-import { hashData, sanitizeData } from "@/utils/function";
+import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { RegisterFormData } from "@/utils/types";
 import Link from "next/link";
@@ -35,7 +35,8 @@ const RegisterPage = () => {
   const url = `${process.env.NEXT_PUBLIC_BASE_URL}${pathName}`;
 
   const handleRegistrationSubmit = async (data: RegisterFormData) => {
-    const sanitizedData = sanitizeData(data);
+    const sanitizedData = escapeFormData(data);
+
     const { email, password, confirmPassword } = sanitizedData;
 
     if (password !== confirmPassword) {
@@ -45,10 +46,9 @@ const RegisterPage = () => {
 
     try {
       setIsloading(true);
-      const hashedPassword = await hashData(password);
       await createTriggerUser(supabase, {
         email: email,
-        password: hashedPassword,
+        password: password,
         referalLink,
         url,
       });

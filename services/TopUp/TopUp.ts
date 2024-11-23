@@ -23,7 +23,7 @@ export const createTopUpRequest = async (params: {
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/top-up`,
     {
       method: "POST",
-      body: formData, // Use FormData instead of JSON
+      body: formData,
     }
   );
 

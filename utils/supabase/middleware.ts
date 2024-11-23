@@ -33,16 +33,14 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const publicRoutes = ["/auth/login", "/auth/register"];
+  const publicRoutes = ["/auth/login", "/auth/register", "/api/auth"];
   const privateRoutes = ["/"];
   const currentPath = request.nextUrl.pathname;
-
 
   if (!user) {
     if (publicRoutes.some((route) => currentPath.startsWith(route))) {
       return NextResponse.next();
     }
-
 
     if (privateRoutes.some((route) => currentPath.startsWith(route))) {
       const loginUrl = request.nextUrl.clone();

@@ -17,7 +17,7 @@ const Page = async () => {
   if (result?.redirect) {
     redirect("/");
   }
-  
+
   return (
     <main className="max-w-full min-h-screen flex flex-col items-center justify-center">
       <LoginPage />

@@ -44,7 +44,8 @@ export const protectionAdminUser = async () => {
     }
 
     return {
-      profile,
+      profile: profile as user_table,
+      teamMemberProfile: teamMember as alliance_member_table,
     };
   } catch (e) {
     console.error("Error in protectionAdminUser:", e);
@@ -73,10 +74,10 @@ export const protectionMemberUser = async () => {
 
     if (
       !teamMember?.alliance_member_alliance_id ||
-      (teamMember.alliance_member_role !== "ADMIN" &&
-        teamMember.alliance_member_role !== "MEMBER")
+      (teamMember.alliance_member_role !== "MEMBER" &&
+        teamMember.alliance_member_role !== "ADMIN")
     ) {
-      return { redirect: "/500" };
+      return { redirect: "/404" };
     }
     return {
       profile: profile as user_table,

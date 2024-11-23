@@ -8,6 +8,8 @@ INSERT INTO storage.buckets (id, name) VALUES ('REQUEST_ATTACHMENTS', 'REQUEST_A
 
 UPDATE storage.buckets SET public = true;
 
+
+
 CREATE OR REPLACE FUNCTION create_user_trigger(
   input_data JSON
 )
@@ -45,6 +47,11 @@ plv8.subtransaction(function() {
     RETURNING alliance_member_id
    `,['MEMBER','35f77cd9-636a-41fa-a346-9cb711e7a338',userId])[0].alliance_member_id;
 
+  plv8.execute(`
+    INSERT INTO alliance_schema.alliance_earnings_table
+    (alliance_earnings_member_id)
+    VALUES ($1)
+  `,[allianceData]);
 
   const insertReferalQuery = `
     INSERT INTO alliance_schema.alliance_referral_link_table (alliance_referral_link_id, alliance_referral_link, alliance_referral_link_member_id)
@@ -99,48 +106,78 @@ plv8.subtransaction(function() {
 $$ LANGUAGE plv8;
 
 
-CREATE OR REPLACE FUNCTION create_top_up_request(
+CREATE OR REPLACE FUNCTION get_admin_top_up_history(
   input_data JSON
 )
 RETURNS JSON
-SET search_path TO ''
 AS $$
-let returnData;
-
+let returnData = {
+    data:[],
+    totalCount:0
+};
 plv8.subtransaction(function() {
   const {
-    TopUpFormValues,
-    teamMemberId
+    page = 1,
+    limit = 13,
+    search = '',
+    teamMemberId,
+    teamId
   } = input_data;
 
-  if (!TopUpFormValues) {
-    throw new Error('TopUpFormValues is required');
+  const member = plv8.execute(`
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `, [teamMemberId]);
+
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
   }
 
-  const { amount, topUpMode, accountName, accountNumber, fileUrl } = TopUpFormValues;
+  const offset = (page - 1) * limit;
 
-  if (!amount || !topUpMode || !accountName || !accountNumber || !teamMemberId) {
-    throw new Error('All fields (amount, topUpMode, accountName, accountNumber, and teamMemberId) are required');
+  let searchCondition = '';
+  const params = [teamId, limit, offset];
+  if (search) {
+    searchCondition = 'AND u.user_email ILIKE $4';
+    params.push(`%${search}%`);
   }
 
   const topUpRequest = plv8.execute(`
-    INSERT INTO alliance_schema.alliance_top_up_request_table (
-      alliance_top_up_request_amount,
-      alliance_top_up_request_type,
-      alliance_top_up_request_name,
-      alliance_top_up_request_account,
-      alliance_top_up_request_attachment,
-      alliance_top_up_request_member_id
-    ) VALUES ($1, $2, $3, $4,$5,$6)
-    RETURNING alliance_top_up_request_id
-  `, [amount, topUpMode, accountName, accountNumber,fileUrl, teamMemberId]);
+    SELECT
+      u.user_first_name,
+      u.user_last_name,
+      u.user_email,
+      m.alliance_member_id
+    FROM alliance_schema.alliance_top_up_request_table t
+    JOIN alliance_schema.alliance_member_table m
+      ON t.alliance_top_up_request_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+      ON u.user_id = m.alliance_member_user_id
+    WHERE m.alliance_member_alliance_id = $1
+    ${searchCondition}
+    LIMIT $2 OFFSET $3
+  `, params);
 
-  returnData = {
-    success: true,
-  };
+    const totalCount = plv8.execute(`
+        SELECT
+            COUNT(*)
+        FROM alliance_schema.alliance_top_up_request_table t
+        JOIN alliance_schema.alliance_member_table m
+        ON t.alliance_top_up_request_member_id = m.alliance_member_id
+        JOIN user_schema.user_table u
+        ON u.user_id = m.alliance_member_user_id
+        WHERE m.alliance_member_alliance_id = $1
+        ${searchCondition}
+  `,[teamId])[0].count;
+
+  returnData.data = topUpRequest;
+  returnData.totalCount = Number(totalCount);
 });
 return returnData;
 $$ LANGUAGE plv8;
+
 
 
 

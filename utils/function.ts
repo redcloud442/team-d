@@ -82,3 +82,27 @@ export const applyRateLimit = async (teamMemberId: string) => {
 
   rateLimiter.set(teamMemberId, currentCount + 1);
 };
+
+export const loginRateLimit = (ip: string) => {
+  const currentCount = (rateLimiter.get(ip) as number) || 0;
+
+  if (currentCount >= 3) {
+    throw new Error("Too many requests. Please try again later.");
+  }
+
+  rateLimiter.set(ip, currentCount + 1);
+};
+
+export const formatDateToYYYYMMDD = (date: Date | string): string => {
+  const inputDate = typeof date === "string" ? new Date(date) : date;
+
+  if (isNaN(inputDate.getTime())) {
+    return "Invalid date"; // Handle invalid dates gracefully
+  }
+
+  const year = String(inputDate.getFullYear()); // Full year
+  const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+  const day = String(inputDate.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};

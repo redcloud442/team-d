@@ -13,24 +13,25 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const { profile, redirect: redirectTo } = await protectionMemberUser();
+  const { teamMemberProfile, redirect: redirectTo } =
+    await protectionMemberUser();
 
   if (redirectTo) {
     redirect(redirectTo);
   }
 
-  if (!profile) {
+  if (!teamMemberProfile) {
     redirect("/500");
   }
 
   const earnings = await prisma.alliance_earnings_table.findFirst({
     where: {
-      alliance_earnings_member_id: profile.user_id,
+      alliance_earnings_member_id: teamMemberProfile.alliance_member_id,
     },
   });
 
   const safeEarnings = earnings || {
-    alliance_earnings_member_id: profile.user_id,
+    alliance_earnings_member_id: teamMemberProfile.alliance_member_id,
     alliance_earnings_id: "",
     alliance_ally_bounty: 0,
     alliance_legion_bounty: 0,

@@ -16,7 +16,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { createClientSide } from "@/utils/supabase/client";
-import { user_table } from "@prisma/client";
+import { alliance_member_table, user_table } from "@prisma/client";
 import {
   BanknoteIcon,
   Calendar,
@@ -31,13 +31,20 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
 import NavigationLoader from "./NavigationLoader";
 
 type Props = {
   userData: user_table;
+  teamMemberProfile: alliance_member_table;
 };
 
-const items = [
+const menuItems = [
   { title: "Home", url: "/", icon: Home },
   {
     title: "Top Up",
@@ -64,11 +71,18 @@ const items = [
   { title: "Legion Bounty", url: "/legion-bounty", icon: Settings },
 ];
 
-const AppSidebar = ({ userData }: Props) => {
+const adminMenuItems = [
+  { title: "Admin Dashboard", url: "/admin", icon: Settings },
+  { title: "Manage Users", url: "/admin/users", icon: User2 },
+  { title: "Top Up History", url: "/admin/top-up", icon: HistoryIcon },
+];
+
+const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClientSide();
   const [isLoading, setIsLoading] = useState(false);
+  const isAdmin = teamMemberProfile.alliance_member_role === "ADMIN";
 
   const handleSignOut = async () => {
     try {
@@ -79,10 +93,6 @@ const AppSidebar = ({ userData }: Props) => {
     }
   };
 
-  useEffect(() => {
-    setIsLoading(false);
-  }, [pathname]);
-
   const handleNavigation = (url: string) => {
     if (pathname !== url) {
       setIsLoading(true);
@@ -91,6 +101,48 @@ const AppSidebar = ({ userData }: Props) => {
   };
 
   const isActive = (url: string) => pathname === url;
+
+  const renderMenu = (menu: typeof menuItems) =>
+    menu.map((item) => (
+      <SidebarMenuItem key={item.title}>
+        <SidebarMenuButton
+          size="lg"
+          onClick={() => handleNavigation(item.url)}
+          className={`flex items-center px-4 py-4 rounded-md ${
+            isActive(item.url)
+              ? "bg-blue-100 text-blue-500 font-bold"
+              : "hover:bg-gray-100 text-gray-800"
+          }`}
+        >
+          <item.icon className="w-5 h-5" />
+          <span>{item.title}</span>
+        </SidebarMenuButton>
+        {item.subItems && (
+          <SidebarMenuSub>
+            {item.subItems.map((subItem) => (
+              <SidebarMenuSubItem key={subItem.title}>
+                <SidebarMenuSubButton
+                  size="sm"
+                  onClick={() => handleNavigation(subItem.url)}
+                  className={`flex cursor-pointer items-center px-4 py-2 rounded-md ${
+                    isActive(subItem.url)
+                      ? "bg-blue-50 text-blue-500 font-semibold"
+                      : "hover:bg-gray-50 text-gray-700"
+                  }`}
+                >
+                  <subItem.icon className="w-4 h-4" />
+                  <span>{subItem.title}</span>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            ))}
+          </SidebarMenuSub>
+        )}
+      </SidebarMenuItem>
+    ));
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, [pathname]);
 
   return (
     <>
@@ -111,45 +163,9 @@ const AppSidebar = ({ userData }: Props) => {
             <SidebarGroupLabel>Application Menu</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      size="lg"
-                      onClick={() => handleNavigation(item.url)}
-                      className={`flex text-md items-center space-x-2 px-4 py-4 rounded-md ${
-                        isActive(item.url)
-                          ? "bg-blue-100 text-blue-500 font-bold"
-                          : "hover:bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      <span>{item.title}</span>
-                    </SidebarMenuButton>
-                    {item.subItems && (
-                      <SidebarMenuSub>
-                        {item.subItems.map((subItem) => (
-                          <SidebarMenuSubItem
-                            className="cursor-pointer"
-                            key={subItem.title}
-                          >
-                            <SidebarMenuSubButton
-                              size="md"
-                              onClick={() => handleNavigation(subItem.url)}
-                              className={`flex cursor-pointer text-md items-center space-x-2 px-4 py-2 rounded-md ${
-                                isActive(subItem.url)
-                                  ? "bg-blue-50 text-blue-500 font-semibold"
-                                  : "hover:bg-gray-50 text-gray-700"
-                              }`}
-                            >
-                              <subItem.icon className="w-4 h-4" />
-                              <span>{subItem.title}</span>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    )}
-                  </SidebarMenuItem>
-                ))}
+                <SidebarMenu>
+                  {renderMenu(isAdmin ? adminMenuItems : menuItems)}
+                </SidebarMenu>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -157,13 +173,22 @@ const AppSidebar = ({ userData }: Props) => {
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={handleSignOut}>
-                <div className="flex items-center space-x-2 w-full">
-                  <User2 className="w-5 h-5" />
-                  <span className="truncate">{userData.user_email}</span>
-                  <ChevronUp className="ml-auto w-4 h-4" />
-                </div>
-              </SidebarMenuButton>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton>
+                    <div className="flex items-center space-x-2 w-full">
+                      <User2 className="w-5 h-5" />
+                      <span className="truncate">{userData.user_email}</span>
+                      <ChevronUp className="ml-auto w-4 h-4" />
+                    </div>
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent side="top">
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <span>Log Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
