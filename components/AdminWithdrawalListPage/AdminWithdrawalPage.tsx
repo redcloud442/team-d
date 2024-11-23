@@ -1,12 +1,12 @@
 "use client";
 import { alliance_member_table } from "@prisma/client";
-import WithdrawalHistoryTable from "./WithdrawalHistoryTable";
+import AdminWithdrawalHistoryTable from "./AdminWithdrawalTable";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
 };
 
-const WithdrawalHistoryPage = ({ teamMemberProfile }: Props) => {
+const AdminWithdrawalHistoryPage = ({ teamMemberProfile }: Props) => {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header Section */}
@@ -15,8 +15,8 @@ const WithdrawalHistoryPage = ({ teamMemberProfile }: Props) => {
           Withdrawal History
         </h1>
         <p className="mt-2 text-gray-600">
-          View all your top-up transactions, including successful, processing,
-          and failed attempts.
+          View all your withdrawal transactions, including successful,
+          processing, and failed attempts.
         </p>
       </header>
 
@@ -25,10 +25,10 @@ const WithdrawalHistoryPage = ({ teamMemberProfile }: Props) => {
         <h2 className="text-xl font-bold text-gray-700 mb-4">
           Transaction List
         </h2>
-        <WithdrawalHistoryTable teamMemberProfile={teamMemberProfile} />
+        <AdminWithdrawalHistoryTable teamMemberProfile={teamMemberProfile} />
       </section>
     </div>
   );
 };
 
-export default WithdrawalHistoryPage;
+export default AdminWithdrawalHistoryPage;

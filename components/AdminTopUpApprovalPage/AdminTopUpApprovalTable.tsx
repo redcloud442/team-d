@@ -34,6 +34,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  RefreshCw,
   Search,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -145,8 +146,21 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
             placeholder="Filter emails..."
             className="max-w-sm p-2 border rounded"
           />
-          <Button disabled={isFetchingList} size="sm" variant="outline">
+          <Button
+            type="submit"
+            disabled={isFetchingList}
+            size="sm"
+            variant="outline"
+          >
             <Search />
+          </Button>
+          <Button
+            onClick={fetchAdminRequest}
+            disabled={isFetchingList}
+            size="sm"
+          >
+            <RefreshCw />
+            Refresh
           </Button>
         </form>
         <DropdownMenu>

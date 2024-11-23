@@ -10,10 +10,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
 import { escapeFormData } from "@/utils/function";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { alliance_earnings_table, alliance_member_table } from "@prisma/client";
+import { Loader } from "lucide-react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import * as z from "zod";
+
+type Props = {
+  teamMemberProfile: alliance_member_table;
+  earnings: alliance_earnings_table;
+};
 
 const withdrawalFormSchema = z.object({
   earnings: z.string(),
@@ -26,17 +35,21 @@ const withdrawalFormSchema = z.object({
   accountNumber: z.string().min(6, "Account number is required"),
 });
 
-type WithdrawalFormValues = z.infer<typeof withdrawalFormSchema>;
+export type WithdrawalFormValues = z.infer<typeof withdrawalFormSchema>;
 
 const bankData = ["GCASH", "MAYA", "GOTYME", "UNIONBANK", "BDO", "BPI"];
 
-const WithdrawalPage = () => {
+const WithdrawalPage = ({ teamMemberProfile, earnings }: Props) => {
+  const { toast } = useToast();
   const {
     control,
     handleSubmit,
     setValue,
-    formState: { errors },
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
   } = useForm<WithdrawalFormValues>({
+    mode: "onChange",
     resolver: zodResolver(withdrawalFormSchema),
     defaultValues: {
       earnings: "",
@@ -47,10 +60,53 @@ const WithdrawalPage = () => {
     },
   });
 
-  const onSubmit = (data: WithdrawalFormValues) => {
-    const sanitizedData = escapeFormData(data);
+  const selectedEarnings = useWatch({ control, name: "earnings" });
+  const amount = watch("amount");
 
-    console.log(sanitizedData);
+  const getMaxAmount = () => {
+    switch (selectedEarnings) {
+      case "TOTAL":
+        return earnings.alliance_olympus_earnings;
+      case "ALLY BOUNTY":
+        return earnings.alliance_ally_bounty;
+      case "LEGION BOUNTY":
+        return earnings.alliance_legion_bounty;
+      default:
+        return 0;
+    }
+  };
+
+  const validateAmount = () => {
+    const maxAmount = getMaxAmount();
+    if (parseFloat(amount || "0") > maxAmount) {
+      setValue("amount", maxAmount.toString());
+    }
+  };
+
+  const handleWithdrawalRequest = async (data: WithdrawalFormValues) => {
+    try {
+      const sanitizedData = escapeFormData(data);
+      await createWithdrawalRequest({
+        WithdrawFormValues: sanitizedData,
+        teamMemberId: teamMemberProfile.alliance_member_id,
+      });
+
+      toast({
+        title: "Top Up Successfully",
+        description: "Please wait for it to be approved",
+        variant: "success",
+      });
+
+      reset();
+    } catch (e) {
+      const errorMessage =
+        e instanceof Error ? e.message : "An unexpected error occurred.";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -63,7 +119,12 @@ const WithdrawalPage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form
+              onSubmit={handleSubmit(handleWithdrawalRequest)}
+              className="space-y-4"
+              onChange={validateAmount} // Validate whenever form changes
+            >
+              {/* Earnings Select */}
               <div>
                 <Label htmlFor="earnings">Earnings</Label>
                 <Controller
@@ -80,20 +141,27 @@ const WithdrawalPage = () => {
                         <SelectValue placeholder="SELECT EARNINGS" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="TOTAL">TOTAL</SelectItem>
-                        <SelectItem value="ALLY AND LEGION">
-                          ALLY AND LEGION
+                        <SelectItem value="TOTAL">
+                          TOTAL ({earnings.alliance_olympus_earnings})
+                        </SelectItem>
+                        <SelectItem value="ALLY BOUNT">
+                          ALLY ({earnings.alliance_ally_bounty})
+                        </SelectItem>
+                        <SelectItem value="LEGION BOUNTY">
+                          LEGION ({earnings.alliance_ally_bounty})
                         </SelectItem>
                       </SelectContent>
                     </Select>
                   )}
                 />
-                {errors.bank && (
+                {errors.earnings && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.bank.message}
+                    {errors.earnings.message}
                   </p>
                 )}
               </div>
+
+              {/* Bank Type Select */}
               <div>
                 <Label htmlFor="bank">Bank Type</Label>
                 <Controller
@@ -126,6 +194,7 @@ const WithdrawalPage = () => {
                 )}
               </div>
 
+              {/* Account Name */}
               <div>
                 <Label htmlFor="accountName">Account Name</Label>
                 <Controller
@@ -133,7 +202,7 @@ const WithdrawalPage = () => {
                   control={control}
                   render={({ field }) => (
                     <Input
-                      type="number"
+                      type="text"
                       id="accountName"
                       placeholder="Account Name"
                       {...field}
@@ -146,6 +215,8 @@ const WithdrawalPage = () => {
                   </p>
                 )}
               </div>
+
+              {/* Account Number */}
               <div>
                 <Label htmlFor="accountNumber">Account Number</Label>
                 <Controller
@@ -153,7 +224,7 @@ const WithdrawalPage = () => {
                   control={control}
                   render={({ field }) => (
                     <Input
-                      type="number"
+                      type="text"
                       id="accountNumber"
                       placeholder="Account Number"
                       {...field}
@@ -181,13 +252,27 @@ const WithdrawalPage = () => {
                         className="w-full flex-grow"
                         placeholder="Enter amount"
                         {...field}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+
+                          const numericValue = parseFloat(inputValue);
+                          const maxAmount = getMaxAmount();
+
+                          if (numericValue > maxAmount) {
+                            setValue("amount", maxAmount.toString());
+                          } else {
+                            field.onChange(inputValue);
+                          }
+                        }}
                       />
                     )}
                   />
                   <Button
                     type="button"
                     className="ml-2 bg-blue-500 text-white"
-                    onClick={() => setValue("amount", "MAX")}
+                    onClick={() =>
+                      setValue("amount", getMaxAmount().toString())
+                    }
                   >
                     MAX
                   </Button>
@@ -199,8 +284,14 @@ const WithdrawalPage = () => {
                 )}
               </div>
 
-              <Button type="submit" className="w-full ">
-                ENTER
+              <Button
+                disabled={
+                  isSubmitting || earnings.alliance_olympus_earnings === 0
+                }
+                type="submit"
+                className="w-full"
+              >
+                {isSubmitting && <Loader className="animate-spin" />} Submit
               </Button>
             </form>
           </CardContent>

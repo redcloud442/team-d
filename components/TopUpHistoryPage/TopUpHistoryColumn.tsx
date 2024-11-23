@@ -1,111 +1,133 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { formatDateToYYYYMMDD } from "@/utils/function";
+import { TopUpRequestData } from "@/utils/types";
+import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown, Copy } from "lucide-react";
+import { Badge } from "../ui/badge";
 
-export type Payment = {
-  id: string;
-  amount: number;
-  status: "pending" | "processing" | "success" | "failed";
-  email: string;
+const statusColorMap: Record<string, string> = {
+  APPROVED: "bg-green-500",
+  PENDING: "bg-yellow-600",
+  REJECTED: "bg-red-600",
 };
 
-export const TopUpHistoryColumn: ColumnDef<Payment>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
-    ),
-  },
-  {
-    accessorKey: "email",
-    header: ({ column }) => {
-      return (
+export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
+  return [
+    {
+      accessorKey: "alliance_top_up_request_id",
+      label: "Reference ID",
+      header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Email
-          <ArrowUpDown />
+          Reference ID <ArrowUpDown />
         </Button>
-      );
-    },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
+      ),
+      cell: ({ row }) => {
+        const id = row.getValue("alliance_top_up_request_id") as string;
+        const maxLength = 15;
 
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
+        const handleCopy = async () => {
+          if (id) {
+            await navigator.clipboard.writeText(id);
+          }
+        };
 
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+        return (
+          <div className="flex items-center space-x-2">
+            <div
+              className="truncate"
+              title={id.length > maxLength ? id : undefined}
             >
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+              {id.length > maxLength ? `${id.slice(0, maxLength)}...` : id}
+            </div>
+            {id && (
+              <Button variant="ghost" size="sm" onClick={handleCopy}>
+                <Copy />
+              </Button>
+            )}
+          </div>
+        );
+      },
     },
-  },
-];
+    {
+      accessorKey: "alliance_top_up_request_status",
+      label: "Status",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Status <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const status = row.getValue("alliance_top_up_request_status") as string;
+        const color = statusColorMap[status.toUpperCase()] || "gray"; // Default to gray if status is undefined
+        return <Badge className={`${color} text-white`}>{status}</Badge>;
+      },
+    },
+
+    {
+      accessorKey: "alliance_top_up_request_amount",
+      label: "Amount",
+      header: () => <Button variant="ghost">Amount</Button>,
+      cell: ({ row }) => {
+        const amount = parseFloat(
+          row.getValue("alliance_top_up_request_amount")
+        );
+        const formatted = new Intl.NumberFormat("en-PH", {
+          style: "currency",
+          currency: "PHP",
+        }).format(amount);
+        return <div className="font-medium text-center">{formatted}</div>;
+      },
+    },
+    {
+      accessorKey: "alliance_top_up_request_name",
+      label: "Bank Name",
+      header: () => (
+        <Button variant="ghost">
+          Bank Name <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.getValue("alliance_top_up_request_name")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "alliance_top_up_request_account",
+      label: "Bank Account",
+      header: () => (
+        <Button variant="ghost">
+          Bank Account <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.getValue("alliance_top_up_request_account")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "alliance_top_up_request_date",
+      label: "Date Created",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Date Created <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-center">
+          {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))}
+        </div>
+      ),
+    },
+  ];
+};

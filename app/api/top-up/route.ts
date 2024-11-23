@@ -6,6 +6,11 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
+    const ip =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("cf-connecting-ip") ||
+      "unknown";
+
     const supabase = await createClientServerSide();
 
     const formData = await request.formData();
@@ -33,7 +38,7 @@ export async function POST(request: Request) {
     }
     await protectionMemberUser();
 
-    await applyRateLimit(teamMemberId);
+    await applyRateLimit(teamMemberId, ip);
 
     const { error: uploadError } = await supabase.storage
       .from("REQUEST_ATTACHMENTS")

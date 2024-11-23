@@ -19,6 +19,7 @@ import { createClientSide } from "@/utils/supabase/client";
 import { alliance_member_table, user_table } from "@prisma/client";
 import {
   BanknoteIcon,
+  BeakerIcon,
   Calendar,
   ChevronDown,
   ChevronUp,
@@ -75,6 +76,7 @@ const adminMenuItems = [
   { title: "Admin Dashboard", url: "/admin", icon: Settings },
   { title: "Manage Users", url: "/admin/users", icon: User2 },
   { title: "Top Up History", url: "/admin/top-up", icon: HistoryIcon },
+  { title: "Withdrawal History", url: "/admin/withdrawal", icon: BeakerIcon },
 ];
 
 const AppSidebar = ({ userData, teamMemberProfile }: Props) => {

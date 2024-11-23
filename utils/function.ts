@@ -69,18 +69,27 @@ const rateLimiter = new LRUCache({
   ttl: 60 * 1000, // 1 minute time-to-live
 });
 
-export const applyRateLimit = async (teamMemberId: string) => {
+export const applyRateLimit = async (
+  teamMemberId: string,
+  ipAddress: string
+) => {
   if (!teamMemberId) {
     throw new Error("teamMemberId is required for rate limiting.");
   }
 
-  const currentCount = (rateLimiter.get(teamMemberId) as number) || 0;
+  if (!ipAddress) {
+    throw new Error("IP address is required for rate limiting.");
+  }
+
+  const rateLimitKey = `${teamMemberId}-${ipAddress}`;
+
+  const currentCount = (rateLimiter.get(rateLimitKey) as number) || 0;
 
   if (currentCount >= 5) {
     throw new Error("Too many requests. Please try again later.");
   }
 
-  rateLimiter.set(teamMemberId, currentCount + 1);
+  rateLimiter.set(rateLimitKey, currentCount + 1);
 };
 
 export const loginRateLimit = (ip: string) => {

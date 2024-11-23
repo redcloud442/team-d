@@ -8,6 +8,11 @@ export async function PUT(
   context: { params: Promise<{ requestId: string }> }
 ) {
   try {
+    const ip =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("cf-connecting-ip") ||
+      "unknown";
+
     const { requestId } = await context.params;
 
     if (!requestId) {
@@ -39,7 +44,7 @@ export async function PUT(
     }
 
     // Apply rate limiting
-    await applyRateLimit(teamMemberProfile?.alliance_member_id);
+    await applyRateLimit(teamMemberProfile?.alliance_member_id, ip);
 
     // Update top-up request status
     const allianceData = await prisma.alliance_top_up_request_table.update({

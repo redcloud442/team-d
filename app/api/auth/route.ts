@@ -1,4 +1,4 @@
-import { applyRateLimit } from "@/utils/function";
+import { loginRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma"; // Your Prisma instance
 import bcrypt from "bcrypt"; // Make sure to install bcrypt
 import { NextResponse } from "next/server";
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
       "unknown";
 
     if (ip) {
-      applyRateLimit(ip);
+      loginRateLimit(ip);
     } else {
       throw new Error("Unable to determine IP address for rate limiting.");
     }

@@ -9,7 +9,7 @@ const statusColorMap: Record<string, string> = {
   APPROVED: "bg-green-500",
 };
 
-export const WithdrawalHistoryColumn =
+export const AdminWithdrawalHistoryColumn =
   (): ColumnDef<WithdrawalRequestData>[] => {
     return [
       {
@@ -69,11 +69,32 @@ export const WithdrawalHistoryColumn =
           return <Badge className={`${color} text-white`}>{status}</Badge>;
         },
       },
-
+      {
+        accessorKey: "user_email",
+        label: "Requestor Email",
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Requestor Email <ArrowUpDown />
+          </Button>
+        ),
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("user_email")}</div>
+        ),
+      },
       {
         accessorKey: "alliance_withdrawal_request_amount",
         label: "Amount",
-        header: () => <Button variant="ghost">Amount</Button>,
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Amount <ArrowUpDown />
+          </Button>
+        ),
         cell: ({ row }) => {
           const amount = parseFloat(
             row.getValue("alliance_withdrawal_request_amount")
@@ -88,8 +109,11 @@ export const WithdrawalHistoryColumn =
       {
         accessorKey: "alliance_withdrawal_request_type",
         label: "Bank Name",
-        header: () => (
-          <Button variant="ghost">
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
             Bank Name <ArrowUpDown />
           </Button>
         ),
@@ -102,8 +126,11 @@ export const WithdrawalHistoryColumn =
       {
         accessorKey: "alliance_withdrawal_request_account",
         label: "Bank Account",
-        header: () => (
-          <Button variant="ghost">
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
             Bank Account <ArrowUpDown />
           </Button>
         ),

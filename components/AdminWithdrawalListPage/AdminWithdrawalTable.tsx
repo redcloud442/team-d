@@ -8,10 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getMemberTopUpRequest } from "@/services/TopUp/Member";
+import { getAdminWithdrawalRequest } from "@/services/Withdrawal/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { TopUpRequestData } from "@/utils/types";
+import { WithdrawalRequestData } from "@/utils/types";
 import { alliance_member_table } from "@prisma/client";
 import {
   DropdownMenu,
@@ -44,7 +44,7 @@ import { Card } from "../ui/card";
 import { Input } from "../ui/input";
 import { Separator } from "../ui/separator";
 import TableLoading from "../ui/tableLoading";
-import { TopUpHistoryColumn } from "./TopUpHistoryColumn";
+import { AdminWithdrawalHistoryColumn } from "./AdminWithdrawalColumn";
 
 type DataTableProps = {
   teamMemberProfile: alliance_member_table;
@@ -54,18 +54,18 @@ type FilterFormValues = {
   referenceId: string;
 };
 
-const TopUpHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
+const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   const supabaseClient = createClientSide();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [requestData, setRequestData] = useState<TopUpRequestData[]>([]);
+  const [requestData, setRequestData] = useState<WithdrawalRequestData[]>([]);
   const [requestCount, setRequestCount] = useState(0);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
 
-  const columnAccessor = sorting?.[0]?.id || "alliance_top_up_request_date";
+  const columnAccessor = sorting?.[0]?.id || "alliance_withdrawal_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
 
@@ -78,15 +78,18 @@ const TopUpHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const { referenceId } = sanitizedData;
 
-      const { data, totalCount } = await getMemberTopUpRequest(supabaseClient, {
-        teamId: teamMemberProfile.alliance_member_alliance_id,
-        teamMemberId: teamMemberProfile.alliance_member_id,
-        page: activePage,
-        limit: 10,
-        columnAccessor: columnAccessor,
-        isAscendingSort: isAscendingSort,
-        search: referenceId,
-      });
+      const { data, totalCount } = await getAdminWithdrawalRequest(
+        supabaseClient,
+        {
+          teamId: teamMemberProfile.alliance_member_alliance_id,
+          teamMemberId: teamMemberProfile.alliance_member_id,
+          page: activePage,
+          limit: 10,
+          columnAccessor: columnAccessor,
+          isAscendingSort: isAscendingSort,
+          search: referenceId,
+        }
+      );
 
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
@@ -105,7 +108,7 @@ const TopUpHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
     }
   };
 
-  const columns = TopUpHistoryColumn();
+  const columns = AdminWithdrawalHistoryColumn();
 
   const table = useReactTable({
     data: requestData,
@@ -273,4 +276,4 @@ const TopUpHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   );
 };
 
-export default TopUpHistoryTable;
+export default AdminWithdrawalHistoryTable;

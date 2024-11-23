@@ -178,8 +178,238 @@ plv8.subtransaction(function() {
 return returnData;
 $$ LANGUAGE plv8;
 
+CREATE OR REPLACE FUNCTION get_member_withdrawal_history(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+    data:[],
+    totalCount:0
+};
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 13,
+    search = '',
+    teamMemberId,
+    teamId,
+    columnAccessor,
+    isAscendingSort
+  } = input_data;
 
+  const member = plv8.execute(`
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `, [teamMemberId]);
 
+  if (!member.length || member[0].alliance_member_role !== 'MEMBER') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const offset = (page - 1) * limit;
+
+  const params = [teamId,teamMemberId, limit, offset];
+
+  const searchCondition = search ? `AND t.alliance_withdrawal_request_id = '${search}'`: "";
+  const sortBy = isAscendingSort ? "desc" : "asc";
+  const sortCondition = columnAccessor
+    ? `ORDER BY "${columnAccessor}" ${sortBy}`
+    : "";
+
+  const topUpRequest = plv8.execute(`
+    SELECT
+      u.user_first_name,
+      u.user_last_name,
+      u.user_email,
+      m.alliance_member_id,
+      t.*
+    FROM alliance_schema.alliance_withdrawal_request_table t
+    JOIN alliance_schema.alliance_member_table m
+      ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+      ON u.user_id = m.alliance_member_user_id
+    WHERE m.alliance_member_alliance_id = $1 AND
+    t.alliance_withdrawal_request_member_id = $2
+    ${searchCondition}
+    ${sortCondition}
+    LIMIT $3 OFFSET $4
+  `, params);
+
+    const totalCount = plv8.execute(`
+        SELECT
+            COUNT(*)
+        FROM alliance_schema.alliance_withdrawal_request_table t
+        JOIN alliance_schema.alliance_member_table m
+        ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
+        JOIN user_schema.user_table u
+        ON u.user_id = m.alliance_member_user_id
+        WHERE m.alliance_member_alliance_id = $1 AND
+        t.alliance_withdrawal_request_member_id = $2
+        ${searchCondition}
+  `,[teamId,teamMemberId])[0].count;
+
+  returnData.data = topUpRequest;
+  returnData.totalCount = Number(totalCount);
+});
+return returnData;
+$$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION get_admin_withdrawal_history(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+    data:[],
+    totalCount:0
+};
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 13,
+    search = '',
+    teamMemberId,
+    teamId,
+    columnAccessor,
+    isAscendingSort
+  } = input_data;
+
+  const member = plv8.execute(`
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `, [teamMemberId]);
+
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const offset = (page - 1) * limit;
+
+  const params = [teamId, limit, offset];
+
+  const searchCondition = search ? `AND t.alliance_withdrawal_request_id = '${search}'`: "";
+  const sortBy = isAscendingSort ? "desc" : "asc";
+  const sortCondition = columnAccessor
+    ? `ORDER BY "${columnAccessor}" ${sortBy}`
+    : "";
+
+  const topUpRequest = plv8.execute(`
+    SELECT
+      u.user_first_name,
+      u.user_last_name,
+      u.user_email,
+      m.alliance_member_id,
+      t.*
+    FROM alliance_schema.alliance_withdrawal_request_table t
+    JOIN alliance_schema.alliance_member_table m
+      ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+      ON u.user_id = m.alliance_member_user_id
+    WHERE m.alliance_member_alliance_id = $1
+    ${searchCondition}
+    ${sortCondition}
+    LIMIT $3 OFFSET $4
+  `, params);
+
+    const totalCount = plv8.execute(`
+        SELECT
+            COUNT(*)
+        FROM alliance_schema.alliance_withdrawal_request_table t
+        JOIN alliance_schema.alliance_member_table m
+        ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
+        JOIN user_schema.user_table u
+        ON u.user_id = m.alliance_member_user_id
+        WHERE m.alliance_member_alliance_id = $1
+        ${searchCondition}
+  `,[teamId])[0].count;
+
+  returnData.data = topUpRequest;
+  returnData.totalCount = Number(totalCount);
+});
+return returnData;
+$$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION get_admin_withdrawal_history(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+    data:[],
+    totalCount:0
+};
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 13,
+    search = '',
+    teamMemberId,
+    teamId,
+    columnAccessor,
+    isAscendingSort
+  } = input_data;
+
+  const member = plv8.execute(`
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `, [teamMemberId]);
+
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const offset = (page - 1) * limit;
+
+  const params = [teamId, limit, offset];
+
+  const searchCondition = search ? `AND t.alliance_withdrawal_request_id = '${search}'`: "";
+  const sortBy = isAscendingSort ? "desc" : "asc";
+  const sortCondition = columnAccessor
+    ? `ORDER BY "${columnAccessor}" ${sortBy}`
+    : "";
+
+  const topUpRequest = plv8.execute(`
+    SELECT
+      u.user_first_name,
+      u.user_last_name,
+      u.user_email,
+      m.alliance_member_id,
+      t.*
+    FROM alliance_schema.alliance_withdrawal_request_table t
+    JOIN alliance_schema.alliance_member_table m
+      ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+      ON u.user_id = m.alliance_member_user_id
+    WHERE m.alliance_member_alliance_id = $1
+    ${searchCondition}
+    ${sortCondition}
+    LIMIT $2 OFFSET $3
+  `, params);
+
+    const totalCount = plv8.execute(`
+        SELECT
+            COUNT(*)
+        FROM alliance_schema.alliance_withdrawal_request_table t
+        JOIN alliance_schema.alliance_member_table m
+        ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
+        JOIN user_schema.user_table u
+        ON u.user_id = m.alliance_member_user_id
+        WHERE m.alliance_member_alliance_id = $1
+        ${searchCondition}
+  `,[teamId])[0].count;
+
+  returnData.data = topUpRequest;
+  returnData.totalCount = Number(totalCount);
+});
+return returnData;
+$$ LANGUAGE plv8;
 
 GRANT ALL ON ALL TABLES IN SCHEMA user_schema TO PUBLIC;
 GRANT ALL ON ALL TABLES IN SCHEMA user_schema TO POSTGRES;
