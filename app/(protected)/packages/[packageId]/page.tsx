@@ -15,11 +15,17 @@ export const metadata: Metadata = {
 const Page = async ({ params }: { params: Promise<{ packageId: string }> }) => {
   const { packageId } = await params;
 
-  const result = await protectionMemberUser();
+  const {
+    redirect: redirectTo,
+    earnings,
+    teamMemberProfile,
+  } = await protectionMemberUser();
 
-  if (result.redirect) {
-    redirect(result.redirect);
+  if (redirectTo) {
+    redirect(redirectTo);
   }
+
+  if (!earnings) return redirect("/500");
 
   const pkg = await prisma.package_table.findUnique({
     where: {
@@ -31,7 +37,13 @@ const Page = async ({ params }: { params: Promise<{ packageId: string }> }) => {
     redirect("/");
   }
 
-  return <AvailPackagePage pkg={pkg} />;
+  return (
+    <AvailPackagePage
+      teamMemberProfile={teamMemberProfile}
+      pkg={pkg}
+      earnings={earnings}
+    />
+  );
 };
 
 export default Page;

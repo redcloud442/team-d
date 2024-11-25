@@ -7,7 +7,7 @@ CREATE POLICY buckets_policy ON storage.buckets FOR ALL TO PUBLIC USING (true) W
 INSERT INTO storage.buckets (id, name) VALUES ('REQUEST_ATTACHMENTS', 'REQUEST_ATTACHMENTS');
 
 UPDATE storage.buckets SET public = true;
-
+CREATE EXTENSION IF NOT EXISTS pg_cron;
 
 
 CREATE OR REPLACE FUNCTION create_user_trigger(
@@ -411,17 +411,188 @@ plv8.subtransaction(function() {
 return returnData;
 $$ LANGUAGE plv8;
 
-GRANT ALL ON ALL TABLES IN SCHEMA user_schema TO PUBLIC;
-GRANT ALL ON ALL TABLES IN SCHEMA user_schema TO POSTGRES;
-GRANT ALL ON SCHEMA user_schema TO postgres;
-GRANT ALL ON SCHEMA user_schema TO public;
+CREATE OR REPLACE FUNCTION get_total_earnings(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+    data:[],
+    totalCount:0
+};
+plv8.subtransaction(function() {
+  const {
+    teamMemberId,
+  } = input_data;
 
-GRANT ALL ON ALL TABLES IN SCHEMA alliance_schema TO PUBLIC;
-GRANT ALL ON ALL TABLES IN SCHEMA alliance_schema TO POSTGRES;
-GRANT ALL ON SCHEMA alliance_schema TO postgres;
-GRANT ALL ON SCHEMA alliance_schema TO public;
+  const member = plv8.execute(`
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `, [teamMemberId]);
 
-GRANT ALL ON ALL TABLES IN SCHEMA packages_schema TO PUBLIC;
-GRANT ALL ON ALL TABLES IN SCHEMA packages_schema TO POSTGRES;
-GRANT ALL ON SCHEMA packages_schema TO postgres;
-GRANT ALL ON SCHEMA packages_schema TO public;
+  if (!member.length || member[0].alliance_member_role !== 'MEMBER' || member[0].   alliance_member_role !== 'MERCHANT') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const earnings = plv8.execute(`
+    SELECT *
+    FROM alliance_earnings_table
+    WHERE alliance_earnings_member_id = $1
+  `,[teamMemberId]);
+
+});
+return returnData;
+$$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION get_admin_user_data(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+    data:[],
+    totalCount:0
+};
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 13,
+    search = '',
+    teamMemberId,
+    teamId,
+    columnAccessor,
+    isAscendingSort
+  } = input_data;
+
+  const member = plv8.execute(`
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `, [teamMemberId]);
+
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const offset = (page - 1) * limit;
+
+  const params = [teamId, limit, offset];
+
+  const searchCondition = search ? `AND t.u.user_email = '${search}'`: "";
+  const sortBy = isAscendingSort ? "desc" : "asc";
+  const sortCondition = columnAccessor
+    ? `ORDER BY "${columnAccessor}" ${sortBy}`
+    : "";
+
+  const userRequest = plv8.execute(`
+    SELECT
+      u.*,
+      m.*
+    FROM alliance_schema.alliance_member_table m
+    JOIN user_schema.user_table u
+      ON u.user_id = m.alliance_member_user_id
+    WHERE m.alliance_member_alliance_id = $1
+    ${searchCondition}
+    ${sortCondition}
+    LIMIT $2 OFFSET $3
+  `, params);
+
+    const totalCount = plv8.execute(`
+      SELECT
+        COUNT(*)
+      FROM alliance_schema.alliance_member_table m
+      JOIN user_schema.user_table u
+      ON u.user_id = m.alliance_member_user_id
+      WHERE m.alliance_member_alliance_id = $1
+      ${searchCondition}
+  `,[teamId])[0].count;
+
+  returnData.data = userRequest;
+  returnData.totalCount = Number(totalCount);
+});
+return returnData;
+$$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION update_earnings_based_on_packages()
+RETURNS void AS $$
+  var results = plv8.execute(`
+   SELECT
+  pmct.package_member_connection_id,
+  pmct.package_member_package_id,
+  pmct.package_member_member_id,
+  pmct.package_member_amount,
+  pmct.package_amount_earnings,
+  pmct.package_member_connection_created,
+  p.package_percentage,
+  p.packages_days
+    FROM packages_schema.package_member_connection_table pmct
+    JOIN packages_schema.package_table p
+    ON pmct.package_member_package_id = p.package_id
+    WHERE now() >= pmct.package_member_connection_created + (p.packages_days || ' days')::interval
+    AND pmct.package_member_status = 'ACTIVE';
+    `);
+
+  results.forEach(row => {
+    var earnings = row.package_member_amount + row.package_amount_earnings;
+    plv8.execute(`
+      UPDATE alliance_schema.alliance_earnings_table
+      SET alliance_olympus_earnings = alliance_olympus_earnings + $1
+      WHERE alliance_earnings_member_id = $2
+    `, [earnings, row.package_member_member_id]);
+
+    plv8.execute(`
+      UPDATE packages_schema.package_member_connection_table
+      SET package_member_status = 'ENDED'
+      WHERE package_member_connection_id = $1
+    `, [row.package_member_connection_id]);
+
+    plv8.execute(`
+      INSERT INTO packages_schema.package_earnings_log (
+        package_earnings_log_id,
+        package_member_connection_id,
+        package_member_package_id,
+        package_member_member_id,
+        package_member_connection_created,
+        package_member_amount,
+        package_member_amount_earnings,
+        package_member_status
+      ) VALUES (
+        uuid_generate_v4(), -- Generate a new UUID
+        $1, $2, $3, $4, $5,$6, 'ENDED'
+      )
+    `, [
+      row.package_member_connection_id,
+      row.package_member_package_id,
+      row.package_member_member_id,
+      row.package_member_connection_created,
+      row.package_member_amount,
+      row.package_amount_earnings
+    ]);
+  });
+$$ LANGUAGE plv8;
+
+SELECT cron.schedule(
+    'update_packages_job', -- Unique job name
+    '0 0,12 * * *',        -- Cron format: runs at 12 AM and 12 PM
+    $$SELECT public.update_earnings_based_on_packages()$$ -- Command to execute
+);
+
+
+
+    GRANT ALL ON ALL TABLES IN SCHEMA user_schema TO PUBLIC;
+    GRANT ALL ON ALL TABLES IN SCHEMA user_schema TO POSTGRES;
+    GRANT ALL ON SCHEMA user_schema TO postgres;
+    GRANT ALL ON SCHEMA user_schema TO public;
+
+    GRANT ALL ON ALL TABLES IN SCHEMA alliance_schema TO PUBLIC;
+    GRANT ALL ON ALL TABLES IN SCHEMA alliance_schema TO POSTGRES;
+    GRANT ALL ON SCHEMA alliance_schema TO postgres;
+    GRANT ALL ON SCHEMA alliance_schema TO public;
+
+    GRANT ALL ON ALL TABLES IN SCHEMA packages_schema TO PUBLIC;
+    GRANT ALL ON ALL TABLES IN SCHEMA packages_schema TO POSTGRES;
+    GRANT ALL ON SCHEMA packages_schema TO postgres;
+    GRANT ALL ON SCHEMA packages_schema TO public;

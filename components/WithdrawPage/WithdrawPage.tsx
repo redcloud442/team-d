@@ -26,10 +26,7 @@ type Props = {
 
 const withdrawalFormSchema = z.object({
   earnings: z.string(),
-  amount: z
-    .string()
-    .min(1, "Amount is required")
-    .regex(/^\d+$/, "Amount must be a number"),
+  amount: z.string().min(1, "Amount is required"),
   bank: z.string().min(1, "Please select a bank"),
   accountName: z.string().min(6, "Account name is required"),
   accountNumber: z.string().min(6, "Account number is required"),
@@ -142,7 +139,7 @@ const WithdrawalPage = ({ teamMemberProfile, earnings }: Props) => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="TOTAL">
-                          TOTAL ({earnings.alliance_olympus_earnings})
+                          TOTAL EARNINGS ({earnings.alliance_olympus_earnings})
                         </SelectItem>
                         <SelectItem value="ALLY BOUNT">
                           ALLY ({earnings.alliance_ally_bounty})

@@ -71,8 +71,7 @@ export async function PUT(
             allianceData.alliance_top_up_request_member_id,
         },
         data: {
-          alliance_olympus_earnings:
-            allianceData.alliance_top_up_request_amount,
+          alliance_olympus_wallet: allianceData.alliance_top_up_request_amount,
         },
       });
 

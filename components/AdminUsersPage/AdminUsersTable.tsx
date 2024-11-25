@@ -8,10 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAdminWithdrawalRequest } from "@/services/Withdrawal/Admin";
+import { getAdminUserRequest } from "@/services/User/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { WithdrawalRequestData } from "@/utils/types";
+import { UserRequestdata } from "@/utils/types";
 import { alliance_member_table } from "@prisma/client";
 import {
   DropdownMenu,
@@ -43,52 +43,50 @@ import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Input } from "../ui/input";
 import TableLoading from "../ui/tableLoading";
-import { AdminWithdrawalHistoryColumn } from "./AdminWithdrawalColumn";
+import { AdminUsersColumn } from "./AdminUsersColumn";
 
 type DataTableProps = {
   teamMemberProfile: alliance_member_table;
 };
 
 type FilterFormValues = {
-  referenceId: string;
+  emailFilter: string;
 };
 
-const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
+const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
   const supabaseClient = createClientSide();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [requestData, setRequestData] = useState<WithdrawalRequestData[]>([]);
+  const [requestData, setRequestData] = useState<UserRequestdata[]>([]);
   const [requestCount, setRequestCount] = useState(0);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
 
-  const columnAccessor = sorting?.[0]?.id || "alliance_withdrawal_request_date";
+  const columnAccessor = sorting?.[0]?.id || "user_date_created";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
 
-  const fetchRequest = async () => {
+  const fetchAdminRequest = async () => {
     try {
       if (!teamMemberProfile) return;
       setIsFetchingList(true);
 
       const sanitizedData = escapeFormData(getValues());
 
-      const { referenceId } = sanitizedData;
+      const { emailFilter } = sanitizedData;
 
-      const { data, totalCount } = await getAdminWithdrawalRequest(
-        supabaseClient,
-        {
-          teamId: teamMemberProfile.alliance_member_alliance_id,
-          teamMemberId: teamMemberProfile.alliance_member_id,
-          page: activePage,
-          limit: 10,
-          columnAccessor: columnAccessor,
-          isAscendingSort: isAscendingSort,
-          search: referenceId,
-        }
-      );
+      const { data, totalCount } = await getAdminUserRequest(supabaseClient, {
+        teamId: teamMemberProfile.alliance_member_alliance_id,
+        teamMemberId: teamMemberProfile.alliance_member_id,
+        page: activePage,
+        limit: 10,
+        columnAccessor: columnAccessor,
+        isAscendingSort: isAscendingSort,
+        search: emailFilter,
+      });
+      console.log(data);
 
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
@@ -101,13 +99,13 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const handleFilter = async () => {
     try {
-      await fetchRequest();
+      await fetchAdminRequest();
     } catch (e) {
       console.log(e);
     }
   };
 
-  const columns = AdminWithdrawalHistoryColumn();
+  const columns = AdminUsersColumn();
 
   const table = useReactTable({
     data: requestData,
@@ -129,12 +127,12 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const { register, handleSubmit, getValues } = useForm<FilterFormValues>({
     defaultValues: {
-      referenceId: "",
+      emailFilter: "",
     },
   });
 
   useEffect(() => {
-    fetchRequest();
+    fetchAdminRequest();
   }, [supabaseClient, teamMemberProfile, activePage, sorting]);
 
   const pageCount = Math.ceil(requestCount / 13);
@@ -144,8 +142,8 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
       <div className="flex items-center py-4">
         <form className="flex gap-2" onSubmit={handleSubmit(handleFilter)}>
           <Input
-            {...register("referenceId")}
-            placeholder="Filter reference id..."
+            {...register("emailFilter")}
+            placeholder="Filter emails..."
             className="max-w-sm p-2 border rounded"
           />
           <Button
@@ -156,7 +154,11 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
           >
             <Search />
           </Button>
-          <Button onClick={fetchRequest} disabled={isFetchingList} size="sm">
+          <Button
+            onClick={fetchAdminRequest}
+            disabled={isFetchingList}
+            size="sm"
+          >
             <RefreshCw />
             Refresh
           </Button>
@@ -238,6 +240,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
               </TableRow>
             )}
           </TableBody>
+
           <tfoot>
             <TableRow>
               <TableCell className="px-0" colSpan={columns.length}>
@@ -252,7 +255,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
         </Table>
       </div>
 
-      <div className="flex items-center justify-end gap-x-4 py-4">
+      <div className="flex items-center justify-end w-full gap-x-4 py-4 ">
         <Button
           variant="outline"
           size="sm"
@@ -286,4 +289,4 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   );
 };
 
-export default AdminWithdrawalHistoryTable;
+export default AdminUsersTable;

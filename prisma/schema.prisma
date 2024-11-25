@@ -52,6 +52,7 @@ model alliance_member_table {
 
   alliance_member_alliance_id     String    @db.Uuid
   alliance_member_user_id         String    @db.Uuid
+  alliance_member_restricted      Boolean   @default(false)
 
   user_table                      user_table            @relation(fields: [alliance_member_user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
   alliance_table                  alliance_table        @relation(fields: [alliance_member_alliance_id], references: [alliance_id], onDelete: Cascade, onUpdate: Cascade)
@@ -63,6 +64,7 @@ model alliance_member_table {
   alliance_top_up_request_table   alliance_top_up_request_table[] @relation("Requestor")
   approved_top_up_requests        alliance_top_up_request_table[] @relation("Approver")
   alliance_withdrawal_request_table alliance_withdrawal_request_table[] @relation("WithdrawalRequestor")
+  package_earnings_log package_earnings_log[]
   @@schema("alliance_schema")
 }
 
@@ -95,7 +97,9 @@ model alliance_referral_table {
 
 model alliance_earnings_table {
   alliance_earnings_id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  alliance_olympus_wallet      Float    @default(0.0)
   alliance_olympus_earnings    Float    @default(0.0)
+  alliance_olympus_loot        Float    @default(0.0)
   alliance_ally_bounty         Float    @default(0.0)
   alliance_legion_bounty       Float    @default(0.0)
   alliance_earnings_member_id  String   @db.Uuid @unique
@@ -151,17 +155,45 @@ model package_table {
   packages_days      Int
 
   package_member_connection_table package_member_connection_table[]
+  package_earnings_log package_earnings_log[]
   @@schema("packages_schema")
 
 }
 
-
 model package_member_connection_table {
-  package_member_connection_id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  package_member_connection_id         String   @id @default(uuid()) @db.Uuid
   package_member_package_id            String   @db.Uuid
   package_member_member_id             String   @db.Uuid
+  package_member_connection_created    DateTime @default(now())
+  package_member_amount                Float    @default(0.0)
+  package_amount_earnings              Float    @default(0.0)
+  package_member_status                String
 
-  package_table                           package_table              @relation(fields: [package_member_package_id], references: [package_id], onDelete: Cascade, onUpdate: Cascade)
-  alliance_member_table                   alliance_member_table              @relation(fields: [package_member_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
+  package_table       package_table       @relation(fields: [package_member_package_id], references: [package_id], onDelete: Cascade, onUpdate: Cascade)
+  alliance_member_table alliance_member_table @relation(fields: [package_member_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
+  package_earnings_log package_earnings_log[]
+
+
   @@schema("packages_schema")
+  @@index([package_member_package_id], name: "idx_package_member_package_id")
+  @@index([package_member_member_id], name: "idx_package_member_member_id")
+}
+
+model package_earnings_log {
+  package_earnings_log_id              String   @id @default(uuid()) @db.Uuid
+  package_member_connection_id         String   @db.Uuid
+  package_member_package_id            String   @db.Uuid
+  package_member_member_id             String   @db.Uuid
+  package_member_connection_created    DateTime @default(now())
+  package_member_amount                Float    @default(0.0)
+  package_member_amount_earnings       Float    @default(0.0)
+  package_member_status                String
+
+  package_table       package_table       @relation(fields: [package_member_package_id], references: [package_id], onDelete: Cascade, onUpdate: Cascade)
+  alliance_member_table alliance_member_table @relation(fields: [package_member_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
+  package_member_connection_table package_member_connection_table @relation(fields: [package_member_connection_id], references: [package_member_connection_id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("packages_schema")
+  @@index([package_member_package_id], name: "idx_package_earnings_package_id")
+  @@index([package_member_member_id], name: "idx_package_earnings_member_id")
 }

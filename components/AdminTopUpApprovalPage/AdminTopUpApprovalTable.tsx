@@ -42,7 +42,6 @@ import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Input } from "../ui/input";
-import { Separator } from "../ui/separator";
 import TableLoading from "../ui/tableLoading";
 import { useAdminTopUpApprovalColumns } from "./AdminTopUpApprovalColumn";
 
@@ -240,10 +239,21 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
               </TableRow>
             )}
           </TableBody>
+          <tfoot>
+            <TableRow>
+              <TableCell className="px-0" colSpan={columns.length}>
+                <div className="flex justify-between items-center border-t px-2 pt-2">
+                  <span className="text-sm text-gray-600">
+                    Showing {requestData.length} of {requestCount} entries
+                  </span>
+                </div>
+              </TableCell>
+            </TableRow>
+          </tfoot>
         </Table>
       </div>
-      <Separator />
-      <div className="flex items-center justify-between py-4">
+
+      <div className="flex items-center justify-end gap-x-4 py-4">
         <Button
           variant="outline"
           size="sm"

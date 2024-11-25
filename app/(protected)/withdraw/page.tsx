@@ -1,5 +1,4 @@
 import WithdrawalPage from "@/components/WithdrawPage/WithdrawPage";
-import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -12,20 +11,17 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const { redirect: redirectTo, teamMemberProfile } =
-    await protectionMemberUser();
+  const {
+    redirect: redirectTo,
+    teamMemberProfile,
+    earnings,
+  } = await protectionMemberUser();
 
   if (redirectTo) {
     redirect(redirectTo);
   }
 
   if (!teamMemberProfile) redirect("/500");
-
-  const earnings = await prisma.alliance_earnings_table.findUnique({
-    where: {
-      alliance_earnings_member_id: teamMemberProfile.alliance_member_id,
-    },
-  });
 
   if (!earnings) redirect("/500");
 

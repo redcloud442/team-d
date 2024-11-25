@@ -1,4 +1,8 @@
-import { alliance_member_table, user_table } from "@prisma/client";
+import {
+  alliance_earnings_table,
+  alliance_member_table,
+  user_table,
+} from "@prisma/client";
 import prisma from "./prisma";
 import { createClientServerSide } from "./supabase/server";
 
@@ -43,6 +47,10 @@ export const protectionAdminUser = async () => {
       return { redirect: "/500" };
     }
 
+    if (teamMember.alliance_member_restricted) {
+      return { redirect: "/500" };
+    }
+
     return {
       profile: profile as user_table,
       teamMemberProfile: teamMember as alliance_member_table,
@@ -79,9 +87,23 @@ export const protectionMemberUser = async () => {
     ) {
       return { redirect: "/404" };
     }
+
+    if (teamMember.alliance_member_restricted) {
+      return { redirect: "/500" };
+    }
+
+    const earnings = await prisma.alliance_earnings_table.findFirst({
+      where: { alliance_earnings_member_id: teamMember.alliance_member_id },
+    });
+
+    if (!earnings) {
+      return { redirect: "/404" };
+    }
+
     return {
       profile: profile as user_table,
       teamMemberProfile: teamMember as alliance_member_table,
+      earnings: earnings as alliance_earnings_table,
     };
   } catch (e) {
     console.log(e);
