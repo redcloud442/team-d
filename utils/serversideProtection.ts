@@ -1,6 +1,7 @@
 import {
   alliance_earnings_table,
   alliance_member_table,
+  alliance_referral_link_table,
   user_table,
 } from "@prisma/client";
 import prisma from "./prisma";
@@ -80,10 +81,17 @@ export const protectionMemberUser = async () => {
       where: { alliance_member_user_id: profile.user_id },
     });
 
+    const referal = await prisma.alliance_referral_link_table.findFirst({
+      where: {
+        alliance_referral_link_member_id: teamMember?.alliance_member_id,
+      },
+    });
+
     if (
       !teamMember?.alliance_member_alliance_id ||
       (teamMember.alliance_member_role !== "MEMBER" &&
-        teamMember.alliance_member_role !== "ADMIN")
+        teamMember.alliance_member_role !== "ADMIN" &&
+        teamMember.alliance_member_role !== "MERCHANT")
     ) {
       return { redirect: "/404" };
     }
@@ -104,6 +112,7 @@ export const protectionMemberUser = async () => {
       profile: profile as user_table,
       teamMemberProfile: teamMember as alliance_member_table,
       earnings: earnings as alliance_earnings_table,
+      referal: referal as alliance_referral_link_table,
     };
   } catch (e) {
     console.log(e);

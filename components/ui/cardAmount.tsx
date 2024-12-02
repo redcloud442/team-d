@@ -12,7 +12,7 @@ type Props = {
   value: number;
   description?: string;
   descriptionClassName?: string;
-  children?: React.ReactNode; // For dynamic content like charts or additional components
+  children?: React.ReactNode;
 };
 
 const CardAmount = ({
@@ -23,7 +23,7 @@ const CardAmount = ({
   children,
 }: Props) => {
   return (
-    <Card className="w-full sm:max-w-lg">
+    <Card className="w-full md:max-w-lg">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription className="flex gap-x-2 text-xl font-bold">

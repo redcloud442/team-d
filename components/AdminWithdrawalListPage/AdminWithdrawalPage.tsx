@@ -8,25 +8,20 @@ type Props = {
 
 const AdminWithdrawalHistoryPage = ({ teamMemberProfile }: Props) => {
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header Section */}
-      <header className="text-center mb-8">
-        <h1 className="scroll-m-20 text-3xl font-extrabold tracking-tight lg:text-4xl">
-          Withdrawal History
-        </h1>
-        <p className="mt-2 text-gray-600">
-          View all your withdrawal transactions, including successful,
-          processing, and failed attempts.
-        </p>
-      </header>
+    <div className="Container">
+      <div>
+        <header className="mb-4">
+          <h1 className="Title">Withdrawal History List Page</h1>
+          <p className="text-gray-600">
+            View all the withdrawal history that are currently in the system.
+          </p>
+        </header>
 
-      {/* Table Section */}
-      <section className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-bold text-gray-700 mb-4">
-          Transaction List
-        </h2>
-        <AdminWithdrawalHistoryTable teamMemberProfile={teamMemberProfile} />
-      </section>
+        {/* Table Section */}
+        <section className="bg-white rounded-lg shadow-md p-6">
+          <AdminWithdrawalHistoryTable teamMemberProfile={teamMemberProfile} />
+        </section>
+      </div>
     </div>
   );
 };

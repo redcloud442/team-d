@@ -107,8 +107,9 @@ const WithdrawalPage = ({ teamMemberProfile, earnings }: Props) => {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen ">
-      <div className="w-full max-w-md px-4">
+    <div className="Container">
+      <div className="w-full max-w-3xl px-4">
+        <h1 className="Title">Withdrawal Page</h1>
         <Card>
           <CardHeader>
             <CardTitle className="text-center scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-3xl">

@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,13 +22,15 @@ import { createTopUpRequest } from "@/services/TopUp/TopUp";
 import { escapeFormData } from "@/utils/function";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table } from "@prisma/client";
-import { Loader } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 import FileUpload from "../ui/dropZone";
+
 type Props = {
   teamMemberProfile: alliance_member_table;
 };
+
 const topUpFormSchema = z.object({
   amount: z
     .string()
@@ -79,7 +82,7 @@ const TopUpPage = ({ teamMemberProfile }: Props) => {
 
       toast({
         title: "Top Up Successfully",
-        description: "Please wait for it to be approved",
+        description: "Please wait for it to be approved.",
         variant: "success",
       });
 
@@ -106,16 +109,18 @@ const TopUpPage = ({ teamMemberProfile }: Props) => {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen">
-      <div className="w-full max-w-md px-4">
+    <div className="container mx-auto px-4 py-8">
+      <div className="w-full max-w-3xl mx-auto">
+        <h1 className="Title">Top Up Page</h1>
         <Card>
           <CardHeader>
-            <CardTitle className="text-center scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-3xl">
+            <CardTitle className="text-center text-3xl font-bold tracking-tight">
               REGENERATE
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {/* Amount Field */}
               <div>
                 <Label htmlFor="amount">Enter Amount</Label>
                 <Controller
@@ -125,8 +130,9 @@ const TopUpPage = ({ teamMemberProfile }: Props) => {
                     <Input
                       type="number"
                       id="amount"
-                      placeholder="Enter amount"
+                      placeholder="Enter the top-up amount (e.g., 1000)"
                       {...field}
+                      autoFocus
                     />
                   )}
                 />
@@ -137,6 +143,7 @@ const TopUpPage = ({ teamMemberProfile }: Props) => {
                 )}
               </div>
 
+              {/* Top-Up Mode */}
               <div>
                 <Label htmlFor="topUpMode">Select Top Up Mode</Label>
                 <Controller
@@ -151,7 +158,7 @@ const TopUpPage = ({ teamMemberProfile }: Props) => {
                       value={field.value}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Top Up Mode" />
+                        <SelectValue placeholder="Select top-up mode" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="GCASH">GCASH</SelectItem>
@@ -178,7 +185,7 @@ const TopUpPage = ({ teamMemberProfile }: Props) => {
                       <Input
                         readOnly
                         id="accountName"
-                        placeholder="Name"
+                        placeholder="Account Name"
                         {...field}
                       />
                     )}
@@ -198,7 +205,7 @@ const TopUpPage = ({ teamMemberProfile }: Props) => {
                       <Input
                         readOnly
                         id="accountNumber"
-                        placeholder="Account number"
+                        placeholder="Account Number"
                         {...field}
                       />
                     )}
@@ -211,13 +218,14 @@ const TopUpPage = ({ teamMemberProfile }: Props) => {
                 </div>
               </div>
 
+              {/* File Upload */}
               <div>
                 <Controller
                   name="file"
                   control={control}
                   render={({ field }) => (
                     <FileUpload
-                      label="Upload File"
+                      label="Upload Proof of Payment"
                       onFileChange={(file) => field.onChange(file)}
                     />
                   )}
@@ -228,12 +236,15 @@ const TopUpPage = ({ teamMemberProfile }: Props) => {
                   </p>
                 )}
               </div>
+
+              {/* Submit Button */}
               <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting && <Loader />} Submit
+                {isSubmitting ? <Loader2 className="animate-spin" /> : null}{" "}
+                Submit
               </Button>
             </form>
           </CardContent>
-          <CardFooter></CardFooter>
+          <CardFooter />
         </Card>
       </div>
     </div>

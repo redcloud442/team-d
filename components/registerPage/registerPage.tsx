@@ -1,35 +1,66 @@
 "use client";
 
-import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import { createTriggerUser } from "@/services/auth/auth";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { RegisterFormData } from "@/utils/types";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import NavigationLoader from "../ui/NavigationLoader";
 import Text from "../ui/text";
+
+// Zod Schema for validation
+const RegisterSchema = z
+  .object({
+    firstName: z
+      .string()
+      .min(1, "First name is required")
+      .max(50, "First name must be less than 50 characters"),
+    lastName: z
+      .string()
+      .min(1, "Last name is required")
+      .max(50, "Last name must be less than 50 characters"),
+    email: z.string().email("Enter a valid email"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z
+      .string()
+      .min(6, "Confirm Password must be at least 6 characters"),
+  })
+  .superRefine(({ confirmPassword, password }, ctx) => {
+    if (confirmPassword !== password) {
+      ctx.addIssue({
+        code: "custom",
+        message: "The passwords did not match",
+        path: ["confirmPassword"],
+      });
+    }
+  });
+
+type RegisterFormData = z.infer<typeof RegisterSchema>;
 
 const RegisterPage = () => {
   const {
     register,
     handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<RegisterFormData>();
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(RegisterSchema),
+  });
   const supabase = createClientSide();
   const router = useRouter();
   const pathName = usePathname();
   const searchParams = useSearchParams();
-
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [isLoading, setIsloading] = useState(false);
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const referalLink = searchParams.get("referalLink") as string;
   const url = `${process.env.NEXT_PUBLIC_BASE_URL}${pathName}`;
@@ -37,56 +68,72 @@ const RegisterPage = () => {
   const handleRegistrationSubmit = async (data: RegisterFormData) => {
     const sanitizedData = escapeFormData(data);
 
-    const { email, password, confirmPassword } = sanitizedData;
-
-    if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match!");
-      return;
-    }
+    const { email, password, firstName, lastName } = sanitizedData;
 
     try {
-      setIsloading(true);
       await createTriggerUser(supabase, {
         email: email,
         password: password,
+        firstName,
+        lastName,
         referalLink,
         url,
       });
-
-      setSuccessMessage("Registration successful!");
-      setErrorMessage(null);
+      setIsSuccess(true);
+      toast({
+        title: "Registration Successful",
+        variant: "success",
+      });
       router.push("/");
     } catch (e) {
-      console.log(e);
-
-      setErrorMessage("An error occurred during registration.");
-    } finally {
-      setIsloading(false);
+      setIsSuccess(false);
+      const errorMessage =
+        e instanceof Error ? e.message : "An unexpected error occurred.";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <Card className="w-[400px] mx-auto p-4 ">
+    <Card className="w-[400px] mx-auto p-4">
+      <NavigationLoader visible={isSubmitting || isSuccess} />
       <CardTitle>Register</CardTitle>
       <CardContent className="p-4">
-        {errorMessage && <Alert variant="destructive">{errorMessage}</Alert>}
-        {successMessage && <Alert>{successMessage}</Alert>}
         <form
           className="flex flex-col gap-4"
           onSubmit={handleSubmit(handleRegistrationSubmit)}
         >
           <div>
+            <Label htmlFor="firstName">First Name</Label>
+            <Input
+              id="firstName"
+              placeholder="Enter your first name"
+              {...register("firstName")}
+            />
+            {errors.firstName && (
+              <p className="text-sm text-red-500">{errors.firstName.message}</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="lastName">Last Name</Label>
+            <Input
+              id="lastName"
+              placeholder="Enter your last name"
+              {...register("lastName")}
+            />
+            {errors.lastName && (
+              <p className="text-sm text-red-500">{errors.lastName.message}</p>
+            )}
+          </div>
+          <div>
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               placeholder="Enter your email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Enter a valid email",
-                },
-              })}
+              {...register("email")}
             />
             {errors.email && (
               <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -98,13 +145,7 @@ const RegisterPage = () => {
               id="password"
               type="password"
               placeholder="Enter your password"
-              {...register("password", {
-                required: "Password is required",
-                minLength: {
-                  value: 6,
-                  message: "Password must be at least 6 characters long",
-                },
-              })}
+              {...register("password")}
             />
             {errors.password && (
               <p className="text-sm text-red-500">{errors.password.message}</p>
@@ -116,11 +157,7 @@ const RegisterPage = () => {
               id="confirmPassword"
               type="password"
               placeholder="Confirm your password"
-              {...register("confirmPassword", {
-                required: "Please confirm your password",
-                validate: (value) =>
-                  value === watch("password") || "Passwords do not match",
-              })}
+              {...register("confirmPassword")}
             />
             {errors.confirmPassword && (
               <p className="text-sm text-red-500">
@@ -128,8 +165,8 @@ const RegisterPage = () => {
               </p>
             )}
           </div>
-          <Button disabled={isLoading} type="submit">
-            Register
+          <Button disabled={isSubmitting || isSuccess} type="submit">
+            {isLoading ? "Registering..." : "Register"}
           </Button>
         </form>
       </CardContent>

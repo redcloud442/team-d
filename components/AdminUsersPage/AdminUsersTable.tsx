@@ -1,5 +1,6 @@
 "use client";
 
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -18,6 +19,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
+  Label,
 } from "@radix-ui/react-dropdown-menu";
 import {
   ColumnFiltersState,
@@ -51,6 +53,8 @@ type DataTableProps = {
 
 type FilterFormValues = {
   emailFilter: string;
+  userRestricted?: string;
+  userRole?: string;
 };
 
 const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
@@ -63,6 +67,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
   const [requestCount, setRequestCount] = useState(0);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const columnAccessor = sorting?.[0]?.id || "user_date_created";
   const isAscendingSort =
@@ -86,7 +91,6 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
         isAscendingSort: isAscendingSort,
         search: emailFilter,
       });
-      console.log(data);
 
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
@@ -105,7 +109,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
     }
   };
 
-  const columns = AdminUsersColumn();
+  const columns = AdminUsersColumn(fetchAdminRequest);
 
   const table = useReactTable({
     data: requestData,
@@ -125,11 +129,12 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
     },
   });
 
-  const { register, handleSubmit, getValues } = useForm<FilterFormValues>({
-    defaultValues: {
-      emailFilter: "",
-    },
-  });
+  const { register, control, handleSubmit, getValues } =
+    useForm<FilterFormValues>({
+      defaultValues: {
+        emailFilter: "",
+      },
+    });
 
   useEffect(() => {
     fetchAdminRequest();
@@ -140,7 +145,10 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
   return (
     <Card className="w-full rounded-sm p-4">
       <div className="flex items-center py-4">
-        <form className="flex gap-2" onSubmit={handleSubmit(handleFilter)}>
+        <form
+          className="flex items-center gap-2"
+          onSubmit={handleSubmit(handleFilter)}
+        >
           <Input
             {...register("emailFilter")}
             placeholder="Filter emails..."
@@ -162,6 +170,13 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
             <RefreshCw />
             Refresh
           </Button>
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={isFilterOpen}
+              onCheckedChange={(checked) => setIsFilterOpen(checked)}
+            />
+            <Label>Filter</Label>
+          </div>
         </form>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -192,6 +207,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
       <div className="rounded-md border">
         {isFetchingList && <TableLoading />}
         <Table>

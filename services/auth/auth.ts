@@ -1,16 +1,18 @@
-import { hashData } from "@/utils/function";
+import { decryptData, hashData } from "@/utils/function";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const createTriggerUser = async (
   supabaseClient: SupabaseClient,
   params: {
     email: string;
+    firstName: string;
+    lastName: string;
     password: string;
     referalLink?: string;
     url: string;
   }
 ) => {
-  const { email, password, referalLink, url } = params;
+  const { email, password, referalLink, url, firstName, lastName } = params;
 
   const { data: userData, error: userError } = await supabaseClient.auth.signUp(
     { email, password }
@@ -18,13 +20,16 @@ export const createTriggerUser = async (
 
   if (userError) throw userError;
 
-  const hashedPassword = await hashData(password);
+  const { iv, encryptedData } = await hashData(password);
 
   const userParams = {
     email,
-    password: hashedPassword,
+    password: encryptedData,
     userId: userData.user?.id,
+    firstName,
+    lastName,
     referalLink,
+    iv,
     url,
   };
 
@@ -42,9 +47,11 @@ export const loginValidation = async (
   params: {
     email: string;
     password: string;
+    role?: string;
+    iv?: string;
   }
 ) => {
-  const { email, password } = params;
+  const { email, password, role, iv } = params;
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth`, {
     method: "POST",
@@ -69,12 +76,69 @@ export const loginValidation = async (
 
   const result = await response.json();
 
-  const { error: signInError } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password,
-  });
+  if (role === "ADMIN") {
+    await supabaseClient.auth.signOut();
+    const decryptedPassword = await decryptData(password, iv ?? "");
+    console.log(decryptedPassword);
 
-  if (signInError) throw signInError;
+    const { error: signInError } = await supabaseClient.auth.signInWithPassword(
+      {
+        email,
+        password: decryptedPassword,
+      }
+    );
+    if (signInError) throw signInError;
+  } else {
+    const { error: signInError } = await supabaseClient.auth.signInWithPassword(
+      {
+        email,
+        password,
+      }
+    );
+    if (signInError) throw signInError;
+  }
 
   return result.redirect || "/";
+};
+
+export const changeUserPassword = async (params: {
+  email: string;
+  userId: string;
+  password: string;
+}) => {
+  const { email, password, userId } = params;
+
+  const { iv, encryptedData } = await hashData(password);
+
+  const inputData = {
+    email,
+    password: encryptedData,
+    iv,
+  };
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/` + userId,
+    {
+      method: "PUT",
+      body: JSON.stringify(inputData),
+    }
+  );
+  if (!response.ok) {
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("text/html")) {
+      throw new Error("Unexpected HTML response from the server.");
+    }
+
+    try {
+      await response.json();
+    } catch (e) {
+      throw new Error("An unexpected error occurred.");
+    }
+  }
+
+  const result = await response.json();
+
+  if (!result) throw new Error();
+
+  return result;
 };

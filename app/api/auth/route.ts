@@ -1,13 +1,12 @@
-import { loginRateLimit } from "@/utils/function";
+import { decryptData, loginRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma"; // Your Prisma instance
-import bcrypt from "bcrypt"; // Ensure bcrypt is installed
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     // Extract and validate IP address
     const ip =
-      request.headers.get("x-forwarded-for") ||
+      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
       request.headers.get("cf-connecting-ip") ||
       "unknown";
 
@@ -18,10 +17,9 @@ export async function POST(request: Request) {
       );
     }
 
-    loginRateLimit(ip); // Rate limit by IP
+    loginRateLimit(ip);
 
-    // Parse and validate request body
-    const { email, password } = await request.json();
+    const { email, password, role = "MEMBER" } = await request.json();
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required." },
@@ -39,17 +37,39 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!user || !(await bcrypt.compare(password, user.user_password))) {
-      return NextResponse.json(
-        { error: "Invalid email or password." },
-        { status: 401 }
-      );
+    if (!user) {
+      return NextResponse.json({ error: "Invalid email." }, { status: 401 });
     }
 
     // Fetch team member profile
     const teamMemberProfile = await prisma.alliance_member_table.findFirst({
       where: { alliance_member_user_id: user.user_id },
     });
+
+    if (role === "MEMBER") {
+      const decryptedPassword = await decryptData(
+        user.user_password,
+        user.user_iv ?? ""
+      );
+
+      if (decryptedPassword !== password) {
+        return NextResponse.json(
+          { error: "Password Incorrect" },
+          { status: 401 }
+        );
+      }
+    } else if (role === "ADMIN") {
+      const decryptedPassword = await decryptData(password, user.user_iv ?? "");
+
+      const decryptedPassword2 = await decryptData(
+        user.user_password,
+        user.user_iv ?? ""
+      );
+
+      if (decryptedPassword !== decryptedPassword2) {
+        return NextResponse.json({ error: "Password." }, { status: 401 });
+      }
+    }
 
     if (!teamMemberProfile) {
       return NextResponse.json(
@@ -69,7 +89,15 @@ export async function POST(request: Request) {
       );
     }
 
-    // Determine redirect based on user role
+    await prisma.$transaction([
+      prisma.user_history_log.create({
+        data: {
+          user_ip_address: ip,
+          user_history_user_id: user.user_id,
+        },
+      }),
+    ]);
+
     const redirects: Record<string, string> = {
       MEMBER: "/",
       ADMIN: "/admin",

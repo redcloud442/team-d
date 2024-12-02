@@ -33,10 +33,17 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const publicRoutes = ["/auth/login", "/auth/register", "/api/auth"];
-  const privateRoutes = ["/"];
+  const publicRoutes = ["/auth/login", "/auth/register"];
+  const privateRoutes = ["/", "/dashboard"];
+  const openRoutes = ["/api/auth"]; // Open to both authenticated and unauthenticated users
   const currentPath = request.nextUrl.pathname;
 
+  // Always allow openRoutes
+  if (openRoutes.some((route) => currentPath.startsWith(route))) {
+    return NextResponse.next();
+  }
+
+  // Handle unauthenticated users
   if (!user) {
     if (publicRoutes.some((route) => currentPath.startsWith(route))) {
       return NextResponse.next();
@@ -49,9 +56,8 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Logic for authenticated users
+  // Handle authenticated users
   if (user) {
-    // Redirect authenticated users away from public routes
     if (publicRoutes.some((route) => currentPath.startsWith(route))) {
       const homeUrl = request.nextUrl.clone();
       homeUrl.pathname = "/";

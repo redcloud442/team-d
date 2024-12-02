@@ -1,6 +1,6 @@
 import LayoutButton from "@/components/ui/LayoutButton";
 import AppSidebar from "@/components/ui/side-bar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -30,10 +30,14 @@ export default async function AppLayout({
   return (
     <SidebarProvider>
       <AppSidebar userData={profile} teamMemberProfile={teamMemberProfile} />
-      <main className="min-h-screen w-full bg-gray-100 flex flex-col">
-        {teamMemberProfile.alliance_member_role === "MEMBER" && (
-          <LayoutButton />
-        )}
+      <main className="min-h-screen h-full w-full bg-gray-100 flex flex-col mb-10 md:mb-0">
+        <div className="block md:hidden">
+          <SidebarTrigger />
+        </div>
+        {teamMemberProfile.alliance_member_role === "MEMBER" ||
+          (teamMemberProfile.alliance_member_role === "MERCHANT" && (
+            <LayoutButton />
+          ))}
 
         {/* Children Content */}
         <div className="flex-grow">{children}</div>

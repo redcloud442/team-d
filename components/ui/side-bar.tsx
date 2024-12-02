@@ -23,15 +23,16 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
+  Group,
   HistoryIcon,
   Home,
   Inbox,
-  Search,
+  PiggyBankIcon,
   Settings,
   User2,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,55 +46,80 @@ type Props = {
   teamMemberProfile: alliance_member_table;
 };
 
-const menuItems = [
-  { title: "Home", url: "/", icon: Home },
-  {
-    title: "Top Up",
-    url: "/top-up",
-    icon: Inbox,
-    subItems: [
-      { icon: HistoryIcon, title: "Top Up History", url: "/top-up/history" },
-    ],
-  },
-  { title: "Packages", url: "/packages", icon: Calendar },
-  {
-    title: "Withdraw",
-    url: "/withdraw",
-    icon: Search,
-    subItems: [
-      {
-        icon: BanknoteIcon,
-        title: "Withdrawal History",
-        url: "/withdraw/history",
-      },
-    ],
-  },
-  { title: "Ally Bounty", url: "/ally-bounty", icon: Settings },
-  { title: "Legion Bounty", url: "/legion-bounty", icon: Settings },
-];
-
-const adminMenuItems = [
-  { title: "Admin Dashboard", url: "/admin", icon: Settings },
-  { title: "Manage Users", url: "/admin/users", icon: User2 },
-  { title: "Top Up History", url: "/admin/top-up", icon: HistoryIcon },
-  { title: "Withdrawal History", url: "/admin/withdrawal", icon: BeakerIcon },
-];
-
 const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClientSide();
-  const [isLoading, setIsLoading] = useState(false);
-  const isAdmin = teamMemberProfile.alliance_member_role === "ADMIN";
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(
+    teamMemberProfile.alliance_member_role === "ADMIN"
+  );
 
   const handleSignOut = async () => {
     try {
+      setIsLoading(true);
       await supabase.auth.signOut();
       router.refresh();
     } catch (e) {
       console.error(e);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  const menuItems = useMemo(() => {
+    const baseItems = [
+      { title: "Home", url: "/", icon: Home },
+      {
+        title: "Top Up",
+        url: "/top-up",
+        icon: Inbox,
+        subItems: [
+          {
+            icon: HistoryIcon,
+            title: "Top Up History",
+            url: "/top-up/history",
+          },
+        ],
+      },
+      { title: "Packages", url: "/packages", icon: Calendar },
+      {
+        title: "Withdraw",
+        url: "/withdraw",
+        icon: PiggyBankIcon,
+        subItems: [
+          {
+            icon: BanknoteIcon,
+            title: "Withdrawal History",
+            url: "/withdraw/history",
+          },
+        ],
+      },
+      { title: "Ally Bounty", url: "/ally-bounty", icon: User2 },
+      { title: "Legion Bounty", url: "/legion-bounty", icon: Group },
+    ];
+
+    if (teamMemberProfile.alliance_member_role === "MERCHANT") {
+      baseItems.push({
+        title: "Top Up History",
+        url: "/admin/top-up",
+        icon: HistoryIcon,
+      });
+    }
+
+    return baseItems;
+  }, [teamMemberProfile.alliance_member_role]);
+
+  const adminMenuItems = [
+    { title: "Admin Dashboard", url: "/admin", icon: Settings },
+    { title: "Manage Users", url: "/admin/users", icon: User2 },
+    { title: "Top Up History", url: "/admin/top-up", icon: HistoryIcon },
+    { title: "Withdrawal History", url: "/admin/withdrawal", icon: BeakerIcon },
+  ];
+
+  useEffect(() => {
+    setIsAdmin(teamMemberProfile.alliance_member_role === "ADMIN");
+  }, [teamMemberProfile.alliance_member_role]);
 
   const handleNavigation = (url: string) => {
     if (pathname !== url) {
@@ -103,6 +129,10 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
   };
 
   const isActive = (url: string) => pathname === url;
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, [pathname]);
 
   const renderMenu = (menu: typeof menuItems) =>
     menu.map((item) => (
@@ -141,10 +171,6 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
         )}
       </SidebarMenuItem>
     ));
-
-  useEffect(() => {
-    setIsLoading(false);
-  }, [pathname]);
 
   return (
     <>
@@ -186,6 +212,9 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="top">
+                  <DropdownMenuItem onClick={() => router.push("/profile")}>
+                    <span>Profile</span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleSignOut}>
                     <span>Log Out</span>
                   </DropdownMenuItem>

@@ -12,15 +12,19 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const { redirect: redirectTo, earnings } = await protectionMemberUser();
+  const {
+    redirect: redirectTo,
+    earnings,
+    referal,
+  } = await protectionMemberUser();
 
   if (redirectTo) {
     redirect(redirectTo);
   }
 
-  if (!earnings) return redirect("/500");
+  if (!earnings || !referal) return redirect("/500");
 
-  return <DashboardPage earnings={earnings} />;
+  return <DashboardPage referal={referal} earnings={earnings} />;
 };
 
 export default Page;

@@ -4,17 +4,48 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { handleUpdateRole } from "@/services/User/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
 import { UserRequestdata } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Copy, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import TableLoading from "../ui/tableLoading";
 
-export const AdminUsersColumn = (): ColumnDef<UserRequestdata>[] => {
+export const AdminUsersColumn = (
+  handleFetch: () => void
+): ColumnDef<UserRequestdata>[] => {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const HandlePromoteToMerchant = async (
+    alliance_member_alliance_id: string
+  ) => {
+    try {
+      setIsLoading(true);
+      await handleUpdateRole({ userId: alliance_member_alliance_id });
+      handleFetch();
+      toast({
+        title: `Role Updated`,
+        description: `Role Updated Sucessfully`,
+        variant: "success",
+      });
+    } catch (e) {
+      toast({
+        title: `Role Update Failed`,
+        description: `Something went wrong`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  if (isLoading) {
+    <TableLoading />;
+  }
 
   return [
     {
@@ -72,7 +103,14 @@ export const AdminUsersColumn = (): ColumnDef<UserRequestdata>[] => {
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("user_email")}</div>
+        <Link
+          className="cursor-pointer"
+          href={`/admin/users/${row.getValue("user_id")}`}
+        >
+          <Button variant="link" className="text-wrap">
+            {row.getValue("user_email")}
+          </Button>
+        </Link>
       ),
     },
     {
@@ -87,9 +125,7 @@ export const AdminUsersColumn = (): ColumnDef<UserRequestdata>[] => {
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="font-medium text-center">
-          {row.getValue("user_first_name")}
-        </div>
+        <div className="text-center">{row.getValue("user_first_name")}</div>
       ),
     },
     {
@@ -164,22 +200,6 @@ export const AdminUsersColumn = (): ColumnDef<UserRequestdata>[] => {
       cell: ({ row }) => {
         const data = row.original;
 
-        const handleApprove = () => {
-          toast({
-            title: "Approved",
-            description: `Request for ${data.user_email} approved.`,
-            variant: "success",
-          });
-        };
-
-        const handleReject = () => {
-          toast({
-            title: "Rejected",
-            description: `Request for ${data.user_email} rejected.`,
-            variant: "destructive",
-          });
-        };
-
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -189,13 +209,9 @@ export const AdminUsersColumn = (): ColumnDef<UserRequestdata>[] => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={handleApprove}>
-                Approve
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleReject}>Reject</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleReject}>
+              <DropdownMenuItem
+                onClick={() => HandlePromoteToMerchant(data.alliance_member_id)}
+              >
                 Promote as Merchant
               </DropdownMenuItem>
             </DropdownMenuContent>

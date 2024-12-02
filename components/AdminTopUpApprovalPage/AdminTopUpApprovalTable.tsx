@@ -99,9 +99,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
   const handleFilter = async () => {
     try {
       await fetchAdminRequest();
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   const columns = useAdminTopUpApprovalColumns(fetchAdminRequest);

@@ -13,6 +13,7 @@ datasource db {
 enum Role {
   MEMBER
   ADMIN
+  MERCHANT
 @@schema("alliance_schema")
 }
 
@@ -29,11 +30,22 @@ model user_table {
   user_last_name        String?
   user_email            String          @unique
   user_password         String
+  user_iv               String?
 
   alliance_member_table alliance_member_table[]
+  user_history_log  user_history_log[]
   @@schema("user_schema")
 }
 
+model user_history_log {
+  user_history_log_id               String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_history_log_date_created     DateTime        @default(now())
+  user_ip_address                   String
+  user_history_user_id              String    @db.Uuid
+
+  user_table                      user_table            @relation(fields: [user_history_user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
+  @@schema("user_schema")
+}
 
 model alliance_table {
   alliance_id               String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
@@ -41,7 +53,6 @@ model alliance_table {
   alliance_date_created     DateTime  @default(now())
 
   alliance_member_table     alliance_member_table[]
-
   @@schema("alliance_schema")
 }
 
@@ -64,6 +75,7 @@ model alliance_member_table {
   alliance_top_up_request_table   alliance_top_up_request_table[] @relation("Requestor")
   approved_top_up_requests        alliance_top_up_request_table[] @relation("Approver")
   alliance_withdrawal_request_table alliance_withdrawal_request_table[] @relation("WithdrawalRequestor")
+  package_ally_bounty_log package_ally_bounty_log[]
   package_earnings_log package_earnings_log[]
   @@schema("alliance_schema")
 }
@@ -84,6 +96,7 @@ model alliance_referral_table {
   alliance_referral_id               String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   alliance_referral_bonus_amount     Float     @default(0.0)
   alliance_referral_date             DateTime  @default(now())
+  alliance_referral_level            Int       @default(1) // New column for hierarchy level
 
   alliance_referral_member_id        String    @db.Uuid
   alliance_referral_link_id          String    @db.Uuid
@@ -171,9 +184,8 @@ model package_member_connection_table {
 
   package_table       package_table       @relation(fields: [package_member_package_id], references: [package_id], onDelete: Cascade, onUpdate: Cascade)
   alliance_member_table alliance_member_table @relation(fields: [package_member_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
+  package_ally_bounty_log package_ally_bounty_log[]
   package_earnings_log package_earnings_log[]
-
-
   @@schema("packages_schema")
   @@index([package_member_package_id], name: "idx_package_member_package_id")
   @@index([package_member_member_id], name: "idx_package_member_member_id")
@@ -193,7 +205,24 @@ model package_earnings_log {
   alliance_member_table alliance_member_table @relation(fields: [package_member_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
   package_member_connection_table package_member_connection_table @relation(fields: [package_member_connection_id], references: [package_member_connection_id], onDelete: Cascade, onUpdate: Cascade)
 
+
   @@schema("packages_schema")
   @@index([package_member_package_id], name: "idx_package_earnings_package_id")
   @@index([package_member_member_id], name: "idx_package_earnings_member_id")
+}
+
+model package_ally_bounty_log {
+  package_ally_bounty_log_id              String   @id @default(uuid()) @db.Uuid
+  package_ally_bounty_log_date_created    DateTime @default(now())
+  package_ally_bounty_member_id           String   @db.Uuid
+  package_ally_bounty_percentage          Float    @default(0.0)
+  package_ally_bounty_earnings            Float    @default(0.0)
+  package_ally_bounty_type                String
+  package_ally_bounty_connection_id            String   @db.Uuid
+
+  alliance_member_table alliance_member_table @relation(fields: [package_ally_bounty_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
+  package_member_connection_table package_member_connection_table @relation(fields: [package_ally_bounty_connection_id], references: [package_member_connection_id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("packages_schema")
+
 }

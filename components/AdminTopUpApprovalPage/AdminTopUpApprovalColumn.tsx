@@ -38,7 +38,11 @@ export const useAdminTopUpApprovalColumns = (
           variant: "success",
         });
       } catch (e) {
-        console.error("Failed to update status:", e);
+        toast({
+          title: `Status Failed`,
+          description: `Something went wrong`,
+          variant: "destructive",
+        });
       }
     },
     [handleFetch]

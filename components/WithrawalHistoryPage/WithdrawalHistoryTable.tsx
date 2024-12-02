@@ -142,6 +142,7 @@ const WithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
   return (
     <Card className="w-full rounded-sm p-4">
+      <h1>Withdrawal History List</h1>
       <div className="flex items-center py-4">
         <form className="flex gap-2" onSubmit={handleSubmit(handleFilter)}>
           <Input

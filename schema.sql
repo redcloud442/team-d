@@ -10,6 +10,15 @@ UPDATE storage.buckets SET public = true;
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 
 
+CREATE OR REPLACE FUNCTION get_current_date()
+RETURNS TIMESTAMPTZ
+SET search_path TO ''
+AS $$
+BEGIN
+  RETURN NOW();
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION create_user_trigger(
   input_data JSON
 )
@@ -23,88 +32,134 @@ plv8.subtransaction(function() {
     password,
     userId,
     referalLink,
-    url
+    firstName,
+    lastName,
+    url,
+    iv
   } = input_data;
 
   if (!email || !password) {
     throw new Error('Email and password are required');
   }
+
+  // Generate unique referral ID
   const referalId = plv8.execute(`SELECT gen_random_uuid()`)[0].gen_random_uuid;
 
-  const insertQuery = `
-    INSERT INTO user_schema.user_table (user_id, user_email, user_password)
-    VALUES ($1, $2, $3)
+  // Insert user into the user_table
+  const insertUserQuery = `
+    INSERT INTO user_schema.user_table (user_id, user_email, user_password, user_iv, user_first_name, user_last_name)
+    VALUES ($1, $2, $3, $4, $5, $6)
     RETURNING user_id, user_email
   `;
-   const result = plv8.execute(insertQuery, [userId,email, password]);
+  const result = plv8.execute(insertUserQuery, [userId, email, password,iv,firstName,lastName]);
 
-   if(!result) return;
+  if (!result || result.length === 0) {
+    throw new Error('Failed to create user');
+  }
 
-
-   const allianceData = plv8.execute(`
+  // Insert user into alliance_member_table
+  const allianceMemberId = plv8.execute(`
     INSERT INTO alliance_schema.alliance_member_table (alliance_member_role, alliance_member_alliance_id, alliance_member_user_id)
     VALUES ($1, $2, $3)
     RETURNING alliance_member_id
-   `,['MEMBER','35f77cd9-636a-41fa-a346-9cb711e7a338',userId])[0].alliance_member_id;
+  `, ['MEMBER', '35f77cd9-636a-41fa-a346-9cb711e7a338', userId])[0].alliance_member_id;
 
+  // Insert initial earnings entry
   plv8.execute(`
-    INSERT INTO alliance_schema.alliance_earnings_table
-    (alliance_earnings_member_id)
+    INSERT INTO alliance_schema.alliance_earnings_table (alliance_earnings_member_id)
     VALUES ($1)
-  `,[allianceData]);
+  `, [allianceMemberId]);
 
-  const insertReferalQuery = `
+  // Create referral link for the user
+  const referralLinkURL = `${url}?referalLink=${referalId}`;
+  plv8.execute(`
     INSERT INTO alliance_schema.alliance_referral_link_table (alliance_referral_link_id, alliance_referral_link, alliance_referral_link_member_id)
     VALUES ($1, $2, $3)
-    `;
+  `, [referalId, referralLinkURL, allianceMemberId]);
 
-  const linkForReferal = `${url}?referalLink=${referalId}`
-  plv8.execute(insertReferalQuery, [referalId, linkForReferal, allianceData]);
+  // Handle referrals if a referral link is provided
+  if (referalLink) {
+    // Get referral link owner
+    const referrerData = plv8.execute(`
+      SELECT alliance_referral_link_member_id
+      FROM alliance_schema.alliance_referral_link_table
+      WHERE alliance_referral_link_id = $1
+    `, [referalLink]);
 
-  if(referalLink){
-    const checkIfReferalIsTen = plv8.execute(`
-        SELECT COUNT(*)
-        FROM alliance_schema.alliance_referral_table ur
-        JOIN alliance_schema.alliance_referral_link_table rl
-        ON ur.alliance_referral_link_id = rl.alliance_referral_link_id
-        WHERE user_referral_link_id = $1
-    `,[referalLink])[0].count;
-
-    const checkIfReffered = plv8.execute(`
-        SELECT *
-        FROM alliance_schema.alliance_referral_table
-        WHERE alliance_referral_member_id = $1
-    `,[referalLink])[0].alliance_referral_from_member_id;
-
-    let referralType = 'INDIRECT';
-
-    if (checkIfReferalExists === 0) {
-      referralType = 'DIRECT';
+    if (referrerData.length === 0) {
+      throw new Error('Invalid referral link');
     }
 
-    if(checkIfReferalIsTen < 10){
-        plv8.execute(`
-            INSERT INTO alliance_schema.alliance_referral_table (
-            alliance_referral_member_id,
+    const referrerId = referrerData[0].alliance_referral_link_member_id;
+
+    const referralHierarchy = plv8.execute(`
+     WITH RECURSIVE referral_tree AS (
+        SELECT
             alliance_referral_link_id,
-            alliance_referral_type,
-            alliance_referral_from_member_id
-            ) VALUES ($1, $2, $3, COALESCE($4, NULL))
-        `, [allianceData, referalLink, referralType, checkIfReferred]);
-    }
-  }
+            alliance_referral_from_member_id,
+            alliance_referral_level
+        FROM alliance_schema.alliance_referral_table
+        WHERE alliance_referral_link_id = $1
+        UNION ALL
+        SELECT
+            rt.alliance_referral_link_id,
+            rt.alliance_referral_from_member_id,
+            r.alliance_referral_level + 1 AS level
+        FROM alliance_schema.alliance_referral_table rt
+        JOIN referral_tree r ON rt.alliance_referral_from_member_id = r.alliance_referral_link_id
+    )
+    SELECT alliance_referral_level
+    FROM referral_tree
+    ORDER BY alliance_referral_level DESC
+    LIMIT 1
+    `, [referalLink]);
 
-  if (result.length === 0) {
-    throw new Error('Failed to create user');
+    const newReferralLevel = referralHierarchy.length > 0 ? referralHierarchy[0].level + 1 : 1;
+
+    if (newReferralLevel <= 12) {
+      plv8.execute(`
+        INSERT INTO alliance_schema.alliance_referral_table (
+          alliance_referral_member_id,
+          alliance_referral_link_id,
+          alliance_referral_from_member_id,
+          alliance_referral_bonus_amount,
+          alliance_referral_level
+        ) VALUES ($1, $2, $3, $4, $5)
+      `, [
+        allianceMemberId,
+        referalLink,
+        referrerId,
+        calculateBonus(newReferralLevel),
+        newReferralLevel
+      ]);
+    }
   }
 
   returnData = {
     success: true,
-    user: result[0]
+    user: result[0],
   };
 });
-$$ LANGUAGE plv8;
+function calculateBonus(level) {
+  const levelBonusMap = {
+    1: 10,
+    2: 3,
+    3: 3,
+    4: 3,
+    5: 2.5,
+    6: 2.5,
+    7: 2.5,
+    8: 2,
+    9: 2,
+    10: 2,
+    11: 1,
+    12: 1,
+  };
+  return levelBonusMap[level] || 0;
+}
+return returnData;
 
+$$ LANGUAGE plv8;
 
 CREATE OR REPLACE FUNCTION get_admin_top_up_history(
   input_data JSON
@@ -130,7 +185,7 @@ plv8.subtransaction(function() {
     WHERE alliance_member_id = $1
   `, [teamMemberId]);
 
-  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN' || member[0].alliance_member_role !== 'MERCHANT' ) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
@@ -516,6 +571,575 @@ plv8.subtransaction(function() {
 return returnData;
 $$ LANGUAGE plv8;
 
+CREATE OR REPLACE FUNCTION get_ally_bounty(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+    data:[],
+    totalCount:0
+};
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 13,
+    search = '',
+    teamMemberId,
+    teamId,
+    columnAccessor,
+    isAscendingSort
+  } = input_data;
+
+  const member = plv8.execute(`
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `, [teamMemberId]);
+
+  if (!member.length || member[0].alliance_member_role !== 'MEMBER') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const offset = (page - 1) * limit;
+
+  const params = [teamMemberId, limit, offset];
+
+  const searchCondition = search ? `AND u.user_email = '${search}'`: "";
+  const sortBy = isAscendingSort ? "desc" : "asc";
+  const sortCondition = columnAccessor
+    ? `ORDER BY "${columnAccessor}" ${sortBy}`
+    : "";
+
+  const userRequest = plv8.execute(`
+    SELECT
+     u.user_id,
+     u.user_first_name,
+     u.user_last_name
+    FROM alliance_schema.alliance_member_table m
+    JOIN alliance_schema.alliance_referral_table r
+    ON r.alliance_referral_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+    ON u.user_id = m.alliance_member_user_id
+    WHERE r.alliance_referral_level = '1'
+    AND r.alliance_referral_from_member_id = $1
+    ${searchCondition}
+    ${sortCondition}
+    LIMIT $2 OFFSET $3
+  `, params);
+
+    const totalCount = plv8.execute(`
+      SELECT
+        COUNT(*)
+    FROM alliance_schema.alliance_member_table m
+    JOIN alliance_schema.alliance_referral_table r
+    ON r.alliance_referral_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+    ON u.user_id = m.alliance_member_user_id
+    WHERE r.alliance_referral_level = '1'
+    AND r.alliance_referral_from_member_id = $1
+      ${searchCondition}
+  `,[teamId])[0].count;
+
+  returnData.data = userRequest;
+  returnData.totalCount = Number(totalCount);
+});
+return returnData;
+$$ LANGUAGE plv8;
+
+
+CREATE OR REPLACE FUNCTION get_legion_bounty(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+    data: [],
+    totalCount: 0,
+    success: true,
+    message: 'Data fetched successfully',
+};
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 13,
+    search = '',
+    teamMemberId,
+    columnAccessor = 'u.user_first_name',
+    isAscendingSort = true,
+  } = input_data;
+
+  if (!teamMemberId) {
+    returnData = { success: false, message: 'teamMemberId is required' };
+    return;
+  }
+
+
+  const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `,
+    [teamMemberId]
+  );
+
+  if (!member.length || member[0].alliance_member_role !== 'MEMBER') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const offset = (page - 1) * limit;
+
+  const recursiveQuery = `
+    WITH RECURSIVE referral_chain AS (
+      SELECT
+        r.alliance_referral_member_id,
+        r.alliance_referral_from_member_id,
+        r.alliance_referral_level
+      FROM alliance_schema.alliance_referral_table r
+      WHERE r.alliance_referral_from_member_id = $1
+
+      UNION ALL
+
+      SELECT
+        r.alliance_referral_member_id,
+        r.alliance_referral_from_member_id,
+        r.alliance_referral_level
+      FROM alliance_schema.alliance_referral_table r
+      INNER JOIN referral_chain rc
+      ON rc.alliance_referral_member_id = r.alliance_referral_from_member_id
+    )
+    SELECT
+      u.user_id,
+      u.user_email,
+      u.user_first_name,
+      u.user_last_name,
+      r.alliance_referral_level
+    FROM referral_chain r
+    JOIN alliance_schema.alliance_member_table m
+    ON r.alliance_referral_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+    ON u.user_id = m.alliance_member_user_id
+    WHERE ($2 = '' OR u.user_first_name ILIKE $2) AND alliance_referral_level > 1
+    ORDER BY ${columnAccessor} ${isAscendingSort ? 'ASC' : 'DESC'}
+    LIMIT $3 OFFSET $4
+  `;
+
+  const userRequest = plv8.execute(recursiveQuery, [
+    teamMemberId,
+    `%${search}%`,
+    limit,
+    offset,
+  ]);
+
+  const totalCountQuery = `
+    WITH RECURSIVE referral_chain AS (
+      SELECT
+        r.alliance_referral_member_id,
+        r.alliance_referral_from_member_id,
+        r.alliance_referral_level
+      FROM alliance_schema.alliance_referral_table r
+      WHERE r.alliance_referral_from_member_id = $1
+
+      UNION ALL
+
+      SELECT
+        r.alliance_referral_member_id,
+        r.alliance_referral_from_member_id,
+        r.alliance_referral_level
+      FROM alliance_schema.alliance_referral_table r
+      INNER JOIN referral_chain rc
+      ON rc.alliance_referral_member_id = r.alliance_referral_from_member_id
+    )
+    SELECT COUNT(*)
+    FROM referral_chain r
+    JOIN alliance_schema.alliance_member_table m
+    ON r.alliance_referral_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+    ON u.user_id = m.alliance_member_user_id
+      WHERE ($2 = '' OR u.user_first_name ILIKE $2) AND alliance_referral_level > 1
+  `;
+
+  const totalCount = plv8.execute(totalCountQuery, [teamMemberId, `%${search}%`])[0].count;
+
+  returnData.data = userRequest;
+  returnData.totalCount = Number(totalCount);
+});
+return returnData;
+$$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION get_legion_bounty(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+    data: [],
+    totalCount: 0,
+    success: true,
+    message: 'Data fetched successfully',
+};
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 13,
+    search = '',
+    teamMemberId,
+    columnAccessor = 'u.user_first_name',
+    isAscendingSort = true,
+  } = input_data;
+
+  if (!teamMemberId) {
+    returnData = { success: false, message: 'teamMemberId is required' };
+    return;
+  }
+
+
+  const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `,
+    [teamMemberId]
+  );
+
+  if (!member.length || member[0].alliance_member_role !== 'MEMBER') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const offset = (page - 1) * limit;
+
+  // Recursive CTE to fetch all referral chains
+  const recursiveQuery = `
+    WITH RECURSIVE referral_chain AS (
+      SELECT
+        r.alliance_referral_member_id,
+        r.alliance_referral_from_member_id,
+        r.alliance_referral_level
+      FROM alliance_schema.alliance_referral_table r
+      WHERE r.alliance_referral_from_member_id = $1
+
+      UNION ALL
+
+      SELECT
+        r.alliance_referral_member_id,
+        r.alliance_referral_from_member_id,
+        r.alliance_referral_level
+      FROM alliance_schema.alliance_referral_table r
+      INNER JOIN referral_chain rc
+      ON rc.alliance_referral_member_id = r.alliance_referral_from_member_id
+    )
+    SELECT
+      u.user_id,
+      u.user_email,
+      u.user_first_name,
+      u.user_last_name,
+      r.alliance_referral_level
+    FROM referral_chain r
+    JOIN alliance_schema.alliance_member_table m
+    ON r.alliance_referral_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+    ON u.user_id = m.alliance_member_user_id
+    WHERE ($2 = '' OR u.user_first_name ILIKE $2) AND alliance_referral_level > 1
+    ORDER BY ${columnAccessor} ${isAscendingSort ? 'ASC' : 'DESC'}
+    LIMIT $3 OFFSET $4
+  `;
+
+  const userRequest = plv8.execute(recursiveQuery, [
+    teamMemberId,
+    `%${search}%`,
+    limit,
+    offset,
+  ]);
+
+  // Total count for pagination
+  const totalCountQuery = `
+    WITH RECURSIVE referral_chain AS (
+      SELECT
+        r.alliance_referral_member_id,
+        r.alliance_referral_from_member_id,
+        r.alliance_referral_level
+      FROM alliance_schema.alliance_referral_table r
+      WHERE r.alliance_referral_from_member_id = $1
+
+      UNION ALL
+
+      SELECT
+        r.alliance_referral_member_id,
+        r.alliance_referral_from_member_id,
+        r.alliance_referral_level
+      FROM alliance_schema.alliance_referral_table r
+      INNER JOIN referral_chain rc
+      ON rc.alliance_referral_member_id = r.alliance_referral_from_member_id
+    )
+    SELECT COUNT(*)
+    FROM referral_chain r
+    JOIN alliance_schema.alliance_member_table m
+    ON r.alliance_referral_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+    ON u.user_id = m.alliance_member_user_id
+    WHERE ($2 = '' OR u.user_first_name ILIKE $2)
+  `;
+
+  const totalCount = plv8.execute(totalCountQuery, [teamMemberId, `%${search}%`])[0].count;
+
+  returnData.data = userRequest;
+  returnData.totalCount = Number(totalCount);
+});
+return returnData;
+$$ LANGUAGE plv8;
+
+
+CREATE OR REPLACE FUNCTION get_admin_dashboard_data(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+    totalEarnings :0,
+    totalWithdraw :0,
+    chartData: []
+};
+plv8.subtransaction(function() {
+  const {
+    teamMemberId,
+    dateFilter,
+  } = input_data;
+
+  if (!teamMemberId) {
+    returnData = { success: false, message: 'teamMemberId is required' };
+    return;
+  }
+
+  const currentDate = new Date(
+    plv8.execute(`SELECT public.get_current_date()`)[0].get_current_date
+  ).toISOString();
+
+  const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `,
+    [teamMemberId]
+  );
+
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const totalEarnings = plv8.execute(`
+    SELECT SUM(package_member_amount) AS total_earnings
+    FROM packages_schema.package_member_connection_table
+  `)[0]?.total_earnings || 0;
+
+  const totalWithdraw = plv8.execute(`
+    SELECT SUM(alliance_withdrawal_request_amount) AS total_withdraw
+    FROM alliance_schema.alliance_withdrawal_request_table
+  `)[0]?.total_withdraw || 0;
+
+  const chartData = plv8.execute(`
+    WITH
+    daily_earnings AS (
+        SELECT
+        DATE_TRUNC('day', package_member_connection_created) AS date,
+        SUM(package_member_amount) AS earnings
+        FROM
+        packages_schema.package_member_connection_table
+        WHERE
+        package_member_connection_created >= CURRENT_DATE - INTERVAL '90 days'
+        GROUP BY
+        DATE_TRUNC('day', package_member_connection_created)
+    ),
+    daily_withdraw AS (
+        SELECT
+        DATE_TRUNC('day', alliance_withdrawal_request_date) AS date,
+        SUM(alliance_withdrawal_request_amount) AS withdraw
+        FROM
+        alliance_schema.alliance_withdrawal_request_table
+        WHERE
+        alliance_withdrawal_request_date >= CURRENT_DATE - INTERVAL '90 days'
+        GROUP BY
+        DATE_TRUNC('day', alliance_withdrawal_request_date)
+    )
+    SELECT
+    COALESCE(e.date, w.date) AS date,
+    COALESCE(e.earnings, 0) AS earnings,
+    COALESCE(w.withdraw, 0) AS withdraw
+    FROM
+    daily_earnings e
+    FULL OUTER JOIN
+    daily_withdraw w
+    ON
+    e.date = w.date
+    ORDER BY
+    date;
+  `,[dateFilter]);
+
+  returnData.chartData = chartData.map(row => ({
+    date: row.date.toISOString().split('T')[0],
+    earnings: row.earnings,
+    withdraw: row.withdraw,
+  }));
+
+  returnData.totalEarnings = totalEarnings;
+  returnData.totalWithdraw = totalWithdraw;
+});
+return returnData;
+$$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION get_dashboard_data(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = [];
+plv8.subtransaction(function() {
+  const {
+    teamMemberId,
+    dateFilter,
+  } = input_data;
+
+  if (!teamMemberId) {
+    returnData = { success: false, message: 'teamMemberId is required' };
+    return;
+  }
+
+  const currentDate = new Date(
+    plv8.execute(`SELECT public.get_current_date()`)[0].get_current_date
+  ).toISOString();
+
+  const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+    `,
+    [teamMemberId]
+  );
+
+  if (!member.length || (member[0].alliance_member_role !== 'MEMBER' && member[0].alliance_member_role !== 'MERCHANT')) {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const chartData = plv8.execute(`
+    SELECT
+      p.package_name AS package,
+      p.packages_days,
+      pmc.package_member_status AS status,
+      pmc.package_member_connection_created AS start_date,
+      (pmc.package_member_connection_created + make_interval(days => p.packages_days)) AS completion_date,
+      (pmc.package_member_amount + pmc.package_amount_earnings) AS amount
+    FROM packages_schema.package_member_connection_table pmc
+    JOIN packages_schema.package_table p
+      ON pmc.package_member_package_id = p.package_id
+    WHERE pmc.package_member_status = $1 AND pmc.package_member_member_id = $2
+  `, ['ACTIVE', teamMemberId]);
+
+  returnData = chartData.map(row => {
+    const startDate = new Date(row.start_date);
+    const completionDate = new Date(row.completion_date);
+    const elapsedDays = Math.max((new Date(currentDate) - startDate) / (1000 * 60 * 60 * 24), 0);
+    const totalDays = Math.max((completionDate - startDate) / (1000 * 60 * 60 * 24), 0);
+
+    const percentage =
+      elapsedDays >= totalDays
+        ? 100
+        : Math.round((elapsedDays / totalDays) * 100);
+
+    return {
+      package: row.package,
+      completion_date: completionDate.toISOString().split('T')[0],
+      amount: parseFloat(row.amount),
+      completion:percentage
+    };
+  });
+});
+return returnData;
+$$ LANGUAGE plv8;
+
+
+CREATE OR REPLACE FUNCTION get_history_log(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+    data: [],
+    totalCount: 0,
+    success: true,
+    message: "Data fetched successfully",
+};
+plv8.subtransaction(function () {
+  const {
+    page = 1,
+    limit = 13,
+    teamMemberId,
+    columnAccessor = "u.user_first_name",
+    isAscendingSort = true,
+  } = input_data;
+
+  if (!teamMemberId) {
+    returnData = { success: false, message: "teamMemberId is required" };
+    return;
+  }
+
+  const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `,
+    [teamMemberId]
+  );
+
+  if (!member.length || member[0].alliance_member_role !== "ADMIN") {
+    returnData = { success: false, message: "Unauthorized access" };
+    return;
+  }
+
+  const offset = (page - 1) * limit;
+  const sortBy = isAscendingSort ? "ASC" : "DESC";
+
+  const historyLog = plv8.execute(
+    `
+    SELECT
+      h.*,
+      u.user_first_name,
+      u.user_last_name,
+      u.user_email
+    FROM user_schema.user_table u
+    JOIN user_schema.user_history_log h
+    ON u.user_id = h.user_history_user_id
+    ORDER BY
+      ${columnAccessor} ${sortBy}
+    LIMIT $1 OFFSET $2
+  `,
+    [limit, offset]
+  );
+
+  const historyLogCount = plv8.execute(
+    `
+    SELECT COUNT(*)
+    FROM user_schema.user_table u
+    JOIN user_schema.user_history_log h
+    ON u.user_id = h.user_history_user_id
+  `
+  )[0].count;
+
+  returnData.data = historyLog;
+  returnData.totalCount = Number(historyLogCount);
+});
+return returnData;
+$$ LANGUAGE plv8;
+
+
 CREATE OR REPLACE FUNCTION update_earnings_based_on_packages()
 RETURNS void AS $$
   var results = plv8.execute(`
@@ -580,19 +1204,112 @@ SELECT cron.schedule(
     $$SELECT public.update_earnings_based_on_packages()$$ -- Command to execute
 );
 
+---rls---
+ALTER TABLE user_schema.user_table ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow CREATE for authenticated users" ON user_schema.user_table;
+CREATE POLICY "Allow CREATE for authenticated users" ON user_schema.user_table
+AS PERMISSIVE FOR INSERT
+TO authenticated
+WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow READ for anon users" ON user_schema.user_table;
+CREATE POLICY "Allow READ for anon users" ON user_schema.user_table
+AS PERMISSIVE FOR SELECT
+USING (true);
+
+DROP POLICY IF EXISTS "Allow UPDATE for authenticated users" ON user_schema.user_table;
+CREATE POLICY "Allow UPDATE for authenticated users"
+ON user_schema.user_table
+AS PERMISSIVE FOR UPDATE
+TO authenticated
+USING (true);
+
+ALTER TABLE alliance_schema.alliance_table ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for anon users" ON alliance_schema.alliance_table;
+CREATE POLICY "Allow READ for anon users" ON alliance_schema.alliance_table
+AS PERMISSIVE FOR SELECT
+USING (true);
+
+ALTER TABLE alliance_schema.alliance_member_table ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for anon users" ON alliance_schema.alliance_member_table;
+CREATE POLICY "Allow READ for anon users" ON alliance_schema.alliance_member_table
+AS PERMISSIVE FOR SELECT
+USING (true);
+
+DROP POLICY IF EXISTS "Allow UPDATE for authenticated users with ADMIN role" ON alliance_schema.alliance_member_table;
+CREATE POLICY "Allow UPDATE for authenticated users with ADMIN role" ON alliance_schema.alliance_member_table
+AS PERMISSIVE FOR UPDATE
+TO authenticated
+USING (
+  alliance_member_id IN (
+    SELECT alliance_member_team_id FROM alliance_schema.alliance_table
+    WHERE alliance_member_user_id = (SELECT auth.uid())
+    AND alliance_member_role IN ('ADMIN')
+  ) OR alliance_member_user_id = (SELECT auth.uid())
+);
+
+-- Enable Row Level Security
+ALTER TABLE packages_schema.package_table ENABLE ROW LEVEL SECURITY;
+
+-- Allow SELECT for authenticated users
+DROP POLICY IF EXISTS "Allow SELECT for authenticated users" ON packages_schema.package_table;
+CREATE POLICY "Allow SELECT for authenticated users" ON packages_schema.package_table
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM packages_schema.package_member_connection_table pmc
+    JOIN alliance_schema.alliance_member_table amt
+      ON pmc.package_member_member_id = amt.alliance_member_id
+    WHERE pmc.package_member_package_id = package_id
+      AND amt.alliance_member_user_id = (SELECT auth.uid())
+  )
+);
+
+-- Allow UPDATE for ADMIN users
+DROP POLICY IF EXISTS "Allow UPDATE for ADMIN users" ON packages_schema.package_table;
+CREATE POLICY "Allow UPDATE for ADMIN users" ON packages_schema.package_table
+AS PERMISSIVE FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table amt
+    WHERE amt.alliance_member_user_id = (SELECT auth.uid())
+      AND amt.alliance_member_role = 'ADMIN'
+  )
+);
+
+-- Allow INSERT for ADMIN users
+DROP POLICY IF EXISTS "Allow INSERT for ADMIN users" ON packages_schema.package_table;
+CREATE POLICY "Allow INSERT for ADMIN users" ON packages_schema.package_table
+AS PERMISSIVE FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table amt
+    WHERE amt.alliance_member_user_id = (SELECT auth.uid())
+      AND amt.alliance_member_role = 'ADMIN'
+  )
+);
 
 
-    GRANT ALL ON ALL TABLES IN SCHEMA user_schema TO PUBLIC;
-    GRANT ALL ON ALL TABLES IN SCHEMA user_schema TO POSTGRES;
-    GRANT ALL ON SCHEMA user_schema TO postgres;
-    GRANT ALL ON SCHEMA user_schema TO public;
+GRANT ALL ON ALL TABLES IN SCHEMA user_schema TO PUBLIC;
+GRANT ALL ON ALL TABLES IN SCHEMA user_schema TO POSTGRES;
+GRANT ALL ON SCHEMA user_schema TO postgres;
+GRANT ALL ON SCHEMA user_schema TO public;
 
-    GRANT ALL ON ALL TABLES IN SCHEMA alliance_schema TO PUBLIC;
-    GRANT ALL ON ALL TABLES IN SCHEMA alliance_schema TO POSTGRES;
-    GRANT ALL ON SCHEMA alliance_schema TO postgres;
-    GRANT ALL ON SCHEMA alliance_schema TO public;
+GRANT ALL ON ALL TABLES IN SCHEMA alliance_schema TO PUBLIC;
+GRANT ALL ON ALL TABLES IN SCHEMA alliance_schema TO POSTGRES;
+GRANT ALL ON SCHEMA alliance_schema TO postgres;
+GRANT ALL ON SCHEMA alliance_schema TO public;
 
-    GRANT ALL ON ALL TABLES IN SCHEMA packages_schema TO PUBLIC;
-    GRANT ALL ON ALL TABLES IN SCHEMA packages_schema TO POSTGRES;
-    GRANT ALL ON SCHEMA packages_schema TO postgres;
-    GRANT ALL ON SCHEMA packages_schema TO public;
+GRANT ALL ON ALL TABLES IN SCHEMA packages_schema TO PUBLIC;
+GRANT ALL ON ALL TABLES IN SCHEMA packages_schema TO POSTGRES;
+GRANT ALL ON SCHEMA packages_schema TO postgres;
+GRANT ALL ON SCHEMA packages_schema TO public;
