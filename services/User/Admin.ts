@@ -51,16 +51,16 @@ export const getHistoryLog = async (
 export const handleSignInUser = async (
   supabaseClient: SupabaseClient,
   params: {
-    email: string;
+    userName: string;
     password: string;
     role: string;
     iv: string;
   }
 ) => {
-  const { email, password, role, iv } = params;
+  const { userName, password, role, iv } = params;
 
   const response = await loginValidation(supabaseClient, {
-    email,
+    userName: userName,
     password,
     role,
     iv,

@@ -1,6 +1,7 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["multiSchema"]
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -26,6 +27,7 @@ enum ReferralType {
 model user_table {
   user_id               String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   user_date_created     DateTime        @default(now())
+  user_username         String?
   user_first_name       String?
   user_last_name        String?
   user_email            String          @unique

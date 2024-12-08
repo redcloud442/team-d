@@ -1,4 +1,4 @@
-import { WithdrawalFormValues } from "@/components/WithdrawPage/WithdrawPage";
+import { WithdrawalFormValues } from "@/components/DashboardPage/DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
 import { WithdrawalRequestData } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 

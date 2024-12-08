@@ -4,7 +4,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 export const createTriggerUser = async (
   supabaseClient: SupabaseClient,
   params: {
-    email: string;
+    userName: string;
     firstName: string;
     lastName: string;
     password: string;
@@ -12,10 +12,10 @@ export const createTriggerUser = async (
     url: string;
   }
 ) => {
-  const { email, password, referalLink, url, firstName, lastName } = params;
-
+  const { userName, password, referalLink, url, firstName, lastName } = params;
+  const formatUsername = userName + "@gmail.com";
   const { data: userData, error: userError } = await supabaseClient.auth.signUp(
-    { email, password }
+    { email: formatUsername, password }
   );
 
   if (userError) throw userError;
@@ -23,7 +23,8 @@ export const createTriggerUser = async (
   const { iv, encryptedData } = await hashData(password);
 
   const userParams = {
-    email,
+    userName,
+    email: formatUsername,
     password: encryptedData,
     userId: userData.user?.id,
     firstName,
@@ -45,14 +46,14 @@ export const createTriggerUser = async (
 export const loginValidation = async (
   supabaseClient: SupabaseClient,
   params: {
-    email: string;
+    userName: string;
     password: string;
     role?: string;
     iv?: string;
   }
 ) => {
-  const { email, password, role, iv } = params;
-
+  const { userName, password, role, iv } = params;
+  const formattedUserName = userName + "@gmail.com";
   const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth`, {
     method: "POST",
     body: JSON.stringify(params),
@@ -79,11 +80,10 @@ export const loginValidation = async (
   if (role === "ADMIN") {
     await supabaseClient.auth.signOut();
     const decryptedPassword = await decryptData(password, iv ?? "");
-    console.log(decryptedPassword);
 
     const { error: signInError } = await supabaseClient.auth.signInWithPassword(
       {
-        email,
+        email: formattedUserName,
         password: decryptedPassword,
       }
     );
@@ -91,7 +91,7 @@ export const loginValidation = async (
   } else {
     const { error: signInError } = await supabaseClient.auth.signInWithPassword(
       {
-        email,
+        email: formattedUserName,
         password,
       }
     );

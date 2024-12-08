@@ -6,26 +6,28 @@ import { useToast } from "@/hooks/use-toast";
 import { createPackageConnection } from "@/services/Package/Member";
 import { escapeFormData } from "@/utils/function";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader } from "lucide-react";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import * as z from "zod";
+
+import PackageCard from "../ui/packageCard";
+import PackageDescription from "../ui/packageDescription";
+
 import {
   alliance_earnings_table,
   alliance_member_table,
   package_table,
 } from "@prisma/client";
-import { Loader } from "lucide-react";
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import * as z from "zod";
-import { Card } from "../ui/card";
-import PackageCard from "../ui/packageCard";
-import PackageDescription from "../ui/packageDescription";
+
 type Props = {
   earnings: alliance_earnings_table;
   pkg: package_table;
   teamMemberProfile: alliance_member_table;
 };
+
 const AvailPackagePage = ({ earnings, pkg, teamMemberProfile }: Props) => {
   const { toast } = useToast();
-
   const [maxAmount, setMaxAmount] = useState(earnings.alliance_olympus_wallet);
 
   const formattedMaxAmount = new Intl.NumberFormat("en-PH", {
@@ -36,7 +38,7 @@ const AvailPackagePage = ({ earnings, pkg, teamMemberProfile }: Props) => {
   const formSchema = z.object({
     amount: z
       .number({ invalid_type_error: "Amount must be a number" })
-      .max(maxAmount, `Maximum amount is ${formattedMaxAmount}`)
+      .max(maxAmount, `You don't have enough balance`)
       .min(1, "Minimum amount is 1"),
     packageId: z.string(),
   });
@@ -52,7 +54,7 @@ const AvailPackagePage = ({ earnings, pkg, teamMemberProfile }: Props) => {
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: undefined,
+      amount: 1,
       packageId: pkg.package_id,
     },
   });
@@ -70,14 +72,17 @@ const AvailPackagePage = ({ earnings, pkg, teamMemberProfile }: Props) => {
         description: "You have successfully enrolled in a package",
         variant: "success",
       });
+
       reset({
-        amount: undefined,
+        amount: 1,
         packageId: pkg.package_id,
       });
+
       setMaxAmount((prev) => prev - result.amount);
     } catch (e) {
       const errorMessage =
         e instanceof Error ? e.message : "An unexpected error occurred.";
+
       toast({
         title: "Error",
         description: errorMessage,
@@ -87,20 +92,18 @@ const AvailPackagePage = ({ earnings, pkg, teamMemberProfile }: Props) => {
   };
 
   const handleAmountChange = (value: string) => {
+    if (value.startsWith("0")) return;
     const numericValue = Number(value);
 
-    // If value exceeds max, set to max
-    if (numericValue > maxAmount) {
-      setValue("amount", maxAmount, { shouldValidate: true });
-    } else {
+    if (!isNaN(numericValue) && numericValue >= 1) {
       setValue("amount", numericValue, { shouldValidate: true });
     }
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen px-6 py-12">
+    <div className="flex flex-col">
       <PackageDescription />
-      <Card className="grid grid-cols-1 gap-8 max-w-4xl p-10">
+      <div className="grid grid-cols-1 gap-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <PackageCard
             key={pkg.package_id}
@@ -115,12 +118,14 @@ const AvailPackagePage = ({ earnings, pkg, teamMemberProfile }: Props) => {
               <span className="font-medium">Maximum Amount:</span>{" "}
               <span>{formattedMaxAmount}</span>
             </div>
+
             <label
               htmlFor="amount"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
               Enter the amount to invest:
             </label>
+
             <Controller
               name="amount"
               control={control}
@@ -131,12 +136,13 @@ const AvailPackagePage = ({ earnings, pkg, teamMemberProfile }: Props) => {
                   placeholder="Enter amount"
                   {...field}
                   className="w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                  max={maxAmount} // For client-side max validation
-                  min={1} // Ensure minimum value
+                  min={1}
+                  max={maxAmount}
                   onChange={(e) => handleAmountChange(e.target.value)}
                 />
               )}
             />
+
             {errors.amount && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.amount.message}
@@ -150,12 +156,12 @@ const AvailPackagePage = ({ earnings, pkg, teamMemberProfile }: Props) => {
               type="submit"
               className="w-full py-3 rounded-lg"
             >
-              {isSubmitting && <Loader className="animate-spin" />}
-              ENTER
+              {isSubmitting && <Loader className="animate-spin mr-2" />}
+              Avail Package
             </Button>
           </div>
         </form>
-      </Card>
+      </div>
     </div>
   );
 };

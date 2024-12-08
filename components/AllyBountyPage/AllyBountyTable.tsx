@@ -98,7 +98,7 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
     try {
       await fetchAdminRequest();
     } catch (e) {
-      console.log(e);
+
     }
   };
 

@@ -8,7 +8,7 @@ type Props = {
 
 const TopUpHistoryPage = ({ teamMemberProfile }: Props) => {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto  py-8">
       {/* Header Section */}
       <div>
         <header className="mb-4">
@@ -19,7 +19,7 @@ const TopUpHistoryPage = ({ teamMemberProfile }: Props) => {
         </header>
 
         {/* Table Section */}
-        <section className="bg-white rounded-lg shadow-md p-6">
+        <section>
           <TopUpHistoryPageTable teamMemberProfile={teamMemberProfile} />
         </section>
       </div>

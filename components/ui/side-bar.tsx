@@ -27,6 +27,7 @@ import {
   HistoryIcon,
   Home,
   Inbox,
+  Package,
   PiggyBankIcon,
   Settings,
   User2,
@@ -112,6 +113,7 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
 
   const adminMenuItems = [
     { title: "Admin Dashboard", url: "/admin", icon: Settings },
+    { title: "Packages", url: "/packages", icon: Package },
     { title: "Manage Users", url: "/admin/users", icon: User2 },
     { title: "Top Up History", url: "/admin/top-up", icon: HistoryIcon },
     { title: "Withdrawal History", url: "/admin/withdrawal", icon: BeakerIcon },

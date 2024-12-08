@@ -17,7 +17,6 @@ import { z } from "zod";
 import NavigationLoader from "../ui/NavigationLoader";
 import Text from "../ui/text";
 
-// Zod Schema for validation
 const RegisterSchema = z
   .object({
     firstName: z
@@ -28,7 +27,14 @@ const RegisterSchema = z
       .string()
       .min(1, "Last name is required")
       .max(50, "Last name must be less than 50 characters"),
-    email: z.string().email("Enter a valid email"),
+    userName: z
+      .string()
+      .min(3, "Username must be at least 3 characters long")
+      .max(20, "Username must be at most 20 characters long")
+      .regex(
+        /^[a-zA-Z0-9_]+$/,
+        "Username can only contain letters, numbers, and underscores"
+      ),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z
       .string()
@@ -59,7 +65,7 @@ const RegisterPage = () => {
   const pathName = usePathname();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+
   const [isSuccess, setIsSuccess] = useState(false);
 
   const referalLink = searchParams.get("referalLink") as string;
@@ -68,11 +74,11 @@ const RegisterPage = () => {
   const handleRegistrationSubmit = async (data: RegisterFormData) => {
     const sanitizedData = escapeFormData(data);
 
-    const { email, password, firstName, lastName } = sanitizedData;
+    const { userName, password, firstName, lastName } = sanitizedData;
 
     try {
       await createTriggerUser(supabase, {
-        email: email,
+        userName: userName,
         password: password,
         firstName,
         lastName,
@@ -129,14 +135,14 @@ const RegisterPage = () => {
             )}
           </div>
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Username</Label>
             <Input
               id="email"
-              placeholder="Enter your email"
-              {...register("email")}
+              placeholder="Enter your username"
+              {...register("userName")}
             />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
+            {errors.userName && (
+              <p className="text-sm text-red-500">{errors.userName.message}</p>
             )}
           </div>
           <div>
@@ -166,7 +172,7 @@ const RegisterPage = () => {
             )}
           </div>
           <Button disabled={isSubmitting || isSuccess} type="submit">
-            {isLoading ? "Registering..." : "Register"}
+            Register
           </Button>
         </form>
       </CardContent>

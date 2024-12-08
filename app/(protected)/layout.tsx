@@ -1,4 +1,4 @@
-import LayoutButton from "@/components/ui/LayoutButton";
+import NavBar from "@/components/ui/navBar";
 import AppSidebar from "@/components/ui/side-bar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { protectionMemberUser } from "@/utils/serversideProtection";
@@ -29,19 +29,22 @@ export default async function AppLayout({
 
   return (
     <SidebarProvider>
-      <AppSidebar userData={profile} teamMemberProfile={teamMemberProfile} />
-      <main className="min-h-screen h-full w-full bg-gray-100 flex flex-col mb-10 md:mb-0">
-        <div className="block md:hidden">
-          <SidebarTrigger />
-        </div>
-        {teamMemberProfile.alliance_member_role === "MEMBER" ||
-          (teamMemberProfile.alliance_member_role === "MERCHANT" && (
-            <LayoutButton />
-          ))}
+      {teamMemberProfile.alliance_member_role !== "MEMBER" && (
+        <AppSidebar userData={profile} teamMemberProfile={teamMemberProfile} />
+      )}
 
-        {/* Children Content */}
-        <div className="flex-grow">{children}</div>
-      </main>
+      <div className="min-h-screen h-full w-full bg-gray-100 flex flex-col md:mb-0">
+        {teamMemberProfile.alliance_member_role !== "MEMBER" && (
+          <div className="block md:hidden">
+            <SidebarTrigger />
+          </div>
+        )}
+        {teamMemberProfile.alliance_member_role === "MEMBER" && (
+          <NavBar userData={profile} />
+        )}
+
+        <main className="flex-grow overflow-auto p-4">{children}</main>
+      </div>
     </SidebarProvider>
   );
 }

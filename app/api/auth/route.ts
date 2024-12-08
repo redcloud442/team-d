@@ -19,8 +19,8 @@ export async function POST(request: Request) {
 
     loginRateLimit(ip);
 
-    const { email, password, role = "MEMBER" } = await request.json();
-    if (!email || !password) {
+    const { userName, password, role = "MEMBER" } = await request.json();
+    if (!userName || !password) {
       return NextResponse.json(
         { error: "Email and password are required." },
         { status: 400 }
@@ -30,8 +30,8 @@ export async function POST(request: Request) {
     // Fetch user from database
     const user = await prisma.user_table.findFirst({
       where: {
-        user_email: {
-          equals: email,
+        user_username: {
+          equals: userName,
           mode: "insensitive",
         },
       },

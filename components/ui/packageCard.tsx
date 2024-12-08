@@ -8,6 +8,7 @@ type Props = {
   packagePercentage: string;
   packageDays: string;
   href?: string;
+  onClick?: () => void;
 };
 
 const PackageCard = ({
@@ -16,9 +17,13 @@ const PackageCard = ({
   packagePercentage,
   packageDays,
   href,
+  onClick,
 }: Props) => {
   return (
-    <Card className="bg-white border border-gray-200 rounded-lg shadow-md p-6 flex flex-col items-center space-y-4">
+    <Card
+      onClick={onClick}
+      className="bg-white border border-gray-200 rounded-lg shadow-md p-6 flex flex-col items-center space-y-4"
+    >
       {/* Package Name */}
       <h2 className="text-xl font-bold ">{packageName}</h2>
 

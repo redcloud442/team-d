@@ -104,7 +104,7 @@ const WithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
     try {
       await fetchRequest();
     } catch (e) {
-      console.log(e);
+
     }
   };
 

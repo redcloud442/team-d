@@ -104,9 +104,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
   const handleFilter = async () => {
     try {
       await fetchAdminRequest();
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   const columns = AdminUsersColumn(fetchAdminRequest);
@@ -129,12 +127,11 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
     },
   });
 
-  const { register, control, handleSubmit, getValues } =
-    useForm<FilterFormValues>({
-      defaultValues: {
-        emailFilter: "",
-      },
-    });
+  const { register, handleSubmit, getValues } = useForm<FilterFormValues>({
+    defaultValues: {
+      emailFilter: "",
+    },
+  });
 
   useEffect(() => {
     fetchAdminRequest();

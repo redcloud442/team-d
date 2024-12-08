@@ -100,9 +100,7 @@ const TopUpHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   const handleFilter = async () => {
     try {
       await fetchRequest();
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
 
   const columns = TopUpHistoryColumn();

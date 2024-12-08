@@ -99,7 +99,7 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
     try {
       await fetchAdminRequest();
     } catch (e) {
-      console.log(e);
+    
     }
   };
 

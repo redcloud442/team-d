@@ -28,6 +28,7 @@ AS $$
 let returnData;
 plv8.subtransaction(function() {
   const {
+    userName,
     email,
     password,
     userId,
@@ -42,48 +43,44 @@ plv8.subtransaction(function() {
     throw new Error('Email and password are required');
   }
 
-  // Generate unique referral ID
-  const referalId = plv8.execute(`SELECT gen_random_uuid()`)[0].gen_random_uuid;
-
-  // Insert user into the user_table
   const insertUserQuery = `
-    INSERT INTO user_schema.user_table (user_id, user_email, user_password, user_iv, user_first_name, user_last_name)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO user_schema.user_table (user_id, user_email, user_password, user_iv, user_first_name, user_last_name, user_username)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING user_id, user_email
   `;
-  const result = plv8.execute(insertUserQuery, [userId, email, password,iv,firstName,lastName]);
+  const result = plv8.execute(insertUserQuery, [userId, email, password,iv,firstName,lastName, userName]);
 
   if (!result || result.length === 0) {
     throw new Error('Failed to create user');
   }
 
-  // Insert user into alliance_member_table
   const allianceMemberId = plv8.execute(`
     INSERT INTO alliance_schema.alliance_member_table (alliance_member_role, alliance_member_alliance_id, alliance_member_user_id)
     VALUES ($1, $2, $3)
     RETURNING alliance_member_id
   `, ['MEMBER', '35f77cd9-636a-41fa-a346-9cb711e7a338', userId])[0].alliance_member_id;
 
-  // Insert initial earnings entry
   plv8.execute(`
     INSERT INTO alliance_schema.alliance_earnings_table (alliance_earnings_member_id)
     VALUES ($1)
   `, [allianceMemberId]);
 
-  // Create referral link for the user
-  const referralLinkURL = `${url}?referalLink=${referalId}`;
-  plv8.execute(`
-    INSERT INTO alliance_schema.alliance_referral_link_table (alliance_referral_link_id, alliance_referral_link, alliance_referral_link_member_id)
-    VALUES ($1, $2, $3)
-  `, [referalId, referralLinkURL, allianceMemberId]);
 
-  // Handle referrals if a referral link is provided
+  const referralLinkURL = `${url}?referalLink=${userName}`;
+  plv8.execute(`
+    INSERT INTO alliance_schema.alliance_referral_link_table (alliance_referral_link, alliance_referral_link_member_id)
+    VALUES ($1, $2)
+  `, [ referralLinkURL, allianceMemberId]);
+
   if (referalLink) {
-    // Get referral link owner
+
     const referrerData = plv8.execute(`
       SELECT alliance_referral_link_member_id
       FROM alliance_schema.alliance_referral_link_table
-      WHERE alliance_referral_link_id = $1
+      JOIN alliance_schema.alliance_member_table
+      ON alliance_member_id = alliance_refereral_link_member_id
+      JOIN user_schema.user_table ON user_id = alliance_member_user_id
+      WHERE user_username = $1
     `, [referalLink]);
 
     if (referrerData.length === 0) {
@@ -185,15 +182,20 @@ plv8.subtransaction(function() {
     WHERE alliance_member_id = $1
   `, [teamMemberId]);
 
-  if (!member.length || member[0].alliance_member_role !== 'ADMIN' || member[0].alliance_member_role !== 'MERCHANT' ) {
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
 
   const offset = (page - 1) * limit;
+  const sortBy = isAscendingSort ? "desc" : "asc";
+  const sortCondition = columnAccessor
+    ? `ORDER BY "${columnAccessor}" ${sortBy}`
+    : "";
 
   let searchCondition = '';
   const params = [teamId, limit, offset];
+
   if (search) {
     searchCondition = 'AND u.user_email ILIKE $4';
     params.push(`%${search}%`);
@@ -212,6 +214,7 @@ plv8.subtransaction(function() {
       ON u.user_id = m.alliance_member_user_id
     WHERE m.alliance_member_alliance_id = $1
     ${searchCondition}
+    ${sortCondition}
     LIMIT $2 OFFSET $3
   `, params);
 
@@ -1199,8 +1202,8 @@ RETURNS void AS $$
 $$ LANGUAGE plv8;
 
 SELECT cron.schedule(
-    'update_packages_job', -- Unique job name
-    '0 0,12 * * *',        -- Cron format: runs at 12 AM and 12 PM
+    'update_packages_job',
+    '0 0,12 * * *',
     $$SELECT public.update_earnings_based_on_packages()$$ -- Command to execute
 );
 
@@ -1238,6 +1241,11 @@ DROP POLICY IF EXISTS "Allow READ for anon users" ON alliance_schema.alliance_me
 CREATE POLICY "Allow READ for anon users" ON alliance_schema.alliance_member_table
 AS PERMISSIVE FOR SELECT
 USING (true);
+
+DROP POLICY IF EXISTS "Allow Insert for anon users" ON alliance_schema.alliance_member_table;
+CREATE POLICY "Allow Insert for anon users" ON alliance_schema.alliance_member_table
+AS PERMISSIVE FOR INSERT
+WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Allow UPDATE for authenticated users with ADMIN role" ON alliance_schema.alliance_member_table;
 CREATE POLICY "Allow UPDATE for authenticated users with ADMIN role" ON alliance_schema.alliance_member_table

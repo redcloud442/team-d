@@ -21,7 +21,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
     try {
       setIsLoading(true);
       const response = await handleSignInUser(supabaseClient, {
-        email: userProfile.user_email,
+        userName: userProfile.user_username ?? "",
         password: userProfile.user_password,
         role: "ADMIN",
         iv: userProfile.user_iv ?? "",

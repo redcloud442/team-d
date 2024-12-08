@@ -1,4 +1,4 @@
-import { TopUpFormValues } from "@/components/TopUpPage/TopUpPage";
+import { TopUpFormValues } from "@/components/DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit";
 
 export const createTopUpRequest = async (params: {
   TopUpFormValues: TopUpFormValues;

@@ -115,8 +115,6 @@ export const protectionMemberUser = async () => {
       referal: referal as alliance_referral_link_table,
     };
   } catch (e) {
-    console.log(e);
-
     return { redirect: "/error" };
   }
 };

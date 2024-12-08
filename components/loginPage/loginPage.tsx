@@ -17,7 +17,14 @@ import NavigationLoader from "../ui/NavigationLoader";
 
 // Zod Schema for Login Form
 const LoginSchema = z.object({
-  email: z.string().email("Enter a valid email").min(1, "Email is required"),
+  userName: z
+    .string()
+    .min(3, "Username must be at least 3 characters long")
+    .max(20, "Username must be at most 20 characters long")
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      "Username can only contain letters, numbers, and underscores"
+    ),
   password: z
     .string()
     .min(6, "Password must be at least 6 characters")
@@ -46,10 +53,10 @@ const LoginPage = () => {
       setIsLoading(true);
       const sanitizedData = escapeFormData(data);
 
-      const { email, password } = sanitizedData;
+      const { userName, password } = sanitizedData;
 
       const result = await loginValidation(supabase, {
-        email,
+        userName,
         password,
       });
 
@@ -87,10 +94,10 @@ const LoginPage = () => {
             <Input
               id="email"
               placeholder="Enter your email"
-              {...register("email")}
+              {...register("userName")}
             />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
+            {errors.userName && (
+              <p className="text-sm text-red-500">{errors.userName.message}</p>
             )}
           </div>
           <div>
