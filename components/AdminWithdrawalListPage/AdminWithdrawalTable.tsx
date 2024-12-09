@@ -93,7 +93,6 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
     } catch (e) {
-      console.error("Error fetching admin requests:", e);
     } finally {
       setIsFetchingList(false);
     }
@@ -102,9 +101,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   const handleFilter = async () => {
     try {
       await fetchRequest();
-    } catch (e) {
-
-    }
+    } catch (e) {}
   };
 
   const columns = AdminWithdrawalHistoryColumn();

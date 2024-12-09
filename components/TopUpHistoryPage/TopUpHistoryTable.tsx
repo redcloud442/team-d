@@ -91,7 +91,6 @@ const TopUpHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
     } catch (e) {
-      console.error("Error fetching admin requests:", e);
     } finally {
       setIsFetchingList(false);
     }

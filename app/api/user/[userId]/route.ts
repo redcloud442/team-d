@@ -80,7 +80,6 @@ export async function PUT(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error during login:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error." },
       { status: 500 }
@@ -125,7 +124,6 @@ export async function PATCH(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error during login:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error." },
       { status: 500 }

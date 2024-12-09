@@ -88,7 +88,6 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
     } catch (e) {
-      console.error("Error fetching admin requests:", e);
     } finally {
       setIsFetchingList(false);
     }
@@ -97,9 +96,7 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
   const handleFilter = async () => {
     try {
       await fetchAdminRequest();
-    } catch (e) {
-
-    }
+    } catch (e) {}
   };
 
   const columns = AllyBountyColumn();

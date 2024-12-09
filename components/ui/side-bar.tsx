@@ -62,7 +62,6 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
       await supabase.auth.signOut();
       router.refresh();
     } catch (e) {
-      console.error(e);
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +112,7 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
 
   const adminMenuItems = [
     { title: "Admin Dashboard", url: "/admin", icon: Settings },
-    { title: "Packages", url: "/packages", icon: Package },
+    { title: "Packages", url: "/admin/packages", icon: Package },
     { title: "Manage Users", url: "/admin/users", icon: User2 },
     { title: "Top Up History", url: "/admin/top-up", icon: HistoryIcon },
     { title: "Withdrawal History", url: "/admin/withdrawal", icon: BeakerIcon },

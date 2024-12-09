@@ -10,6 +10,7 @@ type Props = {
 
 const PackagesPage = ({ packages }: Props) => {
   const pathName = usePathname();
+
   return (
     <div className="flex flex-col items-center min-h-screen  px-6 py-12">
       <PackageDescription />

@@ -4,10 +4,10 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Top Up Records",
-  description: "List of Top Up Records",
+  title: "Packages",
+  description: "List of Packages",
   openGraph: {
-    url: "/admin/top-up",
+    url: "/admin/packages",
   },
 };
 
@@ -16,7 +16,7 @@ const Page = async () => {
 
   if (!teamMemberProfile) return redirect("/500");
 
-  return <AdminPackagesPage />;
+  return <AdminPackagesPage teamMemberProfile={teamMemberProfile} />;
 };
 
 export default Page;

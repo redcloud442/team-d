@@ -38,7 +38,6 @@ const NavBar = ({ userData }: Props) => {
       await supabase.auth.signOut();
       router.refresh();
     } catch (e) {
-      console.error(e);
     } finally {
       setIsLoading(false);
     }

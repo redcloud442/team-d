@@ -33,15 +33,10 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const publicRoutes = ["/auth/login", "/auth/register"];
+  const publicRoutes = ["/auth/login", "/auth/register","/api/auth"];
   const privateRoutes = ["/", "/dashboard"];
-  const openRoutes = ["/api/auth"]; // Open to both authenticated and unauthenticated users
   const currentPath = request.nextUrl.pathname;
 
-  // Always allow openRoutes
-  if (openRoutes.some((route) => currentPath.startsWith(route))) {
-    return NextResponse.next();
-  }
 
   // Handle unauthenticated users
   if (!user) {

@@ -9,6 +9,7 @@ type Props = {
   packageDays: string;
   href?: string;
   onClick?: () => void;
+  type?: "ADMIN" | "MEMBER";
 };
 
 const PackageCard = ({
@@ -18,24 +19,30 @@ const PackageCard = ({
   packageDays,
   href,
   onClick,
+  type = "MEMBER",
 }: Props) => {
   return (
     <Card
       onClick={onClick}
       className="bg-white border border-gray-200 rounded-lg shadow-md p-6 flex flex-col items-center space-y-4"
     >
-      {/* Package Name */}
       <h2 className="text-xl font-bold ">{packageName}</h2>
 
-      {/* Package Description */}
       <p className="text-gray-600 text-center">{packageDescription}</p>
 
-      {/* Package Details */}
       <p className="text-2xl text-center font-extrabold text-gray-800">
         {packagePercentage} Earnings in {packageDays} Days
       </p>
 
-      {href && (
+      {href && type === "MEMBER" && (
+        <Link href={href} className="w-full">
+          <Button className="w-full  text-white font-semibold py-2">
+            Select
+          </Button>
+        </Link>
+      )}
+
+      {href && type === "MEMBER" && (
         <Link href={href} className="w-full">
           <Button className="w-full  text-white font-semibold py-2">
             Select

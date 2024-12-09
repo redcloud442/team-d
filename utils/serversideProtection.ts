@@ -57,7 +57,6 @@ export const protectionAdminUser = async () => {
       teamMemberProfile: teamMember as alliance_member_table,
     };
   } catch (e) {
-    console.error("Error in protectionAdminUser:", e);
     return { redirect: "/error" };
   }
 };

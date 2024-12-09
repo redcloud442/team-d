@@ -1,7 +1,7 @@
 import { loginRateLimit } from "@/utils/function";
+import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { NextResponse } from "next/server";
-import prisma from "@/utils/prisma";
 
 export async function PUT(request: Request) {
   try {
@@ -73,7 +73,6 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error during login:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error." },
       { status: 500 }

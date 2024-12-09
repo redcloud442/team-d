@@ -42,7 +42,6 @@ const DashboardPage = ({
       });
       setChartData(data);
     } catch (e) {
-      console.error("Error fetching package data:", e);
     } finally {
       setIsLoading(false);
     }
@@ -57,7 +56,6 @@ const DashboardPage = ({
   useEffect(() => {
     getPackagesData();
   }, []);
-
 
   return (
     <div className="min-h-screen h-full mx-auto py-8 border-2">

@@ -1142,6 +1142,44 @@ plv8.subtransaction(function () {
 return returnData;
 $$ LANGUAGE plv8;
 
+CREATE OR REPLACE FUNCTION get_packages_admin(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = [];
+plv8.subtransaction(function() {
+  const {
+    teamMemberId,
+  } = input_data;
+
+  if (!teamMemberId) {
+    returnData = { success: false, message: 'teamMemberId is required' };
+    return;
+  }
+
+  const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `,
+    [teamMemberId]
+  );
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const packagesData = plv8.execute(`
+     SELECT * FROM packages_schema.package_table
+  `);
+
+  returnData = packagesData;
+});
+return returnData;
+$$ LANGUAGE plv8;
+
 
 CREATE OR REPLACE FUNCTION update_earnings_based_on_packages()
 RETURNS void AS $$
@@ -1267,16 +1305,7 @@ DROP POLICY IF EXISTS "Allow SELECT for authenticated users" ON packages_schema.
 CREATE POLICY "Allow SELECT for authenticated users" ON packages_schema.package_table
 AS PERMISSIVE FOR SELECT
 TO authenticated
-USING (
-  EXISTS (
-    SELECT 1
-    FROM packages_schema.package_member_connection_table pmc
-    JOIN alliance_schema.alliance_member_table amt
-      ON pmc.package_member_member_id = amt.alliance_member_id
-    WHERE pmc.package_member_package_id = package_id
-      AND amt.alliance_member_user_id = (SELECT auth.uid())
-  )
-);
+USING (true);
 
 -- Allow UPDATE for ADMIN users
 DROP POLICY IF EXISTS "Allow UPDATE for ADMIN users" ON packages_schema.package_table;

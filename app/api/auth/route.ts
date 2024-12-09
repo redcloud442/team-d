@@ -106,7 +106,6 @@ export async function POST(request: Request) {
     const redirect = redirects[teamMemberProfile.alliance_member_role] || "/";
     return NextResponse.json({ success: true, redirect });
   } catch (error) {
-    console.error("Error during login:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error." },
       { status: 500 }
