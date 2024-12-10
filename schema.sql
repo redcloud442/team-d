@@ -206,6 +206,7 @@ plv8.subtransaction(function() {
       u.user_first_name,
       u.user_last_name,
       u.user_email,
+      u.user_username,
       m.alliance_member_id
     FROM alliance_schema.alliance_top_up_request_table t
     JOIN alliance_schema.alliance_member_table m

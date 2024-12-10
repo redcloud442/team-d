@@ -13,9 +13,11 @@ export type RegisterFormData = {
 };
 
 export type TopUpRequestData = alliance_top_up_request_table & {
+  user_username: string;
   user_first_name: string;
   user_last_name: string;
   user_email: string;
+  approver_username: string;
   alliance_member_id: string;
 };
 

@@ -72,11 +72,11 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
           />
         </div>
         <div>
-          <Label className="text-sm font-medium text-gray-700">Email</Label>
+          <Label className="text-sm font-medium text-gray-700">Username</Label>
           <Input
-            id="email"
-            type="email"
-            value={userProfile.user_email || ""}
+            id="userName"
+            type="text"
+            value={userProfile.user_username || ""}
             readOnly
             className="mt-1 border-gray-300"
           />

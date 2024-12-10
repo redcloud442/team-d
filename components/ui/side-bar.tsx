@@ -207,7 +207,7 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
                   <SidebarMenuButton>
                     <div className="flex items-center space-x-2 w-full">
                       <User2 className="w-5 h-5" />
-                      <span className="truncate">{userData.user_email}</span>
+                      <span className="truncate">{userData.user_username}</span>
                       <ChevronUp className="ml-auto w-4 h-4" />
                     </div>
                   </SidebarMenuButton>

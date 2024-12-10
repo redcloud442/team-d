@@ -11,6 +11,13 @@ export const getAdminTopUpRequest = async (
     teamId: string;
     columnAccessor: string;
     isAscendingSort: boolean;
+    merchantFilter?: string;
+    userFilter?: string;
+    statusFilter?: string;
+    dateFilter?: {
+      start: string | undefined;
+      end: string | undefined;
+    };
   }
 ) => {
   const { data, error } = await supabaseClient.rpc("get_admin_top_up_history", {
@@ -28,6 +35,7 @@ export const getAdminTopUpRequest = async (
 export const updateTopUpStatus = async (params: {
   status: string;
   requestId: string;
+  note?: string;
 }) => {
   const { requestId } = params;
 

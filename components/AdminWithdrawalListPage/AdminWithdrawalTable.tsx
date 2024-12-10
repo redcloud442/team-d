@@ -83,7 +83,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
           teamId: teamMemberProfile.alliance_member_alliance_id,
           teamMemberId: teamMemberProfile.alliance_member_id,
           page: activePage,
-          limit: 10,
+          limit: 13,
           columnAccessor: columnAccessor,
           isAscendingSort: isAscendingSort,
           search: referenceId,

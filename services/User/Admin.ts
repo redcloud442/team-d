@@ -74,6 +74,32 @@ export const handleUpdateRole = async (params: { userId: string }) => {
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/` + userId,
     {
       method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "updateRole" }),
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while creating the top-up request."
+    );
+  }
+
+  return response;
+};
+
+export const handleUpdateUserRestriction = async (params: {
+  userId: string;
+}) => {
+  const { userId } = params;
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/` + userId,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "banUser" }),
     }
   );
 

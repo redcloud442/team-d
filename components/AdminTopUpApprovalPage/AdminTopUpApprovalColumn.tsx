@@ -1,4 +1,13 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,42 +22,52 @@ import { formatDateToYYYYMMDD } from "@/utils/function";
 import { TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Copy, MoreHorizontal } from "lucide-react";
-import Link from "next/link";
-import { useCallback } from "react";
-import { Badge } from "../ui/badge";
-
+import { useCallback, useState } from "react";
+import TableLoading from "../ui/tableLoading";
+import { Textarea } from "../ui/textarea";
 const statusColorMap: Record<string, string> = {
   APPROVED: "bg-green-500",
   PENDING: "bg-yellow-600",
   REJECTED: "bg-red-600",
 };
 
-export const useAdminTopUpApprovalColumns = (
-  handleFetch: () => void
-): ColumnDef<TopUpRequestData>[] => {
+export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState({
+    open: false,
+    requestId: "",
+  });
+
   const handleUpdateStatus = useCallback(
-    async (status: string, requestId: string) => {
+    async (status: string, requestId: string, note?: string) => {
       try {
-        await updateTopUpStatus({ status, requestId });
+        setIsLoading(true);
+        await updateTopUpStatus({ status, requestId, note });
         handleFetch();
         toast({
           title: `Status Update`,
-          description: `${status} Request Sucessfully`,
+          description: `${status} Request Successfully`,
           variant: "success",
         });
+
+        if (status === "REJECTED") {
+          setIsRejectModalOpen({ open: false, requestId: "" });
+        }
       } catch (e) {
         toast({
           title: `Status Failed`,
           description: `Something went wrong`,
           variant: "destructive",
         });
+      } finally {
+        setIsLoading(false);
       }
     },
-    [handleFetch]
+    [handleFetch, toast]
   );
 
-  return [
+  const columns: ColumnDef<TopUpRequestData>[] = [
     {
       accessorKey: "alliance_top_up_request_id",
       label: "Reference ID",
@@ -100,23 +119,23 @@ export const useAdminTopUpApprovalColumns = (
       ),
       cell: ({ row }) => {
         const status = row.getValue("alliance_top_up_request_status") as string;
-        const color = statusColorMap[status.toUpperCase()] || "gray"; // Default to gray if status is undefined
+        const color = statusColorMap[status.toUpperCase()] || "gray";
         return <Badge className={`${color} text-white`}>{status}</Badge>;
       },
     },
     {
-      accessorKey: "user_email",
-      label: "Requestor Email",
+      accessorKey: "user_username",
+      label: "Requestor Username",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Requestor Email <ArrowUpDown />
+          Requestor Username <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("user_email")}</div>
+        <div className="text-wrap">{row.getValue("user_username")}</div>
       ),
     },
     {
@@ -193,18 +212,85 @@ export const useAdminTopUpApprovalColumns = (
       ),
     },
     {
+      accessorKey: "approver_username",
+      label: "Approver",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Approver <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-center">{row.getValue("approver_username")}</div>
+      ),
+    },
+    {
       accessorKey: "alliance_top_up_request_attachment",
       label: "Attachment",
       header: () => <div>Attachment</div>,
-      cell: ({ row }) => (
-        <Link href={row.getValue("alliance_top_up_request_attachment")}>
-          <Button>Attachment</Button>
-        </Link>
-      ),
-    },
+      cell: ({ row }) => {
+        const attachmentUrl = row.getValue(
+          "alliance_top_up_request_attachment"
+        ) as string;
 
+        return (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">View Attachment</Button>
+            </DialogTrigger>
+            <DialogContent type="table">
+              <DialogHeader>
+                <DialogTitle>Attachment</DialogTitle>
+              </DialogHeader>
+              <div className="flex justify-center items-center">
+                <iframe
+                  src={attachmentUrl || ""}
+                  className="w-full h-96"
+                  title="Attachment Preview"
+                />
+              </div>
+              <DialogClose asChild>
+                <Button variant="secondary">Close</Button>
+              </DialogClose>
+            </DialogContent>
+          </Dialog>
+        );
+      },
+    },
+    {
+      accessorKey: "alliance_top_up_request_reject_note",
+      label: "Rejection Note",
+      header: () => <div>Rejection Note</div>,
+      cell: ({ row }) => {
+        const rejectionNote = row.getValue(
+          "alliance_top_up_request_reject_note"
+        ) as string;
+
+        return rejectionNote ? (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="destructive">View Rejection Note</Button>
+            </DialogTrigger>
+            <DialogContent type="table">
+              <DialogHeader>
+                <DialogTitle>Attachment</DialogTitle>
+              </DialogHeader>
+              <div className="flex justify-center items-center">
+                <Textarea value={rejectionNote} readOnly />
+              </div>
+              <DialogClose asChild>
+                <Button variant="secondary">Close</Button>
+              </DialogClose>
+            </DialogContent>
+          </Dialog>
+        ) : null;
+      },
+    },
     {
       id: "actions",
+      label: "Actions",
       cell: ({ row }) => {
         const data = row.original;
         return (
@@ -231,10 +317,10 @@ export const useAdminTopUpApprovalColumns = (
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() =>
-                      handleUpdateStatus(
-                        "REJECTED",
-                        data.alliance_top_up_request_id
-                      )
+                      setIsRejectModalOpen({
+                        open: true,
+                        requestId: data.alliance_top_up_request_id,
+                      })
                     }
                   >
                     Reject
@@ -247,4 +333,16 @@ export const useAdminTopUpApprovalColumns = (
       },
     },
   ];
+
+  if (isLoading) {
+    <TableLoading />;
+  }
+
+  return {
+    columns,
+    isRejectModalOpen,
+    setIsRejectModalOpen,
+    handleUpdateStatus,
+    isLoading,
+  };
 };

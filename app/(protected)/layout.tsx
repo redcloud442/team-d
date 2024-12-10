@@ -29,21 +29,30 @@ export default async function AppLayout({
 
   return (
     <SidebarProvider>
-      {teamMemberProfile.alliance_member_role !== "MEMBER" && (
-        <AppSidebar userData={profile} teamMemberProfile={teamMemberProfile} />
-      )}
-
-      <div className="min-h-screen h-full w-full bg-gray-100 flex flex-col md:mb-0">
+      <div className="flex min-h-screen h-full w-full bg-gray-100">
         {teamMemberProfile.alliance_member_role !== "MEMBER" && (
-          <div className="block md:hidden">
-            <SidebarTrigger />
-          </div>
-        )}
-        {teamMemberProfile.alliance_member_role === "MEMBER" && (
-          <NavBar userData={profile} />
+          <AppSidebar
+            userData={profile}
+            teamMemberProfile={teamMemberProfile}
+          />
         )}
 
-        <main className="flex-grow overflow-auto p-4">{children}</main>
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col overflow-x-hidden">
+          {teamMemberProfile.alliance_member_role !== "MEMBER" && (
+            <div className="p-4 md:hidden">
+              <SidebarTrigger />
+            </div>
+          )}
+
+          {/* Navbar for MEMBER role */}
+          {teamMemberProfile.alliance_member_role === "MEMBER" && (
+            <NavBar userData={profile} />
+          )}
+
+          {/* Main content */}
+          {children}
+        </div>
       </div>
     </SidebarProvider>
   );

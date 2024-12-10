@@ -92,7 +92,6 @@ export async function PATCH(
   context: { params: Promise<{ userId: string }> }
 ) {
   try {
-    // Extract and validate IP address
     const ip =
       request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
       request.headers.get("cf-connecting-ip") ||
@@ -110,19 +109,37 @@ export async function PATCH(
     loginRateLimit(ip);
 
     const { userId } = await context.params;
-
     if (!userId) {
       return NextResponse.json({ error: "There is no user" }, { status: 400 });
     }
 
-    await prisma.alliance_member_table.update({
-      where: { alliance_member_id: userId }, // Changed to alliance_member_id
-      data: {
-        alliance_member_role: "MERCHANT",
-      },
-    });
+    const { action } = await request.json();
 
-    return NextResponse.json({ success: true });
+    if (action === "updateRole") {
+      await prisma.alliance_member_table.update({
+        where: { alliance_member_id: userId },
+        data: { alliance_member_role: "MERCHANT" },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "User role updated successfully.",
+      });
+    }
+
+    if (action === "banUser") {
+      await prisma.alliance_member_table.update({
+        where: { alliance_member_id: userId },
+        data: { alliance_member_restricted: true },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "User banned successfully.",
+      });
+    }
+
+    return NextResponse.json({ error: "Invalid action." }, { status: 400 });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error." },

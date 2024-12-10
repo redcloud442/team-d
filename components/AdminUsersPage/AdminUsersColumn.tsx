@@ -7,7 +7,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
-import { handleUpdateRole } from "@/services/User/Admin";
+import {
+  handleUpdateRole,
+  handleUpdateUserRestriction,
+} from "@/services/User/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
 import { UserRequestdata } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
@@ -21,7 +24,8 @@ export const AdminUsersColumn = (
 ): ColumnDef<UserRequestdata>[] => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const HandlePromoteToMerchant = async (
+
+  const handlePromoteToMerchant = async (
     alliance_member_alliance_id: string
   ) => {
     try {
@@ -43,6 +47,30 @@ export const AdminUsersColumn = (
       setIsLoading(false);
     }
   };
+
+  const handleBanUser = async (alliance_member_alliance_id: string) => {
+    try {
+      setIsLoading(true);
+      await handleUpdateUserRestriction({
+        userId: alliance_member_alliance_id,
+      });
+      handleFetch();
+      toast({
+        title: `User Banned`,
+        description: `User Banned Sucessfully`,
+        variant: "success",
+      });
+    } catch (e) {
+      toast({
+        title: `User Ban Failed`,
+        description: `Something went wrong`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isLoading) {
     <TableLoading />;
   }
@@ -92,14 +120,14 @@ export const AdminUsersColumn = (
       },
     },
     {
-      accessorKey: "user_email",
-      label: "Email",
+      accessorKey: "user_username",
+      label: "Username",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Email <ArrowUpDown />
+          Username <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
@@ -108,7 +136,7 @@ export const AdminUsersColumn = (
           href={`/admin/users/${row.getValue("user_id")}`}
         >
           <Button variant="link" className="text-wrap">
-            {row.getValue("user_email")}
+            {row.getValue("user_username")}
           </Button>
         </Link>
       ),
@@ -210,9 +238,14 @@ export const AdminUsersColumn = (
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
-                onClick={() => HandlePromoteToMerchant(data.alliance_member_id)}
+                onClick={() => handlePromoteToMerchant(data.alliance_member_id)}
               >
                 Promote as Merchant
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleBanUser(data.alliance_member_id)}
+              >
+                Ban User
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

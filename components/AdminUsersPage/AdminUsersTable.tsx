@@ -1,6 +1,5 @@
 "use client";
 
-import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -19,7 +18,6 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-  Label,
 } from "@radix-ui/react-dropdown-menu";
 import {
   ColumnFiltersState,
@@ -166,13 +164,6 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
             <RefreshCw />
             Refresh
           </Button>
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={isFilterOpen}
-              onCheckedChange={(checked) => setIsFilterOpen(checked)}
-            />
-            <Label>Filter</Label>
-          </div>
         </form>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

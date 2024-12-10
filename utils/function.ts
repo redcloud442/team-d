@@ -99,6 +99,9 @@ export const escapeFormData = <T>(data: T): T => {
 
   if (typeof data === "string") {
     return escapeString(data) as T;
+  } else if (data instanceof Date) {
+    // Handle Date objects by converting them to ISO strings
+    return data.toISOString() as unknown as T;
   } else if (Array.isArray(data)) {
     return data.map((item) => escapeFormData(item)) as unknown as T;
   } else if (data instanceof File) {
@@ -117,7 +120,6 @@ export const escapeFormData = <T>(data: T): T => {
   }
   return data;
 };
-
 const rateLimiter = new LRUCache({
   max: 1000,
   ttl: 60 * 1000, // 1 minute time-to-live

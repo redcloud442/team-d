@@ -18,7 +18,7 @@ const AdminTopUpApprovalPage = ({ teamMemberProfile }: Props) => {
         </header>
 
         {/* Table Section */}
-        <section className=" rounded-lg shadow-md p-6">
+        <section className=" rounded-lg p-6">
           <AdminTopUpApprovalTable teamMemberProfile={teamMemberProfile} />
         </section>
       </div>

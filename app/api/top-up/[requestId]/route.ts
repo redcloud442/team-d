@@ -22,11 +22,9 @@ export async function PUT(
       );
     }
 
-    // Parse request body
     const body = await request.json();
-    const { status }: { status: string } = body;
+    const { status, note }: { status: string; note?: string | null } = body;
 
-    // Validate status
     if (!status || !["APPROVED", "PENDING", "REJECTED"].includes(status)) {
       return NextResponse.json(
         { error: "Invalid or missing status." },
@@ -34,7 +32,6 @@ export async function PUT(
       );
     }
 
-    // Authenticate the user
     const { teamMemberProfile } = await protectionAdminUser();
     if (!teamMemberProfile) {
       return NextResponse.json(
@@ -43,16 +40,15 @@ export async function PUT(
       );
     }
 
-    // Apply rate limiting
     await applyRateLimit(teamMemberProfile?.alliance_member_id, ip);
 
-    // Update top-up request status
     const allianceData = await prisma.alliance_top_up_request_table.update({
       where: { alliance_top_up_request_id: requestId },
       data: {
         alliance_top_up_request_status: status,
         alliance_top_up_request_approved_by:
           teamMemberProfile.alliance_member_id,
+        alliance_top_up_request_reject_note: note ?? null,
       },
     });
 
