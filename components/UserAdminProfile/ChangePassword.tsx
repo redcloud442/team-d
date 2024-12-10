@@ -57,6 +57,7 @@ const ChangePassword = ({ userProfile }: Props) => {
         email: userProfile.user_email,
         password: formData.password,
       });
+
       reset();
       toast({
         title: "Password Change Successfully",

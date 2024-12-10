@@ -992,7 +992,7 @@ let returnData = {
 plv8.subtransaction(function() {
   const {
     teamMemberId,
-    dateFilter,
+    dateFilter = {}
   } = input_data;
 
   if (!teamMemberId) {
@@ -1000,8 +1000,14 @@ plv8.subtransaction(function() {
     return;
   }
 
+  // Get the current date in 'YYYY-MM-DD' format
+  const currentDate = new Date(
+    plv8.execute(`SELECT public.get_current_date()`)[0].get_current_date
+  ).toISOString().split('T')[0];
 
-  const dateCondition = dateFilter.start && dateFilter.end ? `WHERE alliance_withdrawal_request_date BETWEEN ${dateFilter.start} AND ${dateFilter.end}` : '';
+
+  const startDate = dateFilter.start || currentDate;
+  const endDate = dateFilter.end || currentDate;
 
   const member = plv8.execute(
     `
@@ -1064,7 +1070,8 @@ plv8.subtransaction(function() {
           SUM(alliance_withdrawal_request_amount) AS withdraw
         FROM
           alliance_schema.alliance_withdrawal_request_table
-        ${dateCondition}
+        WHERE
+          alliance_withdrawal_request_date BETWEEN $1 AND $2
         GROUP BY
           DATE_TRUNC('day', alliance_withdrawal_request_date)
       )
@@ -1080,7 +1087,8 @@ plv8.subtransaction(function() {
       e.date = w.date
     ORDER BY
       date;
-    `
+    `,
+    [startDate, endDate]
   );
 
   returnData.chartData = chartData.map(row => ({
@@ -1096,6 +1104,7 @@ plv8.subtransaction(function() {
 
 return returnData;
 $$ LANGUAGE plv8;
+
 
 CREATE OR REPLACE FUNCTION get_dashboard_data(
   input_data JSON

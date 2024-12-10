@@ -11,12 +11,12 @@ import {
   alliance_member_table,
   package_table,
 } from "@prisma/client";
-import { Loader } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import PackageCard from "../ui/packageCard";
-import PackageDescription from "../ui/packageDescription";
 
 type Props = {
   earnings: alliance_earnings_table;
@@ -43,9 +43,14 @@ const AvailPackagePage = ({
 
   const formSchema = z.object({
     amount: z
-      .number({ invalid_type_error: "Amount must be a number" })
-      .max(maxAmount, `You don't have enough balance`)
-      .min(1, "Minimum amount is 1"),
+      .string()
+      .min(1, "Amount is required")
+      .refine((val) => !isNaN(Number(val)), {
+        message: "Amount must be a number",
+      })
+      .refine((val) => Number(val) <= maxAmount, {
+        message: `Amount cannot exceed ${formattedMaxAmount}`,
+      }),
     packageId: z.string(),
   });
 
@@ -54,21 +59,21 @@ const AvailPackagePage = ({
   const {
     handleSubmit,
     control,
-    setValue,
     reset,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: 1,
+      amount: "",
       packageId: pkg.package_id,
     },
   });
 
   const onSubmit = async (data: FormValues) => {
     try {
-      const result = escapeFormData(data);
+      const result = escapeFormData({ ...data, amount: Number(data.amount) });
+
       await createPackageConnection({
         packageData: result,
         teamMemberId: teamMemberProfile.alliance_member_id,
@@ -80,17 +85,15 @@ const AvailPackagePage = ({
         variant: "success",
       });
 
-      reset({
-        amount: 1,
-        packageId: pkg.package_id,
-      });
+      reset({ amount: "", packageId: pkg.package_id });
 
       setEarnings((prev) => ({
         ...prev,
         alliance_olympus_wallet: prev.alliance_olympus_wallet - result.amount,
       }));
-      setOpen(false);
+
       setMaxAmount((prev) => prev - result.amount);
+      setOpen(false);
     } catch (e) {
       const errorMessage =
         e instanceof Error ? e.message : "An unexpected error occurred.";
@@ -103,22 +106,14 @@ const AvailPackagePage = ({
     }
   };
 
-  const handleAmountChange = (value: string) => {
-    if (value.startsWith("0")) return;
-    const numericValue = Number(value);
-
-    if (!isNaN(numericValue) && numericValue >= 1) {
-      setValue("amount", numericValue, { shouldValidate: true });
-    }
-  };
   const amount = watch("amount");
-  const computation = (Number(amount) * pkg.package_percentage) / 100;
-
+  const computation = amount
+    ? (Number(amount) * pkg.package_percentage) / 100
+    : 0;
   const sumOfTotal = maxAmount + computation;
 
   return (
     <div className="flex flex-col">
-      <PackageDescription />
       <div className="grid grid-cols-1 gap-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <PackageCard
@@ -130,58 +125,77 @@ const AvailPackagePage = ({
           />
 
           <div>
-            <div className="text-right mb-2">
-              <span className="font-medium">Maximum Amount:</span>{" "}
-              <span>{formattedMaxAmount}</span>
-            </div>
-            <div className="text-right mb-2">
-              <span className="font-medium">Computation:</span>{" "}
-              <span>
-                {sumOfTotal} in {pkg.packages_days}{" "}
-                {pkg.packages_days === 1 ? "day" : "days"}
-              </span>
-            </div>
-
-            <label
-              htmlFor="amount"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Enter the amount to invest:
-            </label>
-
-            <Controller
-              name="amount"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  id="amount"
-                  type="number"
-                  placeholder="Enter amount"
-                  {...field}
-                  className="w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                  min={1}
-                  max={maxAmount}
-                  onChange={(e) => handleAmountChange(e.target.value)}
-                />
-              )}
-            />
-
-            {errors.amount && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.amount.message}
-              </p>
+            {maxAmount !== 0 && (
+              <div className="text-right mb-2">
+                <div className="text-right mb-2">
+                  <span className="font-medium">Maximum Amount:</span>{" "}
+                  <span>{formattedMaxAmount}</span>
+                </div>
+                <span className="font-medium">Computation:</span>{" "}
+                <span>
+                  {sumOfTotal.toLocaleString()} in {pkg.packages_days}{" "}
+                  {pkg.packages_days === 1 ? "day" : "days"}
+                </span>
+              </div>
             )}
-          </div>
+            {maxAmount !== 0 ? (
+              <div>
+                <label
+                  htmlFor="amount"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Enter the amount to invest:
+                </label>
 
-          <div>
-            <Button
-              disabled={isSubmitting}
-              type="submit"
-              className="w-full py-3 rounded-lg"
-            >
-              {isSubmitting && <Loader className="animate-spin mr-2" />}
-              Avail Package
-            </Button>
+                <Controller
+                  name="amount"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      id="amount"
+                      type="text"
+                      placeholder="Enter amount"
+                      {...field}
+                      className="w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                      value={field.value}
+                      onChange={(e) => {
+                        let value = e.target.value.replace(/\D/g, "");
+
+                        if (value.startsWith("0")) {
+                          value = value.replace(/^0+/, "");
+                        }
+
+                        field.onChange(value);
+                      }}
+                    />
+                  )}
+                />
+
+                {errors.amount && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.amount.message}
+                  </p>
+                )}
+                <div>
+                  <Button
+                    disabled={isSubmitting || maxAmount === 0}
+                    type="submit"
+                    className="w-full py-3 rounded-lg"
+                  >
+                    {isSubmitting && <Loader2 className="animate-spin mr-2" />}
+                    Avail Package
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>No Balance</AlertTitle>
+                <AlertDescription>
+                  You don&apos;t have enough balance to avail a package.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
         </form>
       </div>

@@ -49,6 +49,7 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
+
       const endDate = dateFilter.end ? new Date(dateFilter.end) : undefined;
       const { totalEarnings, totalWithdraw, totalLoot, chartData } =
         await getAdminDashboard(supabaseClient, {

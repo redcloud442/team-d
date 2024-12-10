@@ -26,11 +26,22 @@ export const AdminUsersColumn = (
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePromoteToMerchant = async (
-    alliance_member_alliance_id: string
+    alliance_member_alliance_id: string,
+    role: string
   ) => {
     try {
       setIsLoading(true);
-      await handleUpdateRole({ userId: alliance_member_alliance_id });
+      await handleUpdateRole({ userId: alliance_member_alliance_id, role });
+
+      // if (role === "ADMIN") {
+      //   const supabase = createServiceRoleClient();
+      //   const { data, error } = await supabase.auth.admin.updateUserById(
+      //     userId,
+      //     {
+      //       password: newPassword,
+      //     }
+      //   );
+      // }
       handleFetch();
       toast({
         title: `Role Updated`,
@@ -239,9 +250,18 @@ export const AdminUsersColumn = (
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
-                onClick={() => handlePromoteToMerchant(data.alliance_member_id)}
+                onClick={() =>
+                  handlePromoteToMerchant(data.alliance_member_id, "MERCHANT")
+                }
               >
                 Promote as Merchant
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  handlePromoteToMerchant(data.alliance_member_id, "ADMIN")
+                }
+              >
+                Promote as Admin
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleBanUser(data.alliance_member_id)}

@@ -36,7 +36,7 @@ const DashboardPackages = ({ chartData }: Props) => {
           </CardContent>
           <CardFooter className="flex-col items-start gap-2 text-sm">
             <div className="font-medium leading-none">
-              Amount: ₱{data.amount.toFixed(2)}
+              Amount: ₱{data.amount.toLocaleString()}
             </div>
             <div className="leading-none text-muted-foreground">
               Package completion rate updated.

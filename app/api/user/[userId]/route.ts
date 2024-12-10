@@ -4,6 +4,7 @@ import {
   protectionAdminUser,
   protectionMemberUser,
 } from "@/utils/serversideProtection";
+import { createServiceRoleClientServerSide } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function PUT(
@@ -11,7 +12,8 @@ export async function PUT(
   context: { params: Promise<{ userId: string }> }
 ) {
   try {
-    // Extract and validate IP address
+    const supabase = await createServiceRoleClientServerSide();
+
     const ip =
       request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
       request.headers.get("cf-connecting-ip") ||
@@ -29,7 +31,7 @@ export async function PUT(
     loginRateLimit(ip);
 
     const { userId } = await context.params;
-    const { email, password, iv } = await request.json();
+    const { email, password, iv, clientpass } = await request.json();
 
     if (!password || !email || !userId) {
       return NextResponse.json(
@@ -78,6 +80,9 @@ export async function PUT(
       },
     });
 
+    await supabase.auth.admin.updateUserById(userId, {
+      password: clientpass,
+    });
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(
@@ -107,18 +112,17 @@ export async function PATCH(
     await protectionAdminUser();
 
     loginRateLimit(ip);
-
     const { userId } = await context.params;
     if (!userId) {
       return NextResponse.json({ error: "There is no user" }, { status: 400 });
     }
 
-    const { action } = await request.json();
+    const { action, role } = await request.json();
 
     if (action === "updateRole") {
       await prisma.alliance_member_table.update({
         where: { alliance_member_id: userId },
-        data: { alliance_member_role: "MERCHANT" },
+        data: { alliance_member_role: role },
       });
 
       return NextResponse.json({

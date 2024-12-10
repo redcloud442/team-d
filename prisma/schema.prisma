@@ -7,7 +7,7 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
-  schemas   = ["user_schema","alliance_schema","packages_schema"]
+  schemas   = ["user_schema","alliance_schema","packages_schema","merchant_schema"]
 }
 
 enum Role {
@@ -165,6 +165,7 @@ model alliance_withdrawal_request_table {
 
   @@schema("alliance_schema")
 }
+
 model package_table {
   package_id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   package_name       String
@@ -231,3 +232,14 @@ model package_ally_bounty_log {
   @@schema("packages_schema")
 
 }
+
+model merchant_table {
+  merchant_id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchant_date_created DateTime @default(now())
+  merchant_account_name String
+  merchant_account_number String
+  merchant_account_type String
+
+  @@schema("merchant_schema")
+}
+

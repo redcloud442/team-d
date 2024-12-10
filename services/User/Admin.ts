@@ -70,14 +70,17 @@ export const handleSignInUser = async (
   return response;
 };
 
-export const handleUpdateRole = async (params: { userId: string }) => {
-  const { userId } = params;
+export const handleUpdateRole = async (params: {
+  role: string;
+  userId: string;
+}) => {
+  const { userId, role } = params;
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/` + userId,
     {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "updateRole" }),
+      body: JSON.stringify({ action: "updateRole", role: role }),
     }
   );
 

@@ -75,7 +75,11 @@ const DashboardDepositModalPackages = ({
 
         <DialogFooter>
           {selectedPackage && (
-            <Button variant="outline" onClick={() => setSelectedPackage(null)}>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setSelectedPackage(null)}
+            >
               Back to Packages
             </Button>
           )}

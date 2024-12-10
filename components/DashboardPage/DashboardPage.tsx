@@ -60,7 +60,6 @@ const DashboardPage = ({
   useEffect(() => {
     getPackagesData();
   }, []);
-  console.log(chartData);
 
   return (
     <div className="min-h-screen h-full mx-auto py-8 ">
@@ -93,32 +92,51 @@ const DashboardPage = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <CardAmount
             title="Total Earnings"
-            value={dashboardEarnings.totalEarnings}
+            value={
+              Number(
+                dashboardEarnings.totalEarnings
+              ).toLocaleString() as unknown as number
+            }
             description=""
             descriptionClassName="text-sm text-green-600"
           />
           <CardAmount
             title="Total Withdraw"
-            value={dashboardEarnings.withdrawalAmount}
+            value={
+              Number(
+                dashboardEarnings.withdrawalAmount
+              ).toLocaleString() as unknown as number
+            }
             description=""
             descriptionClassName="text-sm text-gray-500"
           />
           <CardAmount
             title="Direct Referral"
-            value={dashboardEarnings.directReferralAmount}
+            value={
+              Number(
+                dashboardEarnings.directReferralAmount
+              ).toLocaleString() as unknown as number
+            }
             description=""
             descriptionClassName="text-sm text-green-600"
           />
           <CardAmount
             title="Indirect Referral"
-            value={dashboardEarnings.indirectReferralAmount}
+            value={
+              Number(
+                dashboardEarnings.directReferralAmount
+              ).toLocaleString() as unknown as number
+            }
             description=""
             descriptionClassName="text-sm text-red-600"
           />
         </div>
-        <div className=" gap-6">
-          <DashboardPackages chartData={chartData} />
-        </div>
+        {chartData.length && (
+          <div className=" gap-6">
+            <DashboardPackages chartData={chartData} />
+          </div>
+        )}
+
         <div className="w-full flex flex-col sm:flex-row space-6 gap-6">
           <DashboardDepositRequest
             earnings={earnings}

@@ -19,12 +19,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { getMerchantOptions } from "@/services/Options/Options";
 import { createTopUpRequest } from "@/services/TopUp/TopUp";
 import { escapeFormData } from "@/utils/function";
+import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { alliance_member_table } from "@prisma/client";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { alliance_member_table, merchant_table } from "@prisma/client";
+import { CheckCircle, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -54,25 +56,42 @@ const topUpFormSchema = z.object({
 export type TopUpFormValues = z.infer<typeof topUpFormSchema>;
 
 const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
+  const supabaseClient = createClientSide();
   const [open, setOpen] = useState(false);
-
+  const [topUpOptions, setTopUpOptions] = useState<merchant_table[]>([]);
   const { toast } = useToast();
   const {
     control,
     handleSubmit,
     setValue,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<TopUpFormValues>({
     resolver: zodResolver(topUpFormSchema),
     defaultValues: {
       amount: "",
-      topUpMode: "GCASH",
-      accountName: "Test User 1",
-      accountNumber: "1234567890",
+      topUpMode: "",
+      accountName: "",
+      accountNumber: "",
       file: undefined,
     },
   });
+
+  useEffect(() => {
+    const getOptions = async () => {
+      try {
+        const options = await getMerchantOptions(supabaseClient, {
+          teamMemberId: teamMemberProfile.alliance_member_id,
+        });
+        setTopUpOptions(options);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getOptions();
+  }, []);
 
   const onSubmit = async (data: TopUpFormValues) => {
     try {
@@ -102,17 +121,26 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
   };
 
   const onTopUpModeChange = (value: string) => {
-    if (value === "GCASH") {
-      setValue("accountName", "Test User 1");
-      setValue("accountNumber", "1234567890");
-    } else if (value === "GOTYME") {
-      setValue("accountName", "Test User 2");
-      setValue("accountNumber", "987654321");
+    const selectedOption = topUpOptions.find(
+      (option) => option.merchant_account_type === value
+    );
+    if (selectedOption) {
+      setValue("accountName", selectedOption.merchant_account_name || "");
+      setValue("accountNumber", selectedOption.merchant_account_number || "");
     }
   };
+  const uploadedFile = watch("file");
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          reset();
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="outline" onClick={() => setOpen(true)}>
           Deposit
@@ -134,11 +162,25 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
               control={control}
               render={({ field }) => (
                 <Input
-                  type="number"
+                  type="text"
                   id="amount"
                   placeholder="Enter the top-up amount (e.g., 1000)"
                   {...field}
                   autoFocus
+                  value={
+                    field.value ? Number(field.value).toLocaleString() : ""
+                  }
+                  onChange={(e) => {
+                    let value = e.target.value;
+
+                    value = value.replace(/\D/g, "");
+
+                    if (value.startsWith("0")) {
+                      value = value.replace(/^0+/, "");
+                    }
+
+                    field.onChange(value);
+                  }}
                 />
               )}
             />
@@ -167,8 +209,15 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
                     <SelectValue placeholder="Select top-up mode" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="GCASH">GCASH</SelectItem>
-                    <SelectItem value="GOTYME">GOTYME</SelectItem>
+                    {topUpOptions.map((option) => (
+                      <SelectItem
+                        key={option.merchant_id}
+                        value={option.merchant_account_type}
+                      >
+                        {option.merchant_account_type} -{" "}
+                        {option.merchant_account_name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               )}
@@ -224,25 +273,31 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
             </div>
           </div>
 
-          {/* File Upload */}
-          <div>
-            <Controller
-              name="file"
-              control={control}
-              render={({ field }) => (
-                <FileUpload
-                  label="Upload Proof of Payment"
-                  onFileChange={(file) => field.onChange(file)}
-                />
-              )}
-            />
-            {errors.file && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.file?.message}
-              </p>
-            )}
-          </div>
+          {uploadedFile ? (
+            <div className="flex flex-col justify-center items-center animate-pulse">
+              <CheckCircle className="animate-pulse text-green-600" size={50} />
 
+              <p className="text-green-600 text-xl font-bold">File Uploaded</p>
+            </div>
+          ) : (
+            <div>
+              <Controller
+                name="file"
+                control={control}
+                render={({ field }) => (
+                  <FileUpload
+                    label="Upload Proof of Payment"
+                    onFileChange={(file) => field.onChange(file)}
+                  />
+                )}
+              />
+              {errors.file && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.file?.message}
+                </p>
+              )}
+            </div>
+          )}
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? <Loader2 className="animate-spin" /> : null} Submit
           </Button>

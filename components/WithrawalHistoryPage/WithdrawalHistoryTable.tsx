@@ -42,6 +42,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Input } from "../ui/input";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 import TableLoading from "../ui/tableLoading";
 import { WithdrawalHistoryColumn } from "./WithdrawalHistoryColumn";
@@ -189,7 +190,7 @@ const WithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border">
+      <ScrollArea className="w-full overflow-x-auto ">
         {isFetchingList && <TableLoading />}
         <Table>
           <TableHeader>
@@ -238,7 +239,8 @@ const WithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
             )}
           </TableBody>
         </Table>
-      </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
       <Separator />
       <div className="flex items-center justify-between py-4">
         <Button

@@ -272,21 +272,29 @@ const DashboardWithdrawModalWithdraw = ({
                     className="w-full flex-grow"
                     placeholder="Enter amount"
                     {...field}
+                    value={field.value}
                     onChange={(e) => {
-                      const inputValue = e.target.value;
+                      let inputValue = e.target.value;
+
+                      if (inputValue.startsWith("0")) {
+                        inputValue = "";
+                      }
+
+                      inputValue = inputValue.replace(/\D/g, "");
+
+                      field.onChange(inputValue);
 
                       const numericValue = parseFloat(inputValue);
                       const maxAmount = getMaxAmount();
 
                       if (numericValue > maxAmount) {
                         setValue("amount", maxAmount.toString());
-                      } else {
-                        field.onChange(inputValue);
                       }
                     }}
                   />
                 )}
               />
+
               <Button
                 type="button"
                 className="ml-2 bg-blue-500 text-white"

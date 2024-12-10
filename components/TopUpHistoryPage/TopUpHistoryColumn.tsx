@@ -4,6 +4,15 @@ import { TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Copy } from "lucide-react";
 import { Badge } from "../ui/badge";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Textarea } from "../ui/textarea";
 
 const statusColorMap: Record<string, string> = {
   APPROVED: "bg-green-500",
@@ -128,6 +137,35 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
           {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))}
         </div>
       ),
+    },
+    {
+      accessorKey: "alliance_top_up_request_reject_note",
+      label: "Rejection Note",
+      header: () => <div>Rejection Note</div>,
+      cell: ({ row }) => {
+        const rejectionNote = row.getValue(
+          "alliance_top_up_request_reject_note"
+        ) as string;
+
+        return rejectionNote ? (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="destructive">View Rejection Note</Button>
+            </DialogTrigger>
+            <DialogContent type="table">
+              <DialogHeader>
+                <DialogTitle>Attachment</DialogTitle>
+              </DialogHeader>
+              <div className="flex justify-center items-center">
+                <Textarea value={rejectionNote} readOnly />
+              </div>
+              <DialogClose asChild>
+                <Button variant="secondary">Close</Button>
+              </DialogClose>
+            </DialogContent>
+          </Dialog>
+        ) : null;
+      },
     },
   ];
 };

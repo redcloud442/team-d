@@ -112,6 +112,7 @@ export const changeUserPassword = async (params: {
 
   const inputData = {
     email,
+    clientpass: password,
     password: encryptedData,
     iv,
   };
