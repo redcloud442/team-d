@@ -25,19 +25,21 @@ export default async function AppLayout({
   if (redirectTo) {
     redirect(redirectTo);
   }
+
   if (!profile) redirect("/500");
 
   return (
     <SidebarProvider>
       <div className="flex min-h-screen h-full w-full bg-gray-100 overflow-auto">
-        {teamMemberProfile.alliance_member_role !== "MEMBER" && (
-          <div>
-            <AppSidebar
-              userData={profile}
-              teamMemberProfile={teamMemberProfile}
-            />
-          </div>
-        )}
+        {teamMemberProfile.alliance_member_role !== "MEMBER" &&
+          teamMemberProfile.alliance_member_role !== "MERCHANT" && (
+            <div>
+              <AppSidebar
+                userData={profile}
+                teamMemberProfile={teamMemberProfile}
+              />
+            </div>
+          )}
 
         <div className="flex-1 flex flex-col overflow-x-auto">
           {teamMemberProfile.alliance_member_role !== "MEMBER" && (
@@ -45,9 +47,9 @@ export default async function AppLayout({
               <SidebarTrigger />
             </div>
           )}
-
-          {teamMemberProfile.alliance_member_role === "MEMBER" && (
-            <NavBar userData={profile} />
+          {(teamMemberProfile.alliance_member_role === "MEMBER" ||
+            teamMemberProfile.alliance_member_role === "MERCHANT") && (
+            <NavBar teamMemberProfile={teamMemberProfile} userData={profile} />
           )}
 
           <div className="p-4">{children}</div>

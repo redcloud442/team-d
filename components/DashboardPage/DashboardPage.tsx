@@ -40,6 +40,8 @@ const DashboardPage = ({
 
   const getPackagesData = async () => {
     try {
+      console.log("hey");
+
       setIsLoading(true);
       const data = await getDashboard(supabaseClient, {
         teamMemberId: earnings.alliance_earnings_member_id,
@@ -66,7 +68,7 @@ const DashboardPage = ({
       {isLoading && <TableLoading />}
 
       <div className="w-full space-y-6 px-4 md:px-10">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <h1 className="Title">Dashboard</h1>
 
         {/* Referral and Wallet Section */}
         <div className="flex items-center justify-between p-4 rounded-lg shadow-md bg-white">

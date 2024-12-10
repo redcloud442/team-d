@@ -83,25 +83,26 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
   return (
     <div className="mx-auto p-10">
       {isLoading && <TableLoading />}
-
-      <div>
-        <h1 className="Title">Admin Dashboard</h1>
-        <AdminDashboardCard
-          totalEarnings={totalEarnings}
-          totalWithdraw={totalWithdraw}
-          totalLoot={totalLoot}
-        />
-      </div>
-      <div>
-        <FormProvider {...filterMethods}>
-          <AdminDashboardChart
-            fetchAdminDashboardData={fetchAdminDashboardData}
-            chartData={chartData}
+      <div className="flex flex-col gap-6">
+        <div>
+          <h1 className="Title">Admin Dashboard</h1>
+          <AdminDashboardCard
+            totalEarnings={totalEarnings}
+            totalWithdraw={totalWithdraw}
+            totalLoot={totalLoot}
           />
-        </FormProvider>
-      </div>
-      <div>
-        <AdminDashboardTable teamMemberProfile={teamMemberProfile} />
+        </div>
+        <div>
+          <FormProvider {...filterMethods}>
+            <AdminDashboardChart
+              fetchAdminDashboardData={fetchAdminDashboardData}
+              chartData={chartData}
+            />
+          </FormProvider>
+        </div>
+        <div>
+          <AdminDashboardTable teamMemberProfile={teamMemberProfile} />
+        </div>
       </div>
     </div>
   );

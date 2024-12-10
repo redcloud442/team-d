@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { createClientSide } from "@/utils/supabase/client";
-import { user_table } from "@prisma/client";
+import { alliance_member_table, user_table } from "@prisma/client";
 import { ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -16,15 +16,15 @@ import NavigationLoader from "./NavigationLoader";
 
 type Props = {
   userData: user_table;
+  teamMemberProfile: alliance_member_table;
 };
 
-const NavBar = ({ userData }: Props) => {
+const NavBar = ({ userData, teamMemberProfile }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClientSide();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Navigation handler
   const handleNavigation = (url: string) => {
     if (pathname !== url) {
       setIsLoading(true);
@@ -43,12 +43,10 @@ const NavBar = ({ userData }: Props) => {
     }
   };
 
-  // Reset loader on pathname change
   useEffect(() => {
     setIsLoading(false);
   }, [pathname]);
 
-  // Reset loader on scroll
   useEffect(() => {
     const handleScroll = () => {
       setIsLoading(false);
@@ -73,6 +71,23 @@ const NavBar = ({ userData }: Props) => {
 
         {/* Navigation Links */}
         <div className="flex items-center space-x-4">
+          {teamMemberProfile.alliance_member_role === "MERCHANT" && (
+            <>
+              <Button
+                variant="ghost"
+                onClick={() => handleNavigation("/admin/top-up")}
+              >
+                Top Up
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => handleNavigation("/admin/withdrawal")}
+              >
+                Withdrawal
+              </Button>
+            </>
+          )}
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">

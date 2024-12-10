@@ -27,7 +27,7 @@ const Page = async () => {
     redirect(redirectTo);
   }
 
-  if (!earnings || !referal || !teamMemberProfile) return redirect("/500");
+  if (!earnings || !teamMemberProfile) return redirect("/500");
 
   const packages = await prisma.package_table.findMany();
 

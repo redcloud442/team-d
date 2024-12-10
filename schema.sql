@@ -78,7 +78,7 @@ plv8.subtransaction(function() {
       SELECT alliance_referral_link_member_id
       FROM alliance_schema.alliance_referral_link_table
       JOIN alliance_schema.alliance_member_table
-      ON alliance_member_id = alliance_refereral_link_member_id
+      ON alliance_member_id = alliance_referral_link_member_id
       JOIN user_schema.user_table ON user_id = alliance_member_user_id
       WHERE user_username = $1
     `, [referalLink]);
@@ -96,7 +96,11 @@ plv8.subtransaction(function() {
             alliance_referral_from_member_id,
             alliance_referral_level
         FROM alliance_schema.alliance_referral_table
-        WHERE alliance_referral_link_id = $1
+        JOIN alliance_schema.alliance_member_table
+        ON alliance_member_id = alliance_referral_from_member_id
+        JOIN user_schema.user_table
+        ON user_id = alliance_member_user_id
+        WHERE user_username = $1
         UNION ALL
         SELECT
             rt.alliance_referral_link_id,
@@ -114,6 +118,17 @@ plv8.subtransaction(function() {
     const newReferralLevel = referralHierarchy.length > 0 ? referralHierarchy[0].level + 1 : 1;
 
     if (newReferralLevel <= 12) {
+
+      const userData = plv8.execute(`
+        SELECT alliance_referral_link_id
+        FROM user_schema.user_table
+        JOIN alliance_schema.alliance_member_table
+        ON alliance_member_user_id = user_id
+        JOIN alliance_schema.alliance_referral_link_table
+        ON alliance_referral_link_member_id = alliance_member_id
+        WHERE user_username = $1
+      `,[referalLink])[0].alliance_referral_link_id;
+
       plv8.execute(`
         INSERT INTO alliance_schema.alliance_referral_table (
           alliance_referral_member_id,
@@ -124,7 +139,7 @@ plv8.subtransaction(function() {
         ) VALUES ($1, $2, $3, $4, $5)
       `, [
         allianceMemberId,
-        referalLink,
+        userData,
         referrerId,
         calculateBonus(newReferralLevel),
         newReferralLevel
@@ -155,7 +170,6 @@ function calculateBonus(level) {
   return levelBonusMap[level] || 0;
 }
 return returnData;
-
 $$ LANGUAGE plv8;
 
 CREATE OR REPLACE FUNCTION get_admin_top_up_history(
@@ -358,6 +372,7 @@ CREATE OR REPLACE FUNCTION get_admin_withdrawal_history(
 )
 RETURNS JSON
 AS $$
+
 let returnData = {
     data:[],
     totalCount:0
@@ -382,7 +397,7 @@ plv8.subtransaction(function() {
     WHERE alliance_member_id = $1
   `, [teamMemberId]);
 
-  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN' || member[0].alliance_member_role !== 'MERCHANT') {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
@@ -405,12 +420,17 @@ plv8.subtransaction(function() {
       u.user_last_name,
       u.user_email,
       m.alliance_member_id,
-      t.*
+      t.*,
+      approver.user_username AS approver_username
     FROM alliance_schema.alliance_withdrawal_request_table t
     JOIN alliance_schema.alliance_member_table m
       ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
     JOIN user_schema.user_table u
       ON u.user_id = m.alliance_member_user_id
+    LEFT JOIN alliance_schema.alliance_member_table mt
+      ON mt.alliance_member_id = t.alliance_withdrawal_request_approved_by
+    LEFT JOIN user_schema.user_table approver
+      ON approver.user_id = mt.alliance_member_user_id
     WHERE m.alliance_member_alliance_id = $1
     ${searchCondition}
     ${userCondition}
@@ -428,6 +448,10 @@ plv8.subtransaction(function() {
         ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
         JOIN user_schema.user_table u
         ON u.user_id = m.alliance_member_user_id
+        LEFT JOIN alliance_schema.alliance_member_table mt
+        ON mt.alliance_member_id = t.alliance_withdrawal_request_approved_by
+    LEFT JOIN user_schema.user_table approver
+      ON approver.user_id = mt.alliance_member_user_id
         WHERE m.alliance_member_alliance_id = $1
         ${searchCondition}
         ${searchCondition}
@@ -472,7 +496,7 @@ plv8.subtransaction(function() {
     WHERE alliance_member_id = $1
   `, [teamMemberId]);
 
-  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN' || member[0].alliance_member_role !== 'MERCHANT') {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
@@ -1445,18 +1469,18 @@ plv8.subtransaction(function() {
     return;
   }
 
-
-  const topUpAmount = plv8.execute(
+  // Fetch total earnings
+  const totalEarnings = plv8.execute(
     `
-    SELECT SUM(alliance_top_up_request_amount) AS total_top_up
-    FROM alliance_schema.alliance_top_up_request_table
-    WHERE alliance_top_up_request_member_id = $1
-      AND alliance_top_up_request_status = 'APPROVED'
+    SELECT SUM(package_member_amount) AS total_amount
+    FROM packages_schema.package_earnings_log
+    WHERE package_member_member_id = $1
+      AND package_member_status = 'ENDED'
     `,
     [teamMemberId]
   );
 
-
+  // Fetch approved withdrawal amounts
   const withdrawalAmount = plv8.execute(
     `
     SELECT SUM(alliance_withdrawal_request_amount) AS total_withdrawal
@@ -1467,29 +1491,32 @@ plv8.subtransaction(function() {
     [teamMemberId]
   );
 
+  // Fetch direct referral earnings (level 1)
   const allyBountyAmount = plv8.execute(
     `
-    SELECT SUM(alliance_referral_amount) AS total_bounty
-    FROM alliance_schema.alliance_referal_table
+    SELECT SUM(alliance_referral_bonus_amount) AS total_bounty
+    FROM alliance_schema.alliance_referral_table
     WHERE alliance_referral_from_member_id = $1
       AND alliance_referral_level = $2
     `,
     [teamMemberId, 1]
   );
 
-
+  // Fetch indirect referral earnings (level 2 and above)
   const higherLevelReferralAmount = plv8.execute(
     `
-    SELECT SUM(alliance_referral_amount) AS total_higher_referral
-    FROM alliance_schema.alliance_referal_table
+    SELECT SUM(alliance_referral_bonus_amount) AS total_higher_referral
+    FROM alliance_schema.alliance_referral_table
     WHERE alliance_referral_from_member_id = $1
       AND alliance_referral_level >= $2
     `,
     [teamMemberId, 2]
   );
 
+  // Prepare the return data
   returnData = {
-    topUpAmount: topUpAmount[0]?.total_top_up || 0,
+    success: true,
+    totalEarnings: totalEarnings[0]?.total_amount || 0,
     withdrawalAmount: withdrawalAmount[0]?.total_withdrawal || 0,
     directReferralAmount: allyBountyAmount[0]?.total_bounty || 0,
     indirectReferralAmount: higherLevelReferralAmount[0]?.total_higher_referral || 0
@@ -1500,8 +1527,39 @@ return returnData;
 $$ LANGUAGE plv8;
 
 
+CREATE OR REPLACE FUNCTION get_package_modal_data(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
 
+let returnData = []
+plv8.subtransaction(function() {
+  const {
+    teamMemberId
+  } = input_data;
 
+  const member = plv8.execute(`
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `, [teamMemberId]);
+
+  if (!member.length || member[0].alliance_member_role !== 'MEMBER' && member[0].alliance_member_role !== 'MERCHANT') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const packageData = plv8.execute(`
+    SELECT *
+    FROM packages_schema.package_table
+  `);
+
+  returnData = packageData
+});
+return returnData;
+
+$$ LANGUAGE plv8;
 
 CREATE OR REPLACE FUNCTION update_earnings_based_on_packages()
 RETURNS void AS $$

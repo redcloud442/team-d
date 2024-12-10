@@ -68,7 +68,8 @@ export const protectionAdminUser = async () => {
 
     if (
       !teamMember?.alliance_member_alliance_id ||
-      teamMember.alliance_member_role !== "ADMIN"
+      (teamMember.alliance_member_role !== "ADMIN" &&
+        teamMember.alliance_member_role !== "MERCHANT")
     ) {
       return { redirect: "/500" };
     }
@@ -88,6 +89,7 @@ export const protectionAdminUser = async () => {
 
 export const protectionMemberUser = async () => {
   const supabase = await createClientServerSide();
+
   const { data } = await supabase.auth.getUser();
 
   if (!data?.user) {
