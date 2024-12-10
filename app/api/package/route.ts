@@ -29,7 +29,6 @@ export async function POST(request: Request) {
     await protectionMemberUser();
     await applyRateLimit(teamMemberId, ip);
 
-    // Fetch package data, earnings, and referral hierarchy in a single transaction
     const [packageData, earningsData, referralData] = await prisma.$transaction(
       [
         prisma.package_table.findUnique({
@@ -47,7 +46,6 @@ export async function POST(request: Request) {
       ]
     );
 
-    // Early validation checks
     if (!packageData) {
       return NextResponse.json(
         { error: "Package not found." },
@@ -72,13 +70,11 @@ export async function POST(request: Request) {
     const packagePercentage = packageData.package_percentage / 100;
     const packageAmountEarnings = amount * packagePercentage;
 
-    // Generate the referral chain
     const referralChain = generateReferralChain(
       referralData?.alliance_referral_hierarchy ?? null,
       teamMemberId
     );
 
-    // Execute the transaction
     const transaction = await prisma.$transaction(async (prisma) => {
       const connectionData =
         await prisma.package_member_connection_table.create({
@@ -121,7 +117,6 @@ export async function POST(request: Request) {
   }
 }
 
-// Optimized function to generate referral chain
 function generateReferralChain(hierarchy: string | null, teamMemberId: string) {
   const referralChain: {
     referrerId: string;
@@ -138,10 +133,9 @@ function generateReferralChain(hierarchy: string | null, teamMemberId: string) {
     throw new Error("Current member ID not found in the hierarchy.");
   }
 
-  // Collect up to 12 levels of referrers
   for (
     let i = currentIndex - 1, level = 1;
-    i >= 0 && level <= 12;
+    i >= 0 && level <= 11;
     i--, level++
   ) {
     referralChain.push({
@@ -154,7 +148,6 @@ function generateReferralChain(hierarchy: string | null, teamMemberId: string) {
   return referralChain;
 }
 
-// Function to determine the bonus percentage based on the level
 function getBonusPercentage(level: number): number {
   const bonusMap: Record<number, number> = {
     1: 10,
