@@ -1,4 +1,4 @@
-import { ChartDataMember } from "@/utils/types";
+import { ChartDataMember, DashboardEarnings } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const getDashboard = async (
@@ -14,4 +14,18 @@ export const getDashboard = async (
   if (error) throw error;
 
   return data as ChartDataMember[];
+};
+
+export const getDashboardEarnings = async (
+  supabaseClient: SupabaseClient,
+  params: {
+    teamMemberId: string;
+  }
+) => {
+  const { data, error } = await supabaseClient.rpc("get_dashboard_earnings", {
+    input_data: params,
+  });
+  if (error) throw error;
+
+  return data as DashboardEarnings;
 };

@@ -10,6 +10,7 @@ import {
   alliance_member_table,
   package_table,
 } from "@prisma/client";
+import { Dispatch, SetStateAction } from "react";
 import DashboardDepositModalHistory from "./DashboardDepositModal/DashboardDepositHistory";
 import DashboardDepositModalDeposit from "./DashboardDepositModal/DashboardDepositModalDeposit";
 import DashboardDepositModalPackages from "./DashboardDepositModal/DashboardDepositPackagesModal";
@@ -18,12 +19,14 @@ type Props = {
   teamMemberProfile: alliance_member_table;
   packages: package_table[];
   earnings: alliance_earnings_table;
+  setEarnings: Dispatch<SetStateAction<alliance_earnings_table>>;
 };
 
 const DashboardDepositRequest = ({
   packages,
   teamMemberProfile,
   earnings,
+  setEarnings,
 }: Props) => {
   return (
     <Card className="w-full mx-auto">
@@ -43,6 +46,7 @@ const DashboardDepositRequest = ({
               packages={packages}
               earnings={earnings}
               teamMemberProfile={teamMemberProfile}
+              setEarnings={setEarnings}
             />
 
             <DashboardDepositModalHistory

@@ -46,3 +46,10 @@ export type ChartDataMember = {
   completion_date: string;
   amount: number;
 };
+
+export type DashboardEarnings = {
+  directReferralAmount: number;
+  indirectReferralAmount: number;
+  totalEarnings: number;
+  withdrawalAmount: number;
+};

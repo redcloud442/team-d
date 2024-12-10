@@ -1054,21 +1054,26 @@ CREATE OR REPLACE FUNCTION get_dashboard_data(
 RETURNS JSON
 AS $$
 let returnData = [];
+
 plv8.subtransaction(function() {
   const {
     teamMemberId,
     dateFilter,
   } = input_data;
 
+  // Validate teamMemberId
   if (!teamMemberId) {
     returnData = { success: false, message: 'teamMemberId is required' };
     return;
   }
 
-  const currentDate = new Date(
+  // Get the current timestamp with time zone
+  const currentTimestamp = new Date(
     plv8.execute(`SELECT public.get_current_date()`)[0].get_current_date
-  ).toISOString();
+  )
+  plv8.elog(NOTICE, `Current Timestamp: ${currentTimestamp}`);
 
+  // Check if the member exists and has the correct role
   const member = plv8.execute(
     `
     SELECT alliance_member_role
@@ -1078,7 +1083,11 @@ plv8.subtransaction(function() {
     [teamMemberId]
   );
 
-  if (!member.length || (member[0].alliance_member_role !== 'MEMBER' && member[0].alliance_member_role !== 'MERCHANT')) {
+  if (
+    !member.length ||
+    (member[0].alliance_member_role !== 'MEMBER' &&
+     member[0].alliance_member_role !== 'MERCHANT')
+  ) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
@@ -1100,24 +1109,42 @@ plv8.subtransaction(function() {
   returnData = chartData.map(row => {
     const startDate = new Date(row.start_date);
     const completionDate = new Date(row.completion_date);
-    const elapsedDays = Math.max((new Date(currentDate) - startDate) / (1000 * 60 * 60 * 24), 0);
-    const totalDays = Math.max((completionDate - startDate) / (1000 * 60 * 60 * 24), 0);
 
-    const percentage =
-      elapsedDays >= totalDays
-        ? 100
-        : Math.round((elapsedDays / totalDays) * 100);
+    plv8.elog(NOTICE, `Start Date: ${startDate}`);
+    plv8.elog(NOTICE, `Completion Date: ${completionDate}`);
+
+    if (isNaN(startDate) || isNaN(completionDate)) {
+      plv8.elog(NOTICE, `Invalid dates detected.`);
+      return {
+        package: row.package,
+        completion_date: null,
+        amount: parseFloat(row.amount),
+        completion: 0
+      };
+    }
+
+
+    const elapsedTimeMs = Math.max(currentTimestamp - startDate, 0);
+
+ 
+    const totalTimeMs = Math.max(completionDate - startDate, 0);
+
+    const percentage = totalTimeMs > 0
+      ? parseFloat(((elapsedTimeMs / totalTimeMs) * 100).toFixed(2))
+      : 100.0;
 
     return {
       package: row.package,
-      completion_date: completionDate.toISOString().split('T')[0],
+      completion_date: completionDate.toISOString(),
       amount: parseFloat(row.amount),
-      completion:percentage
+      completion: percentage
     };
   });
 });
+
 return returnData;
 $$ LANGUAGE plv8;
+
 
 
 CREATE OR REPLACE FUNCTION get_history_log(
@@ -1330,6 +1357,90 @@ plv8.subtransaction(function() {
 
 return returnData;
 $$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION get_dashboard_earnings(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {};
+
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 10,
+    teamMemberId
+  } = input_data;
+
+  // Check if the member exists
+  const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+    `,
+    [teamMemberId]
+  );
+
+  if (!member.length) {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+
+  const topUpAmount = plv8.execute(
+    `
+    SELECT SUM(alliance_top_up_request_amount) AS total_top_up
+    FROM alliance_schema.alliance_top_up_request_table
+    WHERE alliance_top_up_request_member_id = $1
+      AND alliance_top_up_request_status = 'APPROVED'
+    `,
+    [teamMemberId]
+  );
+
+
+  const withdrawalAmount = plv8.execute(
+    `
+    SELECT SUM(alliance_withdrawal_request_amount) AS total_withdrawal
+    FROM alliance_schema.alliance_withdrawal_request_table
+    WHERE alliance_withdrawal_request_member_id = $1
+      AND alliance_withdrawal_request_status = 'APPROVED'
+    `,
+    [teamMemberId]
+  );
+
+  const allyBountyAmount = plv8.execute(
+    `
+    SELECT SUM(alliance_referral_amount) AS total_bounty
+    FROM alliance_schema.alliance_referal_table
+    WHERE alliance_referral_from_member_id = $1
+      AND alliance_referral_level = $2
+    `,
+    [teamMemberId, 1]
+  );
+
+
+  const higherLevelReferralAmount = plv8.execute(
+    `
+    SELECT SUM(alliance_referral_amount) AS total_higher_referral
+    FROM alliance_schema.alliance_referal_table
+    WHERE alliance_referral_from_member_id = $1
+      AND alliance_referral_level >= $2
+    `,
+    [teamMemberId, 2]
+  );
+
+  returnData = {
+    topUpAmount: topUpAmount[0]?.total_top_up || 0,
+    withdrawalAmount: withdrawalAmount[0]?.total_withdrawal || 0,
+    directReferralAmount: allyBountyAmount[0]?.total_bounty || 0,
+    indirectReferralAmount: higherLevelReferralAmount[0]?.total_higher_referral || 0
+  };
+});
+
+return returnData;
+$$ LANGUAGE plv8;
+
 
 
 

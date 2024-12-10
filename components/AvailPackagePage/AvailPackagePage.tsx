@@ -7,7 +7,7 @@ import { createPackageConnection } from "@/services/Package/Member";
 import { escapeFormData } from "@/utils/function";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader } from "lucide-react";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -24,9 +24,15 @@ type Props = {
   earnings: alliance_earnings_table;
   pkg: package_table;
   teamMemberProfile: alliance_member_table;
+  setEarnings: Dispatch<SetStateAction<alliance_earnings_table>>;
 };
 
-const AvailPackagePage = ({ earnings, pkg, teamMemberProfile }: Props) => {
+const AvailPackagePage = ({
+  earnings,
+  pkg,
+  teamMemberProfile,
+  setEarnings,
+}: Props) => {
   const { toast } = useToast();
   const [maxAmount, setMaxAmount] = useState(earnings.alliance_olympus_wallet);
 
@@ -50,6 +56,7 @@ const AvailPackagePage = ({ earnings, pkg, teamMemberProfile }: Props) => {
     control,
     setValue,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -78,6 +85,10 @@ const AvailPackagePage = ({ earnings, pkg, teamMemberProfile }: Props) => {
         packageId: pkg.package_id,
       });
 
+      setEarnings((prev) => ({
+        ...prev,
+        alliance_olympus_wallet: prev.alliance_olympus_wallet - result.amount,
+      }));
       setMaxAmount((prev) => prev - result.amount);
     } catch (e) {
       const errorMessage =
@@ -99,6 +110,10 @@ const AvailPackagePage = ({ earnings, pkg, teamMemberProfile }: Props) => {
       setValue("amount", numericValue, { shouldValidate: true });
     }
   };
+  const amount = watch("amount");
+  const computation = (Number(amount) * pkg.package_percentage) / 100;
+
+  const sumOfTotal = maxAmount + computation;
 
   return (
     <div className="flex flex-col">
@@ -117,6 +132,13 @@ const AvailPackagePage = ({ earnings, pkg, teamMemberProfile }: Props) => {
             <div className="text-right mb-2">
               <span className="font-medium">Maximum Amount:</span>{" "}
               <span>{formattedMaxAmount}</span>
+            </div>
+            <div className="text-right mb-2">
+              <span className="font-medium">Computation:</span>{" "}
+              <span>
+                {sumOfTotal} in {pkg.packages_days}{" "}
+                {pkg.packages_days === 1 ? "day" : "days"}
+              </span>
             </div>
 
             <label

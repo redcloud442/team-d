@@ -15,18 +15,20 @@ import {
   alliance_member_table,
   package_table,
 } from "@prisma/client";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
   packages: package_table[];
   earnings: alliance_earnings_table;
+  setEarnings: Dispatch<SetStateAction<alliance_earnings_table>>;
 };
 
 const DashboardDepositModalPackages = ({
   packages,
   teamMemberProfile,
   earnings,
+  setEarnings,
 }: Props) => {
   const [open, setOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<package_table | null>(
@@ -55,6 +57,7 @@ const DashboardDepositModalPackages = ({
             earnings={earnings}
             pkg={selectedPackage}
             teamMemberProfile={teamMemberProfile}
+            setEarnings={setEarnings}
           />
         ) : (
           packages.map((pkg) => (

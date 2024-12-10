@@ -1,113 +1,53 @@
-// "use client";
+"use client";
 
-// import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { ChartDataMember } from "@/utils/types";
+import { PhilippinePeso } from "lucide-react";
 
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardFooter,
-//   CardHeader,
-//   CardTitle,
-// } from "@/components/ui/card";
-// import {
-//   ChartConfig,
-//   ChartContainer,
-//   ChartTooltip,
-// } from "@/components/ui/chart";
-// import { ChartDataMember } from "@/utils/types";
+type Props = {
+  chartData: ChartDataMember[];
+};
 
-// type Props = {
-//   chartData: ChartDataMember[];
-// };
+const DashboardPackages = ({ chartData }: Props) => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {chartData.map((data, index) => (
+        <Card key={index} className="w-full">
+          <CardHeader>
+            <CardTitle>{data.package}</CardTitle>
+            <CardDescription>
+              Completion Date:{" "}
+              {new Date(data.completion_date).toLocaleDateString()}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium">Completion</span>
+              <span className="text-sm font-medium">{data.completion}%</span>
+            </div>
+            <Progress value={data.completion} max={100} />
+          </CardContent>
+          <CardFooter className="flex-col items-start gap-2 text-sm">
+            <div className="font-medium leading-none">
+              Amount: <PhilippinePeso />
+              {data.amount.toFixed(2)}
+            </div>
+            <div className="leading-none text-muted-foreground">
+              Package completion rate updated.
+            </div>
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  );
+};
 
-// const chartConfig = {
-//   completion: {
-//     label: "Completion (%)",
-//     color: "hsl(var(--chart-1))",
-//   },
-//   completion_date: {
-//     label: "Date Completed",
-//     color: "hsl(var(--chart-1))",
-//   },
-//   amount: {
-//     label: "Peso",
-//     color: "hsl(var(--chart-1))",
-//   },
-// } satisfies ChartConfig;
-
-// // Custom Tooltip Component
-// const CustomTooltip = ({ active, payload }: any) => {
-//   if (active && payload && payload.length) {
-//     const data = payload[0].payload;
-//     return (
-//       <div className="bg-white p-3 shadow-lg border rounded-md">
-//         <p className="text-sm font-bold">{data.package}</p>
-//         <p className="text-sm">Completion: {data.completion}%</p>
-//         <p className="text-sm">Amount: ₱{data.amount.toLocaleString()}</p>
-//         <p className="text-sm">Completion Date: {data.completion_date}</p>
-//       </div>
-//     );
-//   }
-//   return null;
-// };
-
-// const DashboardPackages = ({ chartData }: Props) => {
-//   return (
-//     <Card>
-//       <CardHeader>
-//         <CardTitle>Package Completion</CardTitle>
-//         <CardDescription>Completion status for packages</CardDescription>
-//       </CardHeader>
-//       <CardContent>
-//         <ChartContainer config={chartConfig}>
-//           <BarChart
-//             width={500}
-//             height={300}
-//             data={chartData}
-//             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-//           >
-//             <CartesianGrid vertical={false} />
-//             <XAxis
-//               dataKey="package"
-//               tickLine={false}
-//               tickMargin={10}
-//               axisLine={false}
-//             />
-//             <ChartTooltip
-//               cursor={false}
-//               content={<CustomTooltip hideLabel />}
-//             />
-//             <Bar dataKey="completion" fill="var(--color-completion)" radius={8}>
-//               <LabelList
-//                 dataKey="completion"
-//                 position="top"
-//                 content={({ x = 0, y = 0, width = 0, value }) => (
-//                   <text
-//                     x={Number(x) + Number(width) / 2}
-//                     y={Number(y) - 5}
-//                     fontSize={12}
-//                     fill="#000"
-//                     textAnchor="middle"
-//                   >
-//                     {value}% Completion
-//                   </text>
-//                 )}
-//               />
-//             </Bar>
-//           </BarChart>
-//         </ChartContainer>
-//       </CardContent>
-//       <CardFooter className="flex-col items-start gap-2 text-sm">
-//         <div className="flex gap-2 font-medium leading-none">
-//           Package completion rates updated
-//         </div>
-//         <div className="leading-none text-muted-foreground">
-//           Showing completion percentages for available packages.
-//         </div>
-//       </CardFooter>
-//     </Card>
-//   );
-// };
-
-// export default DashboardPackages;
+export default DashboardPackages;

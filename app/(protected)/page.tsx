@@ -1,6 +1,8 @@
 import DashboardPage from "@/components/DashboardPage/DashboardPage";
+import { getDashboardEarnings } from "@/services/Dasboard/Member";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
+import { createClientServerSide } from "@/utils/supabase/server";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -13,6 +15,7 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
+  const supabase = await createClientServerSide();
   const {
     redirect: redirectTo,
     earnings,
@@ -28,10 +31,15 @@ const Page = async () => {
 
   const packages = await prisma.package_table.findMany();
 
+  const dashboardEarnings = await getDashboardEarnings(supabase, {
+    teamMemberId: teamMemberProfile.alliance_member_id,
+  });
+
   return (
     <DashboardPage
       teamMemberProfile={teamMemberProfile}
       referal={referal}
+      dashboardEarnings={dashboardEarnings}
       earnings={earnings}
       packages={packages}
     />

@@ -103,8 +103,6 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
 
-  const pageCount = Math.ceil(requestCount / 13);
-
   const fetchAdminRequest = async () => {
     try {
       if (!teamMemberProfile) return;
@@ -129,7 +127,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
         teamId: teamMemberProfile.alliance_member_alliance_id,
         teamMemberId: teamMemberProfile.alliance_member_id,
         page: activePage,
-        limit: 13,
+        limit: 10,
         columnAccessor: columnAccessor,
         isAscendingSort: isAscendingSort,
         search: emailFilter,
@@ -147,6 +145,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
               : undefined,
         },
       });
+      console.log(data);
 
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
@@ -158,8 +157,8 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const {
     columns,
-    isRejectModalOpen,
-    setIsRejectModalOpen,
+    isOpenModal,
+    setIsOpenModal,
     handleUpdateStatus,
     isLoading,
   } = useAdminTopUpApprovalColumns(fetchAdminRequest);
@@ -181,6 +180,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
       rowSelection,
     },
   });
+  const pageCount = Math.ceil(requestCount / 13);
 
   const { register, handleSubmit, getValues, control, reset, watch } =
     useForm<FilterFormValues>({
@@ -275,7 +275,6 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
     await fetchAdminRequest();
   };
 
-  const startDate = watch("dateFilter.start");
   const rejectNote = watch("rejectNote");
 
   return (
@@ -285,54 +284,55 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
           className="flex flex-col gap-6"
           onSubmit={handleSubmit(handleFilter)}
         >
-          {isRejectModalOpen && (
+          {isOpenModal && (
             <Dialog
-              open={isRejectModalOpen.open}
-              onOpenChange={(open) =>
-                setIsRejectModalOpen({ ...isRejectModalOpen, open })
-              }
+              open={isOpenModal.open}
+              onOpenChange={(open) => setIsOpenModal({ ...isOpenModal, open })}
             >
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Reject Request</DialogTitle>
+                  <DialogTitle>{isOpenModal.status} Request</DialogTitle>
                 </DialogHeader>
-
-                <Controller
-                  name="rejectNote"
-                  control={control}
-                  rules={{ required: "Rejection note is required" }}
-                  render={({ field, fieldState }) => (
-                    <div className="flex flex-col gap-2">
-                      <Textarea
-                        placeholder="Enter the reason for rejection..."
-                        {...field}
-                      />
-                      {fieldState.error && (
-                        <span className="text-red-500 text-sm">
-                          {fieldState.error.message}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                />
-
+                {isOpenModal.status === "REJECTED" && (
+                  <Controller
+                    name="rejectNote"
+                    control={control}
+                    rules={{ required: "Rejection note is required" }}
+                    render={({ field, fieldState }) => (
+                      <div className="flex flex-col gap-2">
+                        <Textarea
+                          placeholder="Enter the reason for rejection..."
+                          {...field}
+                        />
+                        {fieldState.error && (
+                          <span className="text-red-500 text-sm">
+                            {fieldState.error.message}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  />
+                )}
                 <div className="flex justify-end gap-2 mt-4">
                   <DialogClose asChild>
                     <Button variant="secondary">Cancel</Button>
                   </DialogClose>
                   <Button
+                    disabled={isLoading}
                     onClick={() =>
                       handleUpdateStatus(
-                        "REJECTED",
-                        isRejectModalOpen.requestId,
+                        isOpenModal.status,
+                        isOpenModal.requestId,
                         rejectNote
                       )
                     }
                   >
                     {isLoading ? (
                       <Loader2 className="animate-spin" />
-                    ) : (
+                    ) : isOpenModal.status === "REJECTED" ? (
                       "Confirm Rejection"
+                    ) : (
+                      "Confirm Approval"
                     )}
                   </Button>
                 </div>

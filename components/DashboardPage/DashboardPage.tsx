@@ -2,7 +2,7 @@
 
 import { getDashboard } from "@/services/Dasboard/Member";
 import { createClientSide } from "@/utils/supabase/client";
-import { ChartDataMember } from "@/utils/types";
+import { ChartDataMember, DashboardEarnings } from "@/utils/types";
 import {
   alliance_earnings_table,
   alliance_member_table,
@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import CardAmount from "../ui/cardAmount";
 import TableLoading from "../ui/tableLoading";
 import DashboardDepositRequest from "./DashboardDepositRequest/DashboardDepositRequest";
+import DashboardPackages from "./DashboardPackages";
 import DashboardWithdrawRequest from "./DashboardWithdrawRequest/DashboardWithdrawRequest";
 
 type Props = {
@@ -21,19 +22,22 @@ type Props = {
   teamMemberProfile: alliance_member_table;
   referal: alliance_referral_link_table;
   packages: package_table[];
+  dashboardEarnings: DashboardEarnings;
 };
 
 const DashboardPage = ({
-  earnings,
+  earnings: initialEarnings,
   referal,
   teamMemberProfile,
   packages,
+  dashboardEarnings,
 }: Props) => {
   const supabaseClient = createClientSide();
   const [chartData, setChartData] = useState<ChartDataMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [earnings, setEarnings] =
+    useState<alliance_earnings_table>(initialEarnings);
 
-  // Fetch package data
   const getPackagesData = async () => {
     try {
       setIsLoading(true);
@@ -58,7 +62,7 @@ const DashboardPage = ({
   }, []);
 
   return (
-    <div className="min-h-screen h-full mx-auto py-8 border-2">
+    <div className="min-h-screen h-full mx-auto py-8 ">
       {isLoading && <TableLoading />}
 
       <div className="w-full space-y-6 px-4 md:px-10">
@@ -88,33 +92,36 @@ const DashboardPage = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <CardAmount
             title="Total Earnings"
-            value={earnings.alliance_olympus_earnings}
+            value={dashboardEarnings.totalEarnings}
             description=""
             descriptionClassName="text-sm text-green-600"
           />
           <CardAmount
             title="Total Withdraw"
-            value={earnings.alliance_olympus_loot}
+            value={dashboardEarnings.withdrawalAmount}
             description=""
             descriptionClassName="text-sm text-gray-500"
           />
           <CardAmount
             title="Ally Bounty"
-            value={earnings.alliance_ally_bounty}
+            value={dashboardEarnings.directReferralAmount}
             description=""
             descriptionClassName="text-sm text-green-600"
           />
           <CardAmount
             title="Legion Bounty"
-            value={earnings.alliance_legion_bounty}
+            value={dashboardEarnings.indirectReferralAmount}
             description=""
             descriptionClassName="text-sm text-red-600"
           />
         </div>
-
+        <div className=" gap-6">
+          <DashboardPackages chartData={chartData} />
+        </div>
         <div className="w-full flex flex-col sm:flex-row space-6 gap-6">
           <DashboardDepositRequest
             earnings={earnings}
+            setEarnings={setEarnings}
             packages={packages}
             teamMemberProfile={teamMemberProfile}
           />

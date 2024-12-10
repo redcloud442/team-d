@@ -34,9 +34,10 @@ const statusColorMap: Record<string, string> = {
 export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [isRejectModalOpen, setIsRejectModalOpen] = useState({
+  const [isOpenModal, setIsOpenModal] = useState({
     open: false,
     requestId: "",
+    status: "",
   });
 
   const handleUpdateStatus = useCallback(
@@ -50,10 +51,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
           description: `${status} Request Successfully`,
           variant: "success",
         });
-
-        if (status === "REJECTED") {
-          setIsRejectModalOpen({ open: false, requestId: "" });
-        }
+        setIsOpenModal({ open: false, requestId: "", status: "" });
       } catch (e) {
         toast({
           title: `Status Failed`,
@@ -295,7 +293,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
         const data = row.original;
         return (
           <DropdownMenu>
-            {data.alliance_top_up_request_status !== "APPROVED" && (
+            {data.alliance_top_up_request_status === "PENDING" && (
               <>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0">
@@ -306,10 +304,11 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuItem
                     onClick={() =>
-                      handleUpdateStatus(
-                        "APPROVED",
-                        data.alliance_top_up_request_id
-                      )
+                      setIsOpenModal({
+                        open: true,
+                        requestId: data.alliance_top_up_request_id,
+                        status: "APPROVED",
+                      })
                     }
                   >
                     Approve
@@ -317,9 +316,10 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() =>
-                      setIsRejectModalOpen({
+                      setIsOpenModal({
                         open: true,
                         requestId: data.alliance_top_up_request_id,
+                        status: "REJECTED",
                       })
                     }
                   >
@@ -340,8 +340,8 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
 
   return {
     columns,
-    isRejectModalOpen,
-    setIsRejectModalOpen,
+    isOpenModal,
+    setIsOpenModal,
     handleUpdateStatus,
     isLoading,
   };
