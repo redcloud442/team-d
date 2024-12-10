@@ -106,7 +106,7 @@ const AdminDashboardChart = ({ chartData, fetchAdminDashboardData }: Props) => {
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {field.value
                       ? format(new Date(field.value), "PPP")
-                      : "Select Start Date"}
+                      : "Select End Date"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">

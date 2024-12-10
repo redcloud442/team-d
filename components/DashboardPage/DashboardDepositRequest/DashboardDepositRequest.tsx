@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ChartDataMember } from "@/utils/types";
 import {
   alliance_earnings_table,
   alliance_member_table,
@@ -20,10 +21,12 @@ type Props = {
   packages: package_table[];
   earnings: alliance_earnings_table;
   setEarnings: Dispatch<SetStateAction<alliance_earnings_table>>;
+  setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
 };
 
 const DashboardDepositRequest = ({
   packages,
+  setChartData,
   teamMemberProfile,
   earnings,
   setEarnings,
@@ -47,6 +50,7 @@ const DashboardDepositRequest = ({
               earnings={earnings}
               teamMemberProfile={teamMemberProfile}
               setEarnings={setEarnings}
+              setChartData={setChartData}
             />
 
             <DashboardDepositModalHistory

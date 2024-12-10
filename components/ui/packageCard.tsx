@@ -29,9 +29,9 @@ const PackageCard = ({
       <h2 className="text-xl font-bold ">{packageName}</h2>
 
       <p className="text-gray-600 text-center">{packageDescription}</p>
-
       <p className="text-2xl text-center font-extrabold text-gray-800">
-        {packagePercentage} Earnings in {packageDays} Days
+        {packagePercentage} Earnings in{" "}
+        {Number(packageDays) > 1 ? `Days` : ` Day`}
       </p>
 
       {href && type === "MEMBER" && (

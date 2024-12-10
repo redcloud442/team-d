@@ -19,6 +19,17 @@ export async function POST(request: Request) {
       );
     }
 
+    if (amount.length > 10) {
+      return NextResponse.json(
+        { error: "Amount cannot be greater than 10 digits." },
+        { status: 400 }
+      );
+    }
+
+    if (amount.length <= 0) {
+      return NextResponse.json({ error: "Amount Error" }, { status: 400 });
+    }
+
     await protectionMemberUser();
 
     await applyRateLimit(teamMemberId, ip);

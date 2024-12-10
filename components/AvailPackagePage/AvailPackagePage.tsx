@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { createPackageConnection } from "@/services/Package/Member";
 import { escapeFormData } from "@/utils/function";
+import { ChartDataMember } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   alliance_earnings_table,
@@ -24,6 +25,7 @@ type Props = {
   teamMemberProfile: alliance_member_table;
   setEarnings: Dispatch<SetStateAction<alliance_earnings_table>>;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
 };
 
 const AvailPackagePage = ({
@@ -32,6 +34,7 @@ const AvailPackagePage = ({
   teamMemberProfile,
   setEarnings,
   setOpen,
+  setChartData,
 }: Props) => {
   const { toast } = useToast();
   const [maxAmount, setMaxAmount] = useState(earnings.alliance_olympus_wallet);
@@ -70,10 +73,19 @@ const AvailPackagePage = ({
     },
   });
 
+  const amount = watch("amount");
+  const computation = amount
+    ? (Number(amount) * pkg.package_percentage) / 100
+    : 0;
+  const sumOfTotal = Number(amount) + computation;
+
   const onSubmit = async (data: FormValues) => {
     try {
       const result = escapeFormData({ ...data, amount: Number(data.amount) });
-
+      const now = new Date();
+      const completionDate = new Date(
+        now.getTime() + pkg.packages_days * 24 * 60 * 60 * 1000
+      );
       await createPackageConnection({
         packageData: result,
         teamMemberId: teamMemberProfile.alliance_member_id,
@@ -93,6 +105,16 @@ const AvailPackagePage = ({
       }));
 
       setMaxAmount((prev) => prev - result.amount);
+      setChartData((prev) => [
+        ...prev,
+        {
+          package: pkg.package_name,
+          completion: 0,
+          completion_date: completionDate.toISOString(),
+          amount: sumOfTotal,
+        },
+      ]);
+
       setOpen(false);
     } catch (e) {
       const errorMessage =
@@ -105,12 +127,6 @@ const AvailPackagePage = ({
       });
     }
   };
-
-  const amount = watch("amount");
-  const computation = amount
-    ? (Number(amount) * pkg.package_percentage) / 100
-    : 0;
-  const sumOfTotal = maxAmount + computation;
 
   return (
     <div className="flex flex-col">
@@ -126,16 +142,33 @@ const AvailPackagePage = ({
 
           <div>
             {maxAmount !== 0 && (
-              <div className="text-right mb-2">
-                <div className="text-right mb-2">
+              <div className="text-right mb-4 space-y-2">
+                <div>
                   <span className="font-medium">Maximum Amount:</span>{" "}
                   <span>{formattedMaxAmount}</span>
                 </div>
-                <span className="font-medium">Computation:</span>{" "}
-                <span>
-                  {sumOfTotal.toLocaleString()} in {pkg.packages_days}{" "}
-                  {pkg.packages_days === 1 ? "day" : "days"}
-                </span>
+                {amount && (
+                  <>
+                    <div>
+                      <span className="font-medium">Investment: </span>
+                      <span className="mt-1">{amount}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium">
+                        Interest Rate {pkg.package_percentage} % :{" "}
+                      </span>
+                      <span className="mt-1">{computation}</span>
+                    </div>
+                  </>
+                )}
+
+                <div>
+                  <span className="font-medium">Total: </span>
+                  <span>
+                    ₱ {sumOfTotal.toLocaleString()} in {pkg.packages_days}{" "}
+                    {pkg.packages_days === 1 ? "day" : "days"}
+                  </span>
+                </div>
               </div>
             )}
             {maxAmount !== 0 ? (
@@ -158,12 +191,14 @@ const AvailPackagePage = ({
                       {...field}
                       className="w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
                       value={field.value}
+                      min={10000000000}
                       onChange={(e) => {
                         let value = e.target.value.replace(/\D/g, "");
 
                         if (value.startsWith("0")) {
                           value = value.replace(/^0+/, "");
                         }
+                        if (value.length > 10) return null;
 
                         field.onChange(value);
                       }}
@@ -180,7 +215,7 @@ const AvailPackagePage = ({
                   <Button
                     disabled={isSubmitting || maxAmount === 0}
                     type="submit"
-                    className="w-full py-3 rounded-lg"
+                    className="w-full py-3 mt-4 rounded-lg"
                   >
                     {isSubmitting && <Loader2 className="animate-spin mr-2" />}
                     Avail Package
