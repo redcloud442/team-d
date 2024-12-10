@@ -102,36 +102,6 @@ export async function POST(request: Request) {
         });
       }
 
-      const bulkUpdateSQL = `
-        UPDATE alliance_schema.alliance_earnings_table
-        SET
-            alliance_ally_bounty = alliance_ally_bounty + CASE
-            WHEN data.level = 1 THEN data.bonus_amount
-            ELSE 0
-            END,
-            alliance_legion_bounty = alliance_legion_bounty + CASE
-            WHEN data.level > 1 THEN data.bonus_amount
-            ELSE 0
-            END
-        FROM (VALUES ${referralChain
-          .map(
-            (_, index) =>
-              `($${index * 3 + 1}::uuid, $${index * 3 + 2}::numeric, $${index * 3 + 3}::integer)`
-          )
-          .join(", ")}) AS data(member_id, bonus_amount, level)
-        WHERE alliance_earnings_table.alliance_earnings_member_id = data.member_id;
-    `;
-
-      const queryParams = referralChain.flatMap((ref) => [
-        ref.memberId,
-        amount * (ref.percentage / 100),
-        ref.level,
-      ]);
-
-      if (referralChain.length > 0) {
-        await prisma.$executeRawUnsafe(bulkUpdateSQL, ...queryParams);
-      }
-
       return connectionData;
     });
 
@@ -143,31 +113,64 @@ export async function POST(request: Request) {
 }
 
 async function fetchReferralChain(teamMemberId: string) {
+  let currentMemberId = teamMemberId;
   const referralChain = [];
-  let currentMemberId = teamMemberId ?? "";
 
   while (currentMemberId) {
     const referral = await prisma.alliance_referral_table.findFirst({
       where: { alliance_referral_member_id: currentMemberId },
       select: {
-        alliance_referral_from_member_id: true,
-        alliance_referral_member_id: true,
-        alliance_referral_level: true,
-        alliance_referral_bonus_amount: true,
+        alliance_referral_hierarchy: true,
       },
     });
 
     if (!referral) break;
 
-    referralChain.push({
-      memberId: referral.alliance_referral_member_id,
-      referrerId: referral.alliance_referral_from_member_id,
-      percentage: referral.alliance_referral_bonus_amount,
-      level: referral.alliance_referral_level,
-    });
+    const hierarchy = referral.alliance_referral_hierarchy;
 
-    currentMemberId = referral.alliance_referral_from_member_id ?? "";
+    if (!hierarchy) break;
+
+    const hierarchyArray = hierarchy.split(".");
+
+    const currentIndex = hierarchyArray.indexOf(currentMemberId);
+
+    if (currentIndex === -1) {
+      throw new Error("Current member ID not found in the hierarchy.");
+    }
+
+    const targetIndex = currentIndex - 11;
+
+    if (targetIndex >= 0) {
+      const referrerId = hierarchyArray[targetIndex];
+
+      referralChain.push({
+        referrerId,
+        percentage: getBonusPercentage(currentIndex - targetIndex),
+        level: currentIndex - targetIndex,
+      });
+    }
+
+    currentMemberId = hierarchyArray[currentIndex - 1] ?? "";
   }
 
   return referralChain;
+}
+
+function getBonusPercentage(level: number): number {
+  const bonusMap: Record<number, number> = {
+    1: 15,
+    2: 8,
+    3: 5,
+    4: 2,
+    5: 1,
+    6: 0.5,
+    7: 0.5,
+    8: 0.5,
+    9: 0.25,
+    10: 0.25,
+    11: 0.25,
+    12: 0.1,
+  };
+
+  return bonusMap[level] || 0;
 }
