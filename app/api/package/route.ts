@@ -12,38 +12,42 @@ export async function POST(request: Request) {
 
     const { amount, packageId, teamMemberId } = await request.json();
 
-    if (!amount || !packageId || !teamMemberId || amount === 0) {
+    if (!amount || !packageId || !teamMemberId || amount <= 0) {
       return NextResponse.json(
-        { error: "Invalid input or amount cannot be zero." },
+        { error: "Invalid input or amount must be greater than zero." },
         { status: 400 }
       );
     }
 
-    if (amount.length > 10) {
+    if (amount.toString().length > 10) {
       return NextResponse.json(
         { error: "Amount cannot be greater than 10 digits." },
         { status: 400 }
       );
     }
 
-    if (amount.length <= 0) {
-      return NextResponse.json({ error: "Amount Error" }, { status: 400 });
-    }
-
     await protectionMemberUser();
-
     await applyRateLimit(teamMemberId, ip);
 
-    const [packageData, amountMatch] = await prisma.$transaction([
-      prisma.package_table.findUnique({
-        where: { package_id: packageId },
-        select: { package_percentage: true },
-      }),
-      prisma.alliance_earnings_table.findUnique({
-        where: { alliance_earnings_member_id: teamMemberId },
-      }),
-    ]);
+    // Fetch package data, earnings, and referral hierarchy in a single transaction
+    const [packageData, earningsData, referralData] = await prisma.$transaction(
+      [
+        prisma.package_table.findUnique({
+          where: { package_id: packageId },
+          select: { package_percentage: true },
+        }),
+        prisma.alliance_earnings_table.findUnique({
+          where: { alliance_earnings_member_id: teamMemberId },
+          select: { alliance_olympus_wallet: true },
+        }),
+        prisma.alliance_referral_table.findFirst({
+          where: { alliance_referral_member_id: teamMemberId },
+          select: { alliance_referral_hierarchy: true },
+        }),
+      ]
+    );
 
+    // Early validation checks
     if (!packageData) {
       return NextResponse.json(
         { error: "Package not found." },
@@ -51,25 +55,30 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!amountMatch) {
+    if (!earningsData) {
       return NextResponse.json(
         { error: "Earnings record not found." },
         { status: 404 }
       );
     }
 
-    if (amountMatch.alliance_olympus_wallet < amount) {
+    if (earningsData.alliance_olympus_wallet < amount) {
       return NextResponse.json(
         { error: "Insufficient balance in the alliance Olympus wallet." },
-        { status: 404 }
+        { status: 400 }
       );
     }
 
     const packagePercentage = packageData.package_percentage / 100;
     const packageAmountEarnings = amount * packagePercentage;
 
-    const referralChain = await fetchReferralChain(teamMemberId);
+    // Generate the referral chain
+    const referralChain = generateReferralChain(
+      referralData?.alliance_referral_hierarchy ?? null,
+      teamMemberId
+    );
 
+    // Execute the transaction
     const transaction = await prisma.$transaction(async (prisma) => {
       const connectionData =
         await prisma.package_member_connection_table.create({
@@ -90,16 +99,16 @@ export async function POST(request: Request) {
       });
 
       if (referralChain.length > 0) {
-        await prisma.package_ally_bounty_log.createMany({
-          data: referralChain.map((ref) => ({
-            package_ally_bounty_member_id: ref.referrerId ?? "",
-            package_ally_bounty_percentage: ref.percentage,
-            package_ally_bounty_earnings: amount * (ref.percentage / 100),
-            package_ally_bounty_type: ref.level > 1 ? "INDIRECT" : "DIRECT",
-            package_ally_bounty_connection_id:
-              connectionData.package_member_connection_id,
-          })),
-        });
+        const bountyLogs = referralChain.map((ref) => ({
+          package_ally_bounty_member_id: ref.referrerId,
+          package_ally_bounty_percentage: ref.percentage,
+          package_ally_bounty_earnings: amount * (ref.percentage / 100),
+          package_ally_bounty_type: ref.level > 1 ? "INDIRECT" : "DIRECT",
+          package_ally_bounty_connection_id:
+            connectionData.package_member_connection_id,
+        }));
+
+        await prisma.package_ally_bounty_log.createMany({ data: bountyLogs });
       }
 
       return connectionData;
@@ -112,50 +121,40 @@ export async function POST(request: Request) {
   }
 }
 
-async function fetchReferralChain(teamMemberId: string) {
-  let currentMemberId = teamMemberId;
-  const referralChain = [];
+// Optimized function to generate referral chain
+function generateReferralChain(hierarchy: string | null, teamMemberId: string) {
+  const referralChain: {
+    referrerId: string;
+    percentage: number;
+    level: number;
+  }[] = [];
 
-  while (currentMemberId) {
-    const referral = await prisma.alliance_referral_table.findFirst({
-      where: { alliance_referral_member_id: currentMemberId },
-      select: {
-        alliance_referral_hierarchy: true,
-      },
+  if (!hierarchy) return referralChain;
+
+  const hierarchyArray = hierarchy.split(".");
+  const currentIndex = hierarchyArray.indexOf(teamMemberId);
+
+  if (currentIndex === -1) {
+    throw new Error("Current member ID not found in the hierarchy.");
+  }
+
+  // Collect up to 12 levels of referrers
+  for (
+    let i = currentIndex - 1, level = 1;
+    i >= 0 && level <= 12;
+    i--, level++
+  ) {
+    referralChain.push({
+      referrerId: hierarchyArray[i],
+      percentage: getBonusPercentage(level),
+      level: level,
     });
-
-    if (!referral) break;
-
-    const hierarchy = referral.alliance_referral_hierarchy;
-
-    if (!hierarchy) break;
-
-    const hierarchyArray = hierarchy.split(".");
-
-    const currentIndex = hierarchyArray.indexOf(currentMemberId);
-
-    if (currentIndex === -1) {
-      throw new Error("Current member ID not found in the hierarchy.");
-    }
-
-    const targetIndex = currentIndex - 11;
-
-    if (targetIndex >= 0) {
-      const referrerId = hierarchyArray[targetIndex];
-
-      referralChain.push({
-        referrerId,
-        percentage: getBonusPercentage(currentIndex - targetIndex),
-        level: currentIndex - targetIndex,
-      });
-    }
-
-    currentMemberId = hierarchyArray[currentIndex - 1] ?? "";
   }
 
   return referralChain;
 }
 
+// Function to determine the bonus percentage based on the level
 function getBonusPercentage(level: number): number {
   const bonusMap: Record<number, number> = {
     1: 10,
