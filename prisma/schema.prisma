@@ -96,10 +96,9 @@ model alliance_referral_link_table {
 
 model alliance_referral_table {
   alliance_referral_id               String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  alliance_referral_bonus_amount     Float     @default(0.0)
   alliance_referral_date             DateTime  @default(now())
-  alliance_referral_level            Int       @default(1) // New column for hierarchy level
-  alliance_referral_hierarchy         String?  
+
+  alliance_referral_hierarchy        String?  
   alliance_referral_member_id        String    @db.Uuid
   alliance_referral_link_id          String    @db.Uuid
   alliance_referral_from_member_id   String?   @db.Uuid

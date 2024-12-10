@@ -158,18 +158,18 @@ async function fetchReferralChain(teamMemberId: string) {
 
 function getBonusPercentage(level: number): number {
   const bonusMap: Record<number, number> = {
-    1: 15,
-    2: 8,
+    1: 10,
+    2: 5,
     3: 5,
-    4: 2,
-    5: 1,
-    6: 0.5,
-    7: 0.5,
-    8: 0.5,
-    9: 0.25,
-    10: 0.25,
-    11: 0.25,
-    12: 0.1,
+    4: 3,
+    5: 3,
+    6: 2,
+    7: 2,
+    8: 2,
+    9: 1,
+    10: 1,
+    11: 1,
+    12: 1,
   };
 
   return bonusMap[level] || 0;
