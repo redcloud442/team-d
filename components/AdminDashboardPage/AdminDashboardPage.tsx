@@ -61,7 +61,7 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
   }, [teamMemberProfile]);
 
   return (
-    <div className="Container ">
+    <div className="mx-auto p-10">
       {isLoading && <TableLoading />}
       <div className="w-full flex flex-col gap-6 max-w-6xl p-4">
         <div>

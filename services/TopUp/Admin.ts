@@ -20,6 +20,8 @@ export const getAdminTopUpRequest = async (
     };
   }
 ) => {
+  console.log(params);
+
   const { data, error } = await supabaseClient.rpc("get_admin_top_up_history", {
     input_data: params,
   });

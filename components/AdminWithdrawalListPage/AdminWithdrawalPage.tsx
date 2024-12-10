@@ -8,7 +8,7 @@ type Props = {
 
 const AdminWithdrawalHistoryPage = ({ teamMemberProfile }: Props) => {
   return (
-    <div className="Container">
+    <div className="mx-auto p-10">
       <div>
         <header className="mb-4">
           <h1 className="Title">Withdrawal History List Page</h1>
@@ -18,7 +18,7 @@ const AdminWithdrawalHistoryPage = ({ teamMemberProfile }: Props) => {
         </header>
 
         {/* Table Section */}
-        <section className="bg-white rounded-lg shadow-md p-6">
+        <section className=" rounded-lg p-6">
           <AdminWithdrawalHistoryTable teamMemberProfile={teamMemberProfile} />
         </section>
       </div>

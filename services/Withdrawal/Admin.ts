@@ -11,8 +11,16 @@ export const getAdminWithdrawalRequest = async (
     teamId: string;
     columnAccessor: string;
     isAscendingSort: boolean;
+    userFilter?: string;
+    statusFilter?: string;
+    dateFilter?: {
+      start: string | undefined;
+      end: string | undefined;
+    };
   }
 ) => {
+  console.log(params);
+
   const { data, error } = await supabaseClient.rpc(
     "get_admin_withdrawal_history",
     {

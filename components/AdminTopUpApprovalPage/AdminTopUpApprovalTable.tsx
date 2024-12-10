@@ -59,6 +59,7 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -122,7 +123,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
-      const endDate = dateFilter.end ? new Date(dateFilter.end) : undefined;
+      const endDate = startDate ? new Date(startDate) : undefined;
 
       const { data, totalCount } = await getAdminTopUpRequest(supabaseClient, {
         teamId: teamMemberProfile.alliance_member_alliance_id,
@@ -475,40 +476,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
                 />
 
                 {/* End Date Picker */}
-                <Controller
-                  name="dateFilter.end"
-                  control={control}
-                  render={({ field }) => (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="font-normal justify-start"
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value
-                            ? format(new Date(field.value), "PPP")
-                            : "Select End Date"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={
-                            field.value ? new Date(field.value) : undefined
-                          }
-                          onSelect={(date: Date | undefined) =>
-                            field.onChange(date?.toISOString() || "")
-                          }
-                          fromDate={
-                            startDate ? new Date(startDate) : new Date()
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                />
+
                 <Button onClick={fetchAdminRequest}>Submit</Button>
               </>
             )}
@@ -543,8 +511,9 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border">
+      <ScrollArea className="w-full overflow-x-auto ">
         {isFetchingList && <TableLoading />}
+
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -603,7 +572,8 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
             </TableRow>
           </tfoot>
         </Table>
-      </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
 
       <div className="flex items-center justify-end gap-x-4 py-4">
         <Button

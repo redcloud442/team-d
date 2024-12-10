@@ -164,35 +164,49 @@ CREATE OR REPLACE FUNCTION get_admin_top_up_history(
 RETURNS JSON
 AS $$
 let returnData = {
-    data:[],
-    totalCount:0
+  data: [],
+  totalCount: 0
 };
+
 plv8.subtransaction(function() {
   const {
     page = 1,
     limit = 13,
     search = '',
     teamMemberId,
-    teamId
+    teamId,
+    isAscendingSort,
+    columnAccessor,
+    merchantFilter,
+    userFilter,
+    statusFilter,
+    dateFilter = null
   } = input_data;
 
-  const member = plv8.execute(`
+  // Check if the member has the correct role
+  const member = plv8.execute(
+    `
     SELECT alliance_member_role
     FROM alliance_schema.alliance_member_table
     WHERE alliance_member_id = $1
-  `, [teamMemberId]);
+    `,
+    [teamMemberId]
+  );
 
-  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
+  if (!member.length || (member[0].alliance_member_role !== 'ADMIN' && member[0].alliance_member_role !== 'MERCHANT')) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
 
   const offset = (page - 1) * limit;
-  const sortBy = isAscendingSort ? "desc" : "asc";
+  const sortBy = isAscendingSort ? "asc" : "desc";
   const sortCondition = columnAccessor
     ? `ORDER BY "${columnAccessor}" ${sortBy}`
     : "";
-
+  const merchantCondition = merchantFilter ? `AND approver.user_id = '${merchantFilter}'` : "";
+  const userCondition = userFilter ? `AND u.user_id = '${userFilter}'` : "";
+  const statusCondition = statusFilter ? `AND t.alliance_top_up_request_status = '${statusFilter}'`: "";
+  const dateFilterCondition = dateFilter.start && dateFilter.end ? `AND t.alliance_top_up_request_date BETWEEN '${dateFilter.start}' AND '${dateFilter.end}'` : "";
   let searchCondition = '';
   const params = [teamId, limit, offset];
 
@@ -201,41 +215,66 @@ plv8.subtransaction(function() {
     params.push(`%${search}%`);
   }
 
-  const topUpRequest = plv8.execute(`
+  const topUpRequest = plv8.execute(
+    `
     SELECT
       u.user_first_name,
       u.user_last_name,
       u.user_email,
       u.user_username,
-      m.alliance_member_id
+      m.alliance_member_id,
+      t.*,
+      approver.user_username AS approver_username
     FROM alliance_schema.alliance_top_up_request_table t
     JOIN alliance_schema.alliance_member_table m
       ON t.alliance_top_up_request_member_id = m.alliance_member_id
     JOIN user_schema.user_table u
       ON u.user_id = m.alliance_member_user_id
+    LEFT JOIN alliance_schema.alliance_member_table mt
+      ON mt.alliance_member_id = t.alliance_top_up_request_approved_by
+    LEFT JOIN user_schema.user_table approver
+      ON approver.user_id = mt.alliance_member_user_id
     WHERE m.alliance_member_alliance_id = $1
     ${searchCondition}
+    ${userCondition}
+    ${statusCondition}
+    ${dateFilterCondition}
+    ${merchantCondition}
     ${sortCondition}
     LIMIT $2 OFFSET $3
-  `, params);
+    `,
+    params
+  );
 
-    const totalCount = plv8.execute(`
-        SELECT
-            COUNT(*)
-        FROM alliance_schema.alliance_top_up_request_table t
-        JOIN alliance_schema.alliance_member_table m
-        ON t.alliance_top_up_request_member_id = m.alliance_member_id
-        JOIN user_schema.user_table u
-        ON u.user_id = m.alliance_member_user_id
-        WHERE m.alliance_member_alliance_id = $1
-        ${searchCondition}
-  `,[teamId])[0].count;
+  const totalCount = plv8.execute(
+    `
+    SELECT COUNT(*)
+    FROM alliance_schema.alliance_top_up_request_table t
+    JOIN alliance_schema.alliance_member_table m
+      ON t.alliance_top_up_request_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+      ON u.user_id = m.alliance_member_user_id
+    LEFT JOIN alliance_schema.alliance_member_table mt
+      ON mt.alliance_member_id = t.alliance_top_up_request_approved_by
+    LEFT JOIN user_schema.user_table approver
+      ON approver.user_id = mt.alliance_member_user_id
+    WHERE m.alliance_member_alliance_id = $1
+    ${searchCondition}
+    ${userCondition}
+    ${statusCondition}
+    ${dateFilterCondition}
+    ${merchantCondition}
+    `,
+    [teamId]
+  )[0].count;
 
   returnData.data = topUpRequest;
   returnData.totalCount = Number(totalCount);
 });
+
 return returnData;
 $$ LANGUAGE plv8;
+
 
 CREATE OR REPLACE FUNCTION get_member_withdrawal_history(
   input_data JSON
@@ -333,7 +372,10 @@ plv8.subtransaction(function() {
     teamMemberId,
     teamId,
     columnAccessor,
-    isAscendingSort
+    isAscendingSort,
+    userFilter,
+    statusFilter,
+    dateFilter
   } = input_data;
 
   const member = plv8.execute(`
@@ -350,7 +392,9 @@ plv8.subtransaction(function() {
   const offset = (page - 1) * limit;
 
   const params = [teamId, limit, offset];
-
+  const userCondition = userFilter ? `AND u.user_id = '${userFilter}'` : "";
+  const statusCondition = statusFilter ? `AND t.alliance_withdrawal_request_status = '${statusFilter}'`: "";
+  const dateFilterCondition = dateFilter.start && dateFilter.end ? `AND t.alliance_withdrawal_request_date BETWEEN '${dateFilter.start}' AND '${dateFilter.end}'` : "";
   const searchCondition = search ? `AND t.alliance_withdrawal_request_id = '${search}'`: "";
   const sortBy = isAscendingSort ? "desc" : "asc";
   const sortCondition = columnAccessor
@@ -371,8 +415,11 @@ plv8.subtransaction(function() {
       ON u.user_id = m.alliance_member_user_id
     WHERE m.alliance_member_alliance_id = $1
     ${searchCondition}
+    ${userCondition}
+    ${statusCondition}
+    ${dateFilterCondition}
     ${sortCondition}
-    LIMIT $3 OFFSET $4
+    LIMIT $2 OFFSET $3
   `, params);
 
     const totalCount = plv8.execute(`
@@ -385,6 +432,10 @@ plv8.subtransaction(function() {
         ON u.user_id = m.alliance_member_user_id
         WHERE m.alliance_member_alliance_id = $1
         ${searchCondition}
+        ${searchCondition}
+        ${userCondition}
+        ${statusCondition}
+        ${dateFilterCondition}
   `,[teamId])[0].count;
 
   returnData.data = topUpRequest;
@@ -1180,6 +1231,107 @@ plv8.subtransaction(function() {
 });
 return returnData;
 $$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION get_user_options(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = [];
+
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 10,
+    teamMemberId
+  } = input_data;
+
+  const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+    `,
+    [teamMemberId]
+  );
+
+  if (!member.length || (member[0].alliance_member_role !== 'ADMIN' && member[0].alliance_member_role !== 'MERCHANT')) {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const offset = (page - 1) * limit;
+
+  const userData = plv8.execute(
+    `
+    SELECT 
+      user_id,
+      user_username
+    FROM user_schema.user_table
+    JOIN alliance_schema.alliance_member_table
+    ON alliance_member_user_id = user_id
+    LIMIT $1 OFFSET $2
+    `,
+    [limit, offset]
+  );
+
+  returnData = userData;
+});
+
+return returnData;
+$$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION get_user_options_merchant(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = [];
+
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 10,
+    teamMemberId
+  } = input_data;
+
+  const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+    `,
+    [teamMemberId]
+  );
+
+  if (!member.length || (member[0].alliance_member_role !== 'ADMIN' && member[0].alliance_member_role !== 'MERCHANT')) {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const offset = (page - 1) * limit;
+
+  const userData = plv8.execute(
+    `
+    SELECT 
+      user_id,
+      user_username
+    FROM user_schema.user_table
+    JOIN alliance_schema.alliance_member_table
+    ON alliance_member_user_id = user_id
+    WHERE alliance_member_role = 'MERCHANT'
+    LIMIT $1 OFFSET $2
+    `,
+    [limit, offset]
+  );
+
+  returnData = userData;
+});
+
+return returnData;
+$$ LANGUAGE plv8;
+
+
 
 
 CREATE OR REPLACE FUNCTION update_earnings_based_on_packages()

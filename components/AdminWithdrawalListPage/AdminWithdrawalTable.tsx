@@ -8,17 +8,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getUserOptions } from "@/services/Options/Options";
 import { getAdminWithdrawalRequest } from "@/services/Withdrawal/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { WithdrawalRequestData } from "@/utils/types";
-import { alliance_member_table } from "@prisma/client";
+import { alliance_member_table, user_table } from "@prisma/client";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 import {
   ColumnFiltersState,
   flexRender,
@@ -29,7 +31,9 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
+import { format } from "date-fns";
 import {
+  CalendarIcon,
   Check,
   ChevronDown,
   ChevronLeft,
@@ -38,10 +42,22 @@ import {
   Search,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
+import { Calendar } from "../ui/calendar";
 import { Card } from "../ui/card";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { ScrollBar } from "../ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Switch } from "../ui/switch";
 import TableLoading from "../ui/tableLoading";
 import { AdminWithdrawalHistoryColumn } from "./AdminWithdrawalColumn";
 
@@ -51,6 +67,9 @@ type DataTableProps = {
 
 type FilterFormValues = {
   referenceId: string;
+  userFilter: string;
+  statusFilter: string;
+  dateFilter: { start: string; end: string };
 };
 
 const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
@@ -63,10 +82,11 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   const [requestCount, setRequestCount] = useState(0);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
-
+  const [showFilters, setShowFilters] = useState(false);
   const columnAccessor = sorting?.[0]?.id || "alliance_withdrawal_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
+  const [userOptions, setUserOptions] = useState<user_table[]>([]);
 
   const fetchRequest = async () => {
     try {
@@ -75,8 +95,12 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const sanitizedData = escapeFormData(getValues());
 
-      const { referenceId } = sanitizedData;
-
+      const { referenceId, userFilter, statusFilter, dateFilter } =
+        sanitizedData;
+      const startDate = dateFilter.start
+        ? new Date(dateFilter.start)
+        : undefined;
+      const endDate = startDate ? new Date(startDate) : undefined;
       const { data, totalCount } = await getAdminWithdrawalRequest(
         supabaseClient,
         {
@@ -87,6 +111,18 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
           columnAccessor: columnAccessor,
           isAscendingSort: isAscendingSort,
           search: referenceId,
+          userFilter,
+          statusFilter,
+          dateFilter: {
+            start:
+              startDate && !isNaN(startDate.getTime())
+                ? startDate.toISOString()
+                : undefined,
+            end:
+              endDate && !isNaN(endDate.getTime())
+                ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
+                : undefined,
+          },
         }
       );
 
@@ -124,11 +160,54 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
     },
   });
 
-  const { register, handleSubmit, getValues } = useForm<FilterFormValues>({
-    defaultValues: {
-      referenceId: "",
-    },
-  });
+  const { register, handleSubmit, getValues, control, reset } =
+    useForm<FilterFormValues>({
+      defaultValues: {
+        referenceId: "",
+        userFilter: "",
+        statusFilter: "",
+        dateFilter: {
+          start: undefined,
+          end: undefined,
+        },
+      },
+    });
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const pageLimit = 500;
+
+        let currentUserPage = 1;
+
+        let allUserOptions: user_table[] = [];
+
+        while (true) {
+          const userData = await getUserOptions(supabaseClient, {
+            page: currentUserPage,
+            limit: pageLimit,
+            teamMemberId: teamMemberProfile.alliance_member_id,
+          });
+
+          if (!userData?.length) {
+            break;
+          }
+
+          allUserOptions = [...allUserOptions, ...userData];
+
+          if (userData.length < pageLimit) {
+            break;
+          }
+
+          currentUserPage += 1;
+        }
+
+        setUserOptions(allUserOptions);
+      } catch (e) {}
+    };
+
+    fetchOptions();
+  }, [supabaseClient, teamMemberProfile.alliance_member_id]);
 
   useEffect(() => {
     fetchRequest();
@@ -136,27 +215,135 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const pageCount = Math.ceil(requestCount / 13);
 
+  const handleSwitchChange = (checked: boolean) => {
+    setShowFilters(checked);
+    if (!checked) {
+      reset();
+      handleSubmit(handleFilter)();
+    }
+  };
+
   return (
     <Card className="w-full rounded-sm p-4">
-      <div className="flex items-center py-4">
-        <form className="flex gap-2" onSubmit={handleSubmit(handleFilter)}>
-          <Input
-            {...register("referenceId")}
-            placeholder="Filter reference id..."
-            className="max-w-sm p-2 border rounded"
-          />
-          <Button
-            type="submit"
-            disabled={isFetchingList}
-            size="sm"
-            variant="outline"
-          >
-            <Search />
-          </Button>
-          <Button onClick={fetchRequest} disabled={isFetchingList} size="sm">
-            <RefreshCw />
-            Refresh
-          </Button>
+      <div className="flex items-start py-4">
+        <form
+          className="flex flex-wrap flex-col gap-6"
+          onSubmit={handleSubmit(handleFilter)}
+        >
+          <div className="flex gap-2">
+            <Input
+              {...register("referenceId")}
+              placeholder="Filter reference id..."
+              className="max-w-sm p-2 border rounded"
+            />
+            <Button
+              type="submit"
+              disabled={isFetchingList}
+              size="sm"
+              variant="outline"
+            >
+              <Search />
+            </Button>
+            <Button onClick={fetchRequest} disabled={isFetchingList} size="sm">
+              <RefreshCw />
+              Refresh
+            </Button>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="filter-switch"
+                checked={showFilters}
+                onCheckedChange={handleSwitchChange}
+              />
+              <Label htmlFor="filter">Filter</Label>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {showFilters && (
+              <>
+                <Controller
+                  name="userFilter"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={(value) =>
+                        field.onChange(value === field.value ? "" : value)
+                      }
+                      value={field.value || ""}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Requestor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {userOptions.map((opt) => (
+                          <SelectItem key={opt.user_id} value={opt.user_id}>
+                            {opt.user_username}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+
+                <Controller
+                  name="statusFilter"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={(value) =>
+                        field.onChange(value === field.value ? "" : value)
+                      }
+                      value={field.value || ""}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PENDING">Pending</SelectItem>
+                        <SelectItem value="APPROVED">Approved</SelectItem>
+                        <SelectItem value="REJECTED">Rejected</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+
+                <Controller
+                  name="dateFilter.start"
+                  control={control}
+                  render={({ field }) => (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="font-normal justify-start"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value
+                            ? format(new Date(field.value), "PPP")
+                            : "Select Start Date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={
+                            field.value ? new Date(field.value) : undefined
+                          }
+                          onSelect={(date: Date | undefined) =>
+                            field.onChange(date?.toISOString() || "")
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                />
+
+                {/* End Date Picker */}
+
+                <Button onClick={fetchRequest}>Submit</Button>
+              </>
+            )}
+          </div>
         </form>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -187,8 +374,9 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border">
+      <ScrollArea className="w-full overflow-x-auto ">
         {isFetchingList && <TableLoading />}
+
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -247,7 +435,8 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
             </TableRow>
           </tfoot>
         </Table>
-      </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
 
       <div className="flex items-center justify-end gap-x-4 py-4">
         <Button
