@@ -12,6 +12,8 @@ export const getAdminUserRequest = async (
     teamId: string;
     columnAccessor: string;
     isAscendingSort: boolean;
+    userRole?: string;
+    dateCreated?: string;
   }
 ) => {
   const { data, error } = await supabaseClient.rpc("get_admin_user_data", {

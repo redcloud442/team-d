@@ -224,6 +224,7 @@ export const AdminUsersColumn = (
     },
     {
       id: "actions",
+      label: "Actions",
       header: "Actions",
       cell: ({ row }) => {
         const data = row.original;
