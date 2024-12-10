@@ -85,9 +85,7 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
           teamMemberId: teamMemberProfile.alliance_member_id,
         });
         setTopUpOptions(options);
-      } catch (e) {
-        console.log(e);
-      }
+      } catch (e) {}
     };
 
     getOptions();

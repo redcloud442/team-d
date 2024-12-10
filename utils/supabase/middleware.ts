@@ -33,14 +33,21 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  console.log(user);
 
   await ensureValidSession();
 
   const publicRoutes = ["/auth/login", "/auth/register", "/api/auth"];
-  const privateRoutes = ["/", "/dashboard"];
+  const privateRoutes = ["/", "/dashboard", "/api/auth"];
   const currentPath = request.nextUrl.pathname;
+  //   const { data: profile } = await supabase
+  //   .schema("alliance_schema")
+  //   .from("alliance_member_table")
+  //   .select("alliance_member_role")
+  //   .eq("alliance_member_user_id", user.id)
+  //   .single();
 
+  // role = profile?.alliance_member_role;
+  // }
   if (!user) {
     if (publicRoutes.some((route) => currentPath.startsWith(route))) {
       return NextResponse.next();

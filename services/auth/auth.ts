@@ -53,6 +53,7 @@ export const loginValidation = async (
   }
 ) => {
   const { userName, password, role, iv } = params;
+
   const formattedUserName = userName + "@gmail.com";
   const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth`, {
     method: "POST",
@@ -75,10 +76,7 @@ export const loginValidation = async (
     }
   }
 
-  const result = await response.json();
-
   if (role === "ADMIN") {
-    await supabaseClient.auth.signOut();
     const decryptedPassword = await decryptData(password, iv ?? "");
 
     const { error: signInError } = await supabaseClient.auth.signInWithPassword(
@@ -97,6 +95,8 @@ export const loginValidation = async (
     );
     if (signInError) throw signInError;
   }
+
+  const result = await response.json();
 
   return result.redirect || "/";
 };

@@ -11,8 +11,6 @@ export const getAdminDashboard = async (
     teamMemberId: string;
   }
 ) => {
-  console.log(params);
-
   const { data, error } = await supabaseClient.rpc("get_admin_dashboard_data", {
     input_data: params,
   });

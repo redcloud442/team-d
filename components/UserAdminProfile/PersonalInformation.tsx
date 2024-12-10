@@ -1,7 +1,6 @@
 import { handleSignInUser } from "@/services/User/Admin";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -15,19 +14,17 @@ type Props = {
 };
 const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
   const supabaseClient = createClientSide();
-  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(false);
   const handleSignIn = async () => {
     try {
       setIsLoading(true);
-      const response = await handleSignInUser(supabaseClient, {
+      await handleSignInUser(supabaseClient, {
         userName: userProfile.user_username ?? "",
         password: userProfile.user_password,
         role: "ADMIN",
         iv: userProfile.user_iv ?? "",
       });
-
-      router.push(response);
     } catch (e) {
     } finally {
       setIsLoading(false);
@@ -43,7 +40,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
           </CardTitle>
           {type === "ADMIN" && (
             <Button variant="outline" onClick={handleSignIn}>
-              Sign In as {userProfile.user_email}
+              Sign In as {userProfile.user_username}
             </Button>
           )}
         </div>

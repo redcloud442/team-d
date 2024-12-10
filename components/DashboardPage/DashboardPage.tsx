@@ -131,7 +131,8 @@ const DashboardPage = ({
             descriptionClassName="text-sm text-red-600"
           />
         </div>
-        {chartData.length && (
+
+        {chartData.length > 0 && (
           <div className=" gap-6">
             <DashboardPackages chartData={chartData} />
           </div>
