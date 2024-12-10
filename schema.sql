@@ -19,20 +19,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION create_user_trigger(
-  input_data JSON
-)
-RETURNS JSON
-SET search_path TO ''
-AS $$
+
 let returnData;
+
 plv8.subtransaction(function() {
   const {
     userName,
     email,
     password,
     userId,
-    referalLink,
+    referralLink,
     firstName,
     lastName,
     url,
@@ -40,111 +36,46 @@ plv8.subtransaction(function() {
   } = input_data;
 
   if (!email || !password) {
-    throw new Error('Email and password are required');
+    throw new Error('Both email and password are required to create a user.');
   }
 
+  const DEFAULT_ALLIANCE_ID = '35f77cd9-636a-41fa-a346-9cb711e7a338';
+
+  // Create user
   const insertUserQuery = `
     INSERT INTO user_schema.user_table (user_id, user_email, user_password, user_iv, user_first_name, user_last_name, user_username)
     VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING user_id, user_email
   `;
-  const result = plv8.execute(insertUserQuery, [userId, email, password,iv,firstName,lastName, userName]);
+  const result = plv8.execute(insertUserQuery, [userId, email, password, iv, firstName, lastName, userName]);
 
   if (!result || result.length === 0) {
     throw new Error('Failed to create user');
   }
 
+  // Create alliance member
   const allianceMemberId = plv8.execute(`
     INSERT INTO alliance_schema.alliance_member_table (alliance_member_role, alliance_member_alliance_id, alliance_member_user_id)
     VALUES ($1, $2, $3)
     RETURNING alliance_member_id
-  `, ['MEMBER', '35f77cd9-636a-41fa-a346-9cb711e7a338', userId])[0].alliance_member_id;
+  `, ['MEMBER', DEFAULT_ALLIANCE_ID, userId])[0].alliance_member_id;
 
+  // Insert earnings entry
   plv8.execute(`
     INSERT INTO alliance_schema.alliance_earnings_table (alliance_earnings_member_id)
     VALUES ($1)
   `, [allianceMemberId]);
 
-
-  const referralLinkURL = `${url}?referalLink=${userName}`;
+  // Create referral link
+  const referralLinkURL = `${url}?referralLink=${encodeURIComponent(userName)}`;
   plv8.execute(`
     INSERT INTO alliance_schema.alliance_referral_link_table (alliance_referral_link, alliance_referral_link_member_id)
     VALUES ($1, $2)
-  `, [ referralLinkURL, allianceMemberId]);
+  `, [referralLinkURL, allianceMemberId]);
 
-  if (referalLink) {
-
-    const referrerData = plv8.execute(`
-      SELECT alliance_referral_link_member_id
-      FROM alliance_schema.alliance_referral_link_table
-      JOIN alliance_schema.alliance_member_table
-      ON alliance_member_id = alliance_referral_link_member_id
-      JOIN user_schema.user_table ON user_id = alliance_member_user_id
-      WHERE user_username = $1
-    `, [referalLink]);
-
-    if (referrerData.length === 0) {
-      throw new Error('Invalid referral link');
-    }
-
-    const referrerId = referrerData[0].alliance_referral_link_member_id;
-
-    const referralHierarchy = plv8.execute(`
-     WITH RECURSIVE referral_tree AS (
-        SELECT
-            alliance_referral_link_id,
-            alliance_referral_from_member_id,
-            alliance_referral_level
-        FROM alliance_schema.alliance_referral_table
-        JOIN alliance_schema.alliance_member_table
-        ON alliance_member_id = alliance_referral_from_member_id
-        JOIN user_schema.user_table
-        ON user_id = alliance_member_user_id
-        WHERE user_username = $1
-        UNION ALL
-        SELECT
-            rt.alliance_referral_link_id,
-            rt.alliance_referral_from_member_id,
-            r.alliance_referral_level + 1 AS level
-        FROM alliance_schema.alliance_referral_table rt
-        JOIN referral_tree r ON rt.alliance_referral_from_member_id = r.alliance_referral_link_id
-    )
-    SELECT alliance_referral_level
-    FROM referral_tree
-    ORDER BY alliance_referral_level DESC
-    LIMIT 1
-    `, [referalLink]);
-
-    const newReferralLevel = referralHierarchy.length > 0 ? referralHierarchy[0].level + 1 : 1;
-
-    if (newReferralLevel <= 12) {
-
-      const userData = plv8.execute(`
-        SELECT alliance_referral_link_id
-        FROM user_schema.user_table
-        JOIN alliance_schema.alliance_member_table
-        ON alliance_member_user_id = user_id
-        JOIN alliance_schema.alliance_referral_link_table
-        ON alliance_referral_link_member_id = alliance_member_id
-        WHERE user_username = $1
-      `,[referalLink])[0].alliance_referral_link_id;
-
-      plv8.execute(`
-        INSERT INTO alliance_schema.alliance_referral_table (
-          alliance_referral_member_id,
-          alliance_referral_link_id,
-          alliance_referral_from_member_id,
-          alliance_referral_bonus_amount,
-          alliance_referral_level
-        ) VALUES ($1, $2, $3, $4, $5)
-      `, [
-        allianceMemberId,
-        userData,
-        referrerId,
-        calculateBonus(newReferralLevel),
-        newReferralLevel
-      ]);
-    }
+  // Handle referral if referralLink is provided
+  if (referralLink) {
+    handleReferral(referralLink, allianceMemberId);
   }
 
   returnData = {
@@ -152,6 +83,86 @@ plv8.subtransaction(function() {
     user: result[0],
   };
 });
+
+// Function to handle referrals
+function handleReferral(referralLink, allianceMemberId) {
+  const referrerData = plv8.execute(`
+    SELECT alliance_referral_link_member_id
+    FROM alliance_schema.alliance_referral_link_table
+    JOIN alliance_schema.alliance_member_table
+    ON alliance_member_id = alliance_referral_link_member_id
+    JOIN user_schema.user_table ON user_id = alliance_member_user_id
+    WHERE user_username = $1
+  `, [referralLink]);
+
+  if (referrerData.length === 0) {
+    throw new Error('Invalid referral link');
+  }
+
+  const referrerId = referrerData[0].alliance_referral_link_member_id;
+
+  // Recursive query to determine the referral hierarchy
+  const referralHierarchy = plv8.execute(`
+    WITH RECURSIVE referral_tree AS (
+      SELECT
+        rt.alliance_referral_link_id,
+        rt.alliance_referral_from_member_id,
+        1 AS alliance_referral_level
+      FROM
+        alliance_schema.alliance_referral_table rt
+        JOIN alliance_schema.alliance_member_table am ON am.alliance_member_id = rt.alliance_referral_from_member_id
+        JOIN user_schema.user_table ut ON ut.user_id = am.alliance_member_user_id
+      WHERE
+        ut.user_username = $1
+
+      UNION ALL
+
+      SELECT
+        child_rt.alliance_referral_link_id,
+        child_rt.alliance_referral_from_member_id,
+        parent_r.alliance_referral_level + 1
+      FROM
+        alliance_schema.alliance_referral_table child_rt
+        JOIN referral_tree parent_r ON child_rt.alliance_referral_from_member_id = parent_r.alliance_referral_link_id
+    )
+    SELECT alliance_referral_level
+    FROM referral_tree
+    ORDER BY alliance_referral_level DESC
+    LIMIT 1
+  `, [referralLink]);
+
+  const newReferralLevel = referralHierarchy.length > 0 ? referralHierarchy[0].alliance_referral_level + 1 : 1;
+
+  if (newReferralLevel <= 12) {
+    const userData = plv8.execute(`
+      SELECT alliance_referral_link_id
+      FROM user_schema.user_table
+      JOIN alliance_schema.alliance_member_table
+      ON alliance_member_user_id = user_id
+      JOIN alliance_schema.alliance_referral_link_table
+      ON alliance_referral_link_member_id = alliance_member_id
+      WHERE user_username = $1
+    `, [referralLink])[0].alliance_referral_link_id;
+
+    plv8.execute(`
+      INSERT INTO alliance_schema.alliance_referral_table (
+        alliance_referral_member_id,
+        alliance_referral_link_id,
+        alliance_referral_from_member_id,
+        alliance_referral_bonus_amount,
+        alliance_referral_level
+      ) VALUES ($1, $2, $3, $4, $5)
+    `, [
+      allianceMemberId,
+      userData,
+      referrerId,
+      calculateBonus(newReferralLevel),
+      newReferralLevel
+    ]);
+  }
+}
+
+// Function to calculate the bonus based on the referral level
 function calculateBonus(level) {
   const levelBonusMap = {
     1: 10,
@@ -169,8 +180,9 @@ function calculateBonus(level) {
   };
   return levelBonusMap[level] || 0;
 }
+
 return returnData;
-$$ LANGUAGE plv8;
+
 
 CREATE OR REPLACE FUNCTION get_admin_top_up_history(
   input_data JSON

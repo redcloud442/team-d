@@ -68,7 +68,7 @@ const RegisterPage = () => {
 
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const referalLink = searchParams.get("referalLink") as string;
+  const referalLink = searchParams.get("referralLink") as string;
   const url = `${process.env.NEXT_PUBLIC_BASE_URL}${pathName}`;
 
   const handleRegistrationSubmit = async (data: RegisterFormData) => {
