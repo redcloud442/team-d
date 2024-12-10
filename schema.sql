@@ -593,7 +593,9 @@ plv8.subtransaction(function() {
     teamMemberId,
     teamId,
     columnAccessor,
-    isAscendingSort
+    isAscendingSort,
+    userRole,
+    dateCreated
   } = input_data;
 
   const member = plv8.execute(`
@@ -611,7 +613,9 @@ plv8.subtransaction(function() {
 
   const params = [teamId, limit, offset];
 
-  const searchCondition = search ? `AND t.u.user_email = '${search}'`: "";
+  const searchCondition = search ? `AND u.user_username = '${search}'`: "";
+  const roleCondition = userRole ? `AND m.alliance_member_role = '${userRole}'`: "";
+  const dateCreatedCondition = dateCreated ? `AND u.user_date_created = '${dateCreated}'`: "";
   const sortBy = isAscendingSort ? "desc" : "asc";
   const sortCondition = columnAccessor
     ? `ORDER BY "${columnAccessor}" ${sortBy}`
@@ -626,6 +630,8 @@ plv8.subtransaction(function() {
       ON u.user_id = m.alliance_member_user_id
     WHERE m.alliance_member_alliance_id = $1
     ${searchCondition}
+    ${roleCondition}
+    ${dateCreatedCondition}
     ${sortCondition}
     LIMIT $2 OFFSET $3
   `, params);
@@ -638,6 +644,8 @@ plv8.subtransaction(function() {
       ON u.user_id = m.alliance_member_user_id
       WHERE m.alliance_member_alliance_id = $1
       ${searchCondition}
+      ${roleCondition}
+      ${dateCreatedCondition}
   `,[teamId])[0].count;
 
   returnData.data = userRequest;
@@ -975,10 +983,12 @@ CREATE OR REPLACE FUNCTION get_admin_dashboard_data(
 RETURNS JSON
 AS $$
 let returnData = {
-    totalEarnings :0,
-    totalWithdraw :0,
+    totalEarnings: 0,
+    totalWithdraw: 0,
+    totalLoot: 0,
     chartData: []
 };
+
 plv8.subtransaction(function() {
   const {
     teamMemberId,
@@ -990,16 +1000,15 @@ plv8.subtransaction(function() {
     return;
   }
 
-  const currentDate = new Date(
-    plv8.execute(`SELECT public.get_current_date()`)[0].get_current_date
-  ).toISOString();
+
+  const dateCondition = dateFilter.start && dateFilter.end ? `WHERE alliance_withdrawal_request_date BETWEEN ${dateFilter.start} AND ${dateFilter.end}` : '';
 
   const member = plv8.execute(
     `
     SELECT alliance_member_role
     FROM alliance_schema.alliance_member_table
     WHERE alliance_member_id = $1
-  `,
+    `,
     [teamMemberId]
   );
 
@@ -1008,53 +1017,71 @@ plv8.subtransaction(function() {
     return;
   }
 
-  const totalEarnings = plv8.execute(`
+  const totalEarnings = plv8.execute(
+    `
     SELECT SUM(package_member_amount) AS total_earnings
     FROM packages_schema.package_member_connection_table
-  `)[0]?.total_earnings || 0;
+    WHERE package_member_connection_created BETWEEN $1 AND $2
+    `,
+    [startDate, endDate]
+  )[0]?.total_earnings || 0;
 
-  const totalWithdraw = plv8.execute(`
+  const totalWithdraw = plv8.execute(
+    `
     SELECT SUM(alliance_withdrawal_request_amount) AS total_withdraw
     FROM alliance_schema.alliance_withdrawal_request_table
-  `)[0]?.total_withdraw || 0;
+    WHERE alliance_withdrawal_request_date BETWEEN $1 AND $2
+    `,
+    [startDate, endDate]
+  )[0]?.total_withdraw || 0;
 
-  const chartData = plv8.execute(`
+  const totalLoot = plv8.execute(
+    `
+    SELECT SUM(alliance_referral_bonus_amount) AS total_loot
+    FROM alliance_schema.alliance_referral_table
+    WHERE alliance_referral_date BETWEEN $1 AND $2
+    `,
+    [startDate, endDate]
+  )[0]?.total_loot || 0;
+
+  const chartData = plv8.execute(
+    `
     WITH
-    daily_earnings AS (
+      daily_earnings AS (
         SELECT
-        DATE_TRUNC('day', package_member_connection_created) AS date,
-        SUM(package_member_amount) AS earnings
+          DATE_TRUNC('day', package_member_connection_created) AS date,
+          SUM(package_member_amount) AS earnings
         FROM
-        packages_schema.package_member_connection_table
+          packages_schema.package_member_connection_table
         WHERE
-        package_member_connection_created >= CURRENT_DATE - INTERVAL '90 days'
+          package_member_connection_created BETWEEN $1 AND $2
         GROUP BY
-        DATE_TRUNC('day', package_member_connection_created)
-    ),
-    daily_withdraw AS (
+          DATE_TRUNC('day', package_member_connection_created)
+      ),
+      daily_withdraw AS (
         SELECT
-        DATE_TRUNC('day', alliance_withdrawal_request_date) AS date,
-        SUM(alliance_withdrawal_request_amount) AS withdraw
+          DATE_TRUNC('day', alliance_withdrawal_request_date) AS date,
+          SUM(alliance_withdrawal_request_amount) AS withdraw
         FROM
-        alliance_schema.alliance_withdrawal_request_table
-        WHERE
-        alliance_withdrawal_request_date >= CURRENT_DATE - INTERVAL '90 days'
+          alliance_schema.alliance_withdrawal_request_table
+        ${dateCondition}
         GROUP BY
-        DATE_TRUNC('day', alliance_withdrawal_request_date)
-    )
+          DATE_TRUNC('day', alliance_withdrawal_request_date)
+      )
     SELECT
-    COALESCE(e.date, w.date) AS date,
-    COALESCE(e.earnings, 0) AS earnings,
-    COALESCE(w.withdraw, 0) AS withdraw
+      COALESCE(e.date, w.date) AS date,
+      COALESCE(e.earnings, 0) AS earnings,
+      COALESCE(w.withdraw, 0) AS withdraw
     FROM
-    daily_earnings e
+      daily_earnings e
     FULL OUTER JOIN
-    daily_withdraw w
+      daily_withdraw w
     ON
-    e.date = w.date
+      e.date = w.date
     ORDER BY
-    date;
-  `,[dateFilter]);
+      date;
+    `
+  );
 
   returnData.chartData = chartData.map(row => ({
     date: row.date.toISOString().split('T')[0],
@@ -1064,7 +1091,9 @@ plv8.subtransaction(function() {
 
   returnData.totalEarnings = totalEarnings;
   returnData.totalWithdraw = totalWithdraw;
+  returnData.totalLoot = totalLoot;
 });
+
 return returnData;
 $$ LANGUAGE plv8;
 

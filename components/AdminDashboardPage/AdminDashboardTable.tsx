@@ -131,6 +131,7 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
           className="flex items-center gap-2"
           onSubmit={handleSubmit(handleFilter)}
         >
+          <h1 className="Text pt-2">History Log</h1>
           <Button
             onClick={fetchAdminRequest}
             disabled={isFetchingList}
@@ -139,7 +140,6 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
             <RefreshCw />
             Refresh
           </Button>
-          <h1 className="Text pt-2">History Log</h1>
         </form>
 
         <DropdownMenu>

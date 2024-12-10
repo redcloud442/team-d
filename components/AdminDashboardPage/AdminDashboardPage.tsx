@@ -15,7 +15,10 @@ type Props = {
 };
 
 type FormContextType = {
-  dateFilter: string;
+  dateFilter: {
+    start: string;
+    end: string;
+  };
 };
 
 const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
@@ -28,7 +31,10 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
 
   const filterMethods = useForm<FormContextType>({
     defaultValues: {
-      dateFilter: "90 days",
+      dateFilter: {
+        start: undefined,
+        end: undefined,
+      },
     },
   });
 
@@ -40,10 +46,23 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
       setIsLoading(true);
       const { dateFilter } = getValues();
 
+      const startDate = dateFilter.start
+        ? new Date(dateFilter.start)
+        : undefined;
+      const endDate = dateFilter.end ? new Date(dateFilter.end) : undefined;
       const { totalEarnings, totalWithdraw, totalLoot, chartData } =
         await getAdminDashboard(supabaseClient, {
           teamMemberId: teamMemberProfile.alliance_member_id,
-          dateFilter: dateFilter,
+          dateFilter: {
+            start:
+              startDate && !isNaN(startDate.getTime())
+                ? startDate.toISOString()
+                : "",
+            end:
+              endDate && !isNaN(endDate.getTime())
+                ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
+                : "",
+          },
         });
 
       setTotalLoot(totalLoot);

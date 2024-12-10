@@ -4,10 +4,15 @@ import { SupabaseClient } from "@supabase/supabase-js";
 export const getAdminDashboard = async (
   supabaseClient: SupabaseClient,
   params: {
-    dateFilter?: string;
+    dateFilter?: {
+      start: string;
+      end: string;
+    };
     teamMemberId: string;
   }
 ) => {
+  console.log(params);
+
   const { data, error } = await supabaseClient.rpc("get_admin_dashboard_data", {
     input_data: params,
   });
