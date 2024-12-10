@@ -1,19 +1,22 @@
 # Use the latest Node.js Alpine image
 FROM node:20.10-alpine
 
-# Install OpenSSL dependencies (required by Prisma)
-RUN apk add --no-cache openssl
+# Install necessary dependencies
+RUN apk add --no-cache openssl bash libc6-compat
 
-# Set working directory
+# Set the working directory
 WORKDIR /usr/src/app
 
-# Copy package files and install dependencies
-COPY package*.json ./
-RUN npm install --production
+# Copy package files and Prisma schema
+COPY package*.json ./ 
+COPY prisma ./prisma/
 
-# Copy Prisma files and generate Prisma Client
-COPY prisma ./prisma
-RUN npx prisma generate
+# Install dependencies (including Prisma CLI)
+RUN npm install --production
+RUN npm install prisma --save-dev
+
+# Generate Prisma Client
+RUN npx prisma generate --schema ./prisma/schema.prisma
 
 # Copy the rest of the application files
 COPY . .
@@ -22,6 +25,7 @@ COPY . .
 RUN npm run build
 
 # Expose the application port
+ENV PORT=3000
 EXPOSE 3000
 
 # Default command to run the app

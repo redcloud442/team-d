@@ -38,6 +38,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Loader2,
   RefreshCw,
   Search,
 } from "lucide-react";
@@ -46,6 +47,13 @@ import { Controller, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
 import { Card } from "../ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -59,6 +67,7 @@ import {
 } from "../ui/select";
 import { Switch } from "../ui/switch";
 import TableLoading from "../ui/tableLoading";
+import { Textarea } from "../ui/textarea";
 import { AdminWithdrawalHistoryColumn } from "./AdminWithdrawalColumn";
 
 type DataTableProps = {
@@ -69,6 +78,7 @@ type FilterFormValues = {
   referenceId: string;
   userFilter: string;
   statusFilter: string;
+  rejectNote: string;
   dateFilter: { start: string; end: string };
 };
 
@@ -107,7 +117,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
           teamId: teamMemberProfile.alliance_member_alliance_id,
           teamMemberId: teamMemberProfile.alliance_member_id,
           page: activePage,
-          limit: 13,
+          limit: 10,
           columnAccessor: columnAccessor,
           isAscendingSort: isAscendingSort,
           search: referenceId,
@@ -140,7 +150,13 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
     } catch (e) {}
   };
 
-  const columns = AdminWithdrawalHistoryColumn();
+  const {
+    columns,
+    isOpenModal,
+    isLoading,
+    setIsOpenModal,
+    handleUpdateStatus,
+  } = AdminWithdrawalHistoryColumn(fetchRequest);
 
   const table = useReactTable({
     data: requestData,
@@ -160,7 +176,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
     },
   });
 
-  const { register, handleSubmit, getValues, control, reset } =
+  const { register, handleSubmit, watch, getValues, control, reset } =
     useForm<FilterFormValues>({
       defaultValues: {
         referenceId: "",
@@ -170,6 +186,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
           start: undefined,
           end: undefined,
         },
+        rejectNote: "",
       },
     });
 
@@ -223,6 +240,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
     }
   };
 
+  const rejectNote = watch("rejectNote");
   return (
     <Card className="w-full rounded-sm p-4">
       <div className="flex items-start py-4">
@@ -230,6 +248,61 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
           className="flex flex-wrap flex-col gap-6"
           onSubmit={handleSubmit(handleFilter)}
         >
+          {isOpenModal && (
+            <Dialog
+              open={isOpenModal.open}
+              onOpenChange={(open) => setIsOpenModal({ ...isOpenModal, open })}
+            >
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{isOpenModal.status} Request</DialogTitle>
+                </DialogHeader>
+                {isOpenModal.status === "REJECTED" && (
+                  <Controller
+                    name="rejectNote"
+                    control={control}
+                    rules={{ required: "Rejection note is required" }}
+                    render={({ field, fieldState }) => (
+                      <div className="flex flex-col gap-2">
+                        <Textarea
+                          placeholder="Enter the reason for rejection..."
+                          {...field}
+                        />
+                        {fieldState.error && (
+                          <span className="text-red-500 text-sm">
+                            {fieldState.error.message}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  />
+                )}
+                <div className="flex justify-end gap-2 mt-4">
+                  <DialogClose asChild>
+                    <Button variant="secondary">Cancel</Button>
+                  </DialogClose>
+                  <Button
+                    disabled={isLoading}
+                    onClick={() =>
+                      handleUpdateStatus(
+                        isOpenModal.status,
+                        isOpenModal.requestId,
+                        rejectNote
+                      )
+                    }
+                  >
+                    {isLoading ? (
+                      <Loader2 className="animate-spin" />
+                    ) : isOpenModal.status === "REJECTED" ? (
+                      "Confirm Rejection"
+                    ) : (
+                      "Confirm Approval"
+                    )}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
           <div className="flex gap-2">
             <Input
               {...register("referenceId")}

@@ -5,16 +5,13 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    // Retrieve IP address with fallback
     const ip =
       request.headers.get("x-forwarded-for") ||
       request.headers.get("cf-connecting-ip") ||
       "unknown";
 
-    // Parse the request body
     const { amount, packageId, teamMemberId } = await request.json();
 
-    // Validate input
     if (!amount || !packageId || !teamMemberId || amount === 0) {
       return NextResponse.json(
         { error: "Invalid input or amount cannot be zero." },
@@ -46,6 +43,13 @@ export async function POST(request: Request) {
     if (!amountMatch) {
       return NextResponse.json(
         { error: "Earnings record not found." },
+        { status: 404 }
+      );
+    }
+
+    if (amountMatch.alliance_olympus_wallet < amount) {
+      return NextResponse.json(
+        { error: "Insufficient balance in the alliance Olympus wallet." },
         { status: 404 }
       );
     }

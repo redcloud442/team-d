@@ -26,6 +26,7 @@ export type WithdrawalRequestData = alliance_withdrawal_request_table & {
   user_last_name: string;
   user_email: string;
   alliance_member_id: string;
+  approver_username?: string;
 };
 
 export type UserRequestdata = user_table & alliance_member_table;

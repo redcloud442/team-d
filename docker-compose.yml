@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    environment:
+      - DATABASE_URL="postgresql://postgres.gpoyejozhyudrdnzedsx:theskyisblue442@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+      - DIRECT_URL="postgresql://postgres.gpoyejozhyudrdnzedsx:theskyisblue442@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres"
+      - NEXT_PUBLIC_SUPABASE_URL="https://gpoyejozhyudrdnzedsx.supabase.co"
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdwb3llam96aHl1ZHJkbnplZHN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE4NTQxMDgsImV4cCI6MjA0NzQzMDEwOH0.oZC01P3JELTKHO1Be3Y40wgi8c39uKTJAUzMGINfzyM"
+      - NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+      - NEXT_PUBLIC_CRYPTO_SECRET_KEY="1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+    working_dir: /usr/src/app
+    command: npm run dev

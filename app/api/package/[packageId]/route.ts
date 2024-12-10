@@ -20,21 +20,24 @@ export async function PUT(
       "unknown";
 
     const { packageId } = await context.params;
-
-    if (!packageId) {
-      return errorResponse("Package ID is required.", 400);
-    }
+    if (!packageId) return errorResponse("Package ID is required.", 400);
 
     const { packageData, teamMemberId } = await request.json();
-
     const { packageName, packageDescription, packagePercentage, packageDays } =
       packageData;
 
-    const { teamMemberProfile } = await protectionAdminUser();
-
-    if (!teamMemberProfile) {
-      return errorResponse("User authentication failed.", 401);
+    if (
+      !packageName ||
+      !packageDescription ||
+      !packagePercentage ||
+      !packageDays
+    ) {
+      return errorResponse("All package fields are required.", 400);
     }
+
+    const { teamMemberProfile } = await protectionAdminUser();
+    if (!teamMemberProfile)
+      return errorResponse("User authentication failed.", 401);
 
     if (
       teamMemberProfile.alliance_member_id !== teamMemberId &&
@@ -60,12 +63,9 @@ export async function PUT(
 
     return successResponse({ data: updatedPackage });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Unexpected error occurred.",
-      },
-      { status: 500 }
+    return errorResponse(
+      error instanceof Error ? error.message : "Unexpected error occurred.",
+      500
     );
   }
 }

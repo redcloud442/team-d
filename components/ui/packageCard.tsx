@@ -24,7 +24,7 @@ const PackageCard = ({
   return (
     <Card
       onClick={onClick}
-      className="bg-white border border-gray-200 rounded-lg shadow-md p-6 flex flex-col items-center space-y-4"
+      className=" border border-gray-400 rounded-lg cursor-pointer  shadow-lg p-6 flex flex-col items-center space-y-4"
     >
       <h2 className="text-xl font-bold ">{packageName}</h2>
 

@@ -167,7 +167,6 @@ let returnData = {
   data: [],
   totalCount: 0
 };
-
 plv8.subtransaction(function() {
   const {
     page = 1,
@@ -211,7 +210,7 @@ plv8.subtransaction(function() {
   const params = [teamId, limit, offset];
 
   if (search) {
-    searchCondition = 'AND u.user_email ILIKE $4';
+    searchCondition = 'AND u.user_username ILIKE $4';
     params.push(`%${search}%`);
   }
 
@@ -271,7 +270,6 @@ plv8.subtransaction(function() {
   returnData.data = topUpRequest;
   returnData.totalCount = Number(totalCount);
 });
-
 return returnData;
 $$ LANGUAGE plv8;
 
@@ -449,6 +447,7 @@ CREATE OR REPLACE FUNCTION get_admin_withdrawal_history(
 )
 RETURNS JSON
 AS $$
+
 let returnData = {
     data:[],
     totalCount:0
@@ -461,7 +460,10 @@ plv8.subtransaction(function() {
     teamMemberId,
     teamId,
     columnAccessor,
-    isAscendingSort
+    isAscendingSort,
+    userFilter,
+    statusFilter,
+    dateFilter
   } = input_data;
 
   const member = plv8.execute(`
@@ -478,7 +480,9 @@ plv8.subtransaction(function() {
   const offset = (page - 1) * limit;
 
   const params = [teamId, limit, offset];
-
+  const userCondition = userFilter ? `AND u.user_id = '${userFilter}'` : "";
+  const statusCondition = statusFilter ? `AND t.alliance_withdrawal_request_status = '${statusFilter}'`: "";
+  const dateFilterCondition = dateFilter.start && dateFilter.end ? `AND t.alliance_withdrawal_request_date BETWEEN '${dateFilter.start}' AND '${dateFilter.end}'` : "";
   const searchCondition = search ? `AND t.alliance_withdrawal_request_id = '${search}'`: "";
   const sortBy = isAscendingSort ? "desc" : "asc";
   const sortCondition = columnAccessor
@@ -491,14 +495,22 @@ plv8.subtransaction(function() {
       u.user_last_name,
       u.user_email,
       m.alliance_member_id,
-      t.*
+      t.*,
+      approver.user_username AS approver_username
     FROM alliance_schema.alliance_withdrawal_request_table t
     JOIN alliance_schema.alliance_member_table m
       ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
     JOIN user_schema.user_table u
       ON u.user_id = m.alliance_member_user_id
+    LEFT JOIN alliance_schema.alliance_member_table mt
+      ON mt.alliance_member_id = t.alliance_withdrawal_request_approved_by
+    LEFT JOIN user_schema.user_table approver
+      ON approver.user_id = mt.alliance_member_user_id
     WHERE m.alliance_member_alliance_id = $1
     ${searchCondition}
+    ${userCondition}
+    ${statusCondition}
+    ${dateFilterCondition}
     ${sortCondition}
     LIMIT $2 OFFSET $3
   `, params);
@@ -511,8 +523,16 @@ plv8.subtransaction(function() {
         ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
         JOIN user_schema.user_table u
         ON u.user_id = m.alliance_member_user_id
+        LEFT JOIN alliance_schema.alliance_member_table mt
+        ON mt.alliance_member_id = t.alliance_withdrawal_request_approved_by
+    LEFT JOIN user_schema.user_table approver
+      ON approver.user_id = mt.alliance_member_user_id
         WHERE m.alliance_member_alliance_id = $1
         ${searchCondition}
+        ${searchCondition}
+        ${userCondition}
+        ${statusCondition}
+        ${dateFilterCondition}
   `,[teamId])[0].count;
 
   returnData.data = topUpRequest;

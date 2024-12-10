@@ -11,11 +11,9 @@ export async function POST(request: Request) {
       request.headers.get("cf-connecting-ip") ||
       "unknown";
 
-    // Parse request body
     const { earnings, accountNumber, amount, bank, teamMemberId } =
       await request.json();
 
-    // Input validation
     if (!amount || !accountNumber || !bank || !teamMemberId) {
       return NextResponse.json({ error: "Invalid input." }, { status: 400 });
     }
@@ -27,13 +25,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Protect user access
     await protectionMemberUser();
 
-    // Apply rate limiting
     await applyRateLimit(teamMemberId, ip);
 
-    // Fetch earnings record
     const amountMatch = await prisma.alliance_earnings_table.findUnique({
       where: { alliance_earnings_member_id: teamMemberId },
     });
@@ -45,7 +40,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Determine maximum allowable amount
     const maxAmount =
       earnings === "TOTAL"
         ? amountMatch.alliance_olympus_earnings
@@ -68,17 +62,17 @@ export async function POST(request: Request) {
           alliance_withdrawal_request_amount: Number(amount),
           alliance_withdrawal_request_type: bank,
           alliance_withdrawal_request_account: accountNumber,
-          alliance_withdrawal_request_status: "APPROVED",
+          alliance_withdrawal_request_status: "PENDING",
           alliance_withdrawal_request_member_id: teamMemberId,
         },
       }),
-      prisma.alliance_earnings_table.update({
-        where: { alliance_earnings_member_id: teamMemberId },
-        data: {
-          alliance_olympus_earnings:
-            amountMatch.alliance_olympus_earnings - amount,
-        },
-      }),
+      // prisma.alliance_earnings_table.update({
+      //   where: { alliance_earnings_member_id: teamMemberId },
+      //   data: {
+      //     alliance_olympus_earnings:
+      //       amountMatch.alliance_olympus_earnings - amount,
+      //   },
+      // }),
     ]);
 
     if (!allianceData) {

@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ChartDataMember } from "@/utils/types";
-import { PhilippinePeso } from "lucide-react";
 
 type Props = {
   chartData: ChartDataMember[];
@@ -37,8 +36,7 @@ const DashboardPackages = ({ chartData }: Props) => {
           </CardContent>
           <CardFooter className="flex-col items-start gap-2 text-sm">
             <div className="font-medium leading-none">
-              Amount: <PhilippinePeso />
-              {data.amount.toFixed(2)}
+              Amount: ₱{data.amount.toFixed(2)}
             </div>
             <div className="leading-none text-muted-foreground">
               Package completion rate updated.

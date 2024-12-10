@@ -60,6 +60,7 @@ const DashboardPage = ({
   useEffect(() => {
     getPackagesData();
   }, []);
+  console.log(chartData);
 
   return (
     <div className="min-h-screen h-full mx-auto py-8 ">
@@ -103,13 +104,13 @@ const DashboardPage = ({
             descriptionClassName="text-sm text-gray-500"
           />
           <CardAmount
-            title="Ally Bounty"
+            title="Direct Referral"
             value={dashboardEarnings.directReferralAmount}
             description=""
             descriptionClassName="text-sm text-green-600"
           />
           <CardAmount
-            title="Legion Bounty"
+            title="Indirect Referral"
             value={dashboardEarnings.indirectReferralAmount}
             description=""
             descriptionClassName="text-sm text-red-600"
@@ -130,9 +131,6 @@ const DashboardPage = ({
             teamMemberProfile={teamMemberProfile}
           />
         </div>
-
-        {/* Packages Section (Uncomment if needed) */}
-        {/* <DashboardPackages chartData={chartData} /> */}
       </div>
     </div>
   );

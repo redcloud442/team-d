@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { ensureValidSession } from "../serversideProtection";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -15,7 +16,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
+          cookiesToSet.forEach(({ name, value, options }) =>
             request.cookies.set(name, value)
           );
           supabaseResponse = NextResponse.next({
@@ -33,12 +34,12 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const publicRoutes = ["/auth/login", "/auth/register","/api/auth"];
+  await ensureValidSession();
+
+  const publicRoutes = ["/auth/login", "/auth/register", "/api/auth"];
   const privateRoutes = ["/", "/dashboard"];
   const currentPath = request.nextUrl.pathname;
 
-
-  // Handle unauthenticated users
   if (!user) {
     if (publicRoutes.some((route) => currentPath.startsWith(route))) {
       return NextResponse.next();
@@ -51,7 +52,6 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Handle authenticated users
   if (user) {
     if (publicRoutes.some((route) => currentPath.startsWith(route))) {
       const homeUrl = request.nextUrl.clone();
@@ -60,6 +60,5 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Default case: allow authenticated users to access private routes
   return NextResponse.next();
 }

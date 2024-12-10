@@ -6,25 +6,24 @@ import { useToast } from "@/hooks/use-toast";
 import { createPackageConnection } from "@/services/Package/Member";
 import { escapeFormData } from "@/utils/function";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader } from "lucide-react";
-import { Dispatch, SetStateAction, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import * as z from "zod";
-
-import PackageCard from "../ui/packageCard";
-import PackageDescription from "../ui/packageDescription";
-
 import {
   alliance_earnings_table,
   alliance_member_table,
   package_table,
 } from "@prisma/client";
+import { Loader } from "lucide-react";
+import { Dispatch, SetStateAction, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import * as z from "zod";
+import PackageCard from "../ui/packageCard";
+import PackageDescription from "../ui/packageDescription";
 
 type Props = {
   earnings: alliance_earnings_table;
   pkg: package_table;
   teamMemberProfile: alliance_member_table;
   setEarnings: Dispatch<SetStateAction<alliance_earnings_table>>;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 const AvailPackagePage = ({
@@ -32,6 +31,7 @@ const AvailPackagePage = ({
   pkg,
   teamMemberProfile,
   setEarnings,
+  setOpen,
 }: Props) => {
   const { toast } = useToast();
   const [maxAmount, setMaxAmount] = useState(earnings.alliance_olympus_wallet);
@@ -89,6 +89,7 @@ const AvailPackagePage = ({
         ...prev,
         alliance_olympus_wallet: prev.alliance_olympus_wallet - result.amount,
       }));
+      setOpen(false);
       setMaxAmount((prev) => prev - result.amount);
     } catch (e) {
       const errorMessage =

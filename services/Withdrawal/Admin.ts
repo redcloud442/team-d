@@ -19,8 +19,6 @@ export const getAdminWithdrawalRequest = async (
     };
   }
 ) => {
-  console.log(params);
-
   const { data, error } = await supabaseClient.rpc(
     "get_admin_withdrawal_history",
     {
@@ -34,4 +32,30 @@ export const getAdminWithdrawalRequest = async (
     data: WithdrawalRequestData[];
     totalCount: 0;
   };
+};
+
+export const updateWithdrawalStatus = async (params: {
+  status: string;
+  requestId: string;
+  note?: string;
+}) => {
+  const { requestId } = params;
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/withdraw/` + requestId,
+    {
+      method: "PUT",
+      body: JSON.stringify(params),
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while creating the top-up request."
+    );
+  }
+
+  return response;
 };

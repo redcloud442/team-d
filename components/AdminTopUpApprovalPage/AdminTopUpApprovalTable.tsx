@@ -145,7 +145,6 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
               : undefined,
         },
       });
-      console.log(data);
 
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
@@ -342,7 +341,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
           <div className="flex gap-2">
             <Input
               {...register("emailFilter")}
-              placeholder="Filter emails..."
+              placeholder="Filter username..."
               className="max-w-sm p-2 border rounded"
             />
             <Button
