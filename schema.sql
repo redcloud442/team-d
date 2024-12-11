@@ -167,7 +167,7 @@ plv8.subtransaction(function() {
     dateFilter = null
   } = input_data;
 
-  // Check if the member has the correct role
+
   const member = plv8.execute(
     `
     SELECT alliance_member_role
@@ -177,26 +177,26 @@ plv8.subtransaction(function() {
     [teamMemberId]
   );
 
-  if (!member.length || (member[0].alliance_member_role !== 'ADMIN' && member[0].alliance_member_role !== 'MERCHANT')) {
+  if (!member.length || (member[0].alliance_member_role !== 'ADMIN')) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
 
   const offset = (page - 1) * limit;
-  const sortBy = isAscendingSort ? "asc" : "desc";
+  const sortBy = isAscendingSort ? "DESC" : "ASC";
   const sortCondition = columnAccessor
     ? `ORDER BY "${columnAccessor}" ${sortBy}`
     : "";
   const merchantCondition = merchantFilter ? `AND approver.user_id = '${merchantFilter}'` : "";
-  const userCondition = userFilter ? `AND u.user_id = '${userFilter}'` : "";
+  const userCondition = userFilter ? `AND u.user_username = '${userFilter} OR u.user_id = '${userFilter} OR u.user_first_name = '${userFilter}' OR u.user_last_name = '${userFilter}'` : "";
   const statusCondition = statusFilter ? `AND t.alliance_top_up_request_status = '${statusFilter}'`: "";
   const dateFilterCondition = dateFilter.start && dateFilter.end ? `AND t.alliance_top_up_request_date BETWEEN '${dateFilter.start}' AND '${dateFilter.end}'` : "";
   let searchCondition = '';
   const params = [teamId, limit, offset];
 
   if (search) {
-    searchCondition = 'AND u.user_username ILIKE $4';
-    params.push(`%${search}%`);
+    searchCondition = `AND u.user_username ILIKE '%${search}%'`
+
   }
 
   const topUpRequest = plv8.execute(
@@ -255,9 +255,10 @@ plv8.subtransaction(function() {
   returnData.data = topUpRequest;
   returnData.totalCount = Number(totalCount);
 });
-return returnData;
-$$ LANGUAGE plv8;
 
+return returnData;
+
+$$ LANGUAGE plv8;
 
 CREATE OR REPLACE FUNCTION get_member_withdrawal_history(
   input_data JSON
@@ -368,7 +369,7 @@ plv8.subtransaction(function() {
     WHERE alliance_member_id = $1
   `, [teamMemberId]);
 
-  if (!member.length || member[0].alliance_member_role !== 'ADMIN' || member[0].alliance_member_role !== 'MERCHANT') {
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
@@ -435,6 +436,7 @@ plv8.subtransaction(function() {
   returnData.totalCount = Number(totalCount);
 });
 return returnData;
+
 $$ LANGUAGE plv8;
 
 CREATE OR REPLACE FUNCTION get_admin_withdrawal_history(
@@ -868,9 +870,7 @@ $$ LANGUAGE plv8;
 
 
 
-CREATE OR REPLACE FUNCTION get_admin_dashboard_data(
-  input_data JSON
-)
+CREATE OR REPLACE FUNCTION get_admin_dashboard_data(input_data JSON)
 RETURNS JSON
 AS $$
 
@@ -883,134 +883,113 @@ let returnData = {
   numberOfRegisteredUser: 0,
   chartData: []
 };
+
 plv8.subtransaction(function() {
-  const {
-    teamMemberId,
-    dateFilter = {}
-  } = input_data;
+  const { teamMemberId, dateFilter = {} } = input_data;
 
   if (!teamMemberId) {
     returnData = { success: false, message: 'teamMemberId is required' };
     return;
   }
 
-  const member = plv8.execute(
+  // Check if the user is an admin
+  const member = plv8.execute(`
     SELECT alliance_member_role
-     FROM alliance_schema.alliance_member_table
-     WHERE alliance_member_id = $1,
-    [teamMemberId]
-  );
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `, [teamMemberId]);
 
   if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
 
-
+  // Get the current date
   const currentDate = new Date(
-    plv8.execute(SELECT public.get_current_date())[0].get_current_date
+    plv8.execute(`SELECT public.get_current_date()`)[0].get_current_date
   );
 
-
+  // Set start and end dates for filtering
   const startDate = dateFilter.start || currentDate.toISOString().split('T')[0];
   const endDate = dateFilter.end || new Date(currentDate.setHours(23, 59, 59, 999)).toISOString();
 
+  // Query for total earnings
   const totalEarnings = plv8.execute(`
-    SELECT
-       COALESCE(SUM(pe.package_member_amount), 0) AS total_earnings
-     FROM
-       packages_schema.package_member_connection_table pe
-     WHERE
-       pe.package_member_status = 'ENDED' AND package_member_connection_created BETWEEN $1 AND $2
-       `,
-       [startDate, endDate])[0];
+    SELECT COALESCE(SUM(package_member_amount), 0) AS total_earnings
+    FROM packages_schema.package_member_connection_table
+    WHERE package_member_status = 'ENDED'
+      AND package_member_connection_created BETWEEN $1 AND $2
+  `, [startDate, endDate])[0];
 
-
+  // Query for total withdraw
   const totalWithdraw = plv8.execute(`
-    SELECT
-       COALESCE(SUM(wr.alliance_withdrawal_request_amount), 0) AS total_withdraw
-     FROM
-       alliance_schema.alliance_withdrawal_request_table wr
-     WHERE
-       wr.alliance_withdrawal_request_status = 'APPROVED' AND alliance_withdrawal_request_date BETWEEN $1 AND $2
-  `,
-  [startDate, endDate])[0];
+    SELECT COALESCE(SUM(alliance_withdrawal_request_amount), 0) AS total_withdraw
+    FROM alliance_schema.alliance_withdrawal_request_table
+    WHERE alliance_withdrawal_request_status = 'APPROVED'
+      AND alliance_withdrawal_request_date BETWEEN $1 AND $2
+  `, [startDate, endDate])[0];
 
+  // Query for direct and indirect loot
   const directAndIndirectLoot = plv8.execute(`
     SELECT  
       COALESCE(SUM(CASE WHEN package_ally_bounty_type = 'DIRECT' THEN package_ally_bounty_earnings ELSE 0 END), 0) AS direct_loot,
       COALESCE(SUM(CASE WHEN package_ally_bounty_type = 'INDIRECT' THEN package_ally_bounty_earnings ELSE 0 END), 0) AS indirect_loot
     FROM packages_schema.package_ally_bounty_log
     WHERE package_ally_bounty_log_date_created BETWEEN $1 AND $2
-  `,
-  [startDate, endDate]
-  )[0];
+  `, [startDate, endDate])[0];
 
+  // Query for active packages within the day
   const activePackageWithinTheDay = plv8.execute(`
-    SELECT  
-     COUNT(*)
+    SELECT COUNT(*) AS active_packages
     FROM alliance_schema.alliance_member_table
-    WHERE alliance_member_date_updated BETWEEN $1 AND $2 AND alliance_member_is_active = true
-  `,
-  [startDate, endDate]
-  )[0];
+    WHERE alliance_member_date_updated BETWEEN $1 AND $2
+      AND alliance_member_is_active = true
+  `, [startDate, endDate])[0].active_packages;
 
+  // Query for the number of registered users
   const numberOfRegisteredUser = plv8.execute(`
-    SELECT COUNT(*)
+    SELECT COUNT(*) AS registered_users
     FROM alliance_schema.alliance_member_table
-  `,
-  )[0];
+  `)[0].registered_users;
 
-
-  const chartData = plv8.execute(
+  // Query for chart data
+  const chartData = plv8.execute(`
     WITH
-       daily_earnings AS (
-         SELECT
-           DATE_TRUNC('day', package_member_connection_created) AS date,
-           SUM(package_member_amount) AS earnings
-         FROM
-           packages_schema.package_member_connection_table
-         WHERE
-           package_member_connection_created BETWEEN $1 AND $2
-           AND package_member_status = 'ENDED'
-         GROUP BY
-           DATE_TRUNC('day', package_member_connection_created)
-       ),
-       daily_withdraw AS (
-         SELECT
-           DATE_TRUNC('day', alliance_withdrawal_request_date) AS date,
-           SUM(alliance_withdrawal_request_amount) AS withdraw
-         FROM
-           alliance_schema.alliance_withdrawal_request_table
-         WHERE
-           alliance_withdrawal_request_date BETWEEN $1 AND $2
-           AND alliance_withdrawal_request_status = 'APPROVED'
-         GROUP BY
-           DATE_TRUNC('day', alliance_withdrawal_request_date)
-       ),
-       combined AS (
-         SELECT
-           COALESCE(e.date, w.date) AS date,
-           COALESCE(e.earnings, 0) AS earnings,
-           COALESCE(w.withdraw, 0) AS withdraw
-         FROM
-           daily_earnings e
-         FULL OUTER JOIN
-           daily_withdraw w
-         ON
-           e.date = w.date
-       )
-     SELECT
-       date::date,
-       earnings,
-       withdraw
-     FROM
-       combined
-     ORDER BY
-       date,
-    [startDate, endDate]
-  );
+      daily_earnings AS (
+        SELECT
+          DATE_TRUNC('day', package_member_connection_created) AS date,
+          SUM(package_member_amount) AS earnings
+        FROM packages_schema.package_member_connection_table
+        WHERE package_member_connection_created BETWEEN $1 AND $2
+          AND package_member_status = 'ENDED'
+        GROUP BY DATE_TRUNC('day', package_member_connection_created)
+      ),
+      daily_withdraw AS (
+        SELECT
+          DATE_TRUNC('day', alliance_withdrawal_request_date) AS date,
+          SUM(alliance_withdrawal_request_amount) AS withdraw
+        FROM alliance_schema.alliance_withdrawal_request_table
+        WHERE alliance_withdrawal_request_date BETWEEN $1 AND $2
+          AND alliance_withdrawal_request_status = 'APPROVED'
+        GROUP BY DATE_TRUNC('day', alliance_withdrawal_request_date)
+      ),
+      combined AS (
+        SELECT
+          COALESCE(e.date, w.date) AS date,
+          COALESCE(e.earnings, 0) AS earnings,
+          COALESCE(w.withdraw, 0) AS withdraw
+        FROM daily_earnings e
+        FULL OUTER JOIN daily_withdraw w ON e.date = w.date
+      )
+    SELECT
+      date::date,
+      earnings,
+      withdraw
+    FROM combined
+    ORDER BY date
+  `, [startDate, endDate]);
 
+  // Create a date range for chart data
   let dateRange = [];
   let current = new Date(startDate);
   const end = new Date(endDate);
@@ -1020,7 +999,7 @@ plv8.subtransaction(function() {
     current.setDate(current.getDate() + 1);
   }
 
-
+  // Map chart data to the date range
   const chartDataMap = {};
   chartData.forEach(row => {
     chartDataMap[row.date.toISOString().split('T')[0]] = {
@@ -1035,14 +1014,17 @@ plv8.subtransaction(function() {
     withdraw: chartDataMap[date]?.withdraw || 0,
   }));
 
-  returnData.totalEarnings = totals.total_earnings;
-  returnData.totalWithdraw = totals.total_withdraw;
+  // Assign the results to returnData
+  returnData.totalEarnings = totalEarnings.total_earnings;
+  returnData.totalWithdraw = totalWithdraw.total_withdraw;
   returnData.directLoot = directAndIndirectLoot.direct_loot;
   returnData.indirectLoot = directAndIndirectLoot.indirect_loot;
-  returnData.activePackageWithinTheDay = activePackageWithinTheDay;
-  returnData.numberOfRegisteredUser = numberOfRegisteredUser;
+  returnData.activePackageWithinTheDay = Number(activePackageWithinTheDay);
+  returnData.numberOfRegisteredUser = Number(numberOfRegisteredUser);
 });
+
 return returnData;
+
 $$ LANGUAGE plv8;
 
 

@@ -31,6 +31,9 @@ export const AdminUsersColumn = (
   ) => {
     try {
       setIsLoading(true);
+
+      console.log(alliance_member_alliance_id, role);
+
       await handleUpdateRole({ userId: alliance_member_alliance_id, role });
 
       // if (role === "ADMIN") {
@@ -183,23 +186,6 @@ export const AdminUsersColumn = (
       ),
     },
     {
-      accessorKey: "alliance_member_role",
-      label: "Role",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Role <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => (
-        <div className="text-center">
-          {row.getValue("alliance_member_role")}
-        </div>
-      ),
-    },
-    {
       accessorKey: "user_date_created",
       label: "Date Created",
       header: ({ column }) => (
@@ -233,6 +219,27 @@ export const AdminUsersColumn = (
         </div>
       ),
     },
+
+    {
+      accessorKey: "alliance_member_is_active",
+      label: "Active",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Active <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const isActive = row.getValue("alliance_member_is_active");
+        return (
+          <div className={`${isActive ? "text-green-500" : "text-red-500"}`}>
+            {isActive ? "YES" : "NO"}
+          </div>
+        );
+      },
+    },
     {
       id: "actions",
       label: "Actions",
@@ -262,6 +269,14 @@ export const AdminUsersColumn = (
                 }
               >
                 Promote as Admin
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={() =>
+                  handlePromoteToMerchant(data.alliance_member_id, "ACCOUNTING")
+                }
+              >
+                Promote as Accountant
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleBanUser(data.alliance_member_id)}
