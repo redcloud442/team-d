@@ -49,11 +49,13 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const AdminDashboardChart = ({ chartData, fetchAdminDashboardData }: Props) => {
-  const { control, handleSubmit } = useFormContext<FormContextType>();
+  const { control, handleSubmit, watch } = useFormContext<FormContextType>();
+  const startDate = watch("dateFilter.start");
+  const endDate = watch("dateFilter.end");
 
   return (
     <Card>
-      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+      <CardHeader className="flex flex-wrap items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle>Total Earnings And Withdrawal Chart</CardTitle>
           <CardDescription>
@@ -62,7 +64,7 @@ const AdminDashboardChart = ({ chartData, fetchAdminDashboardData }: Props) => {
         </div>
         <form
           onSubmit={handleSubmit(fetchAdminDashboardData)}
-          className="flex items-center gap-2"
+          className="flex flex-wrap items-center gap-2"
         >
           <Controller
             name="dateFilter.start"
@@ -116,13 +118,19 @@ const AdminDashboardChart = ({ chartData, fetchAdminDashboardData }: Props) => {
                     onSelect={(date: Date | undefined) =>
                       field.onChange(date?.toISOString() || "")
                     }
+                    fromDate={startDate ? new Date(startDate) : undefined}
+                    disabled={(date) =>
+                      startDate ? date < new Date(startDate) : false
+                    }
                     initialFocus
                   />
                 </PopoverContent>
               </Popover>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button disabled={!startDate || !endDate} type="submit">
+            Submit
+          </Button>
         </form>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">

@@ -8,7 +8,7 @@ type Props = {
 
 const AdminTopUpApprovalPage = ({ teamMemberProfile }: Props) => {
   return (
-    <div className="mx-auto p-10">
+    <div className="mx-auto md:p-10">
       <div>
         <header className="mb-4">
           <h1 className="Title">Top Up History List Page</h1>

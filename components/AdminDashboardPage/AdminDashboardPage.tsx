@@ -81,7 +81,7 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
   }, [teamMemberProfile]);
 
   return (
-    <div className="mx-auto p-10">
+    <div className="mx-auto md:p-10">
       {isLoading && <TableLoading />}
       <div className="flex flex-col gap-6">
         <div>

@@ -40,8 +40,6 @@ const DashboardPage = ({
 
   const getPackagesData = async () => {
     try {
-      console.log("hey");
-
       setIsLoading(true);
       const data = await getDashboard(supabaseClient, {
         teamMemberId: earnings.alliance_earnings_member_id,
@@ -126,7 +124,7 @@ const DashboardPage = ({
             title="Indirect Referral"
             value={
               Number(
-                dashboardEarnings.directReferralAmount
+                dashboardEarnings.indirectReferralAmount
               ).toLocaleString() as unknown as number
             }
             description=""

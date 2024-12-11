@@ -42,6 +42,8 @@ import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Input } from "../ui/input";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { Separator } from "../ui/separator";
 import TableLoading from "../ui/tableLoading";
 import { LegionBountyColumn } from "./LegionBountyColumn";
 
@@ -134,11 +136,14 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
 
   return (
     <Card className="w-full rounded-sm p-4">
-      <div className="flex items-center py-4">
-        <form className="flex gap-2" onSubmit={handleSubmit(handleFilter)}>
+      <div className="flex flex-wrap items-center py-4">
+        <form
+          className="flex flex-wrap gap-2"
+          onSubmit={handleSubmit(handleFilter)}
+        >
           <Input
             {...register("emailFilter")}
-            placeholder="Filter userId..."
+            placeholder="Filter username..."
             className="max-w-sm p-2 border rounded"
           />
           <Button
@@ -187,8 +192,9 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border">
+      <ScrollArea className="w-full overflow-x-auto ">
         {isFetchingList && <TableLoading />}
+        <Separator />
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -240,44 +246,92 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
               <TableCell className="px-0" colSpan={columns.length}>
                 <div className="flex justify-between items-center border-t px-2 pt-2">
                   <span className="text-sm text-gray-600">
-                    Showing {requestData.length} of {requestCount} entries
+                    Showing {Math.min(activePage * 10, requestCount)} out of{" "}
+                    {requestCount} entries
                   </span>
                 </div>
               </TableCell>
             </TableRow>
           </tfoot>
         </Table>
-      </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
 
       <div className="flex items-center justify-end gap-x-4 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
-          disabled={activePage <= 1}
-        >
-          <ChevronLeft />
-        </Button>
+        {activePage > 1 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
+            disabled={activePage <= 1}
+          >
+            <ChevronLeft />
+          </Button>
+        )}
+
         <div className="flex space-x-2">
-          {Array.from({ length: pageCount }, (_, i) => i + 1).map((page) => (
-            <Button
-              key={page}
-              variant={activePage === page ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActivePage(page)}
-            >
-              {page}
-            </Button>
-          ))}
+          {(() => {
+            const maxVisiblePages = 3;
+            const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
+            let displayedPages = [];
+
+            if (pageCount <= maxVisiblePages) {
+              // Show all pages if there are 3 or fewer
+              displayedPages = pages;
+            } else {
+              if (activePage <= 2) {
+                // Show the first 3 pages and the last page
+                displayedPages = [1, 2, 3, "...", pageCount];
+              } else if (activePage >= pageCount - 1) {
+                // Show the first page and the last 3 pages
+                displayedPages = [
+                  1,
+                  "...",
+                  pageCount - 2,
+                  pageCount - 1,
+                  pageCount,
+                ];
+              } else {
+                displayedPages = [
+                  activePage - 1,
+                  activePage,
+                  activePage + 1,
+                  "...",
+                  pageCount,
+                ];
+              }
+            }
+
+            return displayedPages.map((page, index) =>
+              typeof page === "number" ? (
+                <Button
+                  key={page}
+                  variant={activePage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setActivePage(page)}
+                >
+                  {page}
+                </Button>
+              ) : (
+                <span key={`ellipsis-${index}`} className="px-2 py-1">
+                  {page}
+                </span>
+              )
+            );
+          })()}
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setActivePage((prev) => Math.min(prev + 1, pageCount))}
-          disabled={activePage >= pageCount}
-        >
-          <ChevronRight />
-        </Button>
+        {activePage < pageCount && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setActivePage((prev) => Math.min(prev + 1, pageCount))
+            }
+            disabled={activePage >= pageCount}
+          >
+            <ChevronRight />
+          </Button>
+        )}
       </div>
     </Card>
   );

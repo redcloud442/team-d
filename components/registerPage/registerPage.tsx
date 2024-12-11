@@ -70,7 +70,6 @@ const RegisterPage = () => {
 
   const referalLink = searchParams.get("referralLink") as string;
   const url = `${process.env.NEXT_PUBLIC_BASE_URL}${pathName}`;
-  console.log(referalLink);
 
   const handleRegistrationSubmit = async (data: RegisterFormData) => {
     const sanitizedData = escapeFormData(data);

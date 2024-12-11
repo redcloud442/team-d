@@ -8,7 +8,7 @@ type Props = {
 
 const AdminUserPage = ({ teamMemberProfile }: Props) => {
   return (
-    <div className="container mx-auto p-10">
+    <div className="container mx-auto md:p-10">
       <div>
         <header className="mb-4">
           <h1 className="Title">User List Page</h1>

@@ -6,14 +6,14 @@ import { ArrowUpDown } from "lucide-react";
 export const AllyBountyColumn = (): ColumnDef<user_table>[] => {
   return [
     {
-      accessorKey: "user_email",
-      label: "Email",
+      accessorKey: "user_username",
+      label: "Username",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Email <ArrowUpDown />
+          Username <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => <div>{row.getValue("user_email")}</div>,

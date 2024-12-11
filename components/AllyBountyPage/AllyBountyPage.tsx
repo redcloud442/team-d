@@ -8,18 +8,18 @@ type Props = {
 
 const AllyBountyPage = ({ teamMemberProfile }: Props) => {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="md:p-10">
       <div>
         {/* Header Section */}
         <header className="mb-4">
-          <h1 className="Title">Ally Bounty Page</h1>
+          <h1 className="Title">Direct Referral Page</h1>
           <p className="text-gray-600">
-            View all your allies that are currently in the system.
+            View all your direct referral that are currently in the system.
           </p>
         </header>
 
         {/* Table Section */}
-        <section className="bg-white rounded-lg shadow-md p-6">
+        <section className=" rounded-lg  p-6">
           <AllyBountyTable teamMemberProfile={teamMemberProfile} />
         </section>
       </div>

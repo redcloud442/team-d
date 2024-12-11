@@ -1,6 +1,7 @@
 import { applyRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -60,15 +61,20 @@ export async function POST(request: Request) {
       );
     }
 
-    if (earningsData.alliance_olympus_wallet < amount) {
+    if (new Prisma.Decimal(earningsData.alliance_olympus_wallet).lt(amount)) {
       return NextResponse.json(
         { error: "Insufficient balance in the alliance Olympus wallet." },
         { status: 400 }
       );
     }
 
-    const packagePercentage = packageData.package_percentage / 100;
-    const packageAmountEarnings = amount * packagePercentage;
+    const packagePercentage = new Prisma.Decimal(
+      packageData.package_percentage
+    ).div(100);
+
+    const packageAmountEarnings = new Prisma.Decimal(amount)
+      .mul(packagePercentage)
+      .toNumber();
 
     const referralChain = generateReferralChain(
       referralData?.alliance_referral_hierarchy ?? null,
@@ -98,13 +104,43 @@ export async function POST(request: Request) {
         const bountyLogs = referralChain.map((ref) => ({
           package_ally_bounty_member_id: ref.referrerId,
           package_ally_bounty_percentage: ref.percentage,
-          package_ally_bounty_earnings: amount * (ref.percentage / 100),
-          package_ally_bounty_type: ref.level > 1 ? "INDIRECT" : "DIRECT",
+          package_ally_bounty_earnings: new Prisma.Decimal(amount)
+            .mul(ref.percentage)
+            .div(100)
+            .toNumber(),
+          package_ally_bounty_type: ref.level === 1 ? "DIRECT" : "INDIRECT",
           package_ally_bounty_connection_id:
             connectionData.package_member_connection_id,
         }));
 
         await prisma.package_ally_bounty_log.createMany({ data: bountyLogs });
+
+        const updates = referralChain.map((ref) =>
+          prisma.alliance_earnings_table.updateMany({
+            where: { alliance_earnings_member_id: ref.referrerId },
+            data: {
+              ...(ref.level === 1
+                ? {
+                    alliance_earnings_ally_bounty: {
+                      increment: new Prisma.Decimal(amount)
+                        .mul(ref.percentage)
+                        .div(100)
+                        .toNumber(),
+                    },
+                  }
+                : {
+                    alliance_earnings_legion_bounty: {
+                      increment: new Prisma.Decimal(amount)
+                        .mul(ref.percentage)
+                        .div(100)
+                        .toNumber(),
+                    },
+                  }),
+            },
+          })
+        );
+
+        await Promise.all(updates);
       }
 
       return connectionData;
@@ -161,7 +197,6 @@ function getBonusPercentage(level: number): number {
     9: 1,
     10: 1,
     11: 1,
-    12: 1,
   };
 
   return bonusMap[level] || 0;

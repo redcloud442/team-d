@@ -57,7 +57,7 @@ const NavBar = ({ userData, teamMemberProfile }: Props) => {
   }, []);
 
   return (
-    <nav className="w-full sticky top-0 bg-gray-800 text-white shadow-lg z-50">
+    <nav className="w-full bg-gray-600 text-white shadow-lg z-50">
       <NavigationLoader visible={isLoading} />
       <div className="w-full mx-auto px-4 flex justify-between items-center h-16">
         {/* Logo Section */}
@@ -70,7 +70,19 @@ const NavBar = ({ userData, teamMemberProfile }: Props) => {
         </Button>
 
         {/* Navigation Links */}
-        <div className="flex items-center space-x-4">
+        <div className="hidden items-center space-x-4 md:flex">
+          <Button
+            variant="ghost"
+            onClick={() => handleNavigation("/ally-bounty")}
+          >
+            Direct Referral
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => handleNavigation("/legion-bounty")}
+          >
+            Indirect Referral
+          </Button>
           {teamMemberProfile.alliance_member_role === "MERCHANT" && (
             <>
               <Button
@@ -91,7 +103,7 @@ const NavBar = ({ userData, teamMemberProfile }: Props) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">
-                Hello, {userData.user_first_name} {userData.user_last_name}{" "}
+                Hello, {userData.user_username}
                 <ChevronDown />
               </Button>
             </DropdownMenuTrigger>

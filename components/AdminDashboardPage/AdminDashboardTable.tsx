@@ -39,6 +39,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import TableLoading from "../ui/tableLoading";
 import { AdminDashboardColumn } from "./AdminDashboardColumn";
 
@@ -126,9 +127,9 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
 
   return (
     <Card className="w-full rounded-sm p-4">
-      <div className="flex items-center py-4">
+      <div className="flex flex-wrap items-center py-4">
         <form
-          className="flex items-center gap-2"
+          className="flex flex-wrap items-center gap-2"
           onSubmit={handleSubmit(handleFilter)}
         >
           <h1 className="Text pt-2">History Log</h1>
@@ -171,7 +172,7 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border">
+      <ScrollArea className="w-full overflow-x-auto ">
         {isFetchingList && <TableLoading />}
         <Table className="table-auto w-full border-collapse border border-gray-200">
           <TableHeader>
@@ -234,7 +235,8 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
             </TableRow>
           </tfoot>
         </Table>
-      </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
 
       <div className="flex items-center justify-end gap-x-4 py-4">
         <Button
@@ -245,18 +247,62 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
         >
           <ChevronLeft />
         </Button>
+
         <div className="flex space-x-2">
-          {Array.from({ length: pageCount }, (_, i) => i + 1).map((page) => (
-            <Button
-              key={page}
-              variant={activePage === page ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActivePage(page)}
-            >
-              {page}
-            </Button>
-          ))}
+          {(() => {
+            const maxVisiblePages = 3;
+            const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
+            let displayedPages = [];
+
+            if (pageCount <= maxVisiblePages) {
+              // Show all pages if there are 3 or fewer
+              displayedPages = pages;
+            } else {
+              if (activePage <= 2) {
+                // Show the first 3 pages and the last page
+                displayedPages = [1, 2, 3, "...", pageCount];
+              } else if (activePage >= pageCount - 1) {
+                // Show the first page and the last 3 pages
+                displayedPages = [
+                  1,
+                  "...",
+                  pageCount - 2,
+                  pageCount - 1,
+                  pageCount,
+                ];
+              } else {
+                // Show the active page in the middle with ellipses on both sides
+                displayedPages = [
+                  1,
+                  "...",
+                  activePage - 1,
+                  activePage,
+                  activePage + 1,
+                  "...",
+                  pageCount,
+                ];
+              }
+            }
+
+            return displayedPages.map((page, index) =>
+              typeof page === "number" ? (
+                <Button
+                  key={page}
+                  variant={activePage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setActivePage(page)}
+                >
+                  {page}
+                </Button>
+              ) : (
+                <span key={`ellipsis-${index}`} className="px-2 py-1">
+                  {page}
+                </span>
+              )
+            );
+          })()}
         </div>
+
         <Button
           variant="outline"
           size="sm"

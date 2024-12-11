@@ -23,7 +23,7 @@ const CardAmount = ({
   children,
 }: Props) => {
   return (
-    <Card className="w-full md:max-w-lg">
+    <Card className="w-full md:min-w-lg">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription className="flex gap-x-2 text-xl font-bold">

@@ -55,6 +55,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Separator } from "../ui/separator";
 import { Switch } from "../ui/switch";
 import TableLoading from "../ui/tableLoading";
 import { AdminUsersColumn } from "./AdminUsersColumn";
@@ -156,7 +157,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
     fetchAdminRequest();
   }, [supabaseClient, teamMemberProfile, activePage, sorting]);
 
-  const pageCount = Math.ceil(requestCount / 13);
+  const pageCount = Math.ceil(requestCount / 10);
 
   const handleSwitchChange = (checked: boolean) => {
     setShowFilters(checked);
@@ -168,106 +169,108 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
 
   return (
     <Card className="w-full rounded-sm p-4">
-      <div className="flex items-center py-4">
+      <div className="flex flex-wrap items-start py-4">
         <form
-          className="flex flex-wrap flex-col gap-6"
+          className="flex flex-col gap-6 w-full max-w-3xl"
           onSubmit={handleSubmit(handleFilter)}
         >
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
             <Input
               {...register("usernameFilter")}
               placeholder="Filter username..."
-              className="max-w-sm p-2 border rounded"
+              className="w-full sm:max-w-sm p-2 border rounded"
             />
             <Button
               type="submit"
               disabled={isFetchingList}
               size="sm"
               variant="outline"
+              className="w-full sm:w-auto"
             >
-              <Search />
+              <Search className="mr-2" />
+              Search
             </Button>
             <Button
               onClick={fetchAdminRequest}
               disabled={isFetchingList}
               size="sm"
+              className="w-full sm:w-auto"
             >
-              <RefreshCw />
+              <RefreshCw className="mr-2" />
               Refresh
             </Button>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="filter-switch"
-                checked={showFilters}
-                onCheckedChange={handleSwitchChange}
+
+            <Switch
+              id="filter-switch"
+              checked={showFilters}
+              onCheckedChange={handleSwitchChange}
+            />
+            <Label htmlFor="filter-switch">Filter</Label>
+          </div>
+
+          {showFilters && (
+            <div className="flex w-full flex-wrap gap-2  p-2 rounded mb-4">
+              <Controller
+                name="userRole"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={(value) =>
+                      field.onChange(value === field.value ? "" : value)
+                    }
+                    value={field.value || ""}
+                  >
+                    <SelectTrigger className="w-full sm:w-auto">
+                      <SelectValue placeholder="User Role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MEMBER">Member</SelectItem>
+                      <SelectItem value="MERCHANT">Merchant</SelectItem>
+                      <SelectItem value="ADMIN">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               />
-              <Label htmlFor="filter">Filter</Label>
+
+              <Controller
+                name="dateCreated"
+                control={control}
+                render={({ field }) => (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full sm:w-auto font-normal justify-start"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {field.value
+                          ? format(new Date(field.value), "PPP")
+                          : "Date Created"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={
+                          field.value ? new Date(field.value) : undefined
+                        }
+                        onSelect={(date: Date | undefined) =>
+                          field.onChange(date?.toISOString() || "")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
+              />
+
+              <Button onClick={fetchAdminRequest} className="w-full sm:w-auto">
+                Submit
+              </Button>
             </div>
-          </div>
-          <div className="flex gap-2">
-            {showFilters && (
-              <>
-                <Controller
-                  name="userRole"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={(value) =>
-                        field.onChange(value === field.value ? "" : value)
-                      }
-                      value={field.value || ""}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="User Role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="MEMBER">Member</SelectItem>
-                        <SelectItem value="MERCHANT">Merchant</SelectItem>
-                        <SelectItem value="ADMIN">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-
-                <Controller
-                  name="dateCreated"
-                  control={control}
-                  render={({ field }) => (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="font-normal justify-start"
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value
-                            ? format(new Date(field.value), "PPP")
-                            : "Date Created"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={
-                            field.value ? new Date(field.value) : undefined
-                          }
-                          onSelect={(date: Date | undefined) =>
-                            field.onChange(date?.toISOString() || "")
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                />
-
-                {/* End Date Picker */}
-
-                <Button onClick={fetchAdminRequest}>Submit</Button>
-              </>
-            )}
-          </div>
+          )}
         </form>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -300,6 +303,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
 
       <ScrollArea className="w-full overflow-x-auto ">
         {isFetchingList && <TableLoading />}
+        <Separator />
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -352,7 +356,8 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
               <TableCell className="px-0" colSpan={columns.length}>
                 <div className="flex justify-between items-center border-t px-2 pt-2">
                   <span className="text-sm text-gray-600">
-                    Showing {requestData.length} of {requestCount} entries
+                    Showing {Math.min(activePage * 10, requestCount)} out of{" "}
+                    {requestCount} entries
                   </span>
                 </div>
               </TableCell>
@@ -362,35 +367,81 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
 
-      <div className="flex items-center justify-end w-full gap-x-4 py-4 ">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
-          disabled={activePage <= 1}
-        >
-          <ChevronLeft />
-        </Button>
+      <div className="flex items-center justify-end gap-x-4 py-4">
+        {activePage > 1 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
+            disabled={activePage <= 1}
+          >
+            <ChevronLeft />
+          </Button>
+        )}
+
         <div className="flex space-x-2">
-          {Array.from({ length: pageCount }, (_, i) => i + 1).map((page) => (
-            <Button
-              key={page}
-              variant={activePage === page ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActivePage(page)}
-            >
-              {page}
-            </Button>
-          ))}
+          {(() => {
+            const maxVisiblePages = 3;
+            const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
+            let displayedPages = [];
+
+            if (pageCount <= maxVisiblePages) {
+              // Show all pages if there are 3 or fewer
+              displayedPages = pages;
+            } else {
+              if (activePage <= 2) {
+                // Show the first 3 pages and the last page
+                displayedPages = [1, 2, 3, "...", pageCount];
+              } else if (activePage >= pageCount - 1) {
+                // Show the first page and the last 3 pages
+                displayedPages = [
+                  1,
+                  "...",
+                  pageCount - 2,
+                  pageCount - 1,
+                  pageCount,
+                ];
+              } else {
+                displayedPages = [
+                  activePage - 1,
+                  activePage,
+                  activePage + 1,
+                  "...",
+                  pageCount,
+                ];
+              }
+            }
+
+            return displayedPages.map((page, index) =>
+              typeof page === "number" ? (
+                <Button
+                  key={page}
+                  variant={activePage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setActivePage(page)}
+                >
+                  {page}
+                </Button>
+              ) : (
+                <span key={`ellipsis-${index}`} className="px-2 py-1">
+                  {page}
+                </span>
+              )
+            );
+          })()}
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setActivePage((prev) => Math.min(prev + 1, pageCount))}
-          disabled={activePage >= pageCount}
-        >
-          <ChevronRight />
-        </Button>
+        {activePage < pageCount && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setActivePage((prev) => Math.min(prev + 1, pageCount))
+            }
+            disabled={activePage >= pageCount}
+          >
+            <ChevronRight />
+          </Button>
+        )}
       </div>
     </Card>
   );

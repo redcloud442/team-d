@@ -67,6 +67,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Separator } from "../ui/separator";
 import { Switch } from "../ui/switch";
 import TableLoading from "../ui/tableLoading";
 import { Textarea } from "../ui/textarea";
@@ -278,11 +279,12 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
 
   return (
     <Card className="w-full rounded-sm p-4">
-      <div className="flex items-start py-4">
+      <div className="flex flex-wrap gap-4 items-start py-4">
         <form
-          className="flex flex-col gap-6"
+          className="flex flex-col gap-6 w-full max-w-4xl rounded-md"
           onSubmit={handleSubmit(handleFilter)}
         >
+          {" "}
           {isOpenModal && (
             <Dialog
               open={isOpenModal.open}
@@ -338,149 +340,151 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
               </DialogContent>
             </Dialog>
           )}
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 items-center w-full">
             <Input
               {...register("emailFilter")}
               placeholder="Filter username..."
-              className="max-w-sm p-2 border rounded"
+              className="w-full sm:max-w-sm p-2 border rounded"
             />
             <Button
               type="submit"
               disabled={isFetchingList}
               size="sm"
               variant="outline"
+              className="w-full sm:w-auto"
             >
-              <Search />
+              <Search className="mr-2" />
+              Search
             </Button>
             <Button
               onClick={fetchAdminRequest}
               disabled={isFetchingList}
               size="sm"
+              className="w-full sm:w-auto"
             >
-              <RefreshCw />
+              <RefreshCw className="mr-2" />
               Refresh
             </Button>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <Switch
                 id="filter-switch"
                 checked={showFilters}
                 onCheckedChange={handleSwitchChange}
               />
-              <Label htmlFor="filter">Filter</Label>
+              <Label htmlFor="filter-switch">Filter</Label>
             </div>
           </div>
-          <div className="flex gap-2">
-            {showFilters && (
-              <>
-                <Controller
-                  name="merchantFilter"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={(value) =>
-                        field.onChange(value === field.value ? "" : value)
-                      }
-                      value={field.value || ""}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Merchant" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {merchantOptions.map((opt) => (
-                          <SelectItem key={opt.user_id} value={opt.user_id}>
-                            {opt.user_username}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
+          {showFilters && (
+            <div className="flex flex-wrap gap-2 items-center rounded-md">
+              <Controller
+                name="merchantFilter"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={(value) =>
+                      field.onChange(value === field.value ? "" : value)
+                    }
+                    value={field.value || ""}
+                  >
+                    <SelectTrigger className="w-full sm:w-auto">
+                      <SelectValue placeholder="Merchant" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {merchantOptions.map((opt) => (
+                        <SelectItem key={opt.user_id} value={opt.user_id}>
+                          {opt.user_username}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
 
-                <Controller
-                  name="userFilter"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={(value) =>
-                        field.onChange(value === field.value ? "" : value)
-                      }
-                      value={field.value || ""}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Requestor" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {userOptions.map((opt) => (
-                          <SelectItem key={opt.user_id} value={opt.user_id}>
-                            {opt.user_username}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
+              <Controller
+                name="userFilter"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={(value) =>
+                      field.onChange(value === field.value ? "" : value)
+                    }
+                    value={field.value || ""}
+                  >
+                    <SelectTrigger className="w-full sm:w-auto">
+                      <SelectValue placeholder="Requestor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {userOptions.map((opt) => (
+                        <SelectItem key={opt.user_id} value={opt.user_id}>
+                          {opt.user_username}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
 
-                <Controller
-                  name="statusFilter"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={(value) =>
-                        field.onChange(value === field.value ? "" : value)
-                      }
-                      value={field.value || ""}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="PENDING">Pending</SelectItem>
-                        <SelectItem value="APPROVED">Approved</SelectItem>
-                        <SelectItem value="REJECTED">Rejected</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
+              <Controller
+                name="statusFilter"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={(value) =>
+                      field.onChange(value === field.value ? "" : value)
+                    }
+                    value={field.value || ""}
+                  >
+                    <SelectTrigger className="w-full sm:w-auto">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PENDING">Pending</SelectItem>
+                      <SelectItem value="APPROVED">Approved</SelectItem>
+                      <SelectItem value="REJECTED">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
 
-                <Controller
-                  name="dateFilter.start"
-                  control={control}
-                  render={({ field }) => (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="font-normal justify-start"
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value
-                            ? format(new Date(field.value), "PPP")
-                            : "Select Start Date"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={
-                            field.value ? new Date(field.value) : undefined
-                          }
-                          onSelect={(date: Date | undefined) =>
-                            field.onChange(date?.toISOString() || "")
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                />
+              <Controller
+                name="dateFilter.start"
+                control={control}
+                render={({ field }) => (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full sm:w-auto font-normal justify-start"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {field.value
+                          ? format(new Date(field.value), "PPP")
+                          : "Select Start Date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={
+                          field.value ? new Date(field.value) : undefined
+                        }
+                        onSelect={(date: Date | undefined) =>
+                          field.onChange(date?.toISOString() || "")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
+              />
 
-                {/* End Date Picker */}
-
-                <Button onClick={fetchAdminRequest}>Submit</Button>
-              </>
-            )}
-          </div>
+              <Button onClick={fetchAdminRequest} className="w-full sm:w-auto">
+                Submit
+              </Button>
+            </div>
+          )}
         </form>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -510,9 +514,10 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
       <ScrollArea className="w-full overflow-x-auto ">
         {isFetchingList && <TableLoading />}
-
+        <Separator />
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -564,7 +569,8 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
               <TableCell className="px-0" colSpan={columns.length}>
                 <div className="flex justify-between items-center border-t px-2 pt-2">
                   <span className="text-sm text-gray-600">
-                    Showing {requestData.length} of {requestCount} entries
+                    Showing {Math.min(activePage * 10, requestCount)} out of{" "}
+                    {requestCount} entries
                   </span>
                 </div>
               </TableCell>
@@ -575,34 +581,80 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
       </ScrollArea>
 
       <div className="flex items-center justify-end gap-x-4 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
-          disabled={activePage <= 1}
-        >
-          <ChevronLeft />
-        </Button>
+        {activePage > 1 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
+            disabled={activePage <= 1}
+          >
+            <ChevronLeft />
+          </Button>
+        )}
+
         <div className="flex space-x-2">
-          {Array.from({ length: pageCount }, (_, i) => i + 1).map((page) => (
-            <Button
-              key={page}
-              variant={activePage === page ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActivePage(page)}
-            >
-              {page}
-            </Button>
-          ))}
+          {(() => {
+            const maxVisiblePages = 3;
+            const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
+            let displayedPages = [];
+
+            if (pageCount <= maxVisiblePages) {
+              // Show all pages if there are 3 or fewer
+              displayedPages = pages;
+            } else {
+              if (activePage <= 2) {
+                // Show the first 3 pages and the last page
+                displayedPages = [1, 2, 3, "...", pageCount];
+              } else if (activePage >= pageCount - 1) {
+                // Show the first page and the last 3 pages
+                displayedPages = [
+                  1,
+                  "...",
+                  pageCount - 2,
+                  pageCount - 1,
+                  pageCount,
+                ];
+              } else {
+                displayedPages = [
+                  activePage - 1,
+                  activePage,
+                  activePage + 1,
+                  "...",
+                  pageCount,
+                ];
+              }
+            }
+
+            return displayedPages.map((page, index) =>
+              typeof page === "number" ? (
+                <Button
+                  key={page}
+                  variant={activePage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setActivePage(page)}
+                >
+                  {page}
+                </Button>
+              ) : (
+                <span key={`ellipsis-${index}`} className="px-2 py-1">
+                  {page}
+                </span>
+              )
+            );
+          })()}
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setActivePage((prev) => Math.min(prev + 1, pageCount))}
-          disabled={activePage >= pageCount}
-        >
-          <ChevronRight />
-        </Button>
+        {activePage < pageCount && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setActivePage((prev) => Math.min(prev + 1, pageCount))
+            }
+            disabled={activePage >= pageCount}
+          >
+            <ChevronRight />
+          </Button>
+        )}
       </div>
     </Card>
   );

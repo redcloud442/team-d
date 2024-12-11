@@ -90,10 +90,10 @@ const LoginPage = () => {
           onSubmit={handleSubmit(handleSignIn)}
         >
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="username">Username</Label>
             <Input
-              id="email"
-              placeholder="Enter your email"
+              id="username"
+              placeholder="Enter your username"
               {...register("userName")}
             />
             {errors.userName && (

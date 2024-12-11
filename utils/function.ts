@@ -141,7 +141,7 @@ export const applyRateLimit = async (
 
   const currentCount = (rateLimiter.get(rateLimitKey) as number) || 0;
 
-  if (currentCount >= 5) {
+  if (currentCount >= 50) {
     throw new Error("Too many requests. Please try again later.");
   }
 
