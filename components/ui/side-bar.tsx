@@ -31,6 +31,7 @@ import {
   Package,
   PiggyBankIcon,
   Settings,
+  Trophy,
   User2,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -114,6 +115,7 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
 
   const adminMenuItems = [
     { title: "Admin Dashboard", url: "/admin", icon: Settings },
+    { title: "Leaderboards", url: "/admin/leaderboards", icon: Trophy },
     { title: "Packages", url: "/admin/packages", icon: Package },
     { title: "Manage Users", url: "/admin/users", icon: User2 },
     { title: "Top Up History", url: "/admin/top-up", icon: HistoryIcon },

@@ -139,7 +139,7 @@ const DashboardPage = ({
           </div>
         )}
 
-        <div className="w-full flex flex-col sm:flex-row space-6 gap-6">
+        <div className="w-full flex flex-col lg:flex-row space-6 gap-6">
           <DashboardDepositRequest
             setChartData={setChartData}
             earnings={earnings}

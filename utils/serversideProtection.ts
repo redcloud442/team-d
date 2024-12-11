@@ -44,37 +44,31 @@ export const ensureValidSession = async () => {
 export const protectionAdminUser = async () => {
   try {
     const supabase = await createClientServerSide();
-    const { data, error } = await supabase.auth.getUser();
 
-    if (error || !data?.user) {
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    if (authError || !authData?.user) {
       return { redirect: "/auth/login" };
     }
 
-    const userId = data.user.id;
+    const userId = authData.user.id;
 
-    // Fetch the user profile
-    const profile = await prisma.user_table.findUnique({
-      where: { user_id: userId },
-    });
+    const [profile, teamMember] = await Promise.all([
+      prisma.user_table.findUnique({ where: { user_id: userId } }),
+      prisma.alliance_member_table.findFirst({
+        where: { alliance_member_user_id: userId },
+      }),
+    ]);
 
-    if (!profile) {
-      return { redirect: "/500" }; // Redirect if the profile is not found
-    }
-
-    // Check if the user is an admin in the alliance
-    const teamMember = await prisma.alliance_member_table.findFirst({
-      where: { alliance_member_user_id: profile.user_id },
-    });
-
-    if (
-      !teamMember?.alliance_member_alliance_id ||
-      (teamMember.alliance_member_role !== "ADMIN" &&
-        teamMember.alliance_member_role !== "MERCHANT")
-    ) {
+    if (!profile || !teamMember) {
       return { redirect: "/500" };
     }
 
-    if (teamMember.alliance_member_restricted) {
+    const validRoles = new Set(["ADMIN"]);
+    if (
+      !teamMember.alliance_member_alliance_id ||
+      !validRoles.has(teamMember.alliance_member_role) ||
+      teamMember.alliance_member_restricted
+    ) {
       return { redirect: "/500" };
     }
 
@@ -82,61 +76,187 @@ export const protectionAdminUser = async () => {
       profile: profile as user_table,
       teamMemberProfile: teamMember as alliance_member_table,
     };
-  } catch (e) {
+  } catch (error) {
     return { redirect: "/error" };
   }
 };
 
 export const protectionMemberUser = async () => {
-  const supabase = await createClientServerSide();
+  try {
+    const supabase = await createClientServerSide();
 
-  const { data } = await supabase.auth.getUser();
+    const { data: authData, error: authError } = await supabase.auth.getUser();
 
-  if (!data?.user) {
-    return { redirect: "/auth/login" };
-  }
+    if (authError || !authData?.user) {
+      return { redirect: "/auth/login" };
+    }
 
-  const profile = await prisma.user_table.findUnique({
-    where: { user_id: data.user.id },
-  });
+    const userId = authData.user.id;
 
-  if (!profile) return { redirect: "/500" };
+    const [profile, teamMember] = await Promise.all([
+      prisma.user_table.findUnique({ where: { user_id: userId } }),
+      prisma.alliance_member_table.findFirst({
+        where: { alliance_member_user_id: userId },
+      }),
+    ]);
 
-  const teamMember = await prisma.alliance_member_table.findFirst({
-    where: { alliance_member_user_id: profile.user_id },
-  });
+    if (!profile) {
+      return { redirect: "/500" };
+    }
 
-  const referal = await prisma.alliance_referral_link_table.findFirst({
-    where: {
-      alliance_referral_link_member_id: teamMember?.alliance_member_id,
-    },
-  });
+    if (
+      !teamMember?.alliance_member_alliance_id ||
+      !["MEMBER", "ADMIN"].includes(teamMember.alliance_member_role)
+    ) {
+      return { redirect: "/404" };
+    }
 
-  if (
-    !teamMember?.alliance_member_alliance_id ||
-    (teamMember.alliance_member_role !== "MEMBER" &&
-      teamMember.alliance_member_role !== "ADMIN" &&
-      teamMember.alliance_member_role !== "MERCHANT")
-  ) {
-    return { redirect: "/404" };
-  }
+    if (teamMember.alliance_member_restricted) {
+      return { redirect: "/500" };
+    }
 
-  if (teamMember.alliance_member_restricted) {
+    const [referal, earnings] = await Promise.all([
+      prisma.alliance_referral_link_table.findFirst({
+        where: {
+          alliance_referral_link_member_id: teamMember.alliance_member_id,
+        },
+      }),
+      prisma.alliance_earnings_table.findFirst({
+        where: { alliance_earnings_member_id: teamMember.alliance_member_id },
+      }),
+    ]);
+
+    if (!earnings) {
+      return { redirect: "/404" };
+    }
+
+    return {
+      profile: profile as user_table,
+      teamMemberProfile: teamMember as alliance_member_table,
+      earnings: earnings as alliance_earnings_table,
+      referal: referal as alliance_referral_link_table,
+    };
+  } catch (error) {
     return { redirect: "/500" };
   }
+};
 
-  const earnings = await prisma.alliance_earnings_table.findFirst({
-    where: { alliance_earnings_member_id: teamMember.alliance_member_id },
-  });
+export const protectionMerchantUser = async () => {
+  try {
+    const supabase = await createClientServerSide();
 
-  if (!earnings) {
-    return { redirect: "/404" };
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !authData?.user) {
+      return { redirect: "/auth/login" };
+    }
+
+    const userId = authData.user.id;
+
+    const [profile, teamMember] = await Promise.all([
+      prisma.user_table.findUnique({ where: { user_id: userId } }),
+      prisma.alliance_member_table.findFirst({
+        where: { alliance_member_user_id: userId },
+      }),
+    ]);
+
+    if (!profile) {
+      return { redirect: "/500" };
+    }
+
+    if (
+      !teamMember?.alliance_member_alliance_id ||
+      !["MERCHANT", "ADMIN"].includes(teamMember.alliance_member_role)
+    ) {
+      return { redirect: "/404" };
+    }
+
+    if (teamMember.alliance_member_restricted) {
+      return { redirect: "/500" };
+    }
+
+    const [referal, earnings] = await Promise.all([
+      prisma.alliance_referral_link_table.findFirst({
+        where: {
+          alliance_referral_link_member_id: teamMember.alliance_member_id,
+        },
+      }),
+      prisma.alliance_earnings_table.findFirst({
+        where: { alliance_earnings_member_id: teamMember.alliance_member_id },
+      }),
+    ]);
+
+    if (!earnings) {
+      return { redirect: "/404" };
+    }
+
+    return {
+      profile: profile as user_table,
+      teamMemberProfile: teamMember as alliance_member_table,
+      earnings: earnings as alliance_earnings_table,
+      referal: referal as alliance_referral_link_table,
+    };
+  } catch (error) {
+    return { redirect: "/500" };
   }
+};
 
-  return {
-    profile: profile as user_table,
-    teamMemberProfile: teamMember as alliance_member_table,
-    earnings: earnings as alliance_earnings_table,
-    referal: referal as alliance_referral_link_table,
-  };
+export const protectionAccountingUser = async () => {
+  try {
+    const supabase = await createClientServerSide();
+
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !authData?.user) {
+      return { redirect: "/auth/login" };
+    }
+
+    const userId = authData.user.id;
+
+    const [profile, teamMember] = await Promise.all([
+      prisma.user_table.findUnique({ where: { user_id: userId } }),
+      prisma.alliance_member_table.findFirst({
+        where: { alliance_member_user_id: userId },
+      }),
+    ]);
+
+    if (!profile) {
+      return { redirect: "/500" };
+    }
+
+    if (
+      !teamMember?.alliance_member_alliance_id ||
+      !["ADMIN", "ACCOUNTING"].includes(teamMember.alliance_member_role)
+    ) {
+      return { redirect: "/404" };
+    }
+
+    if (teamMember.alliance_member_restricted) {
+      return { redirect: "/500" };
+    }
+
+    const [referal, earnings] = await Promise.all([
+      prisma.alliance_referral_link_table.findFirst({
+        where: {
+          alliance_referral_link_member_id: teamMember.alliance_member_id,
+        },
+      }),
+      prisma.alliance_earnings_table.findFirst({
+        where: { alliance_earnings_member_id: teamMember.alliance_member_id },
+      }),
+    ]);
+
+    if (!earnings) {
+      return { redirect: "/404" };
+    }
+
+    return {
+      profile: profile as user_table,
+      teamMemberProfile: teamMember as alliance_member_table,
+      earnings: earnings as alliance_earnings_table,
+      referal: referal as alliance_referral_link_table,
+    };
+  } catch (error) {
+    return { redirect: "/500" };
+  }
 };

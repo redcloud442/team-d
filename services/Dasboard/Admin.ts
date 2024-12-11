@@ -27,3 +27,24 @@ export const getAdminDashboard = async (
     chartData: ChartData[];
   };
 };
+
+export const getLeaderBoardData = async (
+  supabaseClient: SupabaseClient,
+  params: {
+    leaderBoardType: "DIRECT" | "INDIRECT";
+    teamMemberId: string;
+    limit: number;
+    page: number;
+  }
+) => {
+  const { data, error } = await supabaseClient.rpc("get_leaderboard_data", {
+    input_data: params,
+  });
+
+  if (error) throw error;
+
+  return data as {
+    totalCount: 0;
+    data: { username: string; totalAmount: number }[];
+  };
+};

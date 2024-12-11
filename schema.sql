@@ -377,7 +377,7 @@ plv8.subtransaction(function() {
   const offset = (page - 1) * limit;
 
   const params = [teamId, limit, offset];
-  const userCondition = userFilter ? `AND u.user_id = '${userFilter}'` : "";
+  const userCondition = userFilter ? `AND u.user_username = '${userFilter} OR u.user_id = '${userFilter} OR u.user_first_name = '${userFilter}' OR u.user_last_name = '${userFilter}'` : "";
   const statusCondition = statusFilter ? `AND t.alliance_withdrawal_request_status = '${statusFilter}'`: "";
   const dateFilterCondition = dateFilter.start && dateFilter.end ? `AND t.alliance_withdrawal_request_date BETWEEN '${dateFilter.start}' AND '${dateFilter.end}'` : "";
   const searchCondition = search ? `AND t.alliance_withdrawal_request_id = '${search}'`: "";
@@ -469,7 +469,7 @@ plv8.subtransaction(function() {
     WHERE alliance_member_id = $1
   `, [teamMemberId]);
 
-  if (!member.length || member[0].alliance_member_role !== 'ADMIN' || member[0].alliance_member_role !== 'MERCHANT') {
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
@@ -477,7 +477,7 @@ plv8.subtransaction(function() {
   const offset = (page - 1) * limit;
 
   const params = [teamId, limit, offset];
-  const userCondition = userFilter ? `AND u.user_id = '${userFilter}'` : "";
+  const userCondition = userFilter ? `AND u.user_username = '${userFilter} OR u.user_id = '${userFilter} OR u.user_first_name = '${userFilter}' OR u.user_last_name = '${userFilter}'` : "";
   const statusCondition = statusFilter ? `AND t.alliance_withdrawal_request_status = '${statusFilter}'`: "";
   const dateFilterCondition = dateFilter.start && dateFilter.end ? `AND t.alliance_withdrawal_request_date BETWEEN '${dateFilter.start}' AND '${dateFilter.end}'` : "";
   const searchCondition = search ? `AND t.alliance_withdrawal_request_id = '${search}'`: "";
@@ -1049,7 +1049,6 @@ plv8.subtransaction(function() {
   const currentTimestamp = new Date(
     plv8.execute(`SELECT public.get_current_date()`)[0].get_current_date
   )
-  plv8.elog(NOTICE, `Current Timestamp: ${currentTimestamp}`);
 
   const member = plv8.execute(
     `
@@ -1069,26 +1068,30 @@ plv8.subtransaction(function() {
     return;
   }
 
-  const chartData = plv8.execute(`
+  const chartData = plv8.execute(
+    `
     SELECT
       p.package_name AS package,
       p.packages_days,
-      pmc.package_member_status AS status,
-      pmc.package_member_connection_created AS start_date,
+      pmc.package_member_status,
+      pmc.package_member_connection_created,
       (pmc.package_member_connection_created + make_interval(days => p.packages_days)) AS completion_date,
-      (pmc.package_member_amount + pmc.package_amount_earnings) AS amount
+      (pmc.package_member_amount + pmc.package_amount_earnings) AS amount,
+      pmc.package_member_connection_id,
+      pmc.package_member_package_id,
+      pmc.package_member_member_id
     FROM packages_schema.package_member_connection_table pmc
     JOIN packages_schema.package_table p
       ON pmc.package_member_package_id = p.package_id
     WHERE pmc.package_member_status = $1 AND pmc.package_member_member_id = $2
-  `, ['ACTIVE', teamMemberId]);
+    `,
+    ['ACTIVE', teamMemberId]
+  );
+
 
   returnData = chartData.map(row => {
     const startDate = new Date(row.start_date);
     const completionDate = new Date(row.completion_date);
-
-    plv8.elog(NOTICE, `Start Date: ${startDate}`);
-    plv8.elog(NOTICE, `Completion Date: ${completionDate}`);
 
     if (isNaN(startDate) || isNaN(completionDate)) {
       plv8.elog(NOTICE, `Invalid dates detected.`);
@@ -1108,6 +1111,45 @@ plv8.subtransaction(function() {
     const percentage = totalTimeMs > 0
       ? parseFloat(((elapsedTimeMs / totalTimeMs) * 100).toFixed(2))
       : 100.0;
+
+
+      if(percentage === 100){
+    
+          var earnings = row.package_member_amount + row.package_amount_earnings;
+
+          plv8.execute(`
+            UPDATE alliance_schema.alliance_earnings_table
+            SET alliance_olympus_earnings = alliance_olympus_earnings + $1
+            WHERE alliance_earnings_member_id = $2
+          `, [earnings, row.package_member_member_id]);
+
+          plv8.execute(`
+            UPDATE packages_schema.package_member_connection_table
+            SET package_member_status = 'ENDED'
+            WHERE package_member_connection_id = $1
+          `, [row.package_member_connection_id]);
+
+          plv8.execute(`
+            INSERT INTO packages_schema.package_earnings_log (
+              package_member_connection_id,
+              package_member_package_id,
+              package_member_member_id,
+              package_member_connection_created,
+              package_member_amount,
+              package_member_amount_earnings,
+              package_member_status
+            ) VALUES (
+              $1, $2, $3, $4, $5,$6, 'ENDED'
+            )
+          `, [
+            row.package_member_connection_id,
+            row.package_member_package_id,
+            row.package_member_member_id,
+            row.package_member_connection_created,
+            row.package_member_amount,
+            row.package_amount_earnings
+          ]);
+      }
 
     return {
       package: row.package,
@@ -1468,6 +1510,61 @@ plv8.subtransaction(function() {
     FROM alliance_schema.alliance_earnings_table
     WHERE alliance_earnings_member_id = $1
   `, [teamMemberId]);
+
+  returnData = earningsData
+});
+return returnData;
+
+$$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION create_leaderboard_data(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+
+let returnData = []
+plv8.subtransaction(function() {
+  const {
+    leaderBoardType,
+    teamMemberId,
+    limit,
+    offset
+  } = input_data;
+
+  const member = plv8.execute(`
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `, [teamMemberId]);
+
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  if(leaderBoardType === 'DIRECT'){
+    const diretLeaderBoardData = plv8.execute(`
+      SELECT 
+        package_ally_bounty_member_id AS memberId,
+        SUM(package_ally_bounty_earnings) AS totalAmount
+      FROM packages_schema.package_ally_bounty_log
+      WHERE package_ally_bounty_type = 'DIRECT'
+      GROUP BY package_ally_bounty_member_id
+      ORDER BY totalAmount DESC
+    `);
+  } else if(leaderBoardType === 'INDIRECT'){
+    const indirectLeaderBoardData = plv8.execute(`
+      SELECT 
+        package_ally_bounty_member_id AS memberId,
+        SUM(package_ally_bounty_earnings) AS totalAmount
+      FROM packages_schema.package_ally_bounty_log
+      WHERE package_ally_bounty_type = 'INDIRECT'
+      GROUP BY package_ally_bounty_member_id
+      ORDER BY totalAmount DESC
+    `);
+  }
+
 
   returnData = earningsData
 });

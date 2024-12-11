@@ -1,4 +1,4 @@
-import AdminPackagesPage from "@/components/AdminPackagesPage/AdminPackagesPage";
+import AdminLeaderBoardsPage from "@/components/AdminLeaderBoardsPage/AdminLeaderBoardsPage";
 import { protectionAdminUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -16,7 +16,7 @@ const Page = async () => {
 
   if (!teamMemberProfile) return redirect("/500");
 
-  return <AdminPackagesPage teamMemberProfile={teamMemberProfile} />;
+  return <AdminLeaderBoardsPage teamMemberProfile={teamMemberProfile} />;
 };
 
 export default Page;
