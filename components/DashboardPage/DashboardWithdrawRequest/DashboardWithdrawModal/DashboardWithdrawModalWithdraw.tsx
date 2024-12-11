@@ -18,12 +18,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { getEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
 import { escapeFormData } from "@/utils/function";
+import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_earnings_table, alliance_member_table } from "@prisma/client";
 import { Loader } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
@@ -46,10 +48,12 @@ const bankData = ["GCASH", "MAYA", "GOTYME", "UNIONBANK", "BDO", "BPI"];
 
 const DashboardWithdrawModalWithdraw = ({
   teamMemberProfile,
-  earnings,
+  earnings: initialEarnings,
 }: Props) => {
   const [open, setOpen] = useState(false);
-
+  const [earnings, setEarnings] =
+    useState<alliance_earnings_table>(initialEarnings);
+  const supabase = createClientSide();
   const { toast } = useToast();
   const {
     control,
@@ -72,6 +76,28 @@ const DashboardWithdrawModalWithdraw = ({
 
   const selectedEarnings = useWatch({ control, name: "earnings" });
   const amount = watch("amount");
+
+  const fetchEarnings = async () => {
+    try {
+      if (!open) return;
+      const earnings = await getEarnings(supabase, {
+        teamMemberId: teamMemberProfile.alliance_member_id,
+      });
+      setEarnings(earnings);
+    } catch (e) {
+      const errorMessage =
+        e instanceof Error ? e.message : "An unexpected error occurred.";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchEarnings();
+  }, [open]);
 
   const getMaxAmount = () => {
     switch (selectedEarnings) {
@@ -138,7 +164,7 @@ const DashboardWithdrawModalWithdraw = ({
         <DialogHeader>
           <DialogTitle>Withdraw Now</DialogTitle>
           <DialogDescription>
-            Add an amount to add a amount to your wallet
+            Withdraw your earnings to your bank account
           </DialogDescription>
         </DialogHeader>
         <form
@@ -309,9 +335,13 @@ const DashboardWithdrawModalWithdraw = ({
               </p>
             )}
           </div>
-
           <Button
-            disabled={isSubmitting || earnings.alliance_olympus_earnings === 0}
+            disabled={
+              isSubmitting ||
+              earnings.alliance_olympus_earnings === 0 ||
+              !!earnings.alliance_legion_bounty ||
+              !!earnings.alliance_ally_bounty
+            }
             type="submit"
             className="w-full"
           >

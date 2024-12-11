@@ -733,18 +733,19 @@ CREATE OR REPLACE FUNCTION get_legion_bounty(
 RETURNS JSON
 AS $$
 let returnData = {
-    data: [],
-    totalCount: 0,
-    success: true,
-    message: 'Data fetched successfully',
+  data: [],
+  totalCount: 0,
+  success: true,
+  message: 'Data fetched successfully',
 };
+
 plv8.subtransaction(function() {
   const {
     page = 1,
     limit = 13,
     search = '',
     teamMemberId,
-    columnAccessor = 'u.user_first_name',
+    columnAccessor = 'user_first_name',
     isAscendingSort = true,
   } = input_data;
 
@@ -753,13 +754,12 @@ plv8.subtransaction(function() {
     return;
   }
 
-
   const member = plv8.execute(
     `
     SELECT alliance_member_role
     FROM alliance_schema.alliance_member_table
     WHERE alliance_member_id = $1
-  `,
+    `,
     [teamMemberId]
   );
 
@@ -768,185 +768,104 @@ plv8.subtransaction(function() {
     return;
   }
 
-
-  const referredData = plv8.execute(
+  const directReferrals = plv8.execute(
     `
-    SELECT alliance_referral_hierarchy
+    SELECT alliance_referral_member_id
     FROM alliance_schema.alliance_referral_table
     WHERE alliance_referral_from_member_id = $1
     `,
     [teamMemberId]
+  ).map((ref) => ref.alliance_referral_member_id);
+
+
+  let indirectReferrals = new Set();
+  let currentLevelReferrals = [teamMemberId];
+  let currentLevel = 0;
+  const maxLevel = 10;
+
+  while (currentLevel < maxLevel && currentLevelReferrals.length > 0) {
+    const referrerData = plv8.execute(
+      `
+      SELECT ar.alliance_referral_hierarchy
+      FROM alliance_schema.alliance_referral_table ar
+      JOIN alliance_schema.alliance_referral_link_table al
+        ON al.alliance_referral_link_id = ar.alliance_referral_link_id
+      WHERE al.alliance_referral_link_member_id = ANY($1)
+      `,
+      [currentLevelReferrals]
+    );
+
+    let nextLevelReferrals = [];
+
+    referrerData.forEach((ref) => {
+      const hierarchyArray = ref.alliance_referral_hierarchy.split('.').slice(1);
+
+      hierarchyArray.forEach((id) => {
+        if (!indirectReferrals.has(id) && id !== teamMemberId) {
+          indirectReferrals.add(id);
+          nextLevelReferrals.push(id);
+        }
+      });
+    });
+
+    currentLevelReferrals = nextLevelReferrals;
+    currentLevel++;
+  }
+
+  // Convert to array and exclude direct referrals
+  indirectReferrals = Array.from(indirectReferrals).filter(
+    (id) => !directReferrals.includes(id)
   );
-  let indirectReferrals = [];
 
-  referrerData.forEach(ref => {
-    const hierarchyArray = ref.alliance_referral_hierarchy.split(',');
-    const indexOfTeamMember = hierarchyArray.indexOf(teamMemberId);
-
-    if (indexOfTeamMember !== -1 && indexOfTeamMember + 1 < hierarchyArray.length) {
-      const indirect = hierarchyArray.slice(indexOfTeamMember + 2, indexOfTeamMember + 12);
-      indirectReferrals = indirectReferrals.concat(indirect);
-    }
-  });
-
-  indirectReferrals = Array.from(new Set(indirectReferrals));
-
-  const indirectReferralDetails = plv8.execute(
-    `
-    SELECT user_first_name, user_last_name, user_username
-    FROM alliance_schema.alliance_member_table,
-    JOIN user_schema.user_table
-    ON user_id = alliance_member_user_id
-    WHERE alliance_member_id = ANY($1)
-    `,
-    [indirectReferrals]
-  );
-
-  const totalCount = plv8.execute(
-    `
-    SELECT COUNT(*)
-    FROM alliance_schema.alliance_member_table,
-    JOIN user_schema.user_table
-    ON user_id = alliance_member_user_id
-    WHERE alliance_member_id = ANY($1)
-    `,
-    [indirectReferrals]
-  )[0].count;
-
-
-  if (!indirectReferralDetails.length) {
+  if (!indirectReferrals.length) {
     returnData = { success: false, message: 'No referral data found' };
     return;
   }
 
-  returnData.data = userRequest;
-  returnData.totalCount = Number(totalCount);
-});
-return returnData;
-$$ LANGUAGE plv8;
+  // Prepare query parameters dynamically
+  const offset = Math.max((page - 1) * limit, 0);
+  let params = [indirectReferrals, limit, offset];
+  let searchCondition = '';
 
-CREATE OR REPLACE FUNCTION get_legion_bounty(
-  input_data JSON
-)
-RETURNS JSON
-AS $$
-let returnData = {
-    data: [],
-    totalCount: 0,
-    success: true,
-    message: 'Data fetched successfully',
-};
-plv8.subtransaction(function() {
-  const {
-    page = 1,
-    limit = 13,
-    search = '',
-    teamMemberId,
-    columnAccessor = 'u.user_first_name',
-    isAscendingSort = true,
-  } = input_data;
-
-  if (!teamMemberId) {
-    returnData = { success: false, message: 'teamMemberId is required' };
-    return;
+  if (search) {
+    searchCondition = `AND (ut.user_first_name ILIKE $4 OR ut.user_last_name ILIKE $4 OR ut.user_username ILIKE $4)`;
+    params.push(`%${search}%`);
   }
 
-
-  const member = plv8.execute(
+  // Fetch indirect referral details with pagination
+  const indirectReferralDetails = plv8.execute(
     `
-    SELECT alliance_member_role
-    FROM alliance_schema.alliance_member_table
-    WHERE alliance_member_id = $1
-  `,
-    [teamMemberId]
+    SELECT user_first_name, user_last_name, user_username
+    FROM alliance_schema.alliance_member_table am
+    JOIN user_schema.user_table ut
+      ON ut.user_id = am.alliance_member_user_id
+    WHERE am.alliance_member_id = ANY($1)
+      ${searchCondition}
+    ORDER BY ${columnAccessor} ${isAscendingSort ? 'ASC' : 'DESC'}
+    LIMIT $2 OFFSET $3
+    `,
+    params
   );
 
-  if (!member.length || member[0].alliance_member_role !== 'MEMBER') {
-    returnData = { success: false, message: 'Unauthorized access' };
-    return;
-  }
-
-  const offset = (page - 1) * limit;
-
-  // Recursive CTE to fetch all referral chains
-  const recursiveQuery = `
-    WITH RECURSIVE referral_chain AS (
-      SELECT
-        r.alliance_referral_member_id,
-        r.alliance_referral_from_member_id,
-        r.alliance_referral_level
-      FROM alliance_schema.alliance_referral_table r
-      WHERE r.alliance_referral_from_member_id = $1
-
-      UNION ALL
-
-      SELECT
-        r.alliance_referral_member_id,
-        r.alliance_referral_from_member_id,
-        r.alliance_referral_level
-      FROM alliance_schema.alliance_referral_table r
-      INNER JOIN referral_chain rc
-      ON rc.alliance_referral_member_id = r.alliance_referral_from_member_id
-    )
-    SELECT
-      u.user_id,
-      u.user_email,
-      u.user_first_name,
-      u.user_last_name,
-      r.alliance_referral_level
-    FROM referral_chain r
-    JOIN alliance_schema.alliance_member_table m
-    ON r.alliance_referral_member_id = m.alliance_member_id
-    JOIN user_schema.user_table u
-    ON u.user_id = m.alliance_member_user_id
-    WHERE ($2 = '' OR u.user_first_name ILIKE $2) AND alliance_referral_level > 1
-    ORDER BY ${columnAccessor} ${isAscendingSort ? 'ASC' : 'DESC'}
-    LIMIT $3 OFFSET $4
-  `;
-
-  const userRequest = plv8.execute(recursiveQuery, [
-    teamMemberId,
-    `%${search}%`,
-    limit,
-    offset,
-  ]);
-
-  // Total count for pagination
-  const totalCountQuery = `
-    WITH RECURSIVE referral_chain AS (
-      SELECT
-        r.alliance_referral_member_id,
-        r.alliance_referral_from_member_id,
-        r.alliance_referral_level
-      FROM alliance_schema.alliance_referral_table r
-      WHERE r.alliance_referral_from_member_id = $1
-
-      UNION ALL
-
-      SELECT
-        r.alliance_referral_member_id,
-        r.alliance_referral_from_member_id,
-        r.alliance_referral_level
-      FROM alliance_schema.alliance_referral_table r
-      INNER JOIN referral_chain rc
-      ON rc.alliance_referral_member_id = r.alliance_referral_from_member_id
-    )
+  const totalCountResult = plv8.execute(
+    `
     SELECT COUNT(*)
-    FROM referral_chain r
-    JOIN alliance_schema.alliance_member_table m
-    ON r.alliance_referral_member_id = m.alliance_member_id
-    JOIN user_schema.user_table u
-    ON u.user_id = m.alliance_member_user_id
-    WHERE ($2 = '' OR u.user_first_name ILIKE $2)
-  `;
+    FROM alliance_schema.alliance_member_table am
+    JOIN user_schema.user_table ut
+      ON ut.user_id = am.alliance_member_user_id
+    WHERE am.alliance_member_id = ANY($1)
+      ${searchCondition}
+    `,
+    params.slice(0, -2) // Only pass relevant parameters for the total count query
+  );
 
-  const totalCount = plv8.execute(totalCountQuery, [teamMemberId, `%${search}%`])[0].count;
-
-  returnData.data = userRequest;
-  returnData.totalCount = Number(totalCount);
+  returnData.data = indirectReferralDetails;
+  returnData.totalCount = Number(totalCountResult[0].count);
 });
+
 return returnData;
 $$ LANGUAGE plv8;
+
 
 
 CREATE OR REPLACE FUNCTION get_admin_dashboard_data(
@@ -955,10 +874,10 @@ CREATE OR REPLACE FUNCTION get_admin_dashboard_data(
 RETURNS JSON
 AS $$
 let returnData = {
-    totalEarnings: 0,
-    totalWithdraw: 0,
-    totalLoot: 0,
-    chartData: []
+  totalEarnings: 0,
+  totalWithdraw: 0,
+  totalLoot: 0,
+  chartData: []
 };
 
 plv8.subtransaction(function() {
@@ -972,7 +891,7 @@ plv8.subtransaction(function() {
     return;
   }
 
-  // Check if the member exists and is an ADMIN
+  // Validate if the member exists and has the 'ADMIN' role
   const member = plv8.execute(
     `SELECT alliance_member_role
      FROM alliance_schema.alliance_member_table
@@ -985,7 +904,7 @@ plv8.subtransaction(function() {
     return;
   }
 
-  // Get the current date as a Date object
+  // Get the current date
   const currentDate = new Date(
     plv8.execute(`SELECT public.get_current_date()`)[0].get_current_date
   );
@@ -1042,30 +961,56 @@ plv8.subtransaction(function() {
            AND alliance_withdrawal_request_status = 'APPROVED'
          GROUP BY
            DATE_TRUNC('day', alliance_withdrawal_request_date)
+       ),
+       combined AS (
+         SELECT
+           COALESCE(e.date, w.date) AS date,
+           COALESCE(e.earnings, 0) AS earnings,
+           COALESCE(w.withdraw, 0) AS withdraw
+         FROM
+           daily_earnings e
+         FULL OUTER JOIN
+           daily_withdraw w
+         ON
+           e.date = w.date
        )
      SELECT
-       COALESCE(e.date, w.date) AS date,
-       COALESCE(e.earnings, 0) AS earnings,
-       COALESCE(w.withdraw, 0) AS withdraw
+       date::date,
+       earnings,
+       withdraw
      FROM
-       daily_earnings e
-     FULL OUTER JOIN
-       daily_withdraw w
-     ON
-       e.date = w.date
+       combined
      ORDER BY
        date`,
     [startDate, endDate]
   );
 
-  // Format the chart data
-  returnData.chartData = chartData.map(row => ({
-    date: row.date.toISOString().split('T')[0],
-    earnings: row.earnings,
-    withdraw: row.withdraw,
+  // Generate a complete range of dates between startDate and endDate
+  let dateRange = [];
+  let current = new Date(startDate);
+  const end = new Date(endDate);
+
+  while (current <= end) {
+    dateRange.push(current.toISOString().split('T')[0]);
+    current.setDate(current.getDate() + 1);
+  }
+
+  // Create a map of existing chart data for quick lookup
+  const chartDataMap = {};
+  chartData.forEach(row => {
+    chartDataMap[row.date.toISOString().split('T')[0]] = {
+      earnings: row.earnings,
+      withdraw: row.withdraw,
+    };
+  });
+
+  // Fill the returnData.chartData with entries for each date in the range
+  returnData.chartData = dateRange.map(date => ({
+    date,
+    earnings: chartDataMap[date]?.earnings || 0,
+    withdraw: chartDataMap[date]?.withdraw || 0,
   }));
 });
-
 return returnData;
 $$ LANGUAGE plv8;
 
@@ -1477,6 +1422,41 @@ plv8.subtransaction(function() {
   `);
 
   returnData = packageData
+});
+return returnData;
+
+$$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION get_earnings_modal_data(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+
+let returnData = []
+plv8.subtransaction(function() {
+  const {
+    teamMemberId
+  } = input_data;
+
+  const member = plv8.execute(`
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `, [teamMemberId]);
+
+  if (!member.length || member[0].alliance_member_role !== 'MEMBER' && member[0].alliance_member_role !== 'MERCHANT') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const earningsData = plv8.execute(`
+    SELECT *
+    FROM alliance_schema.alliance_earnings_table
+    WHERE alliance_earnings_member_id = $1
+  `, [teamMemberId]);
+
+  returnData = earningsData
 });
 return returnData;
 

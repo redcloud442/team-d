@@ -39,7 +39,7 @@ const DashboardDepositRequest = ({
       </CardHeader>
       <CardContent>
         <div className="flex justify-between gap-4">
-          <h1 className="text-xl font-bold">Deposit World</h1>
+          <h1 className="text-xl font-bold">Deposit Now</h1>
           <div className="flex flex-col w-full max-w-lg gap-2">
             <DashboardDepositModalDeposit
               teamMemberProfile={teamMemberProfile}
