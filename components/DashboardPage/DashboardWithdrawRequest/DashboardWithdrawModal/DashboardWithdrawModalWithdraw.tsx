@@ -136,7 +136,7 @@ const DashboardWithdrawModalWithdraw = ({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Top Up Now</DialogTitle>
+          <DialogTitle>Withdraw Now</DialogTitle>
           <DialogDescription>
             Add an amount to add a amount to your wallet
           </DialogDescription>
@@ -170,7 +170,7 @@ const DashboardWithdrawModalWithdraw = ({
                       ALLY ({earnings.alliance_ally_bounty})
                     </SelectItem>
                     <SelectItem value="LEGION BOUNTY">
-                      LEGION ({earnings.alliance_ally_bounty})
+                      LEGION ({earnings.alliance_legion_bounty})
                     </SelectItem>
                   </SelectContent>
                 </Select>

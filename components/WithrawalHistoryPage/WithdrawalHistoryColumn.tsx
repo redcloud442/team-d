@@ -157,7 +157,7 @@ export const WithdrawalHistoryColumn =
               </DialogTrigger>
               <DialogContent type="table">
                 <DialogHeader>
-                  <DialogTitle>Attachment</DialogTitle>
+                  <DialogTitle>Rejection Note</DialogTitle>
                 </DialogHeader>
                 <div className="flex justify-center items-center">
                   <Textarea value={rejectionNote} readOnly />

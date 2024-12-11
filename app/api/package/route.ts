@@ -121,7 +121,7 @@ export async function POST(request: Request) {
             data: {
               ...(ref.level === 1
                 ? {
-                    alliance_earnings_ally_bounty: {
+                    alliance_ally_bounty: {
                       increment: new Prisma.Decimal(amount)
                         .mul(ref.percentage)
                         .div(100)
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
                     },
                   }
                 : {
-                    alliance_earnings_legion_bounty: {
+                    alliance_legion_bounty: {
                       increment: new Prisma.Decimal(amount)
                         .mul(ref.percentage)
                         .div(100)
