@@ -14,6 +14,7 @@ enum Role {
   MEMBER
   ADMIN
   MERCHANT
+  ACCOUNTING
 @@schema("alliance_schema")
 }
 
@@ -65,7 +66,8 @@ model alliance_member_table {
   alliance_member_alliance_id     String    @db.Uuid
   alliance_member_user_id         String    @db.Uuid
   alliance_member_restricted      Boolean   @default(false)
-
+  alliance_member_date_updated    DateTime?
+  alliance_member_is_active       Boolean   @default(false)
   user_table                      user_table            @relation(fields: [alliance_member_user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
   alliance_table                  alliance_table        @relation(fields: [alliance_member_alliance_id], references: [alliance_id], onDelete: Cascade, onUpdate: Cascade)
 

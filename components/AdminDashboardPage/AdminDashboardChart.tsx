@@ -14,17 +14,10 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { ChartData } from "@/utils/types";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { Controller, useFormContext } from "react-hook-form";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { Button } from "../ui/button";
-import { Calendar } from "../ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 type Props = {
   chartData: ChartData[];
-  fetchAdminDashboardData: () => void;
 };
 
 type FormContextType = {
@@ -48,11 +41,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const AdminDashboardChart = ({ chartData, fetchAdminDashboardData }: Props) => {
-  const { control, handleSubmit, watch } = useFormContext<FormContextType>();
-  const startDate = watch("dateFilter.start");
-  const endDate = watch("dateFilter.end");
-
+const AdminDashboardChart = ({ chartData }: Props) => {
   return (
     <Card>
       <CardHeader className="flex flex-wrap items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
@@ -62,76 +51,6 @@ const AdminDashboardChart = ({ chartData, fetchAdminDashboardData }: Props) => {
             Showing total visitors for the last 3 months
           </CardDescription>
         </div>
-        <form
-          onSubmit={handleSubmit(fetchAdminDashboardData)}
-          className="flex flex-wrap items-center gap-2"
-        >
-          <Controller
-            name="dateFilter.start"
-            control={control}
-            render={({ field }) => (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="font-normal justify-start"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {field.value
-                      ? format(new Date(field.value), "PPP")
-                      : "Select Start Date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={field.value ? new Date(field.value) : undefined}
-                    onSelect={(date: Date | undefined) =>
-                      field.onChange(date?.toISOString() || "")
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            )}
-          />
-          <Controller
-            name="dateFilter.end"
-            control={control}
-            render={({ field }) => (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="font-normal justify-start"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {field.value
-                      ? format(new Date(field.value), "PPP")
-                      : "Select End Date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={field.value ? new Date(field.value) : undefined}
-                    onSelect={(date: Date | undefined) =>
-                      field.onChange(date?.toISOString() || "")
-                    }
-                    fromDate={startDate ? new Date(startDate) : undefined}
-                    disabled={(date) =>
-                      startDate ? date < new Date(startDate) : false
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            )}
-          />
-          <Button disabled={!startDate || !endDate} type="submit">
-            Submit
-          </Button>
-        </form>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer

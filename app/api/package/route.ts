@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       );
     }
 
-    await protectionMemberUser();
+    const { teamMemberProfile } = await protectionMemberUser();
     await applyRateLimit(teamMemberId, ip);
 
     const [packageData, earningsData, referralData] = await prisma.$transaction(
@@ -145,6 +145,16 @@ export async function POST(request: Request) {
 
       return connectionData;
     });
+
+    if (!teamMemberProfile?.alliance_member_is_active) {
+      await prisma.alliance_member_table.update({
+        where: { alliance_member_id: teamMemberId },
+        data: {
+          alliance_member_is_active: true,
+          alliance_member_date_updated: new Date(),
+        },
+      });
+    }
 
     return NextResponse.json({ success: true, transaction });
   } catch (error) {

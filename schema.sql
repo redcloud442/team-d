@@ -832,7 +832,7 @@ plv8.subtransaction(function() {
     params.push(`%${search}%`);
   }
 
-  // Fetch indirect referral details with pagination
+
   const indirectReferralDetails = plv8.execute(
     `
     SELECT user_first_name, user_last_name, user_username
@@ -873,13 +873,16 @@ CREATE OR REPLACE FUNCTION get_admin_dashboard_data(
 )
 RETURNS JSON
 AS $$
+
 let returnData = {
   totalEarnings: 0,
   totalWithdraw: 0,
-  totalLoot: 0,
+  directLoot: 0,
+  indirectLoot: 0,
+  activePackageWithinTheDay: 0,
+  numberOfRegisteredUser: 0,
   chartData: []
 };
-
 plv8.subtransaction(function() {
   const {
     teamMemberId,
@@ -891,11 +894,10 @@ plv8.subtransaction(function() {
     return;
   }
 
-  // Validate if the member exists and has the 'ADMIN' role
   const member = plv8.execute(
-    `SELECT alliance_member_role
+    SELECT alliance_member_role
      FROM alliance_schema.alliance_member_table
-     WHERE alliance_member_id = $1`,
+     WHERE alliance_member_id = $1,
     [teamMemberId]
   );
 
@@ -904,40 +906,64 @@ plv8.subtransaction(function() {
     return;
   }
 
-  // Get the current date
+
   const currentDate = new Date(
-    plv8.execute(`SELECT public.get_current_date()`)[0].get_current_date
+    plv8.execute(SELECT public.get_current_date())[0].get_current_date
   );
 
-  // Define startDate and endDate
+
   const startDate = dateFilter.start || currentDate.toISOString().split('T')[0];
   const endDate = dateFilter.end || new Date(currentDate.setHours(23, 59, 59, 999)).toISOString();
 
-  // Combined query for totals
-  const totals = plv8.execute(
-    `SELECT
-       COALESCE(SUM(pe.package_member_amount), 0) AS total_earnings,
-       COALESCE(SUM(wr.alliance_withdrawal_request_amount), 0) AS total_withdraw,
-       COALESCE(SUM(pb.package_ally_bounty_earnings), 0) AS total_loot
+  const totalEarnings = plv8.execute(`
+    SELECT
+       COALESCE(SUM(pe.package_member_amount), 0) AS total_earnings
      FROM
        packages_schema.package_member_connection_table pe
-     LEFT JOIN
-       alliance_schema.alliance_withdrawal_request_table wr
-       ON wr.alliance_withdrawal_request_status = 'APPROVED'
-     LEFT JOIN
-       packages_schema.package_ally_bounty_log pb
-       ON TRUE
      WHERE
-       pe.package_member_status = 'ENDED'`
+       pe.package_member_status = 'ENDED' AND package_member_connection_created BETWEEN $1 AND $2
+       `,
+       [startDate, endDate])[0];
+
+
+  const totalWithdraw = plv8.execute(`
+    SELECT
+       COALESCE(SUM(wr.alliance_withdrawal_request_amount), 0) AS total_withdraw
+     FROM
+       alliance_schema.alliance_withdrawal_request_table wr
+     WHERE
+       wr.alliance_withdrawal_request_status = 'APPROVED' AND alliance_withdrawal_request_date BETWEEN $1 AND $2
+  `,
+  [startDate, endDate])[0];
+
+  const directAndIndirectLoot = plv8.execute(`
+    SELECT  
+      COALESCE(SUM(CASE WHEN package_ally_bounty_type = 'DIRECT' THEN package_ally_bounty_earnings ELSE 0 END), 0) AS direct_loot,
+      COALESCE(SUM(CASE WHEN package_ally_bounty_type = 'INDIRECT' THEN package_ally_bounty_earnings ELSE 0 END), 0) AS indirect_loot
+    FROM packages_schema.package_ally_bounty_log
+    WHERE package_ally_bounty_log_date_created BETWEEN $1 AND $2
+  `,
+  [startDate, endDate]
   )[0];
 
-  returnData.totalEarnings = totals.total_earnings;
-  returnData.totalWithdraw = totals.total_withdraw;
-  returnData.totalLoot = totals.total_loot;
+  const activePackageWithinTheDay = plv8.execute(`
+    SELECT  
+     COUNT(*)
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_date_updated BETWEEN $1 AND $2 AND alliance_member_is_active = true
+  `,
+  [startDate, endDate]
+  )[0];
 
-  // Query for chart data
+  const numberOfRegisteredUser = plv8.execute(`
+    SELECT COUNT(*)
+    FROM alliance_schema.alliance_member_table
+  `,
+  )[0];
+
+
   const chartData = plv8.execute(
-    `WITH
+    WITH
        daily_earnings AS (
          SELECT
            DATE_TRUNC('day', package_member_connection_created) AS date,
@@ -981,11 +1007,10 @@ plv8.subtransaction(function() {
      FROM
        combined
      ORDER BY
-       date`,
+       date,
     [startDate, endDate]
   );
 
-  // Generate a complete range of dates between startDate and endDate
   let dateRange = [];
   let current = new Date(startDate);
   const end = new Date(endDate);
@@ -995,7 +1020,7 @@ plv8.subtransaction(function() {
     current.setDate(current.getDate() + 1);
   }
 
-  // Create a map of existing chart data for quick lookup
+
   const chartDataMap = {};
   chartData.forEach(row => {
     chartDataMap[row.date.toISOString().split('T')[0]] = {
@@ -1004,12 +1029,18 @@ plv8.subtransaction(function() {
     };
   });
 
-  // Fill the returnData.chartData with entries for each date in the range
   returnData.chartData = dateRange.map(date => ({
     date,
     earnings: chartDataMap[date]?.earnings || 0,
     withdraw: chartDataMap[date]?.withdraw || 0,
   }));
+
+  returnData.totalEarnings = totals.total_earnings;
+  returnData.totalWithdraw = totals.total_withdraw;
+  returnData.directLoot = directAndIndirectLoot.direct_loot;
+  returnData.indirectLoot = directAndIndirectLoot.indirect_loot;
+  returnData.activePackageWithinTheDay = activePackageWithinTheDay;
+  returnData.numberOfRegisteredUser = numberOfRegisteredUser;
 });
 return returnData;
 $$ LANGUAGE plv8;

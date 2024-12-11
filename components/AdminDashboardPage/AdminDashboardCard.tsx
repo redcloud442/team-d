@@ -1,16 +1,24 @@
 import CardAmountAdmin from "../ui/CardAmountAdmin";
+
 type Props = {
   totalEarnings: number;
   totalWithdraw: number;
-  totalLoot: number;
+  directLoot: number;
+  indirectLoot: number;
+  activePackageWithinTheDay: number;
+  numberOfRegisteredUser: number;
 };
+
 const AdminDashboardCard = ({
   totalEarnings,
   totalWithdraw,
-  totalLoot,
+  directLoot,
+  indirectLoot,
+  activePackageWithinTheDay,
+  numberOfRegisteredUser,
 }: Props) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <CardAmountAdmin
         title="Total Earnings"
         value={Number(totalEarnings).toLocaleString() as unknown as number}
@@ -24,9 +32,38 @@ const AdminDashboardCard = ({
         description=""
         descriptionClassName="text-sm text-gray-500"
       />
+
       <CardAmountAdmin
-        title="Total Loot"
-        value={Number(totalLoot).toLocaleString() as unknown as number}
+        title="Direct Referral"
+        value={Number(directLoot).toLocaleString() as unknown as number}
+        description=""
+        descriptionClassName="text-sm text-gray-500"
+      />
+
+      <CardAmountAdmin
+        title="Indirect Referral"
+        value={Number(indirectLoot).toLocaleString() as unknown as number}
+        description=""
+        descriptionClassName="text-sm text-gray-500"
+      />
+
+      <CardAmountAdmin
+        title="Indirect Referral"
+        value={Number(indirectLoot).toLocaleString() as unknown as number}
+        description=""
+        descriptionClassName="text-sm text-gray-500"
+      />
+
+      <CardAmountAdmin
+        title="Active Package"
+        value={activePackageWithinTheDay as unknown as number}
+        description=""
+        descriptionClassName="text-sm text-gray-500"
+      />
+
+      <CardAmountAdmin
+        title="Total Registered User"
+        value={numberOfRegisteredUser}
         description=""
         descriptionClassName="text-sm text-gray-500"
       />
