@@ -47,10 +47,10 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
             className="bg-white border border-gray-200 rounded-lg shadow-md p-6 flex flex-col items-center space-y-4"
           >
             <h2 className="text-xl font-bold">{pkg.package_name}</h2>
-            <p className="text-gray-600 text-center">
+            <p className="text-gray-600 dark:text-white text-center">
               {pkg.package_description}
             </p>
-            <p className="text-2xl text-center font-extrabold text-gray-800">
+            <p className="text-2xl text-center font-extrabold text-gray-800 dark:text-white">
               {pkg.package_percentage} Earnings in {pkg.packages_days} Days
             </p>
 

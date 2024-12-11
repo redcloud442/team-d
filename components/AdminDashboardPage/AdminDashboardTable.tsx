@@ -123,7 +123,7 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
     fetchAdminRequest();
   }, [supabaseClient, teamMemberProfile, activePage, sorting]);
 
-  const pageCount = Math.ceil(requestCount / 13);
+  const pageCount = Math.ceil(requestCount / 10);
 
   return (
     <Card className="w-full rounded-sm p-4">
@@ -227,8 +227,9 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
             <TableRow>
               <TableCell className="px-0" colSpan={columns.length}>
                 <div className="flex justify-between items-center border-t px-2 pt-2">
-                  <span className="text-sm text-gray-600">
-                    Showing {requestData.length} of {requestCount} entries
+                  <span className="text-sm text-gray-600 dark:text-white">
+                    Showing {Math.min(activePage * 10, requestCount)} out of{" "}
+                    {requestCount} entries
                   </span>
                 </div>
               </TableCell>
@@ -239,14 +240,16 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
       </ScrollArea>
 
       <div className="flex items-center justify-end gap-x-4 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
-          disabled={activePage <= 1}
-        >
-          <ChevronLeft />
-        </Button>
+        {activePage > 1 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
+            disabled={activePage <= 1}
+          >
+            <ChevronLeft />
+          </Button>
+        )}
 
         <div className="flex space-x-2">
           {(() => {
@@ -271,10 +274,7 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
                   pageCount,
                 ];
               } else {
-                // Show the active page in the middle with ellipses on both sides
                 displayedPages = [
-                  1,
-                  "...",
                   activePage - 1,
                   activePage,
                   activePage + 1,
@@ -302,15 +302,18 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
             );
           })()}
         </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setActivePage((prev) => Math.min(prev + 1, pageCount))}
-          disabled={activePage >= pageCount}
-        >
-          <ChevronRight />
-        </Button>
+        {activePage < pageCount && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setActivePage((prev) => Math.min(prev + 1, pageCount))
+            }
+            disabled={activePage >= pageCount}
+          >
+            <ChevronRight />
+          </Button>
+        )}
       </div>
     </Card>
   );

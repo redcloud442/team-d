@@ -230,7 +230,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
     fetchRequest();
   }, [supabaseClient, teamMemberProfile, activePage, sorting]);
 
-  const pageCount = Math.ceil(requestCount / 13);
+  const pageCount = Math.ceil(requestCount / 10);
 
   const handleSwitchChange = (checked: boolean) => {
     setShowFilters(checked);
@@ -500,7 +500,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
             <TableRow>
               <TableCell className="px-0" colSpan={columns.length}>
                 <div className="flex justify-between items-center border-t px-2 pt-2">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-white">
                     Showing {Math.min(activePage * 10, requestCount)} out of{" "}
                     {requestCount} entries
                   </span>

@@ -17,9 +17,7 @@ export const LegionBountyColumn = (): ColumnDef<LegionRequestData>[] => {
         </Button>
       ),
       cell: ({ row }) => {
-        return (
-          <div className="text-center">{row.getValue("user_username")}</div>
-        );
+        return <div>{row.getValue("user_username")}</div>;
       },
     },
 
@@ -34,9 +32,7 @@ export const LegionBountyColumn = (): ColumnDef<LegionRequestData>[] => {
           First Name <ArrowUpDown />
         </Button>
       ),
-      cell: ({ row }) => (
-        <div className="text-center">{row.getValue("user_first_name")}</div>
-      ),
+      cell: ({ row }) => <div>{row.getValue("user_first_name")}</div>,
     },
     {
       accessorKey: "user_last_name",
@@ -49,26 +45,7 @@ export const LegionBountyColumn = (): ColumnDef<LegionRequestData>[] => {
           Last Name <ArrowUpDown />
         </Button>
       ),
-      cell: ({ row }) => (
-        <div className="text-center">{row.getValue("user_last_name")}</div>
-      ),
-    },
-    {
-      accessorKey: "alliance_referral_level",
-      label: "Referal Level",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Referal Level <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => (
-        <div className="text-center">
-          {row.getValue("alliance_referral_level")}
-        </div>
-      ),
+      cell: ({ row }) => <div>{row.getValue("user_last_name")}</div>,
     },
   ];
 };

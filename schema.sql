@@ -768,79 +768,56 @@ plv8.subtransaction(function() {
     return;
   }
 
-  const offset = (page - 1) * limit;
 
-  const recursiveQuery = `
-    WITH RECURSIVE referral_chain AS (
-      SELECT
-        r.alliance_referral_member_id,
-        r.alliance_referral_from_member_id,
-        r.alliance_referral_level
-      FROM alliance_schema.alliance_referral_table r
-      WHERE r.alliance_referral_from_member_id = $1
+  const referredData = plv8.execute(
+    `
+    SELECT alliance_referral_hierarchy
+    FROM alliance_schema.alliance_referral_table
+    WHERE alliance_referral_from_member_id = $1
+    `,
+    [teamMemberId]
+  );
+  let indirectReferrals = [];
 
-      UNION ALL
+  referrerData.forEach(ref => {
+    const hierarchyArray = ref.alliance_referral_hierarchy.split(',');
+    const indexOfTeamMember = hierarchyArray.indexOf(teamMemberId);
 
-      SELECT
-        r.alliance_referral_member_id,
-        r.alliance_referral_from_member_id,
-        r.alliance_referral_level
-      FROM alliance_schema.alliance_referral_table r
-      INNER JOIN referral_chain rc
-      ON rc.alliance_referral_member_id = r.alliance_referral_from_member_id
-    )
-    SELECT
-      u.user_id,
-      u.user_email,
-      u.user_first_name,
-      u.user_last_name,
-      r.alliance_referral_level
-    FROM referral_chain r
-    JOIN alliance_schema.alliance_member_table m
-    ON r.alliance_referral_member_id = m.alliance_member_id
-    JOIN user_schema.user_table u
-    ON u.user_id = m.alliance_member_user_id
-    WHERE ($2 = '' OR u.user_first_name ILIKE $2) AND alliance_referral_level > 1
-    ORDER BY ${columnAccessor} ${isAscendingSort ? 'ASC' : 'DESC'}
-    LIMIT $3 OFFSET $4
-  `;
+    if (indexOfTeamMember !== -1 && indexOfTeamMember + 1 < hierarchyArray.length) {
+      const indirect = hierarchyArray.slice(indexOfTeamMember + 2, indexOfTeamMember + 12);
+      indirectReferrals = indirectReferrals.concat(indirect);
+    }
+  });
 
-  const userRequest = plv8.execute(recursiveQuery, [
-    teamMemberId,
-    `%${search}%`,
-    limit,
-    offset,
-  ]);
+  indirectReferrals = Array.from(new Set(indirectReferrals));
 
-  const totalCountQuery = `
-    WITH RECURSIVE referral_chain AS (
-      SELECT
-        r.alliance_referral_member_id,
-        r.alliance_referral_from_member_id,
-        r.alliance_referral_level
-      FROM alliance_schema.alliance_referral_table r
-      WHERE r.alliance_referral_from_member_id = $1
+  const indirectReferralDetails = plv8.execute(
+    `
+    SELECT user_first_name, user_last_name, user_username
+    FROM alliance_schema.alliance_member_table,
+    JOIN user_schema.user_table
+    ON user_id = alliance_member_user_id
+    WHERE alliance_member_id = ANY($1)
+    `,
+    [indirectReferrals]
+  );
 
-      UNION ALL
-
-      SELECT
-        r.alliance_referral_member_id,
-        r.alliance_referral_from_member_id,
-        r.alliance_referral_level
-      FROM alliance_schema.alliance_referral_table r
-      INNER JOIN referral_chain rc
-      ON rc.alliance_referral_member_id = r.alliance_referral_from_member_id
-    )
+  const totalCount = plv8.execute(
+    `
     SELECT COUNT(*)
-    FROM referral_chain r
-    JOIN alliance_schema.alliance_member_table m
-    ON r.alliance_referral_member_id = m.alliance_member_id
-    JOIN user_schema.user_table u
-    ON u.user_id = m.alliance_member_user_id
-      WHERE ($2 = '' OR u.user_first_name ILIKE $2) AND alliance_referral_level > 1
-  `;
+    FROM alliance_schema.alliance_member_table,
+    JOIN user_schema.user_table
+    ON user_id = alliance_member_user_id
+    WHERE alliance_member_id = ANY($1)
+    `,
+    [indirectReferrals]
+  )[0].count;
 
-  const totalCount = plv8.execute(totalCountQuery, [teamMemberId, `%${search}%`])[0].count;
+
+  if (!indirectReferralDetails.length) {
+    returnData = { success: false, message: 'No referral data found' };
+    return;
+  }
 
   returnData.data = userRequest;
   returnData.totalCount = Number(totalCount);
@@ -995,20 +972,11 @@ plv8.subtransaction(function() {
     return;
   }
 
-  const currentDate = new Date(
-    plv8.execute(`SELECT public.get_current_date()`)[0].get_current_date
-  ).toISOString().split('T')[0];
-
-
-  const startDate = dateFilter.start || currentDate;
-  const endDate = dateFilter.end || currentDate;
-
+  // Check if the member exists and is an ADMIN
   const member = plv8.execute(
-    `
-    SELECT alliance_member_role
-    FROM alliance_schema.alliance_member_table
-    WHERE alliance_member_id = $1
-    `,
+    `SELECT alliance_member_role
+     FROM alliance_schema.alliance_member_table
+     WHERE alliance_member_id = $1`,
     [teamMemberId]
   );
 
@@ -1017,85 +985,85 @@ plv8.subtransaction(function() {
     return;
   }
 
-  const totalEarnings = plv8.execute(
-    `
-    SELECT SUM(package_member_amount) AS total_earnings
-    FROM packages_schema.package_member_connection_table
-    WHERE package_member_connection_created BETWEEN $1 AND $2
-    `,
-    [startDate, endDate]
-  )[0]?.total_earnings || 0;
+  // Get the current date as a Date object
+  const currentDate = new Date(
+    plv8.execute(`SELECT public.get_current_date()`)[0].get_current_date
+  );
 
-  const totalWithdraw = plv8.execute(
-    `
-    SELECT SUM(alliance_withdrawal_request_amount) AS total_withdraw
-    FROM alliance_schema.alliance_withdrawal_request_table
-    WHERE alliance_withdrawal_request_date BETWEEN $1 AND $2
-    `,
-    [startDate, endDate]
-  )[0]?.total_withdraw || 0;
+  // Define startDate and endDate
+  const startDate = dateFilter.start || currentDate.toISOString().split('T')[0];
+  const endDate = dateFilter.end || new Date(currentDate.setHours(23, 59, 59, 999)).toISOString();
 
-  const totalLoot = plv8.execute(
-    `
-    SELECT SUM(package_ally_bounty_earnings) AS total_loot
-    FROM packages_schema.package_ally_bounty_log
-    WHERE package_ally_bounty_date BETWEEN $1 AND $2
-    `,
-    [startDate, endDate]
-  )[0]?.total_loot || 0;
+  // Combined query for totals
+  const totals = plv8.execute(
+    `SELECT
+       COALESCE(SUM(pe.package_member_amount), 0) AS total_earnings,
+       COALESCE(SUM(wr.alliance_withdrawal_request_amount), 0) AS total_withdraw,
+       COALESCE(SUM(pb.package_ally_bounty_earnings), 0) AS total_loot
+     FROM
+       packages_schema.package_member_connection_table pe
+     LEFT JOIN
+       alliance_schema.alliance_withdrawal_request_table wr
+       ON wr.alliance_withdrawal_request_status = 'APPROVED'
+     LEFT JOIN
+       packages_schema.package_ally_bounty_log pb
+       ON TRUE
+     WHERE
+       pe.package_member_status = 'ENDED'`
+  )[0];
 
+  returnData.totalEarnings = totals.total_earnings;
+  returnData.totalWithdraw = totals.total_withdraw;
+  returnData.totalLoot = totals.total_loot;
 
-
+  // Query for chart data
   const chartData = plv8.execute(
-    `
-    WITH
-      daily_earnings AS (
-        SELECT
-          DATE_TRUNC('day', package_member_connection_created) AS date,
-          SUM(package_member_amount) AS earnings
-        FROM
-          packages_schema.package_member_connection_table
-        WHERE
-          package_member_connection_created BETWEEN $1 AND $2
-        GROUP BY
-          DATE_TRUNC('day', package_member_connection_created)
-      ),
-      daily_withdraw AS (
-        SELECT
-          DATE_TRUNC('day', alliance_withdrawal_request_date) AS date,
-          SUM(alliance_withdrawal_request_amount) AS withdraw
-        FROM
-          alliance_schema.alliance_withdrawal_request_table
-        WHERE
-          alliance_withdrawal_request_date BETWEEN $1 AND $2
-        GROUP BY
-          DATE_TRUNC('day', alliance_withdrawal_request_date)
-      )
-    SELECT
-      COALESCE(e.date, w.date) AS date,
-      COALESCE(e.earnings, 0) AS earnings,
-      COALESCE(w.withdraw, 0) AS withdraw
-    FROM
-      daily_earnings e
-    FULL OUTER JOIN
-      daily_withdraw w
-    ON
-      e.date = w.date
-    ORDER BY
-      date;
-    `,
+    `WITH
+       daily_earnings AS (
+         SELECT
+           DATE_TRUNC('day', package_member_connection_created) AS date,
+           SUM(package_member_amount) AS earnings
+         FROM
+           packages_schema.package_member_connection_table
+         WHERE
+           package_member_connection_created BETWEEN $1 AND $2
+           AND package_member_status = 'ENDED'
+         GROUP BY
+           DATE_TRUNC('day', package_member_connection_created)
+       ),
+       daily_withdraw AS (
+         SELECT
+           DATE_TRUNC('day', alliance_withdrawal_request_date) AS date,
+           SUM(alliance_withdrawal_request_amount) AS withdraw
+         FROM
+           alliance_schema.alliance_withdrawal_request_table
+         WHERE
+           alliance_withdrawal_request_date BETWEEN $1 AND $2
+           AND alliance_withdrawal_request_status = 'APPROVED'
+         GROUP BY
+           DATE_TRUNC('day', alliance_withdrawal_request_date)
+       )
+     SELECT
+       COALESCE(e.date, w.date) AS date,
+       COALESCE(e.earnings, 0) AS earnings,
+       COALESCE(w.withdraw, 0) AS withdraw
+     FROM
+       daily_earnings e
+     FULL OUTER JOIN
+       daily_withdraw w
+     ON
+       e.date = w.date
+     ORDER BY
+       date`,
     [startDate, endDate]
   );
 
+  // Format the chart data
   returnData.chartData = chartData.map(row => ({
     date: row.date.toISOString().split('T')[0],
     earnings: row.earnings,
     withdraw: row.withdraw,
   }));
-
-  returnData.totalEarnings = totalEarnings;
-  returnData.totalWithdraw = totalWithdraw;
-  returnData.totalLoot = [];
 });
 
 return returnData;

@@ -73,7 +73,7 @@ const ChangePassword = ({ userProfile }: Props) => {
   return (
     <Card className="shadow-md">
       <CardHeader className="border-b pb-4">
-        <CardTitle className="text-lg font-semibold text-gray-800">
+        <CardTitle className="text-lg font-semibold ">
           Change Password
         </CardTitle>
       </CardHeader>
@@ -84,9 +84,7 @@ const ChangePassword = ({ userProfile }: Props) => {
         >
           {/* Password */}
           <div>
-            <Label className="text-sm font-medium text-gray-700">
-              New Password
-            </Label>
+            <Label className="text-sm font-medium ">New Password</Label>
             <Input
               id="password"
               type="password"
@@ -108,9 +106,7 @@ const ChangePassword = ({ userProfile }: Props) => {
 
           {/* Confirm Password */}
           <div>
-            <Label className="text-sm font-medium text-gray-700">
-              Confirm New Password
-            </Label>
+            <Label className="text-sm font-medium ">Confirm New Password</Label>
             <Input
               id="confirmPassword"
               type="password"

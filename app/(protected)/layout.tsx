@@ -1,8 +1,12 @@
+import MobileNavBar from "@/components/ui/MobileNavBar";
 import NavBar from "@/components/ui/navBar";
 import AppSidebar from "@/components/ui/side-bar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { ModeToggle } from "@/components/ui/toggleDarkmode";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import type { Metadata } from "next";
+
+import { ThemeProvider } from "@/components/theme-provider/theme-provider";
 import { redirect } from "next/navigation";
 import "../globals.css";
 
@@ -29,32 +33,48 @@ export default async function AppLayout({
   if (!profile) redirect("/500");
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen h-full w-full bg-gray-100 overflow-auto">
-        {teamMemberProfile.alliance_member_role !== "MEMBER" &&
-          teamMemberProfile.alliance_member_role !== "MERCHANT" && (
-            <div>
-              <AppSidebar
-                userData={profile}
-                teamMemberProfile={teamMemberProfile}
-              />
-            </div>
-          )}
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="light"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <SidebarProvider>
+        <div className="flex min-h-screen h-full w-full  overflow-auto">
+          {teamMemberProfile.alliance_member_role !== "MEMBER" &&
+            teamMemberProfile.alliance_member_role !== "MERCHANT" && (
+              <div>
+                <AppSidebar
+                  userData={profile}
+                  teamMemberProfile={teamMemberProfile}
+                />
+              </div>
+            )}
 
-        <div className="flex-1 flex flex-col overflow-x-auto">
-          {teamMemberProfile.alliance_member_role !== "MEMBER" && (
-            <div className="p-4 md:hidden">
-              <SidebarTrigger />
-            </div>
-          )}
-          {(teamMemberProfile.alliance_member_role === "MEMBER" ||
-            teamMemberProfile.alliance_member_role === "MERCHANT") && (
-            <NavBar teamMemberProfile={teamMemberProfile} userData={profile} />
-          )}
+          <div className="flex-1 flex flex-col overflow-x-auto">
+            {teamMemberProfile.alliance_member_role !== "MEMBER" && (
+              <div className="p-4 md:hidden">
+                <SidebarTrigger />
+              </div>
+            )}
+            {(teamMemberProfile.alliance_member_role === "MEMBER" ||
+              teamMemberProfile.alliance_member_role === "MERCHANT") && (
+              <div className=" hidden md:block">
+                <NavBar
+                  teamMemberProfile={teamMemberProfile}
+                  userData={profile}
+                />
+              </div>
+            )}
 
-          <div className="p-4">{children}</div>
+            <div className="p-4 pb-10 md:pb-0">{children}</div>
+            <ModeToggle />
+            {teamMemberProfile.alliance_member_role === "ADMIN" || (
+              <MobileNavBar />
+            )}
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </ThemeProvider>
   );
 }

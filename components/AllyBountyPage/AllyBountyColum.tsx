@@ -16,7 +16,7 @@ export const AllyBountyColumn = (): ColumnDef<user_table>[] => {
           Username <ArrowUpDown />
         </Button>
       ),
-      cell: ({ row }) => <div>{row.getValue("user_email")}</div>,
+      cell: ({ row }) => <div>{row.getValue("user_username")}</div>,
     },
     {
       accessorKey: "user_first_name",

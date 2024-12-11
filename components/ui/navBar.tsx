@@ -57,7 +57,7 @@ const NavBar = ({ userData, teamMemberProfile }: Props) => {
   }, []);
 
   return (
-    <nav className="w-full bg-gray-600 text-white shadow-lg z-50">
+    <nav className="w-full bg-gray-600 dark:bg-gray-700 text-white shadow-lg z-50">
       <NavigationLoader visible={isLoading} />
       <div className="w-full mx-auto px-4 flex justify-between items-center h-16">
         {/* Logo Section */}
@@ -73,13 +73,13 @@ const NavBar = ({ userData, teamMemberProfile }: Props) => {
         <div className="hidden items-center space-x-4 md:flex">
           <Button
             variant="ghost"
-            onClick={() => handleNavigation("/ally-bounty")}
+            onClick={() => handleNavigation("/direct-loot")}
           >
             Direct Referral
           </Button>
           <Button
             variant="ghost"
-            onClick={() => handleNavigation("/legion-bounty")}
+            onClick={() => handleNavigation("/indirect-loot")}
           >
             Indirect Referral
           </Button>

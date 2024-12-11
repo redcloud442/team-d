@@ -13,7 +13,7 @@ const TopUpHistoryPage = ({ teamMemberProfile }: Props) => {
       <div>
         <header className="mb-4">
           <h1 className="Title">Top Up History List Page</h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-white">
             View all your transactions that are currently in the system.
           </p>
         </header>

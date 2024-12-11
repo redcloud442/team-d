@@ -143,7 +143,7 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
           <Input
             {...register("emailFilter")}
             placeholder="Filter username..."
-            className="max-w-sm p-2 border rounded"
+            className="w-full sm:w-auto"
           />
           <Button
             type="submit"
@@ -194,7 +194,7 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
       <ScrollArea className="w-full overflow-x-auto ">
         {isFetchingList && <TableLoading />}
         <Separator />
-        <Table className="table-auto w-full border-collapse border border-gray-200">
+        <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

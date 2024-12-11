@@ -28,8 +28,10 @@ const PackageCard = ({
     >
       <h2 className="text-xl font-bold ">{packageName}</h2>
 
-      <p className="text-gray-600 text-center">{packageDescription}</p>
-      <p className="text-2xl text-center font-extrabold text-gray-800">
+      <p className="text-gray-600 text-center dark:text-white">
+        {packageDescription}
+      </p>
+      <p className="text-2xl text-center font-extrabold text-gray-800 dark:text-white">
         {packagePercentage} Earnings in{" "}
         {Number(packageDays) > 1 ? `Days` : ` Day`}
       </p>

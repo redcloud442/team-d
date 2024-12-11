@@ -13,7 +13,7 @@ const WithdrawalHistoryPage = ({ teamMemberProfile }: Props) => {
         {/* Header Section */}
         <header className="mb-4">
           <h1 className="Title">Withdrawal History List Page</h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-white">
             View all your transactions that are currently in the system.
           </p>
         </header>

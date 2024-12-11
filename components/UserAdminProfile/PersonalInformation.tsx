@@ -35,7 +35,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
       {isLoading && <TableLoading />}
       <CardHeader className=" border-b pb-4">
         <div className="flex flex-wrap justify-between">
-          <CardTitle className="text-lg font-semibold text-gray-800">
+          <CardTitle className="text-lg font-semibold ">
             Personal Information
           </CardTitle>
           {type === "ADMIN" && (
@@ -47,9 +47,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
       </CardHeader>
       <CardContent className="grid grid-cols-1 gap-6 sm:grid-cols-2 p-6">
         <div>
-          <Label className="text-sm font-medium text-gray-700">
-            First Name
-          </Label>
+          <Label className="text-sm font-medium ">First Name</Label>
           <Input
             id="firstName"
             type="text"
@@ -59,7 +57,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
           />
         </div>
         <div>
-          <Label className="text-sm font-medium text-gray-700">Last Name</Label>
+          <Label className="text-sm font-medium ">Last Name</Label>
           <Input
             id="lastName"
             type="text"
@@ -69,7 +67,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
           />
         </div>
         <div>
-          <Label className="text-sm font-medium text-gray-700">Username</Label>
+          <Label className="text-sm font-medium ">Username</Label>
           <Input
             id="userName"
             type="text"
@@ -79,7 +77,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
           />
         </div>
         <div>
-          <Label className="text-sm font-medium text-gray-700">Role</Label>
+          <Label className="text-sm font-medium ">Role</Label>
           <Input
             id="role"
             type="text"

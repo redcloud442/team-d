@@ -8,12 +8,12 @@ type Props = {
 
 const AdminUserPage = ({ teamMemberProfile }: Props) => {
   return (
-    <div className="container mx-auto md:p-10">
+    <div className=" md:p-10">
       <div>
         <header className="mb-4">
           <h1 className="Title">User List Page</h1>
-          <p className="text-gray-600">
-            View all your user that are currently in the sistem
+          <p className="text-gray-600 dark:text-white">
+            View all your user that are currently in the system
           </p>
         </header>
 

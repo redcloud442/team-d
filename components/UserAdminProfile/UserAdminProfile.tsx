@@ -17,7 +17,7 @@ const UserAdminProfile = ({ userProfile }: Props) => {
         {/* Page Title */}
         <header>
           <h1 className="Title">User Profile</h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-white">
             View all the withdrawal history that are currently in the system.
           </p>
         </header>

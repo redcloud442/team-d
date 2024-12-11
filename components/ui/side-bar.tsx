@@ -14,6 +14,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { createClientSide } from "@/utils/supabase/client";
 import { alliance_member_table, user_table } from "@prisma/client";
@@ -55,6 +56,7 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
   const [isAdmin, setIsAdmin] = useState(
     teamMemberProfile.alliance_member_role === "ADMIN"
   );
+  const { setOpenMobile } = useSidebar();
 
   const handleSignOut = async () => {
     try {
@@ -125,6 +127,7 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
   const handleNavigation = (url: string) => {
     if (pathname !== url) {
       setIsLoading(true);
+      setOpenMobile(false);
       router.push(url);
     }
   };
@@ -144,7 +147,7 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
           className={`flex items-center px-4 py-4 rounded-md ${
             isActive(item.url)
               ? "bg-blue-100 text-blue-500 font-bold"
-              : "hover:bg-gray-100 text-gray-800"
+              : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-white"
           }`}
         >
           <item.icon className="w-5 h-5" />

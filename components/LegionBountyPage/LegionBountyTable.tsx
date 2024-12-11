@@ -132,7 +132,7 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
     fetchAdminRequest();
   }, [supabaseClient, teamMemberProfile, activePage, sorting]);
 
-  const pageCount = Math.ceil(requestCount / 13);
+  const pageCount = Math.ceil(requestCount / 10);
 
   return (
     <Card className="w-full rounded-sm p-4">
@@ -144,7 +144,7 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
           <Input
             {...register("emailFilter")}
             placeholder="Filter username..."
-            className="max-w-sm p-2 border rounded"
+            className="w-full sm:w-auto"
           />
           <Button
             type="submit"

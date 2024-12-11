@@ -11,6 +11,7 @@ import {
 } from "@prisma/client";
 import { useEffect, useState } from "react";
 
+import { Card } from "../ui/card";
 import CardAmount from "../ui/cardAmount";
 import TableLoading from "../ui/tableLoading";
 import DashboardDepositRequest from "./DashboardDepositRequest/DashboardDepositRequest";
@@ -69,7 +70,7 @@ const DashboardPage = ({
         <h1 className="Title">Dashboard</h1>
 
         {/* Referral and Wallet Section */}
-        <div className="flex items-center justify-between p-4 rounded-lg shadow-md bg-white">
+        <Card className="flex items-center justify-between p-4 rounded-lg shadow-md">
           <div>
             <p className="font-medium">Referral Link</p>
             <button
@@ -86,7 +87,7 @@ const DashboardPage = ({
               ₱ {earnings.alliance_olympus_wallet.toLocaleString()}
             </p>
           </div>
-        </div>
+        </Card>
 
         {/* Cards Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

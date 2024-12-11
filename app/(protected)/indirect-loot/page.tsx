@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Legion Bounty",
   description: "Legion Bounty Page",
   openGraph: {
-    url: "/legion-bounty",
+    url: "/indirect-loot",
   },
 };
 
