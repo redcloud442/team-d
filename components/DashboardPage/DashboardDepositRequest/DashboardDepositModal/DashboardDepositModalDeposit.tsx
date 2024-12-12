@@ -81,6 +81,7 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
   useEffect(() => {
     const getOptions = async () => {
       try {
+        if (!open) return;
         const options = await getMerchantOptions(supabaseClient, {
           teamMemberId: teamMemberProfile.alliance_member_id,
         });
@@ -89,7 +90,7 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
     };
 
     getOptions();
-  }, []);
+  }, [open]);
 
   const onSubmit = async (data: TopUpFormValues) => {
     try {

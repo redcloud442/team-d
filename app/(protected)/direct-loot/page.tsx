@@ -12,14 +12,13 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const { redirect: redirectTo, teamMemberProfile } =
-    await protectionMemberUser();
-
-  if (redirectTo) {
-    redirect(redirectTo);
-  }
+  const { teamMemberProfile } = await protectionMemberUser();
 
   if (!teamMemberProfile) return redirect("/500");
+
+  if (teamMemberProfile) {
+    redirect("/");
+  }
 
   return <AllyBountyPage teamMemberProfile={teamMemberProfile} />;
 };

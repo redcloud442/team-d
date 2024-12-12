@@ -256,28 +256,36 @@ export const AdminUsersColumn = (
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() =>
-                  handlePromoteToMerchant(data.alliance_member_id, "MERCHANT")
-                }
-              >
-                Promote as Merchant
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() =>
-                  handlePromoteToMerchant(data.alliance_member_id, "ADMIN")
-                }
-              >
-                Promote as Admin
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() =>
-                  handlePromoteToMerchant(data.alliance_member_id, "ACCOUNTING")
-                }
-              >
-                Promote as Accountant
-              </DropdownMenuItem>
+              {data.alliance_member_role !== "MERCHANT" && (
+                <DropdownMenuItem
+                  onClick={() =>
+                    handlePromoteToMerchant(data.alliance_member_id, "MERCHANT")
+                  }
+                >
+                  Promote as Merchant
+                </DropdownMenuItem>
+              )}
+              {data.alliance_member_role !== "ADMIN" && (
+                <DropdownMenuItem
+                  onClick={() =>
+                    handlePromoteToMerchant(data.alliance_member_id, "ADMIN")
+                  }
+                >
+                  Promote as Admin
+                </DropdownMenuItem>
+              )}
+              {data.alliance_member_role !== "ACCOUNTING" && (
+                <DropdownMenuItem
+                  onClick={() =>
+                    handlePromoteToMerchant(
+                      data.alliance_member_id,
+                      "ACCOUNTING"
+                    )
+                  }
+                >
+                  Promote as Accountant
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 onClick={() => handleBanUser(data.alliance_member_id)}
               >

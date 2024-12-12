@@ -71,7 +71,7 @@ const NavBar = ({ userData, teamMemberProfile }: Props) => {
 
         {/* Navigation Links */}
         <div className="hidden items-center space-x-4 md:flex">
-          <Button
+          {/* <Button
             variant="ghost"
             onClick={() => handleNavigation("/direct-loot")}
           >
@@ -82,22 +82,30 @@ const NavBar = ({ userData, teamMemberProfile }: Props) => {
             onClick={() => handleNavigation("/indirect-loot")}
           >
             Indirect Referral
-          </Button>
+          </Button> */}
           {teamMemberProfile.alliance_member_role === "MERCHANT" && (
             <>
               <Button
                 variant="ghost"
-                onClick={() => handleNavigation("/admin/top-up")}
+                onClick={() => handleNavigation("/top-up")}
               >
                 Top Up
               </Button>
               <Button
                 variant="ghost"
-                onClick={() => handleNavigation("/admin/withdrawal")}
+                onClick={() => handleNavigation("/merchant")}
               >
-                Withdrawal
+                Merchant
               </Button>
             </>
+          )}
+          {teamMemberProfile.alliance_member_role === "ACCOUNTING" && (
+            <Button
+              variant="ghost"
+              onClick={() => handleNavigation("/withdrawal")}
+            >
+              Withdrawal
+            </Button>
           )}
 
           <DropdownMenu>

@@ -41,24 +41,22 @@ export default async function AppLayout({
     >
       <SidebarProvider>
         <div className="flex min-h-screen h-full w-full  overflow-auto">
-          {teamMemberProfile.alliance_member_role !== "MEMBER" &&
-            teamMemberProfile.alliance_member_role !== "MERCHANT" && (
-              <div>
-                <AppSidebar
-                  userData={profile}
-                  teamMemberProfile={teamMemberProfile}
-                />
-              </div>
-            )}
+          {["ADMIN"].includes(teamMemberProfile.alliance_member_role) && (
+            <div>
+              <AppSidebar
+                userData={profile}
+                teamMemberProfile={teamMemberProfile}
+              />
+            </div>
+          )}
 
           <div className="flex-1 flex flex-col overflow-x-auto">
-            {teamMemberProfile.alliance_member_role !== "MEMBER" && (
+            {["ADMIN"].includes(teamMemberProfile.alliance_member_role) && (
               <div className="p-4 md:hidden">
                 <SidebarTrigger />
               </div>
             )}
-            {(teamMemberProfile.alliance_member_role === "MEMBER" ||
-              teamMemberProfile.alliance_member_role === "MERCHANT") && (
+            {!["ADMIN"].includes(teamMemberProfile.alliance_member_role) && (
               <div className=" hidden md:block">
                 <NavBar
                   teamMemberProfile={teamMemberProfile}
@@ -69,8 +67,8 @@ export default async function AppLayout({
 
             <div className="p-4 pb-10 md:pb-0">{children}</div>
             <ModeToggle />
-            {teamMemberProfile.alliance_member_role === "ADMIN" || (
-              <MobileNavBar />
+            {!["ADMIN"].includes(teamMemberProfile.alliance_member_role) && (
+              <MobileNavBar teamMemberProfile={teamMemberProfile} />
             )}
           </div>
         </div>

@@ -33,9 +33,16 @@ const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
     }),
   ]);
 
+  const merchantData = await prisma.merchant_member_table.findFirst({
+    where: {
+      merchant_member_merchant_id: allianceData?.alliance_member_id,
+    },
+  });
+
   const combinedData = {
     ...userData,
     ...allianceData,
+    ...merchantData,
   } as UserRequestdata;
 
   if (!combinedData) return redirect("/500");

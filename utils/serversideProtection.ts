@@ -106,7 +106,9 @@ export const protectionMemberUser = async () => {
 
     if (
       !teamMember?.alliance_member_alliance_id ||
-      !["MEMBER", "ADMIN"].includes(teamMember.alliance_member_role)
+      !["MEMBER", "MERCHANT", "ACCOUNTING", "ADMIN"].includes(
+        teamMember.alliance_member_role
+      )
     ) {
       return { redirect: "/404" };
     }

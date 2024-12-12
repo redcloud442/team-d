@@ -40,8 +40,6 @@ export async function updateSession(request: NextRequest) {
   const privateRoutes = ["/", "/dashboard", "/api/auth"];
   const currentPath = request.nextUrl.pathname;
 
-  // role = profile?.alliance_member_role;
-  // }
   if (!user) {
     if (publicRoutes.some((route) => currentPath.startsWith(route))) {
       return NextResponse.next();
@@ -69,7 +67,8 @@ export async function updateSession(request: NextRequest) {
     if (profile.alliance_member_role === "ADMIN") {
       if (
         currentPath.startsWith("/admin") ||
-        currentPath.startsWith("/profile")
+        currentPath.startsWith("/profile") ||
+        currentPath.startsWith("/api")
       ) {
         return NextResponse.next();
       }

@@ -125,6 +125,14 @@ export async function PATCH(
         data: { alliance_member_role: role },
       });
 
+      if (role === "MERCHANT") {
+        await prisma.merchant_member_table.create({
+          data: {
+            merchant_member_merchant_id: userId,
+          },
+        });
+      }
+
       return NextResponse.json({
         success: true,
         message: "User role updated successfully.",

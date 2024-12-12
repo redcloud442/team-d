@@ -71,6 +71,7 @@ model alliance_member_table {
   user_table                      user_table            @relation(fields: [alliance_member_user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
   alliance_table                  alliance_table        @relation(fields: [alliance_member_alliance_id], references: [alliance_id], onDelete: Cascade, onUpdate: Cascade)
 
+  merchant_member_table           merchant_member_table[]
   alliance_earnings_table         alliance_earnings_table[]
   package_member_connection_table package_member_connection_table[]
   alliance_referral_link_table    alliance_referral_link_table[]
@@ -240,6 +241,21 @@ model merchant_table {
   merchant_account_name String
   merchant_account_number String
   merchant_account_type String
+
+  @@schema("merchant_schema")
+}
+
+
+model merchant_member_table {
+  merchant_member_id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchant_member_date_created DateTime @default(now())
+  merchant_member_merchant_id String @db.Uuid
+  merchant_member_balance Float @default(0.0)
+
+  alliance_member_table alliance_member_table @relation(fields: [merchant_member_merchant_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
+
+
+
 
   @@schema("merchant_schema")
 }

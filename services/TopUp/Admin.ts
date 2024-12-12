@@ -55,5 +55,5 @@ export const updateTopUpStatus = async (params: {
     );
   }
 
-  return response;
+  return response as unknown as { success: boolean; balance: number };
 };

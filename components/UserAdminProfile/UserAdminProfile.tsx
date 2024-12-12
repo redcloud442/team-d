@@ -4,6 +4,7 @@ import { UserRequestdata } from "@/utils/types";
 import TopUpHistoryTable from "../TopUpHistoryPage/TopUpHistoryTable";
 import WithdrawalHistoryTable from "../WithrawalHistoryPage/WithdrawalHistoryTable";
 import ChangePassword from "./ChangePassword";
+import MerchantBalance from "./MerchantBalance";
 import PersonalInformation from "./PersonalInformation";
 
 type Props = {
@@ -23,7 +24,9 @@ const UserAdminProfile = ({ userProfile }: Props) => {
         </header>
 
         <PersonalInformation userProfile={userProfile} />
-
+        {userProfile.alliance_member_role === "MERCHANT" && (
+          <MerchantBalance userProfile={userProfile} />
+        )}
         <ChangePassword userProfile={userProfile} />
 
         <TopUpHistoryTable teamMemberProfile={userProfile} />

@@ -1,6 +1,6 @@
 import { applyRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
-import { protectionAdminUser } from "@/utils/serversideProtection";
+import { protectionAccountingUser } from "@/utils/serversideProtection";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(
@@ -32,7 +32,7 @@ export async function PUT(
       );
     }
 
-    const { teamMemberProfile } = await protectionAdminUser();
+    const { teamMemberProfile } = await protectionAccountingUser();
     if (!teamMemberProfile) {
       return NextResponse.json(
         { error: "User authentication failed." },
@@ -41,6 +41,21 @@ export async function PUT(
     }
 
     await applyRateLimit(teamMemberProfile?.alliance_member_id, ip);
+
+    const existingRequest =
+      await prisma.alliance_withdrawal_request_table.findUnique({
+        where: { alliance_withdrawal_request_id: requestId },
+      });
+
+    if (
+      existingRequest &&
+      existingRequest.alliance_withdrawal_request_status !== "PENDING"
+    ) {
+      return NextResponse.json(
+        { error: "Request has already been processed." },
+        { status: 400 }
+      );
+    }
 
     const allianceData = await prisma.alliance_withdrawal_request_table.update({
       where: { alliance_withdrawal_request_id: requestId },

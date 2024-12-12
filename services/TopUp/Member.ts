@@ -52,3 +52,42 @@ export const updateTopUpStatus = async (params: {
 
   return response;
 };
+
+export const getMerchantTopUpRequest = async (
+  supabaseClient: SupabaseClient,
+  params: {
+    page: number;
+    limit: number;
+    search?: string;
+    teamMemberId: string;
+    teamId: string;
+    columnAccessor: string;
+    isAscendingSort: boolean;
+    userFilter?: string;
+    statusFilter?: string;
+    dateFilter?: {
+      start: string | undefined;
+      end: string | undefined;
+    };
+  }
+) => {
+  const { data, error } = await supabaseClient.rpc(
+    "get_merchant_top_up_history",
+    {
+      input_data: params,
+    }
+  );
+
+  if (error) throw error;
+
+  return data as {
+    data: TopUpRequestData[];
+    merchantBalance: number;
+    count: {
+      PENDING: number;
+      APPROVED: number;
+      REJECTED: number;
+    };
+    totalCount: 0;
+  };
+};

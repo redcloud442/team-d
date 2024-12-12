@@ -58,3 +58,38 @@ export const getMemberWithdrawalRequest = async (
     totalCount: 0;
   };
 };
+
+export const getWithdrawalRequestAccountant = async (
+  supabaseClient: SupabaseClient,
+  params: {
+    page: number;
+    limit: number;
+    search?: string;
+    teamMemberId: string;
+    teamId: string;
+    columnAccessor: string;
+    isAscendingSort: boolean;
+    userFilter?: string;
+    statusFilter?: string;
+    dateFilter?: {
+      start: string | undefined;
+      end: string | undefined;
+    };
+  }
+) => {
+  console.log(params);
+
+  const { data, error } = await supabaseClient.rpc(
+    "get_accountant_withdrawal_history",
+    {
+      input_data: params,
+    }
+  );
+
+  if (error) throw error;
+
+  return data as {
+    data: WithdrawalRequestData[];
+    totalCount: 0;
+  };
+};
