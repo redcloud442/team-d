@@ -20,9 +20,9 @@ const schema = z.object({
   balance: z
     .string()
     .min(1, "Amount is required")
-    .regex(/^\d+$/, "Amount must be a number"),
+    .max(100000000, "Maximum amount allowed is 1,000,000")
+    .transform((value) => Number(value)),
 });
-
 type Data = z.infer<typeof schema>;
 
 const MerchantBalance = ({ userProfile }: Props) => {
@@ -101,14 +101,17 @@ const MerchantBalance = ({ userProfile }: Props) => {
                 placeholder="Enter the top-up amount (e.g., 1000)"
                 {...field}
                 autoFocus
-                value={field.value ? Number(field.value).toLocaleString() : ""}
+                value={field.value || ""}
                 onChange={(e) => {
                   let value = e.target.value;
-
                   value = value.replace(/\D/g, "");
 
                   if (value.startsWith("0")) {
                     value = value.replace(/^0+/, "");
+                  }
+
+                  if (Number(value) > 100000000) {
+                    return;
                   }
 
                   field.onChange(value);

@@ -1,22 +1,27 @@
-import WithdrawalPage from "@/components/WithdrawalPage/WithdrawalPage";
+import WithdrawalHistoryPage from "@/components/WithrawalHistoryPage/WithdrawalHistoryPage";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Withdrawal Records",
-  description: "List of Withdrawal Records",
+  title: "Withdraw History",
+  description: "Withdrawal History Page",
   openGraph: {
-    url: "/withdrawal",
+    url: "/withdraw/history",
   },
 };
 
 const Page = async () => {
-  const { teamMemberProfile } = await protectionMemberUser();
+  const { teamMemberProfile, redirect: redirectTo } =
+    await protectionMemberUser();
 
-  if (!teamMemberProfile) return redirect("/500");
+  if (redirectTo) {
+    redirect(redirectTo);
+  }
 
-  return <WithdrawalPage teamMemberProfile={teamMemberProfile} />;
+  if (!teamMemberProfile) redirect("/500");
+
+  return <WithdrawalHistoryPage teamMemberProfile={teamMemberProfile} />;
 };
 
 export default Page;

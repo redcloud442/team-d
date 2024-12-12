@@ -6,7 +6,7 @@ import { TopUpRequestData } from "@/utils/types";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Copy, MoreHorizontal } from "lucide-react";
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { Badge } from "../ui/badge";
 import {
   Dialog,
@@ -31,10 +31,7 @@ const statusColorMap: Record<string, string> = {
   REJECTED: "bg-red-600",
 };
 
-export const TopUpColumn = (
-  handleFetch: () => void,
-  setMerchantBalance: Dispatch<SetStateAction<number>>
-) => {
+export const TopUpColumn = (handleFetch: () => void) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState({
@@ -47,7 +44,7 @@ export const TopUpColumn = (
     async (status: string, requestId: string, note?: string) => {
       try {
         setIsLoading(true);
-        const { balance } = await updateTopUpStatus({
+        await updateTopUpStatus({
           status,
           requestId,
           note,
@@ -59,7 +56,6 @@ export const TopUpColumn = (
           variant: "success",
         });
         setIsOpenModal({ open: false, requestId: "", status: "" });
-        setMerchantBalance(balance);
       } catch (e) {
         toast({
           title: `Status Failed`,
@@ -169,6 +165,23 @@ export const TopUpColumn = (
       ),
     },
     {
+      accessorKey: "alliance_top_up_request_name",
+      label: "Name",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Name <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.getValue("alliance_top_up_request_name")}
+        </div>
+      ),
+    },
+    {
       accessorKey: "alliance_top_up_request_account",
       label: "Bank Account",
       header: ({ column }) => (
@@ -201,6 +214,39 @@ export const TopUpColumn = (
           {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))}
         </div>
       ),
+    },
+    {
+      accessorKey: "alliance_top_up_request_attachment",
+      label: "Attachment",
+      header: () => <div>Attachment</div>,
+      cell: ({ row }) => {
+        const attachmentUrl = row.getValue(
+          "alliance_top_up_request_attachment"
+        ) as string;
+
+        return (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">View Attachment</Button>
+            </DialogTrigger>
+            <DialogContent type="table">
+              <DialogHeader>
+                <DialogTitle>Attachment</DialogTitle>
+              </DialogHeader>
+              <div className="flex justify-center items-center">
+                <iframe
+                  src={attachmentUrl || ""}
+                  className="w-full h-96"
+                  title="Attachment Preview"
+                />
+              </div>
+              <DialogClose asChild>
+                <Button variant="secondary">Close</Button>
+              </DialogClose>
+            </DialogContent>
+          </Dialog>
+        );
+      },
     },
     {
       accessorKey: "alliance_top_up_request_reject_note",

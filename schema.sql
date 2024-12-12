@@ -265,6 +265,7 @@ CREATE OR REPLACE FUNCTION get_member_withdrawal_history(
 )
 RETURNS JSON
 AS $$
+
 let returnData = {
     data:[],
     totalCount:0
@@ -286,19 +287,18 @@ plv8.subtransaction(function() {
     WHERE alliance_member_id = $1
   `, [teamMemberId]);
 
-  if (!member.length || member[0].alliance_member_role !== 'MEMBER') {
+  if (!member.length || (member[0].alliance_member_role !== 'ADMIN' && member[0].alliance_member_role !== 'MERCHANT')) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
-
   const offset = (page - 1) * limit;
 
   const params = [teamId,teamMemberId, limit, offset];
 
   const searchCondition = search ? `AND t.alliance_withdrawal_request_id = '${search}'`: "";
   const sortBy = isAscendingSort ? "desc" : "asc";
-  const sortCondition = columnAccessor
-    ? `ORDER BY "${columnAccessor}" ${sortBy}`
+  const sortCondition = columnAccessor 
+    ? `ORDER BY "${columnAccessor}" ${sortBy}` 
     : "";
 
   const topUpRequest = plv8.execute(`
@@ -337,6 +337,7 @@ plv8.subtransaction(function() {
   returnData.totalCount = Number(totalCount);
 });
 return returnData;
+
 $$ LANGUAGE plv8;
 
 CREATE OR REPLACE FUNCTION get_admin_withdrawal_history(
@@ -344,7 +345,6 @@ CREATE OR REPLACE FUNCTION get_admin_withdrawal_history(
 )
 RETURNS JSON
 AS $$
-
 let returnData = {
     data:[],
     totalCount:0
@@ -436,7 +436,345 @@ plv8.subtransaction(function() {
   returnData.totalCount = Number(totalCount);
 });
 return returnData;
+$$ LANGUAGE plv8;
 
+CREATE OR REPLACE FUNCTION get_accountant_withdrawal_history(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+    data:[],
+    totalCount:0
+};
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 13,
+    search = '',
+    teamMemberId,
+    teamId,
+    columnAccessor,
+    isAscendingSort,
+    userFilter,
+    statusFilter,
+    dateFilter
+  } = input_data;
+
+  const member = plv8.execute(`
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `, [teamMemberId]);
+
+  if (!member.length || member[0].alliance_member_role !== 'ACCOUNTANT') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const offset = (page - 1) * limit;
+
+  const params = [teamId, limit, offset];
+  const userCondition = userFilter ? `AND u.user_username = '${userFilter} OR u.user_id = '${userFilter} OR u.user_first_name = '${userFilter}' OR u.user_last_name = '${userFilter}'` : "";
+  const statusCondition = statusFilter ? `AND t.alliance_withdrawal_request_status = '${statusFilter}'`: "";
+  const dateFilterCondition = dateFilter.start && dateFilter.end ? `AND t.alliance_withdrawal_request_date BETWEEN '${dateFilter.start}' AND '${dateFilter.end}'` : "";
+  const searchCondition = search ? `AND t.alliance_withdrawal_request_id = '${search}'`: "";
+  const sortBy = isAscendingSort ? "desc" : "asc";
+  const sortCondition = columnAccessor
+    ? `ORDER BY "${columnAccessor}" ${sortBy}`
+    : "";
+
+  const topUpRequest = plv8.execute(`
+    SELECT
+      u.user_first_name,
+      u.user_last_name,
+      u.user_email,
+      m.alliance_member_id,
+      t.alliance_withdrawal_request_id,
+      t.alliance_withdrawal_request_date,
+      t.alliance_withdrawal_request_amount,
+      t.alliance_withdrawal_request_status,
+      approver.user_username AS approver_username
+    FROM alliance_schema.alliance_withdrawal_request_table t
+    JOIN alliance_schema.alliance_member_table m
+      ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+      ON u.user_id = m.alliance_member_user_id
+    LEFT JOIN alliance_schema.alliance_member_table mt
+      ON mt.alliance_member_id = t.alliance_withdrawal_request_approved_by
+    LEFT JOIN user_schema.user_table approver
+      ON approver.user_id = mt.alliance_member_user_id
+    WHERE m.alliance_member_alliance_id = $1
+    ${searchCondition}
+    ${userCondition}
+    ${statusCondition}
+    ${dateFilterCondition}
+    ${sortCondition}
+    LIMIT $2 OFFSET $3
+  `, params);
+
+    const totalCount = plv8.execute(`
+        SELECT
+            COUNT(*)
+        FROM alliance_schema.alliance_withdrawal_request_table t
+        JOIN alliance_schema.alliance_member_table m
+        ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
+        JOIN user_schema.user_table u
+        ON u.user_id = m.alliance_member_user_id
+        LEFT JOIN alliance_schema.alliance_member_table mt
+        ON mt.alliance_member_id = t.alliance_withdrawal_request_approved_by
+    LEFT JOIN user_schema.user_table approver
+      ON approver.user_id = mt.alliance_member_user_id
+        WHERE m.alliance_member_alliance_id = $1
+        ${searchCondition}
+        ${searchCondition}
+        ${userCondition}
+        ${statusCondition}
+        ${dateFilterCondition}
+  `,[teamId])[0].count;
+
+  returnData.data = topUpRequest;
+  returnData.totalCount = Number(totalCount);
+});
+return returnData;
+$$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION get_member_top_up_history(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+
+let returnData = {
+    data:[],
+    totalCount:0
+};
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 13,
+    search = '',
+    teamMemberId,
+    teamId,
+    columnAccessor,
+    isAscendingSort
+  } = input_data;
+
+  const member = plv8.execute(`
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+  `, [teamMemberId]);
+
+  if (!member.length || (member[0].alliance_member_role !== 'ADMIN' && member[0].alliance_member_role !== 'MERCHANT')) {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+  const offset = (page - 1) * limit;
+
+  const params = [teamId,teamMemberId, limit, offset];
+
+  const searchCondition = search ? `AND t.alliance_top_up_request_id = '${search}'`: "";
+  const sortBy = isAscendingSort ? "desc" : "asc";
+  const sortCondition = columnAccessor 
+    ? `ORDER BY "${columnAccessor}" ${sortBy}` 
+    : "";
+
+  const topUpRequest = plv8.execute(`
+    SELECT
+      u.user_first_name,
+      u.user_last_name,
+      u.user_email,
+      m.alliance_member_id,
+      t.*
+    FROM alliance_schema.alliance_top_up_request_table t
+    JOIN alliance_schema.alliance_member_table m
+      ON t.alliance_top_up_request_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+      ON u.user_id = m.alliance_member_user_id
+    WHERE m.alliance_member_alliance_id = $1 AND
+    t.alliance_top_up_request_member_id = $2
+    ${searchCondition}
+    ${sortCondition}
+    LIMIT $3 OFFSET $4
+  `, params);
+
+    const totalCount = plv8.execute(`
+        SELECT
+            COUNT(*)
+        FROM alliance_schema.alliance_top_up_request_table t
+        JOIN alliance_schema.alliance_member_table m
+        ON t.alliance_top_up_request_member_id = m.alliance_member_id
+        JOIN user_schema.user_table u
+        ON u.user_id = m.alliance_member_user_id
+        WHERE m.alliance_member_alliance_id = $1 AND
+        t.alliance_top_up_request_member_id = $2
+        ${searchCondition}
+  `,[teamId,teamMemberId])[0].count;
+
+  returnData.data = topUpRequest;
+  returnData.totalCount = Number(totalCount);
+});
+return returnData;
+$$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION get_merchant_top_up_history(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+  data: [],
+  totalCount: 0,
+  count:{},
+  merchantBalance:0
+};
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 13,
+    search = '',
+    teamMemberId,
+    teamId,
+    isAscendingSort,
+    columnAccessor,
+    merchantFilter,
+    userFilter,
+    statusFilter = 'PENDING',
+    dateFilter = null
+  } = input_data;
+
+
+  const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+    `,
+    [teamMemberId]
+  );
+
+  if (!member.length || member[0].alliance_member_role !== 'MERCHANT') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const offset = (page - 1) * limit;
+  const sortBy = isAscendingSort ? "DESC" : "ASC";
+  const sortCondition = columnAccessor
+    ? `ORDER BY "${columnAccessor}" ${sortBy}`
+    : "";
+  const merchantCondition = merchantFilter ? `AND approver.user_id = '${merchantFilter}'` : "";
+  const userCondition = userFilter ? `AND u.user_username = '${userFilter} OR u.user_id = '${userFilter} OR u.user_first_name = '${userFilter}' OR u.user_last_name = '${userFilter}'` : "";
+  const statusCondition = statusFilter ? `AND t.alliance_top_up_request_status = '${statusFilter}'`: "";
+  const dateFilterCondition = dateFilter.start && dateFilter.end ? `AND t.alliance_top_up_request_date BETWEEN '${dateFilter.start}' AND '${dateFilter.end}'` : "";
+  let searchCondition = '';
+  const params = [teamId, limit, offset];
+
+  if (search) {
+    searchCondition = `AND u.user_username ILIKE '%${search}%'`
+
+  }
+
+  const topUpRequest = plv8.execute(
+    `
+    SELECT
+      u.user_first_name,
+      u.user_last_name,
+      u.user_email,
+      u.user_username,
+      m.alliance_member_id,
+      t.alliance_top_up_request_id,
+      t.alliance_top_up_request_date,
+      t.alliance_top_up_request_amount,
+      t.alliance_top_up_request_status,
+      t.alliance_top_up_request_attachment,
+      t.alliance_top_up_request_type,
+      t.alliance_top_up_request_name,
+      t.alliance_top_up_request_account
+    FROM alliance_schema.alliance_top_up_request_table t
+    JOIN alliance_schema.alliance_member_table m
+      ON t.alliance_top_up_request_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+      ON u.user_id = m.alliance_member_user_id
+    LEFT JOIN alliance_schema.alliance_member_table mt
+      ON mt.alliance_member_id = t.alliance_top_up_request_approved_by
+    LEFT JOIN user_schema.user_table approver
+      ON approver.user_id = mt.alliance_member_user_id
+    WHERE m.alliance_member_alliance_id = $1
+    ${searchCondition}
+    ${userCondition}
+    ${statusCondition}
+    ${dateFilterCondition}
+    ${merchantCondition}
+    ${sortCondition}
+    LIMIT $2 OFFSET $3
+    `,
+    params
+  );
+
+  const totalCount = plv8.execute(
+    `
+    SELECT COUNT(*)
+    FROM alliance_schema.alliance_top_up_request_table t
+    JOIN alliance_schema.alliance_member_table m
+      ON t.alliance_top_up_request_member_id = m.alliance_member_id
+    JOIN user_schema.user_table u
+      ON u.user_id = m.alliance_member_user_id
+    LEFT JOIN alliance_schema.alliance_member_table mt
+      ON mt.alliance_member_id = t.alliance_top_up_request_approved_by
+    LEFT JOIN user_schema.user_table approver
+      ON approver.user_id = mt.alliance_member_user_id
+    WHERE m.alliance_member_alliance_id = $1
+    ${searchCondition}
+    ${userCondition}
+    ${statusCondition}
+    ${dateFilterCondition}
+    ${merchantCondition}
+    `,
+    [teamId]
+  )[0].count;
+
+  const statusCount = plv8.execute(
+    `
+   SELECT
+    t.alliance_top_up_request_status AS status,
+    COUNT(*) AS count
+  FROM alliance_schema.alliance_top_up_request_table t
+  JOIN alliance_schema.alliance_member_table m ON t.alliance_top_up_request_member_id = m.alliance_member_id
+  JOIN user_schema.user_table u ON u.user_id = m.alliance_member_user_id
+  LEFT JOIN alliance_schema.alliance_member_table mt ON mt.alliance_member_id = t.alliance_top_up_request_approved_by
+  LEFT JOIN
+    user_schema.user_table approver ON approver.user_id = mt.alliance_member_user_id
+ WHERE m.alliance_member_alliance_id = $1
+ GROUP BY t.alliance_top_up_request_status
+ ORDER BY t.alliance_top_up_request_status DESC 
+    `,
+    [teamId]
+  );
+
+  const merchantBalance = plv8.execute(`
+    SELECT merchant_member_balance
+    FROM merchant_schema.merchant_member_table
+    WHERE merchant_member_merchant_id = $1
+  `,[teamMemberId])[0].merchant_member_balance;
+
+  const countObj = {
+    REJECTED: 0,
+    APPROVED: 0,
+    PENDING: 0
+  };
+
+  statusCount.forEach(item => {
+    countObj[item.status] = Number(item.count);
+  });
+
+  returnData.data = topUpRequest;
+  returnData.totalCount = Number(totalCount);
+  returnData.count = countObj;
+  returnData.merchantBalance = merchantBalance
+});
+return returnData;
 $$ LANGUAGE plv8;
 
 CREATE OR REPLACE FUNCTION get_admin_withdrawal_history(
@@ -610,7 +948,7 @@ plv8.subtransaction(function() {
 
   const params = [teamId, limit, offset];
 
-  const searchCondition = search ? `AND u.user_username = '${search}'`: "";
+  const searchCondition = search ? `AND u.user_username ILIKE '%${search}%' OR u.user_first_name ILIKE '%${search}%' OR u.user_last_name ILIKE '%${search}%'`: "";
   const roleCondition = userRole ? `AND m.alliance_member_role = '${userRole}'`: "";
   const dateCreatedCondition = dateCreated ? `AND u.user_date_created = '${dateCreated}'`: "";
   const sortBy = isAscendingSort ? "desc" : "asc";
@@ -1466,7 +1804,7 @@ plv8.subtransaction(function() {
     WHERE alliance_member_id = $1
   `, [teamMemberId]);
 
-  if (!member.length || member[0].alliance_member_role !== 'MEMBER' && member[0].alliance_member_role !== 'MERCHANT') {
+  if (!member.length || ["MEMBER", "MERCHANT", "ACCOUNTING"].includes(member[0].alliance_member_role)) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
@@ -1481,6 +1819,43 @@ plv8.subtransaction(function() {
 return returnData;
 
 $$ LANGUAGE plv8;
+
+
+CREATE OR REPLACE FUNCTION get_merchant_option(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = [];
+plv8.subtransaction(function() {
+    const {teamMemberId} = input_data;
+    const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+    `,
+    [teamMemberId]
+  );
+
+  if (!member.length || !["MEMBER", "MERCHANT", "ACCOUNTING"].includes(member[0].alliance_member_role)) {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+
+  const merchant = plv8.execute(
+    `
+    SELECT *
+    FROM merchant_schema.merchant_table
+    `
+  );
+
+  returnData = merchant
+});
+return returnData;
+$$ LANGUAGE plv8;
+
 
 CREATE OR REPLACE FUNCTION get_earnings_modal_data(
   input_data JSON
@@ -1500,7 +1875,7 @@ plv8.subtransaction(function() {
     WHERE alliance_member_id = $1
   `, [teamMemberId]);
 
-  if (!member.length || member[0].alliance_member_role !== 'MEMBER' && member[0].alliance_member_role !== 'MERCHANT') {
+  if (!member.length ||!["MEMBER", "MERCHANT", "ACCOUNTING"].includes(member[0].alliance_member_role)) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
@@ -1514,63 +1889,78 @@ plv8.subtransaction(function() {
   returnData = earningsData
 });
 return returnData;
-
 $$ LANGUAGE plv8;
 
-CREATE OR REPLACE FUNCTION create_leaderboard_data(
-  input_data JSON
-)
+CREATE OR REPLACE FUNCTION get_leaderboard_data(input_data JSON)
 RETURNS JSON
 AS $$
 
-let returnData = []
-plv8.subtransaction(function() {
-  const {
-    leaderBoardType,
-    teamMemberId,
-    limit,
-    offset
-  } = input_data;
+let returnData = {};
 
-  const member = plv8.execute(`
+plv8.subtransaction(() => {
+  const { leaderBoardType, teamMemberId, limit = 10, page = 0 } = input_data;
+
+const offset = (page - 1) * limit;
+
+  const member = plv8.execute(
+    `
     SELECT alliance_member_role
     FROM alliance_schema.alliance_member_table
     WHERE alliance_member_id = $1
-  `, [teamMemberId]);
+    `,
+    [teamMemberId]
+  );
 
   if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
 
-  if(leaderBoardType === 'DIRECT'){
-    const diretLeaderBoardData = plv8.execute(`
-      SELECT 
-        package_ally_bounty_member_id AS memberId,
-        SUM(package_ally_bounty_earnings) AS totalAmount
-      FROM packages_schema.package_ally_bounty_log
-      WHERE package_ally_bounty_type = 'DIRECT'
-      GROUP BY package_ally_bounty_member_id
-      ORDER BY totalAmount DESC
-    `);
-  } else if(leaderBoardType === 'INDIRECT'){
-    const indirectLeaderBoardData = plv8.execute(`
-      SELECT 
-        package_ally_bounty_member_id AS memberId,
-        SUM(package_ally_bounty_earnings) AS totalAmount
-      FROM packages_schema.package_ally_bounty_log
-      WHERE package_ally_bounty_type = 'INDIRECT'
-      GROUP BY package_ally_bounty_member_id
-      ORDER BY totalAmount DESC
-    `);
+  if (!['DIRECT', 'INDIRECT'].includes(leaderBoardType)) {
+    returnData = { success: false, message: 'Invalid leaderboard type' };
+    return;
   }
 
+  const query = `
+    SELECT 
+      user_username,
+      SUM(package_ally_bounty_earnings) AS totalAmount
+    FROM packages_schema.package_ally_bounty_log
+    JOIN alliance_schema.alliance_member_table
+      ON package_ally_bounty_member_id = alliance_member_id
+    JOIN user_schema.user_table
+      ON alliance_member_user_id = user_id
+    WHERE package_ally_bounty_type = $1
+    GROUP BY user_username
+    ORDER BY totalAmount DESC
+    LIMIT $2 OFFSET $3
+  `;
 
-  returnData = earningsData
+  const leaderBoardData = plv8.execute(query, [leaderBoardType, limit, offset]);
+
+  const totalCountQuery = `
+    SELECT COUNT(DISTINCT package_ally_bounty_member_id) AS totalCount
+    FROM packages_schema.package_ally_bounty_log
+    WHERE package_ally_bounty_type = $1
+  `;
+
+  const totalCountResult = plv8.execute(totalCountQuery, [leaderBoardType]);
+  const totalCount = parseInt(totalCountResult[0].totalcount);
+
+  returnData = {
+    totalCount,
+    data: leaderBoardData.map(row => ({
+      username: row.user_username,
+      totalAmount: parseFloat(row.totalamount)
+    }))
+  };
 });
+
 return returnData;
 
 $$ LANGUAGE plv8;
+
+
 
 CREATE OR REPLACE FUNCTION update_earnings_based_on_packages()
 RETURNS void AS $$
@@ -1741,3 +2131,8 @@ GRANT ALL ON ALL TABLES IN SCHEMA packages_schema TO PUBLIC;
 GRANT ALL ON ALL TABLES IN SCHEMA packages_schema TO POSTGRES;
 GRANT ALL ON SCHEMA packages_schema TO postgres;
 GRANT ALL ON SCHEMA packages_schema TO public;
+
+GRANT ALL ON ALL TABLES IN SCHEMA merchant_schema TO PUBLIC;
+GRANT ALL ON ALL TABLES IN SCHEMA merchant_schema TO POSTGRES;
+GRANT ALL ON SCHEMA merchant_schema TO postgres;
+GRANT ALL ON SCHEMA merchant_schema TO public;

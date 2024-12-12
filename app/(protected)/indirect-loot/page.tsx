@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 
 const Page = async () => {
   const { teamMemberProfile } = await protectionMemberUser();
+
   if (!teamMemberProfile) return redirect("/500");
 
   if (teamMemberProfile) {

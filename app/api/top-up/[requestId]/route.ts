@@ -47,15 +47,38 @@ export async function PUT(
         where: { alliance_top_up_request_id: requestId },
       });
 
-    if (
-      existingRequest &&
-      existingRequest.alliance_top_up_request_status !== "PENDING"
-    ) {
+    if (!existingRequest) {
+      return NextResponse.json(
+        { error: "Request not found." },
+        { status: 404 }
+      );
+    }
+    const merchant = await prisma.merchant_member_table.findFirst({
+      where: {
+        merchant_member_merchant_id: teamMemberProfile.alliance_member_id,
+      },
+    });
+
+    if (!merchant) {
+      throw new Error("Merchant not found.");
+    }
+
+    if (existingRequest.alliance_top_up_request_status !== "PENDING") {
       return NextResponse.json(
         { error: "Request has already been processed." },
         { status: 400 }
       );
     }
+
+    if (status === "APPROVED") {
+      if (
+        existingRequest.alliance_top_up_request_amount >
+        merchant.merchant_member_balance
+      ) {
+        throw new Error("Insufficient merchant balance.");
+      }
+    }
+
     const allianceData = await prisma.alliance_top_up_request_table.update({
       where: { alliance_top_up_request_id: requestId },
       data: {
@@ -72,26 +95,9 @@ export async function PUT(
         { status: 500 }
       );
     }
-
     if (status === "APPROVED") {
       const [updatedEarnings, updatedMerchant] = await prisma.$transaction(
         async (tx) => {
-          const merchant = await tx.merchant_member_table.findUnique({
-            where: {
-              merchant_member_id: teamMemberProfile.alliance_member_id,
-            },
-          });
-
-          if (!merchant) {
-            throw new Error("Merchant not found.");
-          }
-
-          if (
-            allianceData.alliance_top_up_request_amount >
-            merchant.merchant_member_balance
-          ) {
-            throw new Error("Insufficient merchant balance.");
-          }
           const updatedEarnings = await tx.alliance_earnings_table.update({
             where: {
               alliance_earnings_member_id:
@@ -106,8 +112,7 @@ export async function PUT(
 
           const updatedMerchant = await tx.merchant_member_table.update({
             where: {
-              merchant_member_id:
-                allianceData.alliance_top_up_request_member_id,
+              merchant_member_id: merchant.merchant_member_id,
             },
             data: {
               merchant_member_balance: {

@@ -29,6 +29,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  PhilippinePeso,
   RefreshCw,
   Search,
 } from "lucide-react";
@@ -155,7 +156,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = TopUpColumn(fetchRequest, setMerchantBalance);
+  } = TopUpColumn(fetchRequest);
 
   const table = useReactTable({
     data: requestData,
@@ -399,7 +400,10 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
           )}
         </form>
         <div className="flex justify-end gap-2 ">
-          <div>Merchant Balance: {merchantBalance.toLocaleString()}</div>
+          <div className="flex gap-2 items-center">
+            Merchant Balance: <PhilippinePeso size={16} />
+            {merchantBalance.toLocaleString()}
+          </div>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
