@@ -1,4 +1,4 @@
-import { Package, PhilippinePeso, User2 } from "lucide-react";
+import { Package, PhilippinePeso } from "lucide-react";
 import CardAmountAdmin from "../ui/CardAmountAdmin";
 
 type Props = {
@@ -69,23 +69,11 @@ const AdminDashboardCard = ({
       />
 
       <CardAmountAdmin
-        title="Active Package"
+        title="Actived Package"
         value={
           <>
             <Package />
             {activePackageWithinTheDay as unknown as number}
-          </>
-        }
-        description=""
-        descriptionClassName="text-sm text-gray-500"
-      />
-
-      <CardAmountAdmin
-        title="Total Registered User"
-        value={
-          <>
-            <User2 />
-            {numberOfRegisteredUser}
           </>
         }
         description=""

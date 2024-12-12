@@ -95,6 +95,7 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState(false);
+
   const fetchMerchant = async () => {
     try {
       setIsFetchingList(true);

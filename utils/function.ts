@@ -120,6 +120,7 @@ export const escapeFormData = <T>(data: T): T => {
   }
   return data;
 };
+
 const rateLimiter = new LRUCache({
   max: 1000,
   ttl: 60 * 1000, // 1 minute time-to-live

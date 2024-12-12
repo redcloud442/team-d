@@ -36,7 +36,7 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    if (amount.length > 6) {
+    if (amount.length > 7 || amount.length < 3) {
       return NextResponse.json(
         {
           error: "Amount must be less than 6 digits.",

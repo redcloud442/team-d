@@ -85,6 +85,12 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+
+  const [count, setCount] = useState({
+    REJECTED: 0,
+    APPROVED: 0,
+    PENDING: 0,
+  });
   const columnAccessor = sorting?.[0]?.id || "alliance_withdrawal_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
@@ -103,7 +109,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
         ? new Date(dateFilter.start)
         : undefined;
       const endDate = startDate ? new Date(startDate) : undefined;
-      const { data, totalCount } = await getWithdrawalRequestAccountant(
+      const { data, totalCount, count } = await getWithdrawalRequestAccountant(
         supabaseClient,
         {
           teamId: teamMemberProfile.alliance_member_alliance_id,
@@ -130,6 +136,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
 
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
+      setCount(count || 0);
     } catch (e) {
     } finally {
       setIsFetchingList(false);
@@ -231,6 +238,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
       handleSubmit(handleFilter)();
     }
   };
+
   const handleTabChange = (type?: string) => {
     setValue("statusFilter", type as "PENDING" | "APPROVED" | "REJECTED");
     fetchRequest();
@@ -424,9 +432,13 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
 
         <Tabs defaultValue="PENDING" onValueChange={handleTabChange}>
           <TabsList className="mb-4">
-            <TabsTrigger value="PENDING">Pending</TabsTrigger>
-            <TabsTrigger value="APPROVED">Approved</TabsTrigger>
-            <TabsTrigger value="REJECTED">Rejected</TabsTrigger>
+            <TabsTrigger value="PENDING">Pending ({count.PENDING})</TabsTrigger>
+            <TabsTrigger value="APPROVED">
+              Approved ({count.APPROVED})
+            </TabsTrigger>
+            <TabsTrigger value="REJECTED">
+              Rejected ({count.REJECTED})
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="PENDING">

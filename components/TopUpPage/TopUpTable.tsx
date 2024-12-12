@@ -248,7 +248,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
     <Card className="w-full rounded-sm p-4">
       <div className="flex flex-wrap gap-4 items-start py-4">
         <form
-          className="flex flex-col gap-6 w-full max-w-2xl rounded-md"
+          className="flex flex-col gap-6 w-full max-w-4xl rounded-md"
           onSubmit={handleSubmit(handleFilter)}
         >
           {isOpenModal && (
@@ -398,12 +398,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
             </div>
           )}
         </form>
-        <div className="flex justify-end gap-2 ">
-          <div className="flex gap-2 items-center">
-            Merchant Balance: <PhilippinePeso size={16} />
-            {merchantBalance.toLocaleString()}
-          </div>
-        </div>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -432,6 +427,12 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
               ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        <div className="flex justify-end gap-2 ">
+          <div className="flex text-lg font-bold gap-2 items-center">
+            Merchant Balance: <PhilippinePeso size={16} />
+            {merchantBalance.toLocaleString()}
+          </div>
+        </div>
       </div>
       <ScrollArea className="w-full overflow-x-auto ">
         {isFetchingList && <TableLoading />}

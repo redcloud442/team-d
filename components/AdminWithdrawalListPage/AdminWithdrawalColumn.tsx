@@ -3,9 +3,8 @@ import { useToast } from "@/hooks/use-toast";
 import { updateWithdrawalStatus } from "@/services/Withdrawal/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
 import { WithdrawalRequestData } from "@/utils/types";
-import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Copy, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, Copy } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Badge } from "../ui/badge";
 import {
@@ -16,13 +15,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import {
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 import { Textarea } from "../ui/textarea";
 
 const statusColorMap: Record<string, string> = {
@@ -256,52 +248,6 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
             </DialogContent>
           </Dialog>
         ) : null;
-      },
-    },
-    {
-      id: "actions",
-      label: "Actions",
-      cell: ({ row }) => {
-        const data = row.original;
-        return (
-          <DropdownMenu>
-            {data.alliance_withdrawal_request_status === "APPROVED" && (
-              <>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <MoreHorizontal />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      setIsOpenModal({
-                        open: true,
-                        requestId: data.alliance_withdrawal_request_id,
-                        status: "APPROVED",
-                      })
-                    }
-                  >
-                    Approve
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() =>
-                      setIsOpenModal({
-                        open: true,
-                        requestId: data.alliance_withdrawal_request_id,
-                        status: "REJECTED",
-                      })
-                    }
-                  >
-                    Reject
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </>
-            )}
-          </DropdownMenu>
-        );
       },
     },
   ];

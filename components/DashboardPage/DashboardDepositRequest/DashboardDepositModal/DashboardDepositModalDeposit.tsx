@@ -37,7 +37,7 @@ type Props = {
 const topUpFormSchema = z.object({
   amount: z
     .string()
-    .min(1, "Amount is required")
+    .min(3, "Amount is required atleast 100 pesos")
     .max(6, "Amount must be less than 6 digits")
     .regex(/^\d+$/, "Amount must be a number"),
   topUpMode: z.string().min(1, "Top up mode is required"),
@@ -178,7 +178,7 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
                     if (value.startsWith("0")) {
                       value = value.replace(/^0+/, "");
                     }
-                    if (value.length > 6) {
+                    if (value.length > 7) {
                       return;
                     }
                     field.onChange(value);

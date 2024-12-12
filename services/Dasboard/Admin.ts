@@ -24,6 +24,7 @@ export const getAdminDashboard = async (
     indirectLoot: 0;
     activePackageWithinTheDay: 0;
     numberOfRegisteredUser: 0;
+    totalActivatedPackage: 0;
     chartData: ChartData[];
   };
 };

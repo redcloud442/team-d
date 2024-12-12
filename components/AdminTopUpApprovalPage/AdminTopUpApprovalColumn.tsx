@@ -8,20 +8,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
 import { TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Copy, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, Copy } from "lucide-react";
 import { useCallback, useState } from "react";
 import TableLoading from "../ui/tableLoading";
 import { Textarea } from "../ui/textarea";
@@ -284,52 +276,6 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
             </DialogContent>
           </Dialog>
         ) : null;
-      },
-    },
-    {
-      id: "actions",
-      label: "Actions",
-      cell: ({ row }) => {
-        const data = row.original;
-        return (
-          <DropdownMenu>
-            {data.alliance_top_up_request_status === "PENDING" && (
-              <>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <MoreHorizontal />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      setIsOpenModal({
-                        open: true,
-                        requestId: data.alliance_top_up_request_id,
-                        status: "APPROVED",
-                      })
-                    }
-                  >
-                    Approve
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() =>
-                      setIsOpenModal({
-                        open: true,
-                        requestId: data.alliance_top_up_request_id,
-                        status: "REJECTED",
-                      })
-                    }
-                  >
-                    Reject
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </>
-            )}
-          </DropdownMenu>
-        );
       },
     },
   ];

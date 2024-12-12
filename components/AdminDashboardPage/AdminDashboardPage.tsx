@@ -5,11 +5,12 @@ import { createClientSide } from "@/utils/supabase/client";
 import { ChartData } from "@/utils/types";
 import { alliance_member_table } from "@prisma/client";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Package2Icon, User2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
+import CardAmountAdmin from "../ui/CardAmountAdmin";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import TableLoading from "../ui/tableLoading";
 import AdminDashboardCard from "./AdminDashboardCard";
@@ -34,6 +35,7 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
   const [indirectLoot, setIndirectLoot] = useState(0);
   const [activePackageWithinTheDay, setActivePackageWithinTheDay] = useState(0);
   const [numberOfRegisteredUser, setNumberOfRegisteredUser] = useState(0);
+  const [totalActivatedPackage, setTotalActivatedPackage] = useState(0);
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -48,6 +50,13 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
 
   const { getValues, control, handleSubmit, watch } = filterMethods;
 
+  const formatDateToLocal = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const fetchAdminDashboardData = async () => {
     try {
       if (!teamMemberProfile) return;
@@ -57,8 +66,13 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
+      const formattedStartDate = startDate ? formatDateToLocal(startDate) : "";
 
       const endDate = dateFilter.end ? new Date(dateFilter.end) : undefined;
+      const formattedEndDate = endDate
+        ? formatDateToLocal(new Date(endDate.setHours(23, 59, 59, 999)))
+        : "";
+
       const {
         totalEarnings,
         totalWithdraw,
@@ -66,18 +80,13 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
         indirectLoot,
         activePackageWithinTheDay,
         numberOfRegisteredUser,
+        totalActivatedPackage,
         chartData,
       } = await getAdminDashboard(supabaseClient, {
         teamMemberId: teamMemberProfile.alliance_member_id,
         dateFilter: {
-          start:
-            startDate && !isNaN(startDate.getTime())
-              ? startDate.toISOString()
-              : "",
-          end:
-            endDate && !isNaN(endDate.getTime())
-              ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
-              : "",
+          start: formattedStartDate,
+          end: formattedEndDate,
         },
       });
 
@@ -88,7 +97,9 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
       setChartData(chartData);
       setActivePackageWithinTheDay(activePackageWithinTheDay);
       setNumberOfRegisteredUser(numberOfRegisteredUser);
+      setTotalActivatedPackage(totalActivatedPackage);
     } catch (e) {
+      console.error(e);
     } finally {
       setIsLoading(false);
     }
@@ -191,6 +202,29 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
         <div>
           <AdminDashboardChart chartData={chartData} />
         </div>
+        <CardAmountAdmin
+          title="Total Registered User"
+          value={
+            <>
+              <User2 />
+              {numberOfRegisteredUser}
+            </>
+          }
+          description=""
+          descriptionClassName="text-sm text-gray-500"
+        />
+
+        <CardAmountAdmin
+          title="Total Activated Package"
+          value={
+            <>
+              <Package2Icon />
+              {totalActivatedPackage}
+            </>
+          }
+          description=""
+          descriptionClassName="text-sm text-gray-500"
+        />
         <div>
           <AdminDashboardTable teamMemberProfile={teamMemberProfile} />
         </div>

@@ -445,7 +445,8 @@ RETURNS JSON
 AS $$
 let returnData = {
     data:[],
-    totalCount:0
+    totalCount:0,
+    count:{}
 };
 plv8.subtransaction(function() {
   const {
@@ -535,8 +536,37 @@ plv8.subtransaction(function() {
         ${dateFilterCondition}
   `,[teamId])[0].count;
 
+  const statusCount = plv8.execute(
+    `
+   SELECT
+    t.alliance_withdrawal_request_status AS status,
+    COUNT(*) AS count
+  FROM alliance_schema.alliance_withdrawal_request_table t
+  JOIN alliance_schema.alliance_member_table m ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
+  JOIN user_schema.user_table u ON u.user_id = m.alliance_member_user_id
+  LEFT JOIN alliance_schema.alliance_member_table mt ON mt.alliance_member_id = t.alliance_withdrawal_request_approved_by
+  LEFT JOIN
+    user_schema.user_table approver ON approver.user_id = mt.alliance_member_user_id
+ WHERE m.alliance_member_alliance_id = $1
+ GROUP BY t.alliance_withdrawal_request_status
+ ORDER BY t.alliance_withdrawal_request_status DESC 
+    `,
+    [teamId]
+  );
+
+  const countObj = {
+    REJECTED: 0,
+    APPROVED: 0,
+    PENDING: 0
+  };
+
+  statusCount.forEach(item => {
+    countObj[item.status] = Number(item.count);
+  });
+
   returnData.data = topUpRequest;
   returnData.totalCount = Number(totalCount);
+  returnData.count = countObj;
 });
 return returnData;
 $$ LANGUAGE plv8;
@@ -1211,10 +1241,11 @@ $$ LANGUAGE plv8;
 
 
 
-CREATE OR REPLACE FUNCTION get_admin_dashboard_data(input_data JSON)
+CREATE OR REPLACE FUNCTION get_admin_dashboard_data(
+  input_data JSON
+)
 RETURNS JSON
 AS $$
-
 let returnData = {
   totalEarnings: 0,
   totalWithdraw: 0,
@@ -1222,6 +1253,7 @@ let returnData = {
   indirectLoot: 0,
   activePackageWithinTheDay: 0,
   numberOfRegisteredUser: 0,
+  totalActivatedPackage: 0,
   chartData: []
 };
 
@@ -1233,7 +1265,6 @@ plv8.subtransaction(function() {
     return;
   }
 
-  // Check if the user is an admin
   const member = plv8.execute(`
     SELECT alliance_member_role
     FROM alliance_schema.alliance_member_table
@@ -1245,24 +1276,20 @@ plv8.subtransaction(function() {
     return;
   }
 
-  // Get the current date
   const currentDate = new Date(
     plv8.execute(`SELECT public.get_current_date()`)[0].get_current_date
   );
 
-  // Set start and end dates for filtering
   const startDate = dateFilter.start || currentDate.toISOString().split('T')[0];
   const endDate = dateFilter.end || new Date(currentDate.setHours(23, 59, 59, 999)).toISOString();
 
-  // Query for total earnings
   const totalEarnings = plv8.execute(`
     SELECT COALESCE(SUM(package_member_amount), 0) AS total_earnings
     FROM packages_schema.package_member_connection_table
-    WHERE package_member_status = 'ENDED'
-      AND package_member_connection_created BETWEEN $1 AND $2
+    WHERE package_member_status = 'ENDED' AND package_member_date_created BETWEEN $1 AND $2
   `, [startDate, endDate])[0];
 
-  // Query for total withdraw
+
   const totalWithdraw = plv8.execute(`
     SELECT COALESCE(SUM(alliance_withdrawal_request_amount), 0) AS total_withdraw
     FROM alliance_schema.alliance_withdrawal_request_table
@@ -1270,7 +1297,6 @@ plv8.subtransaction(function() {
       AND alliance_withdrawal_request_date BETWEEN $1 AND $2
   `, [startDate, endDate])[0];
 
-  // Query for direct and indirect loot
   const directAndIndirectLoot = plv8.execute(`
     SELECT  
       COALESCE(SUM(CASE WHEN package_ally_bounty_type = 'DIRECT' THEN package_ally_bounty_earnings ELSE 0 END), 0) AS direct_loot,
@@ -1279,7 +1305,7 @@ plv8.subtransaction(function() {
     WHERE package_ally_bounty_log_date_created BETWEEN $1 AND $2
   `, [startDate, endDate])[0];
 
-  // Query for active packages within the day
+
   const activePackageWithinTheDay = plv8.execute(`
     SELECT COUNT(*) AS active_packages
     FROM alliance_schema.alliance_member_table
@@ -1287,13 +1313,20 @@ plv8.subtransaction(function() {
       AND alliance_member_is_active = true
   `, [startDate, endDate])[0].active_packages;
 
-  // Query for the number of registered users
+
+  const totalActivatedPackage = plv8.execute(`
+    SELECT COUNT(*) AS activated_packages
+    FROM packages_schema.package_member_connection_table
+    WHERE package_member_status = 'ACTIVE'
+  `)[0].activated_packages;
+
+
   const numberOfRegisteredUser = plv8.execute(`
     SELECT COUNT(*) AS registered_users
     FROM alliance_schema.alliance_member_table
   `)[0].registered_users;
 
-  // Query for chart data
+
   const chartData = plv8.execute(`
     WITH
       daily_earnings AS (
@@ -1355,17 +1388,17 @@ plv8.subtransaction(function() {
     withdraw: chartDataMap[date]?.withdraw || 0,
   }));
 
-  // Assign the results to returnData
+
   returnData.totalEarnings = totalEarnings.total_earnings;
   returnData.totalWithdraw = totalWithdraw.total_withdraw;
   returnData.directLoot = directAndIndirectLoot.direct_loot;
   returnData.indirectLoot = directAndIndirectLoot.indirect_loot;
   returnData.activePackageWithinTheDay = Number(activePackageWithinTheDay);
   returnData.numberOfRegisteredUser = Number(numberOfRegisteredUser);
+  returnData.totalActivatedPackage = Number(totalActivatedPackage);
 });
 
 return returnData;
-
 $$ LANGUAGE plv8;
 
 

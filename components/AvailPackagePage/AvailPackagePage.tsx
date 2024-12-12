@@ -47,7 +47,7 @@ const AvailPackagePage = ({
   const formSchema = z.object({
     amount: z
       .string()
-      .min(1, "Amount is required")
+      .min(3, "Amount is required atleast 100 pesos")
       .refine((val) => !isNaN(Number(val)), {
         message: "Amount must be a number",
       })
@@ -151,7 +151,10 @@ const AvailPackagePage = ({
                   <>
                     <div>
                       <span className="font-medium">Investment: </span>
-                      <span className="mt-1">{amount}</span>
+                      <span className="mt-1">
+                        {" "}
+                        ₱ {Number(amount).toLocaleString()}
+                      </span>
                     </div>
                     <div>
                       <span className="font-medium">
@@ -175,7 +178,7 @@ const AvailPackagePage = ({
               <div>
                 <label
                   htmlFor="amount"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 dark:text-white mb-2"
                 >
                   Enter the amount to invest:
                 </label>
@@ -190,15 +193,14 @@ const AvailPackagePage = ({
                       placeholder="Enter amount"
                       {...field}
                       className="w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                      value={field.value}
-                      min={10000000000}
+                      value={Number(field.value).toLocaleString() || ""}
                       onChange={(e) => {
                         let value = e.target.value.replace(/\D/g, "");
 
                         if (value.startsWith("0")) {
                           value = value.replace(/^0+/, "");
                         }
-                        if (value.length > 10) return null;
+                        if (value.length > 7) return null;
 
                         field.onChange(value);
                       }}

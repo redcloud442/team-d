@@ -216,13 +216,16 @@ const DashboardWithdrawModalWithdraw = ({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="TOTAL">
-                      TOTAL EARNINGS ({earnings.alliance_olympus_earnings})
+                      TOTAL EARNINGS (₱
+                      {earnings.alliance_olympus_earnings.toLocaleString()})
                     </SelectItem>
                     <SelectItem value="DIRECT REFERRAL">
-                      DIRECT REFERRAL ({earnings.alliance_ally_bounty})
+                      DIRECT REFERRAL (₱
+                      {earnings.alliance_ally_bounty.toLocaleString()})
                     </SelectItem>
                     <SelectItem value="INDIRECT REFERRAL">
-                      INDIRECT REFERRAL ({earnings.alliance_legion_bounty})
+                      INDIRECT REFERRAL (₱
+                      {earnings.alliance_legion_bounty.toLocaleString()})
                     </SelectItem>
                   </SelectContent>
                 </Select>

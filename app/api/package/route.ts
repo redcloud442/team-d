@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (amount.toString().length > 10) {
+    if (amount.toString().length > 7 || amount.toString().length < 3) {
       return NextResponse.json(
         { error: "Amount cannot be greater than 10 digits." },
         { status: 400 }

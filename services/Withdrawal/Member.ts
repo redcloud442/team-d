@@ -89,5 +89,10 @@ export const getWithdrawalRequestAccountant = async (
   return data as {
     data: WithdrawalRequestData[];
     totalCount: 0;
+    count: {
+      REJECTED: number;
+      APPROVED: number;
+      PENDING: number;
+    };
   };
 };
