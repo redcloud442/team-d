@@ -1,6 +1,6 @@
 import UserProfilePage from "@/components/UserProfilePage/UserProfilePage";
 import prisma from "@/utils/prisma";
-import { protectionMemberUser } from "@/utils/serversideProtection";
+import { protectionAllUser } from "@/utils/serversideProtection";
 import { UserRequestdata } from "@/utils/types";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const { profile, redirect: redirectTo } = await protectionMemberUser();
+  const { profile, redirect: redirectTo } = await protectionAllUser();
 
   if (redirectTo) {
     redirect(redirectTo);

@@ -21,6 +21,10 @@ const Page = async () => {
   if (!teamMemberProfile) {
     redirect("/500");
   }
+
+  if (teamMemberProfile.alliance_member_role === "ADMIN")
+    return redirect("/admin");
+
   return <MerchantPage teamMemberProfile={teamMemberProfile} />;
 };
 export default Page;

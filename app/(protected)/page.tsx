@@ -31,6 +31,9 @@ const Page = async () => {
 
   const packages = await prisma.package_table.findMany();
 
+  if (teamMemberProfile.alliance_member_role === "ADMIN")
+    return redirect("/admin");
+
   const dashboardEarnings = await getDashboardEarnings(supabase, {
     teamMemberId: teamMemberProfile.alliance_member_id,
   });

@@ -5,11 +5,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { PhilippinePeso } from "lucide-react";
 
 type Props = {
   title: string;
-  value: number;
+  value: React.ReactNode;
   description?: string;
   descriptionClassName?: string;
   children?: React.ReactNode;
@@ -27,7 +26,7 @@ const CardAmountAdmin = ({
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription className="flex gap-x-2 text-xl font-bold">
-          <PhilippinePeso /> {value}
+          {value}
         </CardDescription>
         {description && (
           <CardDescription className={descriptionClassName}>

@@ -37,9 +37,17 @@ export async function updateSession(request: NextRequest) {
   await ensureValidSession();
 
   const publicRoutes = ["/auth/login", "/auth/register", "/api/auth"];
-  const privateRoutes = ["/", "/dashboard", "/api/auth"];
+  const privateRoutes = ["/", "/dashboard", "/api/auth", "/admin"];
   const currentPath = request.nextUrl.pathname;
+  //   const { data: profile } = await supabase
+  //   .schema("alliance_schema")
+  //   .from("alliance_member_table")
+  //   .select("alliance_member_role")
+  //   .eq("alliance_member_user_id", user.id)
+  //   .single();
 
+  // role = profile?.alliance_member_role;
+  // }
   if (!user) {
     if (publicRoutes.some((route) => currentPath.startsWith(route))) {
       return NextResponse.next();
@@ -53,56 +61,12 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user) {
-    const { data: profile, error: profileError } = await supabase
-      .schema("alliance_schema")
-      .from("alliance_member_table")
-      .select("alliance_member_role")
-      .eq("alliance_member_user_id", user.id)
-      .single();
-
-    if (profileError || !profile) {
-      return NextResponse.redirect("/500");
-    }
-
-    if (profile.alliance_member_role === "ADMIN") {
-      if (
-        currentPath.startsWith("/admin") ||
-        currentPath.startsWith("/profile") ||
-        currentPath.startsWith("/api")
-      ) {
-        return NextResponse.next();
-      }
-      if (publicRoutes.some((route) => currentPath.startsWith(route))) {
-        const homeUrl = request.nextUrl.clone();
-        homeUrl.pathname = "/admin";
-        return NextResponse.redirect(homeUrl);
-      }
-
-      const adminDashboardUrl = request.nextUrl.clone();
-      adminDashboardUrl.pathname = "/admin";
-      return NextResponse.redirect(adminDashboardUrl);
-    }
-
-    if (
-      ["ACCOUNTING", "MERCHANT", "MEMBER"].includes(
-        profile.alliance_member_role
-      )
-    ) {
-      if (currentPath.startsWith("/") && !currentPath.startsWith("/admin")) {
-        return NextResponse.next();
-      }
-
-      if (publicRoutes.some((route) => currentPath.startsWith(route))) {
-        const homeUrl = request.nextUrl.clone();
-        homeUrl.pathname = "/";
-        return NextResponse.redirect(homeUrl);
-      }
-
-      const adminDashboardUrl = request.nextUrl.clone();
-      adminDashboardUrl.pathname = "/";
-      return NextResponse.redirect(adminDashboardUrl);
+    if (publicRoutes.some((route) => currentPath.startsWith(route))) {
+      const homeUrl = request.nextUrl.clone();
+      homeUrl.pathname = "/";
+      return NextResponse.redirect(homeUrl);
     }
   }
 
-  return NextResponse.next();
+  return supabaseResponse;
 }
