@@ -32,7 +32,7 @@ const PackageCard = ({
         {packageDescription}
       </p>
       <p className="text-2xl text-center font-extrabold text-gray-800 dark:text-white">
-        {packagePercentage} Earnings in{" "}
+        {packagePercentage} Earnings in {packageDays}{" "}
         {Number(packageDays) > 1 ? `Days` : ` Day`}
       </p>
 

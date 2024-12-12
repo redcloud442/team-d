@@ -77,8 +77,6 @@ export const getWithdrawalRequestAccountant = async (
     };
   }
 ) => {
-  console.log(params);
-
   const { data, error } = await supabaseClient.rpc(
     "get_accountant_withdrawal_history",
     {

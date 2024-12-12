@@ -138,7 +138,6 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
       setRequestCount(totalCount || 0);
       setMerchantBalance(merchantBalance || 0);
     } catch (e) {
-      console.log(e);
     } finally {
       setIsFetchingList(false);
     }

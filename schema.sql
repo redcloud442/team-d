@@ -1367,18 +1367,17 @@ return returnData;
 $$ LANGUAGE plv8;
 
 
+
 CREATE OR REPLACE FUNCTION get_dashboard_data(
   input_data JSON
 )
 RETURNS JSON
 AS $$
+
 let returnData = [];
 
 plv8.subtransaction(function() {
-  const {
-    teamMemberId,
-    dateFilter,
-  } = input_data;
+  const { teamMemberId } = input_data;
 
   if (!teamMemberId) {
     returnData = { success: false, message: 'teamMemberId is required' };
@@ -1387,52 +1386,45 @@ plv8.subtransaction(function() {
 
   const currentTimestamp = new Date(
     plv8.execute(`SELECT public.get_current_date()`)[0].get_current_date
-  )
+  );
 
   const member = plv8.execute(
-    `
-    SELECT alliance_member_role
-    FROM alliance_schema.alliance_member_table
-    WHERE alliance_member_id = $1
-    `,
+    `SELECT alliance_member_role FROM alliance_schema.alliance_member_table WHERE alliance_member_id = $1`,
     [teamMemberId]
   );
 
-  if (
-    !member.length ||
-    (member[0].alliance_member_role !== 'MEMBER' &&
-     member[0].alliance_member_role !== 'MERCHANT')
-  ) {
+  if (!member.length || (!["MEMBER", "MERCHANT", "ACCOUNTING"].includes(member[0].alliance_member_role))) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
 
   const chartData = plv8.execute(
-    `
-    SELECT
-      p.package_name AS package,
-      p.packages_days,
-      pmc.package_member_status,
-      pmc.package_member_connection_created,
-      (pmc.package_member_connection_created + make_interval(days => p.packages_days)) AS completion_date,
-      (pmc.package_member_amount + pmc.package_amount_earnings) AS amount,
-      pmc.package_member_connection_id,
-      pmc.package_member_package_id,
-      pmc.package_member_member_id
-    FROM packages_schema.package_member_connection_table pmc
-    JOIN packages_schema.package_table p
-      ON pmc.package_member_package_id = p.package_id
-    WHERE pmc.package_member_status = $1 AND pmc.package_member_member_id = $2
-    `,
+    `SELECT
+  p.package_name AS package,
+  p.packages_days::INTEGER AS packages_days,
+  pmc.package_member_status,
+  pmc.package_member_connection_created::TEXT AS package_member_connection_created,
+  (pmc.package_member_connection_created + (p.packages_days || ' days')::INTERVAL)::TEXT AS completion_date,
+  (pmc.package_member_amount + pmc.package_amount_earnings) AS amount,
+  pmc.package_member_connection_id,
+  pmc.package_member_package_id,
+  pmc.package_member_member_id
+FROM packages_schema.package_member_connection_table pmc
+JOIN packages_schema.package_table p
+  ON pmc.package_member_package_id = p.package_id
+WHERE pmc.package_member_status = $1 AND pmc.package_member_member_id = $2
+     `,
     ['ACTIVE', teamMemberId]
   );
 
-
   returnData = chartData.map(row => {
-    const startDate = new Date(row.start_date);
+    const startDate = new Date(row.package_member_connection_created);
     const completionDate = new Date(row.completion_date);
 
-    if (isNaN(startDate) || isNaN(completionDate)) {
+    plv8.elog(NOTICE, `Start Date: ${startDate}`);
+    plv8.elog(NOTICE, `Completion Date: ${completionDate}`);
+
+    if (isNaN(startDate.getTime()) || isNaN(completionDate.getTime())) {
       plv8.elog(NOTICE, `Invalid dates detected.`);
       return {
         package: row.package,
@@ -1443,52 +1435,51 @@ plv8.subtransaction(function() {
     }
 
     const elapsedTimeMs = Math.max(currentTimestamp - startDate, 0);
-
- 
     const totalTimeMs = Math.max(completionDate - startDate, 0);
 
     const percentage = totalTimeMs > 0
       ? parseFloat(((elapsedTimeMs / totalTimeMs) * 100).toFixed(2))
       : 100.0;
 
+    if (percentage >= 100) {
+      const earnings = row.amount;
 
-      if(percentage === 100){
-    
-          var earnings = row.package_member_amount + row.package_amount_earnings;
+      plv8.execute(
+        `UPDATE alliance_schema.alliance_earnings_table
+         SET alliance_olympus_earnings = alliance_olympus_earnings + $1
+         WHERE alliance_earnings_member_id = $2`,
+        [earnings, row.package_member_member_id]
+      );
 
-          plv8.execute(`
-            UPDATE alliance_schema.alliance_earnings_table
-            SET alliance_olympus_earnings = alliance_olympus_earnings + $1
-            WHERE alliance_earnings_member_id = $2
-          `, [earnings, row.package_member_member_id]);
+      plv8.execute(
+        `UPDATE packages_schema.package_member_connection_table
+         SET package_member_status = 'ENDED'
+         WHERE package_member_connection_id = $1`,
+        [row.package_member_connection_id]
+      );
 
-          plv8.execute(`
-            UPDATE packages_schema.package_member_connection_table
-            SET package_member_status = 'ENDED'
-            WHERE package_member_connection_id = $1
-          `, [row.package_member_connection_id]);
-
-          plv8.execute(`
-            INSERT INTO packages_schema.package_earnings_log (
-              package_member_connection_id,
-              package_member_package_id,
-              package_member_member_id,
-              package_member_connection_created,
-              package_member_amount,
-              package_member_amount_earnings,
-              package_member_status
-            ) VALUES (
-              $1, $2, $3, $4, $5,$6, 'ENDED'
-            )
-          `, [
-            row.package_member_connection_id,
-            row.package_member_package_id,
-            row.package_member_member_id,
-            row.package_member_connection_created,
-            row.package_member_amount,
-            row.package_amount_earnings
-          ]);
-      }
+      plv8.execute(
+        `INSERT INTO packages_schema.package_earnings_log (
+           package_member_connection_id,
+           package_member_package_id,
+           package_member_member_id,
+           package_member_connection_created,
+           package_member_amount,
+           package_member_amount_earnings,
+           package_member_status
+         ) VALUES (
+           $1, $2, $3, $4, $5, $6, 'ENDED'
+         )`,
+        [
+          row.package_member_connection_id,
+          row.package_member_package_id,
+          row.package_member_member_id,
+          row.package_member_connection_created,
+          row.package_member_amount,
+          row.package_amount_earnings
+        ]
+      );
+    }
 
     return {
       package: row.package,
@@ -1500,7 +1491,9 @@ plv8.subtransaction(function() {
 });
 
 return returnData;
+
 $$ LANGUAGE plv8;
+
 
 
 
@@ -1861,7 +1854,7 @@ plv8.subtransaction(function() {
     WHERE alliance_member_id = $1
   `, [teamMemberId]);
 
-  if (!member.length || ["MEMBER", "MERCHANT", "ACCOUNTING"].includes(member[0].alliance_member_role)) {
+  if (!member.length || !["MEMBER", "MERCHANT", "ACCOUNTING"].includes(member[0].alliance_member_role)) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }

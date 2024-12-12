@@ -64,6 +64,7 @@ export async function POST(request: Request) {
           alliance_withdrawal_request_account: accountNumber,
           alliance_withdrawal_request_status: "PENDING",
           alliance_withdrawal_request_member_id: teamMemberId,
+          alliance_withdrawal_request_withdraw_type: earnings,
         },
       }),
       prisma.alliance_earnings_table.update({

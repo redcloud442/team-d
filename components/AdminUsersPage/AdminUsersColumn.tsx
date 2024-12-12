@@ -32,8 +32,6 @@ export const AdminUsersColumn = (
     try {
       setIsLoading(true);
 
-      console.log(alliance_member_alliance_id, role);
-
       await handleUpdateRole({ userId: alliance_member_alliance_id, role });
 
       // if (role === "ADMIN") {

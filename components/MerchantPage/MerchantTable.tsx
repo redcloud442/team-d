@@ -107,7 +107,6 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
       setRequestData(data);
       setRequestCount(totalCount);
     } catch (e) {
-      console.log(e);
     } finally {
       setIsFetchingList(false);
     }
