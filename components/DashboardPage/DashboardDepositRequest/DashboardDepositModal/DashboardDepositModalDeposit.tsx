@@ -38,6 +38,7 @@ const topUpFormSchema = z.object({
   amount: z
     .string()
     .min(1, "Amount is required")
+    .max(6, "Amount must be less than 6 digits")
     .regex(/^\d+$/, "Amount must be a number"),
   topUpMode: z.string().min(1, "Top up mode is required"),
   accountName: z.string().min(1, "Field is required"),
@@ -177,7 +178,9 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
                     if (value.startsWith("0")) {
                       value = value.replace(/^0+/, "");
                     }
-
+                    if (value.length > 6) {
+                      return;
+                    }
                     field.onChange(value);
                   }}
                 />

@@ -36,6 +36,14 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    if (amount.length > 6) {
+      return NextResponse.json(
+        {
+          error: "Amount must be less than 6 digits.",
+        },
+        { status: 400 }
+      );
+    }
     await protectionMemberUser();
 
     await applyRateLimit(teamMemberId, ip);
