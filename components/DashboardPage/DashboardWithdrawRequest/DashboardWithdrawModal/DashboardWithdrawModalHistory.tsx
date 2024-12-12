@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import WithdrawalHistoryPage from "@/components/WithrawalHistoryPage/WithdrawalHistoryPage";
+import WithdrawalHistoryTable from "@/components/WithrawalHistoryPage/WithdrawalHistoryTable";
 import { alliance_member_table } from "@prisma/client";
 import { useState } from "react";
 
@@ -25,12 +25,12 @@ const DashboardWithdrawModalHistory = ({ teamMemberProfile }: Props) => {
           History
         </Button>
       </DialogTrigger>
-      <DialogContent type="table">
+      <DialogContent type="table" className="overflow-x-auto">
         <DialogHeader>
-          <DialogTitle>History</DialogTitle>
+          <DialogTitle></DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        <WithdrawalHistoryPage teamMemberProfile={teamMemberProfile} />
+        <WithdrawalHistoryTable teamMemberProfile={teamMemberProfile} />
         <DialogFooter></DialogFooter>
       </DialogContent>
     </Dialog>

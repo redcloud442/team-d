@@ -55,6 +55,7 @@ const DashboardWithdrawModalWithdraw = ({
     useState<alliance_earnings_table>(initialEarnings);
   const supabase = createClientSide();
   const { toast } = useToast();
+
   const {
     control,
     handleSubmit,
@@ -126,14 +127,39 @@ const DashboardWithdrawModalWithdraw = ({
         WithdrawFormValues: sanitizedData,
         teamMemberId: teamMemberProfile.alliance_member_id,
       });
-
+      switch (selectedEarnings) {
+        case "TOTAL":
+          setEarnings({
+            ...earnings,
+            alliance_olympus_earnings:
+              earnings.alliance_olympus_earnings - Number(sanitizedData.amount),
+          });
+          break;
+        case "ALLY BOUNTY":
+          setEarnings({
+            ...earnings,
+            alliance_ally_bounty:
+              earnings.alliance_ally_bounty - Number(sanitizedData.amount),
+          });
+          break;
+        case "LEGION BOUNTY":
+          setEarnings({
+            ...earnings,
+            alliance_legion_bounty:
+              earnings.alliance_legion_bounty - Number(sanitizedData.amount),
+          });
+          break;
+        default:
+          break;
+      }
       toast({
-        title: "Top Up Successfully",
+        title: "Withdrawal Request Successfully",
         description: "Please wait for it to be approved",
         variant: "success",
       });
 
       reset();
+      setOpen(false);
     } catch (e) {
       const errorMessage =
         e instanceof Error ? e.message : "An unexpected error occurred.";

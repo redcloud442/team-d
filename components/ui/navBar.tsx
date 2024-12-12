@@ -102,7 +102,7 @@ const NavBar = ({ userData, teamMemberProfile }: Props) => {
           {teamMemberProfile.alliance_member_role === "ACCOUNTING" && (
             <Button
               variant="ghost"
-              onClick={() => handleNavigation("/withdrawal")}
+              onClick={() => handleNavigation("/withdraw")}
             >
               Withdrawal
             </Button>

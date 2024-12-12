@@ -234,7 +234,7 @@ export const WithdrawalColumn = (handleFetch: () => void) => {
         const data = row.original;
         return (
           <DropdownMenu>
-            {data.alliance_withdrawal_request_status === "APPROVED" && (
+            {data.alliance_withdrawal_request_status === "PENDING" && (
               <>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0">

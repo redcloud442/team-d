@@ -1,4 +1,4 @@
-import TopUpHistoryPage from "@/components/TopUpHistoryPage/TopUpHistoryPage";
+import TopUpHistoryTable from "@/components/TopUpHistoryPage/TopUpHistoryTable";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,12 +26,12 @@ const DashboardDepositModalHistory = ({ teamMemberProfile }: Props) => {
           Top Up History
         </Button>
       </DialogTrigger>
-      <DialogContent type="table">
+      <DialogContent type="table" className="overflow-x-auto">
         <DialogHeader>
-          <DialogTitle>History</DialogTitle>
+          <DialogTitle></DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        <TopUpHistoryPage teamMemberProfile={teamMemberProfile} />
+        <TopUpHistoryTable teamMemberProfile={teamMemberProfile} />
         <DialogFooter></DialogFooter>
       </DialogContent>
     </Dialog>

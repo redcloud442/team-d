@@ -467,7 +467,7 @@ plv8.subtransaction(function() {
     WHERE alliance_member_id = $1
   `, [teamMemberId]);
 
-  if (!member.length || member[0].alliance_member_role !== 'ACCOUNTANT') {
+  if (!member.length || member[0].alliance_member_role !== 'ACCOUNTING') {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
@@ -494,7 +494,9 @@ plv8.subtransaction(function() {
       t.alliance_withdrawal_request_date,
       t.alliance_withdrawal_request_amount,
       t.alliance_withdrawal_request_status,
-      approver.user_username AS approver_username
+      t.alliance_withdrawal_request_reject_note,
+      t.alliance_withdrawal_request_type,
+      t.alliance_withdrawal_request_account
     FROM alliance_schema.alliance_withdrawal_request_table t
     JOIN alliance_schema.alliance_member_table m
       ON t.alliance_withdrawal_request_member_id = m.alliance_member_id
@@ -538,7 +540,6 @@ plv8.subtransaction(function() {
 });
 return returnData;
 $$ LANGUAGE plv8;
-
 CREATE OR REPLACE FUNCTION get_member_top_up_history(
   input_data JSON
 )
@@ -1714,6 +1715,62 @@ plv8.subtransaction(function() {
 return returnData;
 $$ LANGUAGE plv8;
 
+CREATE OR REPLACE FUNCTION get_merchant_data(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+  data: [],
+  totalCount: 0,
+};
+
+plv8.subtransaction(function() {
+  const {
+    page = 1,
+    limit = 10,
+    teamMemberId
+  } = input_data;
+
+  const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+    `,
+    [teamMemberId]
+  );
+
+  if (!member.length || member[0].alliance_member_role !== 'MERCHANT') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  };
+
+  const offset = (page - 1) * limit;
+
+  const merchantData = plv8.execute(
+    `
+    SELECT 
+      *
+    FROM merchant_schema.merchant_table
+    LIMIT $1 OFFSET $2
+    `,
+    [limit, offset]
+  );
+
+    const merchantCount = plv8.execute(
+    `
+    SELECT COUNT(*)
+    FROM merchant_schema.merchant_table
+    `
+  )[0].count;
+
+  returnData.totalCount = Number(merchantCount);
+  returnData.data = merchantData;
+})
+return returnData;
+$$ LANGUAGE plv8;
+
 CREATE OR REPLACE FUNCTION get_dashboard_earnings(
   input_data JSON
 )
@@ -1884,7 +1941,7 @@ plv8.subtransaction(function() {
     SELECT *
     FROM alliance_schema.alliance_earnings_table
     WHERE alliance_earnings_member_id = $1
-  `, [teamMemberId]);
+  `, [teamMemberId])[0];
 
   returnData = earningsData
 });

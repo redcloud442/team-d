@@ -1,30 +1,30 @@
 "use client";
-
 import { alliance_member_table } from "@prisma/client";
-import WithdrawalTable from "./WithdrawalTable";
+
+import MerchantTable from "./MerchantTable";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
 };
 
-const WithdrawalPage = ({ teamMemberProfile }: Props) => {
+const MerchantPage = ({ teamMemberProfile }: Props) => {
   return (
     <div className="mx-auto md:p-10">
       <div>
         <header className="mb-4">
-          <h1 className="Title">Withdrawal List Page</h1>
+          <h1 className="Title">Merchant Page</h1>
           <p className="text-gray-600 dark:text-white">
-            View all the withdrawal requests that are currently in the system.
+            View all the merchant that are currently in the system.
           </p>
         </header>
 
         {/* Table Section */}
         <section className=" rounded-lg p-6">
-          <WithdrawalTable teamMemberProfile={teamMemberProfile} />
+          <MerchantTable teamMemberProfile={teamMemberProfile} />
         </section>
       </div>
     </div>
   );
 };
 
-export default WithdrawalPage;
+export default MerchantPage;

@@ -67,6 +67,26 @@ export async function PUT(
       },
     });
 
+    if (status === "REJECTED") {
+      const earningsType =
+        allianceData.alliance_withdrawal_request_withdraw_type;
+
+      await prisma.alliance_earnings_table.update({
+        where: {
+          alliance_earnings_member_id: teamMemberProfile.alliance_member_id,
+        },
+        data: {
+          [earningsType === "TOTAL"
+            ? "alliance_olympus_earnings"
+            : earningsType === "ALLY BOUNTY"
+              ? "alliance_ally_bounty"
+              : "alliance_legion_bounty"]: {
+            increment: allianceData.alliance_withdrawal_request_amount,
+          },
+        },
+      });
+    }
+
     if (!allianceData) {
       return NextResponse.json(
         { error: "Failed to update top-up request." },

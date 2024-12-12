@@ -89,9 +89,6 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
   const [userOptions, setUserOptions] = useState<user_table[]>([]);
-  const [statusType, setStatusType] = useState<
-    "PENDING" | "APPROVED" | "REJECTED"
-  >("PENDING");
 
   const fetchRequest = async () => {
     try {
@@ -176,7 +173,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
       defaultValues: {
         referenceId: "",
         userFilter: "",
-        statusFilter: "",
+        statusFilter: "PENDING",
         dateFilter: {
           start: undefined,
           end: undefined,

@@ -66,13 +66,14 @@ export async function POST(request: Request) {
           alliance_withdrawal_request_member_id: teamMemberId,
         },
       }),
-      // prisma.alliance_earnings_table.update({
-      //   where: { alliance_earnings_member_id: teamMemberId },
-      //   data: {
-      //     alliance_olympus_earnings:
-      //       amountMatch.alliance_olympus_earnings - amount,
-      //   },
-      // }),
+      prisma.alliance_earnings_table.update({
+        where: { alliance_earnings_member_id: teamMemberId },
+        data: {
+          alliance_olympus_earnings: {
+            decrement: Number(amount),
+          },
+        },
+      }),
     ]);
 
     if (!allianceData) {

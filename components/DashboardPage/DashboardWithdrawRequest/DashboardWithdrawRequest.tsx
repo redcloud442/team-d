@@ -13,6 +13,8 @@ type Props = {
   earnings: alliance_earnings_table;
 };
 const DashboardWithdrawRequest = ({ teamMemberProfile, earnings }: Props) => {
+  console.log(earnings);
+
   return (
     <Card className="w-full mx-auto">
       <CardHeader>
