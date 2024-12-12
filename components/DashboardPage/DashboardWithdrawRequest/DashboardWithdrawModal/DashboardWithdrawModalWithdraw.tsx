@@ -24,7 +24,7 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_earnings_table, alliance_member_table } from "@prisma/client";
-import { Loader } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
@@ -104,9 +104,9 @@ const DashboardWithdrawModalWithdraw = ({
     switch (selectedEarnings) {
       case "TOTAL":
         return earnings.alliance_olympus_earnings;
-      case "ALLY BOUNTY":
+      case "DIRECT REFERRAL":
         return earnings.alliance_ally_bounty;
-      case "LEGION BOUNTY":
+      case "INDIRECT REFERRAL":
         return earnings.alliance_legion_bounty;
       default:
         return 0;
@@ -135,14 +135,14 @@ const DashboardWithdrawModalWithdraw = ({
               earnings.alliance_olympus_earnings - Number(sanitizedData.amount),
           });
           break;
-        case "ALLY BOUNTY":
+        case "DIRECT REFERRAL":
           setEarnings({
             ...earnings,
             alliance_ally_bounty:
               earnings.alliance_ally_bounty - Number(sanitizedData.amount),
           });
           break;
-        case "LEGION BOUNTY":
+        case "INDIRECT REFERRAL":
           setEarnings({
             ...earnings,
             alliance_legion_bounty:
@@ -218,11 +218,11 @@ const DashboardWithdrawModalWithdraw = ({
                     <SelectItem value="TOTAL">
                       TOTAL EARNINGS ({earnings.alliance_olympus_earnings})
                     </SelectItem>
-                    <SelectItem value="ALLY BOUNT">
-                      ALLY ({earnings.alliance_ally_bounty})
+                    <SelectItem value="DIRECT REFERRAL">
+                      DIRECT REFERRAL ({earnings.alliance_ally_bounty})
                     </SelectItem>
-                    <SelectItem value="LEGION BOUNTY">
-                      LEGION ({earnings.alliance_legion_bounty})
+                    <SelectItem value="INDIRECT REFERRAL">
+                      INDIRECT REFERRAL ({earnings.alliance_legion_bounty})
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -362,16 +362,24 @@ const DashboardWithdrawModalWithdraw = ({
             )}
           </div>
           <Button
-            disabled={
-              isSubmitting ||
-              earnings.alliance_olympus_earnings === 0 ||
-              !!earnings.alliance_legion_bounty ||
-              !!earnings.alliance_ally_bounty
-            }
+            disabled={isSubmitting || getMaxAmount() === 0}
             type="submit"
             className="w-full"
+            aria-disabled={
+              isSubmitting ||
+              earnings.alliance_olympus_earnings === 0 ||
+              earnings.alliance_legion_bounty === 0 ||
+              earnings.alliance_ally_bounty === 0
+            }
           >
-            {isSubmitting && <Loader className="animate-spin" />} Submit
+            {isSubmitting ? (
+              <>
+                <Loader2 className="animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              "Submit"
+            )}
           </Button>
         </form>
         <DialogFooter></DialogFooter>

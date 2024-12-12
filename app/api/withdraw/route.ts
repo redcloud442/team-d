@@ -43,9 +43,9 @@ export async function POST(request: Request) {
     const maxAmount =
       earnings === "TOTAL"
         ? amountMatch.alliance_olympus_earnings
-        : earnings === "ALLY BOUNTY"
+        : earnings === "DIRECT REFERRAL"
           ? amountMatch.alliance_ally_bounty
-          : earnings === "LEGION BOUNTY"
+          : earnings === "INDIRECT REFERRAL"
             ? amountMatch.alliance_legion_bounty
             : 0;
 
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
+    const earningsType = earnings;
     const [allianceData] = await prisma.$transaction([
       prisma.alliance_withdrawal_request_table.create({
         data: {
@@ -70,7 +70,11 @@ export async function POST(request: Request) {
       prisma.alliance_earnings_table.update({
         where: { alliance_earnings_member_id: teamMemberId },
         data: {
-          alliance_olympus_earnings: {
+          [earningsType === "TOTAL"
+            ? "alliance_olympus_earnings"
+            : earningsType === "DIRECT REFERRAL"
+              ? "alliance_ally_bounty"
+              : "alliance_legion_bounty"]: {
             decrement: Number(amount),
           },
         },

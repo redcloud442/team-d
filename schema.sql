@@ -287,7 +287,7 @@ plv8.subtransaction(function() {
     WHERE alliance_member_id = $1
   `, [teamMemberId]);
 
-  if (!member.length || (member[0].alliance_member_role !== 'ADMIN' && member[0].alliance_member_role !== 'MERCHANT')) {
+  if (!member.length || !["MEMBER","MERCHANT","ACCOUNTING"].includes(member[0].alliance_member_role)) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
@@ -540,6 +540,7 @@ plv8.subtransaction(function() {
 });
 return returnData;
 $$ LANGUAGE plv8;
+
 CREATE OR REPLACE FUNCTION get_member_top_up_history(
   input_data JSON
 )
@@ -567,7 +568,7 @@ plv8.subtransaction(function() {
     WHERE alliance_member_id = $1
   `, [teamMemberId]);
 
-  if (!member.length || (member[0].alliance_member_role !== 'ADMIN' && member[0].alliance_member_role !== 'MERCHANT')) {
+  if (!member.length || !["MEMBER","MERCHANT","ACCOUNTING"].includes(member[0].alliance_member_role)) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
@@ -617,6 +618,7 @@ plv8.subtransaction(function() {
   returnData.totalCount = Number(totalCount);
 });
 return returnData;
+
 $$ LANGUAGE plv8;
 
 CREATE OR REPLACE FUNCTION get_merchant_top_up_history(

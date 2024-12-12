@@ -78,7 +78,7 @@ export async function PUT(
         data: {
           [earningsType === "TOTAL"
             ? "alliance_olympus_earnings"
-            : earningsType === "ALLY BOUNTY"
+            : earningsType === "DIRECT REFERRAL"
               ? "alliance_ally_bounty"
               : "alliance_legion_bounty"]: {
             increment: allianceData.alliance_withdrawal_request_amount,
