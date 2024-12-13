@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { teamMemberProfile } = await protectionMemberUser();
+    const { teamMemberProfile } = await protectionMemberUser(ip);
     await applyRateLimit(teamMemberId, ip);
 
     const decimalAmount = new Prisma.Decimal(amount);

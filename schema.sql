@@ -1066,8 +1066,7 @@ plv8.subtransaction(function() {
   }
 
   const params = [directReferrals, limit, offset];
-  const searchCondition = search ? `AND u.user_first_name ILIKE $4` : '';
-  if (search) params.push(`%${search}%`);
+  const searchCondition = search ? `AND u.user_first_name ILIKE '%${search}%' OR u.user_last_name ILIKE '%${search}%' OR u.user_username ILIKE '%${search}%'` : '';
 
   const sortBy = isAscendingSort ? "ASC" : "DESC";
   const sortCondition = columnAccessor
@@ -1096,7 +1095,7 @@ plv8.subtransaction(function() {
        ON u.user_id = m.alliance_member_user_id
      WHERE m.alliance_member_id = ANY($1)
      ${searchCondition}`,
-    params.slice(0, search ? 2 : 1)
+    [directReferrals]
   )[0].count;
 
   returnData.data = userRequest;
@@ -1106,21 +1105,24 @@ plv8.subtransaction(function() {
 return returnData;
 $$ LANGUAGE plv8;
 
-CREATE OR REPLACE FUNCTION get_ally_bounty(
+
+CREATE OR REPLACE FUNCTION get_direct_sponsor(
   input_data JSON
 )
-RETURNS JSON
+RETURNS TEXT
 AS $$
-let returnData = {
-    data: [],
-    totalCount: 0
-};
+let returnData = ""
 
 plv8.subtransaction(function() {
-  const {
-    teamMemberId,
-  } = input_data;
+  const { teamMemberId } = input_data;
 
+  // Check if teamMemberId is provided
+  if (!teamMemberId) {
+    returnData = { success: false, message: "teamMemberId is required" };
+    return;
+  }
+
+  // Check member role
   const member = plv8.execute(
     `SELECT alliance_member_role
      FROM alliance_schema.alliance_member_table
@@ -1129,27 +1131,31 @@ plv8.subtransaction(function() {
   );
 
   if (!member.length || !["ADMIN", "ACCOUNTING", "MERCHANT", "MEMBER"].includes(member[0].alliance_member_role)) {
-    returnData = { success: false, message: 'Unauthorized access' };
+    returnData = { success: false, message: "Unauthorized access" };
     return;
   }
-  
-  const getSponsor = plv8.execute(`
-    SELECT u.user_username
-    FROM alliance_schema.alliance_referral_table
-    WHERE alliance_referral_member_id = $1
-    JOIN alliance_member_table am
-      ON am.alliance_member_id = alliance_referral_from_member_id
-    JOIN user_schema.user_table u
-      ON u.user_id = am.alliance_member_user_id
-  `, [teamMemberId])[0].user_username;
 
-  returnData.data = getSponsor;
-  returnData.totalCount = Number(totalCount);
+
+  const result = plv8.execute(
+    `SELECT u.user_username
+     FROM alliance_schema.alliance_referral_table ar
+     JOIN alliance_schema.alliance_member_table am
+       ON am.alliance_member_id = ar.alliance_referral_from_member_id
+     JOIN user_schema.user_table u
+       ON u.user_id = am.alliance_member_user_id
+     WHERE ar.alliance_referral_member_id = $1`,
+    [teamMemberId]
+  );
+
+  if (result.length > 0) {
+    returnData =  result[0].user_username ;
+  } else {
+    returnData = null;
+  }
 });
 
 return returnData;
 $$ LANGUAGE plv8;
-
 
 CREATE OR REPLACE FUNCTION get_legion_bounty(
   input_data JSON
@@ -1235,7 +1241,7 @@ plv8.subtransaction(function() {
     currentLevel++;
   }
 
-  // Convert to array and exclude direct referrals
+
   indirectReferrals = Array.from(indirectReferrals).filter(
     (id) => !directReferrals.includes(id)
   );
@@ -1245,14 +1251,12 @@ plv8.subtransaction(function() {
     return;
   }
 
-  // Prepare query parameters dynamically
   const offset = Math.max((page - 1) * limit, 0);
   let params = [indirectReferrals, limit, offset];
   let searchCondition = '';
 
   if (search) {
-    searchCondition = `AND (ut.user_first_name ILIKE $4 OR ut.user_last_name ILIKE $4 OR ut.user_username ILIKE $4)`;
-    params.push(`%${search}%`);
+    searchCondition = `AND (ut.user_first_name ILIKE '%${search}%'  OR ut.user_last_name ILIKE '%${search}%' OR ut.user_username ILIKE '%${search}%')`;
   }
 
 
@@ -1279,7 +1283,7 @@ plv8.subtransaction(function() {
     WHERE am.alliance_member_id = ANY($1)
       ${searchCondition}
     `,
-    params.slice(0, -2) // Only pass relevant parameters for the total count query
+    [indirectReferrals]
   );
 
   returnData.data = indirectReferralDetails;
@@ -2638,6 +2642,23 @@ ON alliance_schema.alliance_top_up_request_table (alliance_top_up_request_member
 
 CREATE INDEX idx_merchant_member_id
 ON merchant_schema.merchant_member_table (merchant_member_id);
+-- package_table
+CREATE INDEX idx_package_id ON packages_schema.package_table (package_id);
+
+-- alliance_earnings_table
+CREATE INDEX idx_alliance_earnings_member_id ON alliance_schema.alliance_earnings_table (alliance_earnings_member_id);
+
+-- alliance_referral_table
+CREATE INDEX idx_alliance_referral_member_id ON alliance_schema.alliance_referral_table (alliance_referral_member_id);
+
+-- package_member_connection_table
+
+-- package_ally_bounty_log
+CREATE INDEX idx_package_ally_bounty_member_id ON packages_schema.package_ally_bounty_log (package_ally_bounty_member_id);
+CREATE INDEX idx_package_ally_bounty_connection_id ON packages_schema.package_ally_bounty_log (package_ally_bounty_connection_id);
+
+-- alliance_member_table
+CREATE INDEX idx_alliance_member_id ON alliance_schema.alliance_member_table (alliance_member_id);
 
 
 GRANT ALL ON ALL TABLES IN SCHEMA user_schema TO PUBLIC;

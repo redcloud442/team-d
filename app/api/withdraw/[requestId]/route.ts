@@ -3,7 +3,6 @@ import prisma from "@/utils/prisma";
 import { protectionAccountingUser } from "@/utils/serversideProtection";
 import { NextRequest, NextResponse } from "next/server";
 
-// Helper function for returning error responses
 function sendErrorResponse(message: string, status: number = 400) {
   return NextResponse.json({ error: message }, { status });
 }
@@ -13,32 +12,27 @@ export async function PUT(
   context: { params: Promise<{ requestId: string }> }
 ) {
   try {
-    // Retrieve IP address
     const ip =
       request.headers.get("x-forwarded-for") ||
       request.headers.get("cf-connecting-ip") ||
       "unknown";
 
-    // Get requestId from context
     const { requestId } = await context.params;
 
     if (!requestId) return sendErrorResponse("Request ID is required.");
 
-    // Parse request body
     const { status, note }: { status: string; note?: string | null } =
       await request.json();
 
-    // Validate status
     if (!status || !["APPROVED", "PENDING", "REJECTED"].includes(status)) {
       return sendErrorResponse("Invalid or missing status.");
     }
 
-    // Authenticate user
-    const { teamMemberProfile } = await protectionAccountingUser();
+    const { teamMemberProfile } = await protectionAccountingUser(ip);
+
     if (!teamMemberProfile)
       return sendErrorResponse("User authentication failed.", 401);
 
-    // Apply rate limit
     await applyRateLimit(teamMemberProfile.alliance_member_id, ip);
 
     const result = await prisma.$transaction(async (tx) => {

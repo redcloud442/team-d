@@ -66,7 +66,7 @@ export async function POST(request: Request) {
         "Unable to determine IP address for rate limiting."
       );
 
-    await protectionMerchantUser();
+    await protectionMerchantUser(ip);
     loginRateLimit(ip);
 
     const { accountNumber, accountType, accountName } = await request.json();
@@ -109,7 +109,7 @@ export async function DELETE(request: Request) {
         "Unable to determine IP address for rate limiting."
       );
 
-    await protectionMerchantUser();
+    await protectionMerchantUser(ip);
     loginRateLimit(ip);
 
     const { merchantId } = await request.json();

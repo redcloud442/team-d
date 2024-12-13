@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       );
     }
 
-    await protectionMemberUser();
+    await protectionMemberUser(ip);
 
     await applyRateLimit(teamMemberId, ip);
 

@@ -1,5 +1,6 @@
 import { logError } from "@/services/Error/ErrorLogs";
 import { handleSignInUser } from "@/services/User/Admin";
+import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
 import { useRouter } from "next/navigation";
@@ -18,7 +19,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
   const supabaseClient = createClientSide();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-
+  const { setRole } = useRole();
   const handleSignIn = async () => {
     try {
       setIsLoading(true);
@@ -52,12 +53,10 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
           {type === "ADMIN" && (
             <Button
               variant="outline"
-              onClick={() => {
-                handleSignIn();
-
-                setTimeout(() => {
-                  router.refresh();
-                }, 2000);
+              onClick={async () => {
+                await handleSignIn();
+                setRole(userProfile.alliance_member_role);
+                await router.push("/");
               }}
             >
               Sign In as {userProfile.user_username}

@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       );
     }
 
-    await protectionMemberUser();
+    await protectionMemberUser(ip);
     await applyRateLimit(teamMemberId, ip);
 
     const filePath = `uploads/${Date.now()}_${file.name}`;

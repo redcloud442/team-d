@@ -188,7 +188,6 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
               className="w-full sm:w-auto"
             >
               <Search className="mr-2" />
-              Search
             </Button>
             <Button
               onClick={fetchAdminRequest}

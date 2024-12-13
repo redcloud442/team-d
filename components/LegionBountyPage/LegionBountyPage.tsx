@@ -13,7 +13,7 @@ const LegionBountyPage = ({ teamMemberProfile }: Props) => {
         {/* Header Section */}
         <header className="mb-4">
           <h1 className="Title">Indirect Referral Page</h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-white">
             View all your indirect referral that are currently in the system.
           </p>
         </header>
