@@ -152,7 +152,7 @@ export const applyRateLimit = async (
 export const loginRateLimit = (ip: string) => {
   const currentCount = (rateLimiter.get(ip) as number) || 0;
 
-  if (currentCount >= 3) {
+  if (currentCount >= 5) {
     throw new Error("Too many requests. Please try again later.");
   }
 

@@ -1,31 +1,30 @@
 import { decryptData, loginRateLimit } from "@/utils/function";
-import prisma from "@/utils/prisma"; // Your Prisma instance
+import prisma from "@/utils/prisma";
+import { user_table } from "@prisma/client";
 import { NextResponse } from "next/server";
+
+const sendErrorResponse = (message: string, status: number) =>
+  NextResponse.json({ error: message }, { status });
+
+const getClientIP = (request: Request) =>
+  request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+  request.headers.get("cf-connecting-ip") ||
+  "unknown";
 
 export async function POST(request: Request) {
   try {
-    // Extract and validate IP address
-    const ip =
-      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-      request.headers.get("cf-connecting-ip") ||
-      "unknown";
-
-    if (ip === "unknown") {
-      return NextResponse.json(
-        { error: "Unable to determine IP address for rate limiting." },
-        { status: 400 }
+    const ip = getClientIP(request);
+    if (ip === "unknown")
+      return sendErrorResponse(
+        "Unable to determine IP address for rate limiting.",
+        400
       );
-    }
 
     loginRateLimit(ip);
 
     const { userName, password, role = "MEMBER" } = await request.json();
-    if (!userName || !password) {
-      return NextResponse.json(
-        { error: "Email and password are required." },
-        { status: 400 }
-      );
-    }
+    if (!userName || !password)
+      return sendErrorResponse("Email and password are required.", 400);
 
     const user = await prisma.user_table.findFirst({
       where: {
@@ -34,57 +33,58 @@ export async function POST(request: Request) {
           mode: "insensitive",
         },
       },
+      include: {
+        alliance_member_table: true,
+      },
     });
 
     if (!user) {
       return NextResponse.json({ error: "Invalid email." }, { status: 401 });
     }
 
-    const teamMemberProfile = await prisma.alliance_member_table.findFirst({
-      where: { alliance_member_user_id: user.user_id },
-    });
+    // const banned = await prisma.user_history_log.findFirst({
+    //   where: {
+    //     user_history_user_id: user.user_id,
+    //     user_ip_address: ip,
+    //     alliance_member_table: {
+    //       alliance_member_alliance_id: user.alliance_member_table[0]
+    //         ?.alliance_member_alliance_id,
+    //     },
+    //   },
+    // });
 
-    if (role === "MEMBER") {
-      const decryptedPassword = await decryptData(
-        user.user_password,
+    // if (banned) {
+    //   return sendErrorResponse("User is banned.", 403);
+    // }
+
+    const teamMemberProfile = user.alliance_member_table[0];
+
+    if (!teamMemberProfile)
+      return sendErrorResponse("User profile not found or incomplete.", 403);
+
+    const decryptedPassword = await decryptData(
+      user.user_password,
+      user.user_iv ?? ""
+    );
+    if (role === "MEMBER" && decryptedPassword !== password) {
+      return sendErrorResponse("Password Incorrect", 401);
+    }
+
+    if (role === "ADMIN") {
+      const decryptedInputPassword = await decryptData(
+        password,
         user.user_iv ?? ""
       );
-
-      if (decryptedPassword !== password) {
-        return NextResponse.json(
-          { error: "Password Incorrect" },
-          { status: 401 }
-        );
-      }
-    } else if (role === "ADMIN") {
-      const decryptedPassword = await decryptData(password, user.user_iv ?? "");
-
-      const decryptedPassword2 = await decryptData(
-        user.user_password,
-        user.user_iv ?? ""
-      );
-
-      if (decryptedPassword !== decryptedPassword2) {
-        return NextResponse.json({ error: "Password." }, { status: 401 });
+      if (decryptedInputPassword !== decryptedPassword) {
+        return sendErrorResponse("Password Incorrect", 401);
       }
     }
 
-    if (!teamMemberProfile) {
-      return NextResponse.json(
-        { error: "User profile not found or incomplete." },
-        { status: 403 }
-      );
-    }
-
-    // Handle restricted or invalid profiles
     if (
       teamMemberProfile.alliance_member_restricted ||
       !teamMemberProfile.alliance_member_alliance_id
     ) {
-      return NextResponse.json(
-        { success: false, error: "Access restricted or incomplete profile." },
-        { status: 403 }
-      );
+      return sendErrorResponse("Access restricted or incomplete profile.", 403);
     }
 
     await prisma.$transaction([
@@ -102,11 +102,55 @@ export async function POST(request: Request) {
     };
 
     const redirect = redirects[teamMemberProfile.alliance_member_role] || "/";
+
     return NextResponse.json({ success: true, redirect });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error." },
-      { status: 500 }
+    console.error("Error in POST request:", error);
+    return sendErrorResponse(
+      error instanceof Error ? error.message : "Unknown error.",
+      500
+    );
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const ip = getClientIP(request);
+    if (ip === "unknown")
+      return sendErrorResponse(
+        "Unable to determine IP address for rate limiting.",
+        400
+      );
+
+    const { searchParams } = new URL(request.url);
+    const userName = searchParams.get("userName");
+
+    if (!userName) {
+      return sendErrorResponse(
+        "The 'userName' query parameter is required.",
+        400
+      );
+    }
+
+    const existingUser: user_table | null = await prisma.user_table.findFirst({
+      where: {
+        user_username: {
+          equals: userName,
+          mode: "insensitive",
+        },
+      },
+    });
+
+    if (existingUser) {
+      return sendErrorResponse("Username already taken.", 409);
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error in GET request:", error);
+    return sendErrorResponse(
+      error instanceof Error ? error.message : "An unknown error occurred.",
+      500
     );
   }
 }

@@ -3,6 +3,7 @@ import prisma from "@/utils/prisma";
 import { protectionAdminUser } from "@/utils/serversideProtection";
 import { NextRequest, NextResponse } from "next/server";
 
+// Helper functions for responses
 const errorResponse = (message: string, status: number) =>
   NextResponse.json({ error: message }, { status });
 
@@ -35,7 +36,7 @@ export async function PUT(
       return errorResponse("All package fields are required.", 400);
     }
 
-    const { teamMemberProfile } = await protectionAdminUser();
+    const { teamMemberProfile } = await protectionAdminUser(ip);
     if (!teamMemberProfile)
       return errorResponse("User authentication failed.", 401);
 
@@ -51,18 +52,21 @@ export async function PUT(
 
     await applyRateLimit(teamMemberProfile.alliance_member_id, ip);
 
-    const updatedPackage = await prisma.package_table.update({
-      where: { package_id: packageId },
-      data: {
-        package_name: packageName,
-        package_description: packageDescription,
-        package_percentage: parseFloat(packagePercentage),
-        packages_days: parseInt(packageDays),
-      },
+    const updatedPackage = await prisma.$transaction(async (tx) => {
+      return await tx.package_table.update({
+        where: { package_id: packageId },
+        data: {
+          package_name: packageName,
+          package_description: packageDescription,
+          package_percentage: parseFloat(packagePercentage),
+          packages_days: parseInt(packageDays),
+        },
+      });
     });
 
     return successResponse({ data: updatedPackage });
   } catch (error) {
+    console.error("Error in PUT request:", error);
     return errorResponse(
       error instanceof Error ? error.message : "Unexpected error occurred.",
       500

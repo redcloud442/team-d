@@ -27,7 +27,26 @@ const Page = async ({
     where: {
       user_username: referralLink,
     },
+    select: {
+      user_username: true,
+      user_id: true,
+    },
   });
+
+  const teamMemberProfile = await prisma.alliance_member_table.findFirst({
+    where: {
+      alliance_member_user_id: user?.user_id,
+    },
+    select: {
+      alliance_member_is_active: true,
+    },
+  });
+
+  if (!teamMemberProfile?.alliance_member_is_active) {
+    console.log(teamMemberProfile?.alliance_member_is_active);
+
+    redirect("/auth/login");
+  }
 
   return (
     <main className="max-w-full min-h-screen flex flex-col items-center justify-center">

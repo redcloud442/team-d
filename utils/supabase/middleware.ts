@@ -3,6 +3,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { ensureValidSession } from "../serversideProtection";
 
 export async function updateSession(request: NextRequest) {
+  // Check if the session validation has already occurred
+  if (request.headers.get("x-session-checked")) {
+    return addSecurityHeaders(NextResponse.next());
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   });
@@ -34,7 +39,13 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  await ensureValidSession();
+  const result = await ensureValidSession();
+
+  if (!result && user) {
+    const response = NextResponse.redirect(new URL("/auth/login", request.url));
+    response.headers.set("x-session-checked", "true");
+    return addSecurityHeaders(response);
+  }
 
   const publicRoutes = ["/auth/login", "/auth/register", "/api/auth"];
   const privateRoutes = ["/", "/dashboard", "/api/auth", "/admin"];
@@ -48,7 +59,9 @@ export async function updateSession(request: NextRequest) {
     if (privateRoutes.some((route) => currentPath.startsWith(route))) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/auth/login";
-      return addSecurityHeaders(NextResponse.redirect(loginUrl));
+      const response = NextResponse.redirect(loginUrl);
+      response.headers.set("x-session-checked", "true");
+      return addSecurityHeaders(response);
     }
   }
 
@@ -56,10 +69,13 @@ export async function updateSession(request: NextRequest) {
     if (publicRoutes.some((route) => currentPath.startsWith(route))) {
       const homeUrl = request.nextUrl.clone();
       homeUrl.pathname = "/";
-      return addSecurityHeaders(NextResponse.redirect(homeUrl));
+      const response = NextResponse.redirect(homeUrl);
+      response.headers.set("x-session-checked", "true");
+      return addSecurityHeaders(response);
     }
   }
 
+  supabaseResponse.headers.set("x-session-checked", "true");
   return addSecurityHeaders(supabaseResponse);
 }
 

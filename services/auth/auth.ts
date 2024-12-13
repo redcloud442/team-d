@@ -14,6 +14,13 @@ export const createTriggerUser = async (
 ) => {
   const { userName, password, referalLink, url, firstName, lastName } = params;
   const formatUsername = userName + "@gmail.com";
+
+  const checkUserNameResult = await checkUserName({ userName });
+
+  if (!checkUserNameResult.success) {
+    throw new Error("Username already taken.");
+  }
+
   const { data: userData, error: userError } = await supabaseClient.auth.signUp(
     { email: formatUsername, password }
   );
@@ -99,6 +106,23 @@ export const loginValidation = async (
   const result = await response.json();
 
   return result.redirect || "/";
+};
+
+export const checkUserName = async (params: { userName: string }) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/?userName=${params.userName}`,
+    {
+      method: "GET",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("An unexpected error occurred.");
+  }
+
+  const result = await response.json();
+
+  return result;
 };
 
 export const changeUserPassword = async (params: {

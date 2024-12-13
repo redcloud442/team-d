@@ -49,7 +49,7 @@ export const ensureValidSession = async () => {
   return true;
 };
 
-export const protectionAdminUser = async () => {
+export const protectionAdminUser = async (ip?: string) => {
   try {
     const supabase = await createClientServerSide();
 
@@ -59,6 +59,15 @@ export const protectionAdminUser = async () => {
     }
 
     const userId = authData.user.id;
+
+    if (ip) {
+      const banned = await prisma.user_history_log.findFirst({
+        where: { user_history_user_id: userId, user_ip_address: ip },
+      });
+      if (banned) {
+        return { redirect: "/500" };
+      }
+    }
 
     const [profile, teamMember] = await Promise.all([
       prisma.user_table.findUnique({ where: { user_id: userId } }),
@@ -98,7 +107,7 @@ export const protectionAdminUser = async () => {
   }
 };
 
-export const protectionMemberUser = async () => {
+export const protectionMemberUser = async (ip?: string) => {
   const supabase = await createClientServerSide();
 
   try {
@@ -109,6 +118,15 @@ export const protectionMemberUser = async () => {
     }
 
     const userId = authData.user.id;
+
+    if (ip) {
+      const banned = await prisma.user_history_log.findFirst({
+        where: { user_history_user_id: userId, user_ip_address: ip },
+      });
+      if (banned) {
+        return { redirect: "/500" };
+      }
+    }
 
     const [profile, teamMember] = await Promise.all([
       prisma.user_table.findUnique({ where: { user_id: userId } }),
@@ -167,7 +185,7 @@ export const protectionMemberUser = async () => {
   }
 };
 
-export const protectionMerchantUser = async () => {
+export const protectionMerchantUser = async (ip?: string) => {
   const supabase = await createClientServerSide();
   try {
     const { data: authData, error: authError } = await supabase.auth.getUser();
@@ -177,6 +195,15 @@ export const protectionMerchantUser = async () => {
     }
 
     const userId = authData.user.id;
+
+    if (ip) {
+      const banned = await prisma.user_history_log.findFirst({
+        where: { user_history_user_id: userId, user_ip_address: ip },
+      });
+      if (banned) {
+        return { redirect: "/500" };
+      }
+    }
 
     const [profile, teamMember] = await Promise.all([
       prisma.user_table.findUnique({ where: { user_id: userId } }),
@@ -233,7 +260,7 @@ export const protectionMerchantUser = async () => {
   }
 };
 
-export const protectionAccountingUser = async () => {
+export const protectionAccountingUser = async (ip?: string) => {
   const supabase = await createClientServerSide();
   try {
     const { data: authData, error: authError } = await supabase.auth.getUser();
@@ -243,6 +270,15 @@ export const protectionAccountingUser = async () => {
     }
 
     const userId = authData.user.id;
+
+    if (ip) {
+      const banned = await prisma.user_history_log.findFirst({
+        where: { user_history_user_id: userId, user_ip_address: ip },
+      });
+      if (banned) {
+        return { redirect: "/500" };
+      }
+    }
 
     const [profile, teamMember] = await Promise.all([
       prisma.user_table.findUnique({ where: { user_id: userId } }),
@@ -299,7 +335,7 @@ export const protectionAccountingUser = async () => {
   }
 };
 
-export const protectionAllUser = async () => {
+export const protectionAllUser = async (ip?: string) => {
   const supabase = await createClientServerSide();
   try {
     const { data: authData, error: authError } = await supabase.auth.getUser();
@@ -310,6 +346,14 @@ export const protectionAllUser = async () => {
 
     const userId = authData.user.id;
 
+    if (ip) {
+      const banned = await prisma.user_history_log.findFirst({
+        where: { user_history_user_id: userId, user_ip_address: ip },
+      });
+      if (banned) {
+        return { redirect: "/500" };
+      }
+    }
     const [profile, teamMember] = await Promise.all([
       prisma.user_table.findUnique({ where: { user_id: userId } }),
       prisma.alliance_member_table.findFirst({

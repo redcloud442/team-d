@@ -127,6 +127,11 @@ model alliance_earnings_table {
   alliance_member_table            alliance_member_table @relation(fields: [alliance_earnings_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("alliance_schema")
+    @@index([alliance_olympus_wallet], name: "idx_alliance_olympus_wallet")
+  @@index([alliance_olympus_earnings], name: "idx_alliance_olympus_earnings")
+  @@index([alliance_olympus_loot], name: "idx_alliance_olympus_loot")
+  @@index([alliance_ally_bounty], name: "idx_alliance_ally_bounty")
+  @@index([alliance_legion_bounty], name: "idx_alliance_legion_bounty")
 }
 
 model alliance_top_up_request_table {
@@ -200,6 +205,8 @@ model package_member_connection_table {
   @@schema("packages_schema")
   @@index([package_member_package_id], name: "idx_package_member_package_id")
   @@index([package_member_member_id], name: "idx_package_member_member_id")
+  @@index([package_member_amount], name: "idx_package_member_amount")
+  @@index([package_amount_earnings], name: "idx_package_amount_earnings")
 }
 
 model package_earnings_log {
@@ -219,6 +226,7 @@ model package_earnings_log {
   @@schema("packages_schema")
   @@index([package_member_package_id], name: "idx_package_earnings_package_id")
   @@index([package_member_member_id], name: "idx_package_earnings_member_id")
+  
 }
 
 model package_ally_bounty_log {

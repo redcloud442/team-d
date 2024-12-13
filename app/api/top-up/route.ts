@@ -15,13 +15,22 @@ export async function POST(request: Request) {
     const supabase = await createClientServerSide();
 
     const formData = await request.formData();
-    const amount = formData.get("amount")?.toString();
-    const topUpMode = formData.get("topUpMode")?.toString();
-    const accountName = formData.get("accountName")?.toString();
-    const accountNumber = formData.get("accountNumber")?.toString();
-    const file = formData.get("file") as File | null;
-    const teamMemberId = formData.get("teamMemberId")?.toString();
 
+    const {
+      amount,
+      topUpMode,
+      accountName,
+      accountNumber,
+      file,
+      teamMemberId,
+    } = Object.fromEntries(formData) as {
+      amount?: string;
+      topUpMode?: string;
+      accountName?: string;
+      accountNumber?: string;
+      file?: File;
+      teamMemberId?: string;
+    };
     if (
       !amount ||
       !topUpMode ||

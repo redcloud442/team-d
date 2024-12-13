@@ -165,7 +165,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
         <h1 className="Title">Admin Dashboard</h1>
         <form
           onSubmit={handleSubmit(fetchAdminDashboardData)}
-          className="flex flex-wrap items-center gap-2"
+          className="flex flex-wrap items-center gap-4"
         >
           <Controller
             name="dateFilter.start"
@@ -183,7 +183,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
                       : "Select Start Date"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-full md:w-auto p-0">
                   <Calendar
                     mode="single"
                     selected={field.value ? new Date(field.value) : undefined}
@@ -212,7 +212,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
                       : "Select End Date"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-full md:w-auto p-0">
                   <Calendar
                     mode="single"
                     selected={field.value ? new Date(field.value) : undefined}
@@ -261,11 +261,12 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap items-center gap-x-2">
+            <div className="flex flex-wrap w-full  items-center gap-4">
               <Input
                 type="text"
                 value={referral.alliance_referral_link}
                 readOnly
+                className="flex-0 md:flex-2 lg:flex-1"
               />
               <Button onClick={handleCopyLink}>Copy Link</Button>
               <Button onClick={() => router.push("/direct-loot")}>
@@ -277,29 +278,31 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
             </div>
           </CardContent>
         </Card>
-        <CardAmountAdmin
-          title="Total Registered User"
-          value={
-            <>
-              <User2 />
-              {numberOfRegisteredUser}
-            </>
-          }
-          description=""
-          descriptionClassName="text-sm text-gray-500"
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardAmountAdmin
+            title="Total Registered User"
+            value={
+              <>
+                <User2 />
+                {numberOfRegisteredUser}
+              </>
+            }
+            description=""
+            descriptionClassName="text-sm text-gray-500"
+          />
 
-        <CardAmountAdmin
-          title="Total Activated Package"
-          value={
-            <>
-              <Package2Icon />
-              {totalActivatedPackage}
-            </>
-          }
-          description=""
-          descriptionClassName="text-sm text-gray-500"
-        />
+          <CardAmountAdmin
+            title="Total Activated Package"
+            value={
+              <>
+                <Package2Icon />
+                {totalActivatedPackage}
+              </>
+            }
+            description=""
+            descriptionClassName="text-sm text-gray-500"
+          />
+        </div>
         <div>
           <AdminDashboardTable teamMemberProfile={teamMemberProfile} />
         </div>

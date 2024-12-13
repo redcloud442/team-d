@@ -77,7 +77,6 @@ const DashboardPage = ({
   useEffect(() => {
     getPackagesData();
   }, []);
-  console.log(teamMemberProfile);
 
   return (
     <div className="min-h-screen h-full mx-auto py-8 ">
@@ -87,12 +86,13 @@ const DashboardPage = ({
         <h1 className="Title">Dashboard</h1>
 
         <Card className="flex items-center justify-between p-4 rounded-lg shadow-md">
-          {teamMemberProfile.alliance_member_is_active && (
-            <div className="flex items-center flex-wrap w-full max-w-sm gap-4">
-              <p className="font-medium">Referral Link</p>
-              <Button onClick={copyReferralLink}>Copy Referral Link</Button>
-            </div>
-          )}
+          {teamMemberProfile.alliance_member_is_active ||
+            (chartData.length > 0 && (
+              <div className="flex items-center flex-wrap w-full max-w-sm gap-4">
+                <p className="font-medium hidden md:block">Referral Link</p>
+                <Button onClick={copyReferralLink}>Copy Referral Link</Button>
+              </div>
+            ))}
 
           <div className="ml-auto text-right">
             <p className="font-medium">Wallet</p>

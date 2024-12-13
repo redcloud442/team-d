@@ -6,6 +6,10 @@ import {
 } from "@/utils/serversideProtection";
 import { NextResponse } from "next/server";
 
+function sendErrorResponse(message: string, status: number = 400) {
+  return NextResponse.json({ error: message }, { status });
+}
+
 export async function PATCH(request: Request) {
   try {
     const ip =
@@ -13,46 +17,39 @@ export async function PATCH(request: Request) {
       request.headers.get("cf-connecting-ip") ||
       "unknown";
 
-    if (ip === "unknown") {
-      return NextResponse.json(
-        { error: "Unable to determine IP address for rate limiting." },
-        { status: 400 }
+    if (ip === "unknown")
+      return sendErrorResponse(
+        "Unable to determine IP address for rate limiting."
       );
-    }
 
-    await protectionAdminUser();
-
+    await protectionAdminUser(ip);
     loginRateLimit(ip);
 
     const { amount, memberId } = await request.json();
 
-    const merchant = await prisma.merchant_member_table.findFirst({
-      where: { merchant_member_id: memberId },
-    });
+    const result = await prisma.$transaction(async (tx) => {
+      const merchant = await tx.merchant_member_table.findFirst({
+        where: { merchant_member_id: memberId },
+      });
 
-    if (!merchant) {
-      return NextResponse.json(
-        { error: "Merchant not found" },
-        { status: 400 }
-      );
-    }
+      if (!merchant) throw new Error("Merchant not found");
 
-    await prisma.merchant_member_table.update({
-      where: { merchant_member_id: memberId },
-      data: {
-        merchant_member_balance: {
-          increment: amount,
+      return await tx.merchant_member_table.update({
+        where: { merchant_member_id: memberId },
+        data: {
+          merchant_member_balance: {
+            increment: amount,
+          },
         },
-      },
+      });
     });
 
-    return NextResponse.json({
-      success: true,
-    });
+    return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error." },
-      { status: 500 }
+    console.error("Error in PATCH request:", error);
+    return sendErrorResponse(
+      error instanceof Error ? error.message : "Unknown error.",
+      500
     );
   }
 }
@@ -64,45 +61,38 @@ export async function POST(request: Request) {
       request.headers.get("cf-connecting-ip") ||
       "unknown";
 
-    if (ip === "unknown") {
-      return NextResponse.json(
-        { error: "Unable to determine IP address for rate limiting." },
-        { status: 400 }
+    if (ip === "unknown")
+      return sendErrorResponse(
+        "Unable to determine IP address for rate limiting."
       );
-    }
 
     await protectionMerchantUser();
-
     loginRateLimit(ip);
 
     const { accountNumber, accountType, accountName } = await request.json();
 
-    const merchant = await prisma.merchant_table.findFirst({
-      where: { merchant_account_number: accountNumber },
+    const result = await prisma.$transaction(async (tx) => {
+      const merchant = await tx.merchant_table.findFirst({
+        where: { merchant_account_number: accountNumber },
+      });
+
+      if (merchant) throw new Error("Merchant already exists");
+
+      return await tx.merchant_table.create({
+        data: {
+          merchant_account_number: accountNumber,
+          merchant_account_type: accountType,
+          merchant_account_name: accountName,
+        },
+      });
     });
 
-    if (merchant) {
-      return NextResponse.json(
-        { error: "Merchant Already Exists" },
-        { status: 400 }
-      );
-    }
-
-    await prisma.merchant_table.create({
-      data: {
-        merchant_account_number: accountNumber,
-        merchant_account_type: accountType,
-        merchant_account_name: accountName,
-      },
-    });
-
-    return NextResponse.json({
-      success: true,
-    });
+    return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error." },
-      { status: 500 }
+    console.error("Error in POST request:", error);
+    return sendErrorResponse(
+      error instanceof Error ? error.message : "Unknown error.",
+      500
     );
   }
 }
@@ -114,41 +104,34 @@ export async function DELETE(request: Request) {
       request.headers.get("cf-connecting-ip") ||
       "unknown";
 
-    if (ip === "unknown") {
-      return NextResponse.json(
-        { error: "Unable to determine IP address for rate limiting." },
-        { status: 400 }
+    if (ip === "unknown")
+      return sendErrorResponse(
+        "Unable to determine IP address for rate limiting."
       );
-    }
 
     await protectionMerchantUser();
-
     loginRateLimit(ip);
 
     const { merchantId } = await request.json();
 
-    const merchant = await prisma.merchant_table.findFirst({
-      where: { merchant_id: merchantId },
+    const result = await prisma.$transaction(async (tx) => {
+      const merchant = await tx.merchant_table.findFirst({
+        where: { merchant_id: merchantId },
+      });
+
+      if (!merchant) throw new Error("Merchant not found");
+
+      return await tx.merchant_table.delete({
+        where: { merchant_id: merchantId },
+      });
     });
 
-    if (!merchant) {
-      return NextResponse.json(
-        { error: "Merchant Not Found" },
-        { status: 400 }
-      );
-    }
-
-    await prisma.merchant_table.delete({
-      where: { merchant_id: merchantId },
-    });
-
-    return NextResponse.json({
-      success: true,
-    });
+    return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error." },
-      { status: 500 }
+    console.error("Error in DELETE request:", error);
+    return sendErrorResponse(
+      error instanceof Error ? error.message : "Unknown error.",
+      500
     );
   }
 }
