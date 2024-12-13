@@ -26,7 +26,7 @@ export async function PUT(
       );
     }
 
-    await protectionMemberUser();
+    await protectionMemberUser(ip);
 
     loginRateLimit(ip);
 
@@ -109,7 +109,7 @@ export async function PATCH(
       );
     }
 
-    await protectionAdminUser();
+    await protectionAdminUser(ip);
 
     loginRateLimit(ip);
     const { userId } = await context.params;

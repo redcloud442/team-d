@@ -267,7 +267,7 @@ export const AdminUsersColumn = (
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
                 onClick={() =>
-                  router.push(`/admin/users/${data.alliance_member_id}`)
+                  router.push(`/admin/users/${data.alliance_member_user_id}`)
                 }
               >
                 View Profile
