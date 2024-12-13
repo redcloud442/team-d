@@ -18,6 +18,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
   const supabaseClient = createClientSide();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
   const handleSignIn = async () => {
     try {
       setIsLoading(true);
@@ -39,6 +40,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
       setIsLoading(false);
     }
   };
+
   return (
     <Card className="shadow-md">
       {isLoading && <TableLoading />}
@@ -54,8 +56,8 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
                 handleSignIn();
 
                 setTimeout(() => {
-                  router.push("/");
-                }, 4000);
+                  router.refresh();
+                }, 2000);
               }}
             >
               Sign In as {userProfile.user_username}

@@ -22,6 +22,7 @@ type Props = {
   earnings: alliance_earnings_table;
   setEarnings: Dispatch<SetStateAction<alliance_earnings_table>>;
   setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
+  setIsActive: Dispatch<SetStateAction<boolean>>;
 };
 
 const DashboardDepositRequest = ({
@@ -30,6 +31,7 @@ const DashboardDepositRequest = ({
   teamMemberProfile,
   earnings,
   setEarnings,
+  setIsActive,
 }: Props) => {
   return (
     <Card className="w-full mx-auto">
@@ -51,6 +53,7 @@ const DashboardDepositRequest = ({
               teamMemberProfile={teamMemberProfile}
               setEarnings={setEarnings}
               setChartData={setChartData}
+              setIsActive={setIsActive}
             />
 
             <DashboardDepositModalHistory

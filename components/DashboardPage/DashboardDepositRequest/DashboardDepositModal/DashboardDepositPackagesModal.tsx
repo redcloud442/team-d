@@ -27,6 +27,7 @@ type Props = {
   earnings: alliance_earnings_table;
   setEarnings: Dispatch<SetStateAction<alliance_earnings_table>>;
   setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
+  setIsActive: Dispatch<SetStateAction<boolean>>;
 };
 
 const DashboardDepositModalPackages = ({
@@ -35,6 +36,7 @@ const DashboardDepositModalPackages = ({
   earnings,
   setEarnings,
   setChartData,
+  setIsActive,
 }: Props) => {
   const supabaseClient = createClientSide();
   const [open, setOpen] = useState(false);
@@ -55,6 +57,9 @@ const DashboardDepositModalPackages = ({
         });
 
         setPackages(data);
+        if (!teamMemberProfile.alliance_member_is_active) {
+          setIsActive(true);
+        }
       } catch (e) {
         if (e instanceof Error) {
           await logError(supabaseClient, {

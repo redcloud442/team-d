@@ -19,7 +19,10 @@ const DashboardPackages = ({ chartData }: Props) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {chartData.map((data, index) => (
-        <Card key={index} className="w-full">
+        <Card
+          key={index}
+          className="w-full hover:shadow-gray-500 dark:hover:shadow-gray-200 transition-all duration-300"
+        >
           <CardHeader>
             <CardTitle>{data.package}</CardTitle>
             <CardDescription>

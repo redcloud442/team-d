@@ -270,10 +270,10 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
               />
               <Button onClick={handleCopyLink}>Copy Link</Button>
               <Button onClick={() => router.push("/direct-loot")}>
-                Direct Loot
+                Direct Referral
               </Button>
               <Button onClick={() => router.push("/indirect-loot")}>
-                Indirect Loot
+                Indirect Referral
               </Button>
             </div>
           </CardContent>

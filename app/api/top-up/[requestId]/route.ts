@@ -29,9 +29,11 @@ export async function PUT(
       return sendErrorResponse("Invalid or missing status.");
     }
 
-    const { teamMemberProfile } = await protectionMerchantUser();
-    if (!teamMemberProfile)
+    const { teamMemberProfile } = await protectionMerchantUser(ip);
+
+    if (!teamMemberProfile) {
       return sendErrorResponse("User authentication failed.", 401);
+    }
 
     await applyRateLimit(teamMemberProfile.alliance_member_id, ip);
 
@@ -47,7 +49,8 @@ export async function PUT(
     ]);
 
     if (!existingRequest) return sendErrorResponse("Request not found.", 404);
-    if (!merchant) return sendErrorResponse("Merchant not found.", 404);
+    if (!merchant && teamMemberProfile.alliance_member_role === "MERCHANT")
+      return sendErrorResponse("Merchant not found.", 404);
 
     if (existingRequest.alliance_top_up_request_status !== "PENDING") {
       return sendErrorResponse("Request has already been processed.");
@@ -55,8 +58,9 @@ export async function PUT(
 
     if (
       status === "APPROVED" &&
+      teamMemberProfile.alliance_member_role === "MERCHANT" &&
       existingRequest.alliance_top_up_request_amount >
-        merchant.merchant_member_balance
+        (merchant?.merchant_member_balance ?? 0)
     ) {
       return sendErrorResponse("Insufficient merchant balance.");
     }
@@ -84,21 +88,22 @@ export async function PUT(
             },
           },
         });
-
-        const updatedMerchant = await tx.merchant_member_table.update({
-          where: { merchant_member_id: merchant.merchant_member_id },
-          data: {
-            merchant_member_balance: {
-              decrement: updatedRequest.alliance_top_up_request_amount,
+        if (merchant) {
+          const updatedMerchant = await tx.merchant_member_table.update({
+            where: { merchant_member_id: merchant.merchant_member_id },
+            data: {
+              merchant_member_balance: {
+                decrement: updatedRequest.alliance_top_up_request_amount,
+              },
             },
-          },
-        });
+          });
 
-        return {
-          updatedRequest,
-          updatedEarnings,
-          updatedMerchant,
-        };
+          return {
+            updatedRequest,
+            updatedEarnings,
+            updatedMerchant,
+          };
+        }
       }
 
       return { updatedRequest };

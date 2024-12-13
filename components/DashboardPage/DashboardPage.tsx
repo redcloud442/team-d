@@ -1,6 +1,8 @@
 "use client";
 
+import { useToast } from "@/hooks/use-toast";
 import { getDashboard } from "@/services/Dasboard/Member";
+import { logError } from "@/services/Error/ErrorLogs";
 import { createClientSide } from "@/utils/supabase/client";
 import { ChartDataMember, DashboardEarnings } from "@/utils/types";
 import {
@@ -9,11 +11,8 @@ import {
   alliance_referral_link_table,
   package_table,
 } from "@prisma/client";
-import { useEffect, useState } from "react";
-
-import { useToast } from "@/hooks/use-toast";
-import { logError } from "@/services/Error/ErrorLogs";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import CardAmount from "../ui/cardAmount";
@@ -44,7 +43,9 @@ const DashboardPage = ({
   const [isLoading, setIsLoading] = useState(false);
   const [earnings, setEarnings] =
     useState<alliance_earnings_table>(initialEarnings);
-
+  const [isActive, setIsActive] = useState(
+    teamMemberProfile.alliance_member_is_active
+  );
   const getPackagesData = async () => {
     try {
       setIsLoading(true);
@@ -85,15 +86,15 @@ const DashboardPage = ({
       <div className="w-full space-y-6 px-4 md:px-10">
         <h1 className="Title">Dashboard</h1>
 
-        <Card className="flex items-center justify-between p-4 rounded-lg shadow-md">
-          {teamMemberProfile.alliance_member_is_active ||
-            (chartData.length > 0 && (
-              <div className="flex items-center flex-wrap w-full max-w-sm gap-4">
-                <p className="font-medium hidden md:block">Referral Link</p>
-                <Button onClick={copyReferralLink}>Copy Referral Link</Button>
-              </div>
-            ))}
-
+        <Card className="flex items-center justify-between p-4 rounded-lg shadow-md hover:shadow-gray-500 dark:hover:shadow-gray-200 transition-all duration-300">
+          {isActive && chartData.length > 0 && (
+            <div className="flex items-center flex-wrap w-full max-w-sm gap-4">
+              <p className="font-medium hidden md:block">Referral Link</p>
+              <Button id=".copy-link" onClick={copyReferralLink}>
+                Copy Referral Link
+              </Button>
+            </div>
+          )}
           <div className="ml-auto text-right">
             <p className="font-medium">Wallet</p>
             <p className="text-lg font-semibold text-green-600">
@@ -173,6 +174,7 @@ const DashboardPage = ({
             earnings={earnings}
             setEarnings={setEarnings}
             packages={packages}
+            setIsActive={setIsActive}
             teamMemberProfile={teamMemberProfile}
           />
           <DashboardWithdrawRequest

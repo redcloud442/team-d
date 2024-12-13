@@ -24,7 +24,7 @@ const CardAmount = ({
   children,
 }: Props) => {
   return (
-    <Card className="w-full md:min-w-lg">
+    <Card className="w-full md:min-w-lg hover:shadow-md hover:shadow-gray-500 dark:hover:shadow-gray-200 transition-all duration-300">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription className="flex gap-x-2 text-xl font-bold">

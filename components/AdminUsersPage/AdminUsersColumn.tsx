@@ -17,7 +17,7 @@ import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Copy, MoreHorizontal } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import TableLoading from "../ui/tableLoading";
 
@@ -26,6 +26,7 @@ export const AdminUsersColumn = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): ColumnDef<UserRequestdata, any>[] => {
   const supabaseClient = createClientSide();
+  const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -161,14 +162,7 @@ export const AdminUsersColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <Link
-          className="cursor-pointer"
-          href={`/admin/users/${row.getValue("user_id")}`}
-        >
-          <Button variant="link" className="text-wrap">
-            {row.getValue("user_username")}
-          </Button>
-        </Link>
+        <div className="text-wrap">{row.getValue("user_username")}</div>
       ),
     },
     {
@@ -183,7 +177,7 @@ export const AdminUsersColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">{row.getValue("user_first_name")}</div>
+        <div className="text-wrap">{row.getValue("user_first_name")}</div>
       ),
     },
     {
@@ -198,12 +192,11 @@ export const AdminUsersColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">{row.getValue("user_last_name")}</div>
+        <div className="text-wrap">{row.getValue("user_last_name")}</div>
       ),
     },
     {
       accessorKey: "user_date_created",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -213,7 +206,7 @@ export const AdminUsersColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {formatDateToYYYYMMDD(row.getValue("user_date_created"))}
         </div>
       ),
@@ -230,7 +223,7 @@ export const AdminUsersColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_member_restricted") ? "YES" : "NO"}
         </div>
       ),
@@ -250,7 +243,9 @@ export const AdminUsersColumn = (
       cell: ({ row }) => {
         const isActive = row.getValue("alliance_member_is_active");
         return (
-          <div className={`${isActive ? "text-green-500" : "text-red-500"}`}>
+          <div
+            className={`${isActive ? "text-green-500" : "text-red-500"} text-wrap`}
+          >
             {isActive ? "YES" : "NO"}
           </div>
         );
@@ -270,6 +265,13 @@ export const AdminUsersColumn = (
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() =>
+                  router.push(`/admin/users/${data.alliance_member_id}`)
+                }
+              >
+                View Profile
+              </DropdownMenuItem>
               {data.alliance_member_role !== "MERCHANT" && (
                 <DropdownMenuItem
                   onClick={() =>
