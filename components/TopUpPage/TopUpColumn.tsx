@@ -5,9 +5,8 @@ import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { TopUpRequestData } from "@/utils/types";
-import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Copy, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, Copy } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Badge } from "../ui/badge";
 import {
@@ -18,13 +17,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import {
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 import { Textarea } from "../ui/textarea";
 
 const statusColorMap: Record<string, string> = {
@@ -291,44 +283,39 @@ export const TopUpColumn = (handleFetch: () => void) => {
       header: "Actions",
       cell: ({ row }) => {
         const data = row.original;
+
         return (
-          <DropdownMenu>
+          <>
             {data.alliance_top_up_request_status === "PENDING" && (
-              <>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <MoreHorizontal />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      setIsOpenModal({
-                        open: true,
-                        requestId: data.alliance_top_up_request_id,
-                        status: "APPROVED",
-                      })
-                    }
-                  >
-                    Approve
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() =>
-                      setIsOpenModal({
-                        open: true,
-                        requestId: data.alliance_top_up_request_id,
-                        status: "REJECTED",
-                      })
-                    }
-                  >
-                    Reject
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </>
+              <div className="flex gap-2">
+                <Button
+                  className="bg-green-500 hover:bg-green-600 dark:bg-green-500 text-white"
+                  onClick={() =>
+                    setIsOpenModal({
+                      open: true,
+                      requestId: data.alliance_top_up_request_id,
+                      status: "APPROVED",
+                    })
+                  }
+                >
+                  Approve
+                </Button>
+
+                <Button
+                  variant="destructive"
+                  onClick={() =>
+                    setIsOpenModal({
+                      open: true,
+                      requestId: data.alliance_top_up_request_id,
+                      status: "REJECTED",
+                    })
+                  }
+                >
+                  Reject
+                </Button>
+              </div>
             )}
-          </DropdownMenu>
+          </>
         );
       },
     },

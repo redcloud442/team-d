@@ -11,6 +11,7 @@ import {
 } from "@prisma/client";
 import { useEffect, useState } from "react";
 
+import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
@@ -38,6 +39,7 @@ const DashboardPage = ({
 }: Props) => {
   const supabaseClient = createClientSide();
   const router = useRouter();
+  const { toast } = useToast();
   const [chartData, setChartData] = useState<ChartDataMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [earnings, setEarnings] =
@@ -66,12 +68,16 @@ const DashboardPage = ({
   const copyReferralLink = () => {
     const referralLink = referal.alliance_referral_link;
     navigator.clipboard.writeText(referralLink);
-    alert("Referral link copied to clipboard!");
+    toast({
+      title: "Referral link copied to clipboard!",
+      variant: "success",
+    });
   };
 
   useEffect(() => {
     getPackagesData();
   }, []);
+  console.log(teamMemberProfile);
 
   return (
     <div className="min-h-screen h-full mx-auto py-8 ">
@@ -80,19 +86,15 @@ const DashboardPage = ({
       <div className="w-full space-y-6 px-4 md:px-10">
         <h1 className="Title">Dashboard</h1>
 
-        {/* Referral and Wallet Section */}
         <Card className="flex items-center justify-between p-4 rounded-lg shadow-md">
-          <div>
-            <p className="font-medium">Referral Link</p>
-            <button
-              onClick={copyReferralLink}
-              className="text-blue-500 underline hover:text-blue-700"
-            >
-              Copy Referral Link
-            </button>
-          </div>
+          {teamMemberProfile.alliance_member_is_active && (
+            <div className="flex items-center flex-wrap w-full max-w-sm gap-4">
+              <p className="font-medium">Referral Link</p>
+              <Button onClick={copyReferralLink}>Copy Referral Link</Button>
+            </div>
+          )}
 
-          <div className="text-right">
+          <div className="ml-auto text-right">
             <p className="font-medium">Wallet</p>
             <p className="text-lg font-semibold text-green-600">
               ₱ {earnings.alliance_olympus_wallet.toLocaleString()}

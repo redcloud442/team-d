@@ -152,7 +152,7 @@ const AllyBountyTable = ({ teamMemberProfile, sponsor }: DataTableProps) => {
         </form>
         {sponsor && (
           <div className="flex items-center justify-center gap-x-4 p-4">
-            <h1 className="Text">Sponsor {sponsor}</h1>
+            <h1 className="Text">Referred By: {sponsor}</h1>
           </div>
         )}
       </div>
@@ -212,7 +212,7 @@ const AllyBountyTable = ({ teamMemberProfile, sponsor }: DataTableProps) => {
             <TableRow>
               <TableCell className="px-0" colSpan={columns.length}>
                 <div className="flex justify-between items-center border-t px-2 pt-2">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-white">
                     Showing {Math.min(activePage * 10, requestCount)} out of{" "}
                     {requestCount} entries
                   </span>

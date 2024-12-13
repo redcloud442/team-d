@@ -39,24 +39,16 @@ export async function updateSession(request: NextRequest) {
   const publicRoutes = ["/auth/login", "/auth/register", "/api/auth"];
   const privateRoutes = ["/", "/dashboard", "/api/auth", "/admin"];
   const currentPath = request.nextUrl.pathname;
-  //   const { data: profile } = await supabase
-  //   .schema("alliance_schema")
-  //   .from("alliance_member_table")
-  //   .select("alliance_member_role")
-  //   .eq("alliance_member_user_id", user.id)
-  //   .single();
 
-  // role = profile?.alliance_member_role;
-  // }
   if (!user) {
     if (publicRoutes.some((route) => currentPath.startsWith(route))) {
-      return NextResponse.next();
+      return addSecurityHeaders(NextResponse.next());
     }
 
     if (privateRoutes.some((route) => currentPath.startsWith(route))) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/auth/login";
-      return NextResponse.redirect(loginUrl);
+      return addSecurityHeaders(NextResponse.redirect(loginUrl));
     }
   }
 
@@ -64,9 +56,17 @@ export async function updateSession(request: NextRequest) {
     if (publicRoutes.some((route) => currentPath.startsWith(route))) {
       const homeUrl = request.nextUrl.clone();
       homeUrl.pathname = "/";
-      return NextResponse.redirect(homeUrl);
+      return addSecurityHeaders(NextResponse.redirect(homeUrl));
     }
   }
 
-  return supabaseResponse;
+  return addSecurityHeaders(supabaseResponse);
+}
+
+function addSecurityHeaders(response: NextResponse) {
+  response.headers.set(
+    "Strict-Transport-Security",
+    "max-age=63072000; includeSubDomains; preload"
+  );
+  return response;
 }

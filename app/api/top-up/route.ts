@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
+    // Retrieve the IP address
     const ip =
       request.headers.get("x-forwarded-for") ||
       request.headers.get("cf-connecting-ip") ||
@@ -30,67 +31,63 @@ export async function POST(request: Request) {
       !teamMemberId
     ) {
       return NextResponse.json(
-        {
-          error: "All fields are required.",
-        },
+        { error: "All fields are required." },
         { status: 400 }
       );
     }
+
     if (amount.length > 7 || amount.length < 3) {
       return NextResponse.json(
-        {
-          error: "Amount must be less than 6 digits.",
-        },
+        { error: "Amount must be between 3 and 7 digits." },
         { status: 400 }
       );
     }
-    await protectionMemberUser();
 
+    await protectionMemberUser();
     await applyRateLimit(teamMemberId, ip);
+
+    const filePath = `uploads/${Date.now()}_${file.name}`;
 
     const { error: uploadError } = await supabase.storage
       .from("REQUEST_ATTACHMENTS")
-      .upload(file.name, file, { upsert: true });
+      .upload(filePath, file, { upsert: true });
 
     if (uploadError) {
-      return NextResponse.json({ error: uploadError }, { status: 500 });
-    }
-
-    const { data: publicUrlResponse } = supabase.storage
-      .from("REQUEST_ATTACHMENTS")
-      .getPublicUrl(file.name);
-
-    const fileUrl = publicUrlResponse?.publicUrl;
-
-    const allianceData = await prisma.alliance_top_up_request_table.create({
-      data: {
-        alliance_top_up_request_amount: Number(amount),
-        alliance_top_up_request_type: topUpMode,
-        alliance_top_up_request_name: accountName,
-        alliance_top_up_request_account: String(accountNumber),
-        alliance_top_up_request_attachment: fileUrl,
-        alliance_top_up_request_member_id: teamMemberId,
-      },
-    });
-
-    if (!allianceData) {
       return NextResponse.json(
-        { error: "Failed to create top-up request. Please try again later." },
+        { error: "File upload failed.", details: uploadError.message },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ success: true });
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("REQUEST_ATTACHMENTS").getPublicUrl(filePath);
+
+    try {
+      const allianceData = await prisma.$transaction(async (tx) => {
+        return await tx.alliance_top_up_request_table.create({
+          data: {
+            alliance_top_up_request_amount: Number(amount),
+            alliance_top_up_request_type: topUpMode,
+            alliance_top_up_request_name: accountName,
+            alliance_top_up_request_account: accountNumber,
+            alliance_top_up_request_attachment: publicUrl,
+            alliance_top_up_request_member_id: teamMemberId,
+          },
+        });
+      });
+
+      return NextResponse.json({ success: true, data: allianceData });
+    } catch (dbError) {
+      await supabase.storage.from("REQUEST_ATTACHMENTS").remove([filePath]);
+      return NextResponse.json(
+        { error: "Database operation failed. File upload rolled back." },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { error: error.message, stack: error.stack },
-        { status: 500 }
-      );
-    }
-    return NextResponse.json(
-      { error: "An unexpected error occurred.", details: error },
-      { status: 500 }
-    );
+    const errorMessage =
+      error instanceof Error ? error.message : "An unexpected error occurred.";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

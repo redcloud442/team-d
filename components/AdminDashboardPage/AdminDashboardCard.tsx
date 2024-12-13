@@ -68,7 +68,7 @@ const AdminDashboardCard = ({
       />
 
       <CardAmountAdmin
-        title="Actived Package"
+        title="Active Package"
         value={
           <>
             <Package />

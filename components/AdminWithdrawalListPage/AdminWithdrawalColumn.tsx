@@ -248,6 +248,46 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
         ) : null;
       },
     },
+    {
+      header: "Actions",
+      cell: ({ row }) => {
+        const data = row.original;
+
+        return (
+          <>
+            {data.alliance_withdrawal_request_status === "PENDING" && (
+              <div className="flex gap-2">
+                <Button
+                  className="bg-green-500 hover:bg-green-600 dark:bg-green-500 dark:text-white text-white"
+                  onClick={() =>
+                    setIsOpenModal({
+                      open: true,
+                      requestId: data.alliance_withdrawal_request_id,
+                      status: "APPROVED",
+                    })
+                  }
+                >
+                  Approve
+                </Button>
+
+                <Button
+                  variant="destructive"
+                  onClick={() =>
+                    setIsOpenModal({
+                      open: true,
+                      requestId: data.alliance_withdrawal_request_id,
+                      status: "REJECTED",
+                    })
+                  }
+                >
+                  Reject
+                </Button>
+              </div>
+            )}
+          </>
+        );
+      },
+    },
   ];
 
   return {

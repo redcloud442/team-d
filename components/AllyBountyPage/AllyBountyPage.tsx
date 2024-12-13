@@ -14,7 +14,7 @@ const AllyBountyPage = ({ teamMemberProfile, sponsor }: Props) => {
         {/* Header Section */}
         <header className="mb-4">
           <h1 className="Title">Direct Referral Page</h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-white">
             View all your direct referral that are currently in the system.
           </p>
         </header>

@@ -3,6 +3,11 @@ import prisma from "@/utils/prisma";
 import { protectionMerchantUser } from "@/utils/serversideProtection";
 import { NextRequest, NextResponse } from "next/server";
 
+// Helper function for returning error responses
+function sendErrorResponse(message: string, status: number = 400) {
+  return NextResponse.json({ error: message }, { status });
+}
+
 export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ requestId: string }> }
@@ -15,133 +20,93 @@ export async function PUT(
 
     const { requestId } = await context.params;
 
-    if (!requestId) {
-      return NextResponse.json(
-        { error: "Request ID is required." },
-        { status: 400 }
-      );
-    }
+    if (!requestId) return sendErrorResponse("Request ID is required.");
 
-    const body = await request.json();
-    const { status, note }: { status: string; note?: string | null } = body;
+    const { status, note }: { status: string; note?: string | null } =
+      await request.json();
 
     if (!status || !["APPROVED", "PENDING", "REJECTED"].includes(status)) {
-      return NextResponse.json(
-        { error: "Invalid or missing status." },
-        { status: 400 }
-      );
+      return sendErrorResponse("Invalid or missing status.");
     }
 
     const { teamMemberProfile } = await protectionMerchantUser();
-    if (!teamMemberProfile) {
-      return NextResponse.json(
-        { error: "User authentication failed." },
-        { status: 401 }
-      );
-    }
+    if (!teamMemberProfile)
+      return sendErrorResponse("User authentication failed.", 401);
 
-    await applyRateLimit(teamMemberProfile?.alliance_member_id, ip);
+    await applyRateLimit(teamMemberProfile.alliance_member_id, ip);
 
-    const existingRequest =
-      await prisma.alliance_top_up_request_table.findUnique({
+    const [existingRequest, merchant] = await Promise.all([
+      prisma.alliance_top_up_request_table.findUnique({
         where: { alliance_top_up_request_id: requestId },
-      });
+      }),
+      prisma.merchant_member_table.findFirst({
+        where: {
+          merchant_member_merchant_id: teamMemberProfile.alliance_member_id,
+        },
+      }),
+    ]);
 
-    if (!existingRequest) {
-      return NextResponse.json(
-        { error: "Request not found." },
-        { status: 404 }
-      );
-    }
-    const merchant = await prisma.merchant_member_table.findFirst({
-      where: {
-        merchant_member_merchant_id: teamMemberProfile.alliance_member_id,
-      },
-    });
-
-    if (!merchant) {
-      throw new Error("Merchant not found.");
-    }
+    if (!existingRequest) return sendErrorResponse("Request not found.", 404);
+    if (!merchant) return sendErrorResponse("Merchant not found.", 404);
 
     if (existingRequest.alliance_top_up_request_status !== "PENDING") {
-      return NextResponse.json(
-        { error: "Request has already been processed." },
-        { status: 400 }
-      );
+      return sendErrorResponse("Request has already been processed.");
     }
 
-    if (status === "APPROVED") {
-      if (
-        existingRequest.alliance_top_up_request_amount >
+    if (
+      status === "APPROVED" &&
+      existingRequest.alliance_top_up_request_amount >
         merchant.merchant_member_balance
-      ) {
-        throw new Error("Insufficient merchant balance.");
-      }
+    ) {
+      return sendErrorResponse("Insufficient merchant balance.");
     }
 
-    const allianceData = await prisma.alliance_top_up_request_table.update({
-      where: { alliance_top_up_request_id: requestId },
-      data: {
-        alliance_top_up_request_status: status,
-        alliance_top_up_request_approved_by:
-          teamMemberProfile.alliance_member_id,
-        alliance_top_up_request_reject_note: note ?? null,
-      },
+    await prisma.$transaction(async (tx) => {
+      const updatedRequest = await tx.alliance_top_up_request_table.update({
+        where: { alliance_top_up_request_id: requestId },
+        data: {
+          alliance_top_up_request_status: status,
+          alliance_top_up_request_approved_by:
+            teamMemberProfile.alliance_member_id,
+          alliance_top_up_request_reject_note: note ?? null,
+        },
+      });
+
+      if (status === "APPROVED") {
+        const updatedEarnings = await tx.alliance_earnings_table.update({
+          where: {
+            alliance_earnings_member_id:
+              updatedRequest.alliance_top_up_request_member_id,
+          },
+          data: {
+            alliance_olympus_wallet: {
+              increment: updatedRequest.alliance_top_up_request_amount,
+            },
+          },
+        });
+
+        const updatedMerchant = await tx.merchant_member_table.update({
+          where: { merchant_member_id: merchant.merchant_member_id },
+          data: {
+            merchant_member_balance: {
+              decrement: updatedRequest.alliance_top_up_request_amount,
+            },
+          },
+        });
+
+        return {
+          updatedRequest,
+          updatedEarnings,
+          updatedMerchant,
+        };
+      }
+
+      return { updatedRequest };
     });
 
-    if (!allianceData) {
-      return NextResponse.json(
-        { error: "Failed to update top-up request." },
-        { status: 500 }
-      );
-    }
-    if (status === "APPROVED") {
-      const [updatedEarnings, updatedMerchant] = await prisma.$transaction(
-        async (tx) => {
-          const updatedEarnings = await tx.alliance_earnings_table.update({
-            where: {
-              alliance_earnings_member_id:
-                allianceData.alliance_top_up_request_member_id,
-            },
-            data: {
-              alliance_olympus_wallet: {
-                increment: allianceData.alliance_top_up_request_amount,
-              },
-            },
-          });
-
-          const updatedMerchant = await tx.merchant_member_table.update({
-            where: {
-              merchant_member_id: merchant.merchant_member_id,
-            },
-            data: {
-              merchant_member_balance: {
-                decrement: allianceData.alliance_top_up_request_amount,
-              },
-            },
-          });
-
-          return [updatedEarnings, updatedMerchant];
-        }
-      );
-
-      if (!updatedEarnings) {
-        return NextResponse.json(
-          { error: "No earnings record found to update." },
-          { status: 404 }
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        balance: updatedMerchant?.merchant_member_balance,
-      });
-    } else {
-      return NextResponse.json({
-        success: true,
-      });
-    }
+    return NextResponse.json({ success: true });
   } catch (error) {
+    console.error("Error in PUT request:", error);
     return NextResponse.json(
       {
         error:
