@@ -27,7 +27,6 @@ SET search_path TO ''
 AS $$
 
 let returnData;
-
 plv8.subtransaction(function() {
   const {
     userName,
@@ -140,7 +139,6 @@ function handleReferral(referalLink, allianceMemberId) {
   `, [newHierarchy, newReferralId]);
 }
 return returnData;
-
 $$ LANGUAGE plv8;
 
 CREATE OR REPLACE FUNCTION get_admin_top_up_history(
@@ -255,9 +253,7 @@ plv8.subtransaction(function() {
   returnData.data = topUpRequest;
   returnData.totalCount = Number(totalCount);
 });
-
 return returnData;
-
 $$ LANGUAGE plv8;
 
 CREATE OR REPLACE FUNCTION get_member_withdrawal_history(
@@ -265,7 +261,6 @@ CREATE OR REPLACE FUNCTION get_member_withdrawal_history(
 )
 RETURNS JSON
 AS $$
-
 let returnData = {
     data:[],
     totalCount:0
@@ -337,7 +332,6 @@ plv8.subtransaction(function() {
   returnData.totalCount = Number(totalCount);
 });
 return returnData;
-
 $$ LANGUAGE plv8;
 
 CREATE OR REPLACE FUNCTION get_admin_withdrawal_history(
@@ -648,7 +642,6 @@ plv8.subtransaction(function() {
   returnData.totalCount = Number(totalCount);
 });
 return returnData;
-
 $$ LANGUAGE plv8;
 
 CREATE OR REPLACE FUNCTION get_merchant_top_up_history(
@@ -1111,7 +1104,6 @@ let returnData = {
   success: true,
   message: 'Data fetched successfully',
 };
-
 plv8.subtransaction(function() {
   const {
     page = 1,
@@ -1240,7 +1232,6 @@ return returnData;
 $$ LANGUAGE plv8;
 
 
-
 CREATE OR REPLACE FUNCTION get_admin_dashboard_data(
   input_data JSON
 )
@@ -1256,7 +1247,6 @@ let returnData = {
   totalActivatedPackage: 0,
   chartData: []
 };
-
 plv8.subtransaction(function() {
   const { teamMemberId, dateFilter = {} } = input_data;
 
@@ -1397,11 +1387,8 @@ plv8.subtransaction(function() {
   returnData.numberOfRegisteredUser = Number(numberOfRegisteredUser);
   returnData.totalActivatedPackage = Number(totalActivatedPackage);
 });
-
 return returnData;
 $$ LANGUAGE plv8;
-
-
 
 CREATE OR REPLACE FUNCTION get_dashboard_data(
   input_data JSON
@@ -1528,8 +1515,6 @@ WHERE pmc.package_member_status = $1 AND pmc.package_member_member_id = $2
 return returnData;
 
 $$ LANGUAGE plv8;
-
-
 
 
 CREATE OR REPLACE FUNCTION get_history_log(
@@ -1699,7 +1684,6 @@ CREATE OR REPLACE FUNCTION get_user_options_merchant(
 RETURNS JSON
 AS $$
 let returnData = [];
-
 plv8.subtransaction(function() {
   const {
     page = 1,
@@ -1739,7 +1723,6 @@ plv8.subtransaction(function() {
 
   returnData = userData;
 });
-
 return returnData;
 $$ LANGUAGE plv8;
 
@@ -1947,7 +1930,6 @@ CREATE OR REPLACE FUNCTION get_earnings_modal_data(
 )
 RETURNS JSON
 AS $$
-
 let returnData = []
 plv8.subtransaction(function() {
   const {
@@ -1979,12 +1961,9 @@ $$ LANGUAGE plv8;
 CREATE OR REPLACE FUNCTION get_leaderboard_data(input_data JSON)
 RETURNS JSON
 AS $$
-
 let returnData = {};
-
 plv8.subtransaction(() => {
   const { leaderBoardType, teamMemberId, limit = 10, page = 0 } = input_data;
-
 const offset = (page - 1) * limit;
 
   const member = plv8.execute(
@@ -2040,49 +2019,26 @@ const offset = (page - 1) * limit;
     }))
   };
 });
-
 return returnData;
-
 $$ LANGUAGE plv8;
 
-CREATE OR REPLACE FUNCTION log_error(input_data JSON)
-RETURNS JSON
+
+CREATE OR REPLACE FUNCTION get_error_post(input_data JSON)
+RETURNS VOID
 AS $$
+  const { error_message, function_name, stack_trace, stack_path } = input_data;
 
-let returnData = [];
-
-plv8.subtransaction(() => {
-  const { errorMessage, stackTrace, stackPath} = input_data;
-
-const offset = (page - 1) * limit;
-
-  const member = plv8.execute(
+  plv8.execute(
     `
-    SELECT alliance_member_role
-    FROM alliance_schema.alliance_member_table
-    WHERE alliance_member_id = $1
-    `,
-    [teamMemberId]
-  );
-
-  if (!member.length || ["MEMBER", "MERCHANT", "ACCOUNTING","ADMIN"].includes(member[0].alliance_member_role)) {
-    returnData = { success: false, message: 'Unauthorized access' };
-    return;
-  }
-
-  const query = plv8.execute(`
     INSERT INTO error_schema.error_table (
       error_message,
+      error_function_name,
       error_stack_trace,
       error_stack_path
-    ) VALUES ($1, $2, $3)
-  `, [errorMessage, stackTrace, stackPath]);
-
-  returnData = query; 
-});
-
-return returnData;
-
+    ) VALUES ($1, $2, $3, $4)
+    `,
+    [error_message, function_name, stack_trace, stack_path]
+  );
 $$ LANGUAGE plv8;
 
 
@@ -2204,6 +2160,61 @@ USING (
   ) OR alliance_member_user_id = (SELECT auth.uid())
 );
 
+
+ALTER TABLE alliance_schema.alliance_withdrawal_request_table ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for authenticated users" ON alliance_schema.alliance_withdrawal_request_table;
+CREATE POLICY "Allow READ for anon users" ON alliance_schema.alliance_withdrawal_request_table
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Allow Insert for authenticated users" ON alliance_schema.alliance_withdrawal_request_table;
+CREATE POLICY "Allow Insert for anon users" ON alliance_schema.alliance_withdrawal_request_table
+AS PERMISSIVE FOR INSERT
+WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow UPDATE for authenticated users with MERCHANT role" ON alliance_schema.alliance_withdrawal_request_table;
+CREATE POLICY "Allow UPDATE for authenticated users with MERCHANT role" ON alliance_schema.alliance_withdrawal_request_table
+AS PERMISSIVE FOR UPDATE
+TO authenticated
+USING (
+  alliance_member_id IN (
+    SELECT alliance_member_team_id FROM alliance_schema.alliance_table
+    WHERE alliance_member_user_id = (SELECT auth.uid())
+    AND alliance_member_role IN ('MERCHANT')
+  ) OR alliance_member_user_id = (SELECT auth.uid())
+);
+
+
+
+
+ALTER TABLE alliance_schema.alliance_top_up_request_table ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for authenticated users" ON alliance_schema.alliance_top_up_request_table;
+CREATE POLICY "Allow READ for anon users" ON alliance_schema.alliance_top_up_request_table
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Allow Insert for authenticated users" ON alliance_schema.alliance_top_up_request_table;
+CREATE POLICY "Allow Insert for anon users" ON alliance_schema.alliance_top_up_request_table
+AS PERMISSIVE FOR INSERT
+WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow UPDATE for authenticated users with MERCHANT role" ON alliance_schema.alliance_top_up_request_table;
+CREATE POLICY "Allow UPDATE for authenticated users with MERCHANT role" ON alliance_schema.alliance_top_up_request_table
+AS PERMISSIVE FOR UPDATE
+TO authenticated
+USING (
+  alliance_member_id IN (
+    SELECT alliance_member_team_id FROM alliance_schema.alliance_table
+    WHERE alliance_member_user_id = (SELECT auth.uid())
+    AND alliance_member_role IN ('MERCHANT')
+  ) OR alliance_member_user_id = (SELECT auth.uid())
+  );
+
+
 -- Enable Row Level Security
 ALTER TABLE packages_schema.package_table ENABLE ROW LEVEL SECURITY;
 
@@ -2262,3 +2273,8 @@ GRANT ALL ON ALL TABLES IN SCHEMA merchant_schema TO PUBLIC;
 GRANT ALL ON ALL TABLES IN SCHEMA merchant_schema TO POSTGRES;
 GRANT ALL ON SCHEMA merchant_schema TO postgres;
 GRANT ALL ON SCHEMA merchant_schema TO public;
+
+GRANT ALL ON ALL TABLES IN SCHEMA public TO PUBLIC;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO POSTGRES;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
