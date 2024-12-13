@@ -1,11 +1,11 @@
-// context/RoleContext.tsx
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 
 type RoleContextType = {
   role: string;
-  setRole: (role: string) => void;
+  userName: string;
+  setRole: ({ role, userName }: { role: string; userName: string }) => void;
 };
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
@@ -13,14 +13,25 @@ const RoleContext = createContext<RoleContextType | undefined>(undefined);
 export const RoleProvider = ({
   children,
   initialRole,
+  initialUserName,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   initialRole: string;
+  initialUserName: string;
 }) => {
-  const [role, setRole] = useState(initialRole);
+  const [state, setState] = useState({
+    role: initialRole,
+    userName: initialUserName,
+  });
+
+  const setRole = ({ role, userName }: { role: string; userName: string }) => {
+    setState({ role, userName });
+  };
 
   return (
-    <RoleContext.Provider value={{ role, setRole }}>
+    <RoleContext.Provider
+      value={{ role: state.role, userName: state.userName, setRole }}
+    >
       {children}
     </RoleContext.Provider>
   );

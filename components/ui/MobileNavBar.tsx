@@ -23,8 +23,9 @@ type NavItem = {
 const MobileNavBar = ({ teamMemberProfile }: Props) => {
   const supabase = createClientSide();
   const pathname = usePathname();
-  const [isLoading, setIsLoading] = useState(false);
+
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignOut = async () => {
     try {

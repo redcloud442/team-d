@@ -6,7 +6,6 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/ui/toggleDarkmode";
 import { useRole } from "@/utils/context/roleContext";
 import { alliance_member_table, user_table } from "@prisma/client";
-import { useEffect } from "react";
 import NavBar from "../ui/navBar";
 import AppSidebar from "../ui/side-bar";
 
@@ -22,10 +21,6 @@ export default function LayoutContent({
   children,
 }: LayoutContentProps) {
   const { role } = useRole();
-
-  useEffect(() => {
-    console.log(role);
-  }, [role]);
 
   return (
     <div className="flex min-h-screen h-full w-full overflow-auto">
@@ -47,7 +42,7 @@ export default function LayoutContent({
 
         {role !== "ADMIN" && (
           <div className="hidden md:block">
-            <NavBar teamMemberProfile={teamMemberProfile} userData={profile} />
+            <NavBar teamMemberProfile={teamMemberProfile} />
           </div>
         )}
 

@@ -7,22 +7,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
-import { alliance_member_table, user_table } from "@prisma/client";
+import { alliance_member_table } from "@prisma/client";
 import { ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import NavigationLoader from "./NavigationLoader";
 
 type Props = {
-  userData: user_table;
   teamMemberProfile: alliance_member_table;
 };
 
-const NavBar = ({ userData, teamMemberProfile }: Props) => {
+const NavBar = ({ teamMemberProfile }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClientSide();
+  const { userName } = useRole();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleNavigation = (url: string) => {
@@ -111,7 +112,7 @@ const NavBar = ({ userData, teamMemberProfile }: Props) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">
-                Hello, {userData.user_username}
+                Hello, {userName}
                 <ChevronDown />
               </Button>
             </DropdownMenuTrigger>

@@ -34,7 +34,10 @@ export default async function AppLayout({
       disableTransitionOnChange
     >
       <SidebarProvider>
-        <RoleProvider initialRole={teamMemberProfile.alliance_member_role}>
+        <RoleProvider
+          initialRole={teamMemberProfile.alliance_member_role}
+          initialUserName={profile.user_username ?? ""}
+        >
           <LayoutContent
             profile={profile}
             teamMemberProfile={teamMemberProfile}

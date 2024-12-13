@@ -55,7 +55,10 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
               variant="outline"
               onClick={async () => {
                 await handleSignIn();
-                setRole(userProfile.alliance_member_role);
+                setRole({
+                  role: userProfile.alliance_member_role,
+                  userName: userProfile.user_username ?? "",
+                });
                 await router.push("/");
               }}
             >
