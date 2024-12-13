@@ -55,7 +55,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
 
                 setTimeout(() => {
                   router.push("/");
-                }, 2000);
+                }, 4000);
               }}
             >
               Sign In as {userProfile.user_username}

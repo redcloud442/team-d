@@ -1,17 +1,36 @@
 "use client";
 
+import { useToast } from "@/hooks/use-toast";
+import { getTotalReferral } from "@/services/Bounty/Admin";
 import { getAdminDashboard } from "@/services/Dasboard/Admin";
 import { logError } from "@/services/Error/ErrorLogs";
 import { createClientSide } from "@/utils/supabase/client";
 import { ChartData } from "@/utils/types";
-import { alliance_member_table } from "@prisma/client";
+import {
+  alliance_member_table,
+  alliance_referral_link_table,
+} from "@prisma/client";
 import { format } from "date-fns";
-import { CalendarIcon, Package2Icon, User2 } from "lucide-react";
+import {
+  CalendarIcon,
+  Package2Icon,
+  PhilippinePeso,
+  User2,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import CardAmountAdmin from "../ui/CardAmountAdmin";
+import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import TableLoading from "../ui/tableLoading";
 import AdminDashboardCard from "./AdminDashboardCard";
@@ -19,6 +38,7 @@ import AdminDashboardChart from "./AdminDashboardChart";
 import AdminDashboardTable from "./AdminDashboardTable";
 type Props = {
   teamMemberProfile: alliance_member_table;
+  referral: alliance_referral_link_table;
 };
 
 type FormContextType = {
@@ -28,8 +48,11 @@ type FormContextType = {
   };
 };
 
-const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
+const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
   const supabaseClient = createClientSide();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [copySuccess, setCopySuccess] = useState("");
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [totalWithdraw, setTotalWithdraw] = useState(0);
   const [directLoot, setDirectLoot] = useState(0);
@@ -39,7 +62,7 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
   const [totalActivatedPackage, setTotalActivatedPackage] = useState(0);
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [totalReferral, setTotalReferral] = useState(0);
   const filterMethods = useForm<FormContextType>({
     defaultValues: {
       dateFilter: {
@@ -99,6 +122,12 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
       setActivePackageWithinTheDay(activePackageWithinTheDay);
       setNumberOfRegisteredUser(numberOfRegisteredUser);
       setTotalActivatedPackage(totalActivatedPackage);
+
+      const totalReferral = await getTotalReferral(supabaseClient, {
+        teamMemberId: teamMemberProfile.alliance_member_id,
+      });
+
+      setTotalReferral(totalReferral);
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
@@ -116,13 +145,23 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
     fetchAdminDashboardData();
   }, [teamMemberProfile]);
 
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(referral.alliance_referral_link);
+      toast({
+        title: "Link copied!",
+        description: "Link copied to clipboard",
+        variant: "success",
+      });
+    } catch (err) {}
+  };
   const startDate = watch("dateFilter.start");
   const endDate = watch("dateFilter.end");
 
   return (
     <div className="mx-auto md:p-10 space-y-6">
       {isLoading && <TableLoading />}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-center justify-between">
         <h1 className="Title">Admin Dashboard</h1>
         <form
           onSubmit={handleSubmit(fetchAdminDashboardData)}
@@ -190,7 +229,11 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
               </Popover>
             )}
           />
-          <Button disabled={!startDate || !endDate} type="submit">
+          <Button
+            className="w-full md:w-auto"
+            disabled={!startDate || !endDate}
+            type="submit"
+          >
             Submit
           </Button>
         </form>
@@ -209,6 +252,31 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
         <div>
           <AdminDashboardChart chartData={chartData} />
         </div>
+        <Card className="w-full md:min-w-md">
+          <CardHeader>
+            <CardTitle> Total Referral</CardTitle>
+            <CardDescription className="flex gap-x-2 text-xl font-bold">
+              <PhilippinePeso />
+              {totalReferral.toLocaleString()}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-x-2">
+              <Input
+                type="text"
+                value={referral.alliance_referral_link}
+                readOnly
+              />
+              <Button onClick={handleCopyLink}>Copy Link</Button>
+              <Button onClick={() => router.push("/direct-loot")}>
+                Direct Loot
+              </Button>
+              <Button onClick={() => router.push("/indirect-loot")}>
+                Indirect Loot
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
         <CardAmountAdmin
           title="Total Registered User"
           value={

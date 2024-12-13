@@ -40,13 +40,17 @@ plv8.subtransaction(function() {
     iv
   } = input_data;
 
-  if (!email || !password) {
+
+
+  if (referalLink) {
+
+      if (!email || !password) {
     throw new Error('Both email and password are required to create a user.');
   }
   
   const DEFAULT_ALLIANCE_ID = '35f77cd9-636a-41fa-a346-9cb711e7a338';
 
-  // Create user
+
   const insertUserQuery = `
     INSERT INTO user_schema.user_table (user_id, user_email, user_password, user_iv, user_first_name, user_last_name, user_username)
     VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -58,20 +62,19 @@ plv8.subtransaction(function() {
     throw new Error('Failed to create user');
   }
 
-  // Create alliance member
+
   const allianceMemberId = plv8.execute(`
     INSERT INTO alliance_schema.alliance_member_table (alliance_member_role, alliance_member_alliance_id, alliance_member_user_id)
     VALUES ($1, $2, $3)
     RETURNING alliance_member_id
   `, ['MEMBER', DEFAULT_ALLIANCE_ID, userId])[0].alliance_member_id;
 
-  // Insert earnings entry
   plv8.execute(`
     INSERT INTO alliance_schema.alliance_earnings_table (alliance_earnings_member_id)
     VALUES ($1)
   `, [allianceMemberId]);
 
-  // Create referral link
+
   const referralLinkURL = `${url}?referralLink=${encodeURIComponent(userName)}`;
   plv8.execute(`
     INSERT INTO alliance_schema.alliance_referral_link_table (alliance_referral_link, alliance_referral_link_member_id)
@@ -79,14 +82,14 @@ plv8.subtransaction(function() {
   `, [referralLinkURL, allianceMemberId]);
 
 
-  if (referalLink) {
     handleReferral(referalLink, allianceMemberId);
-  }
 
-  returnData = {
+     returnData = {
     success: true,
     user: result[0],
   };
+  }
+
 });
 
 function handleReferral(referalLink, allianceMemberId) {
@@ -130,8 +133,9 @@ function handleReferral(referalLink, allianceMemberId) {
   ]);
 
   const newReferralId = newReferral[0].alliance_referral_id;
-
+  
   const newHierarchy = parentHierarchy ? `${parentHierarchy}.${allianceMemberId}` : `${referrerMemberId}.${allianceMemberId}`;
+  
   plv8.execute(`
     UPDATE alliance_schema.alliance_referral_table
     SET alliance_referral_hierarchy = $1
@@ -140,7 +144,6 @@ function handleReferral(referalLink, allianceMemberId) {
 }
 return returnData;
 $$ LANGUAGE plv8;
-
 CREATE OR REPLACE FUNCTION get_admin_top_up_history(
   input_data JSON
 )
@@ -1021,9 +1024,10 @@ CREATE OR REPLACE FUNCTION get_ally_bounty(
 RETURNS JSON
 AS $$
 let returnData = {
-    data:[],
-    totalCount:0
+    data: [],
+    totalCount: 0
 };
+
 plv8.subtransaction(function() {
   const {
     page = 1,
@@ -1035,60 +1039,114 @@ plv8.subtransaction(function() {
     isAscendingSort
   } = input_data;
 
-  const member = plv8.execute(`
-    SELECT alliance_member_role
-    FROM alliance_schema.alliance_member_table
-    WHERE alliance_member_id = $1
-  `, [teamMemberId]);
+  const member = plv8.execute(
+    `SELECT alliance_member_role
+     FROM alliance_schema.alliance_member_table
+     WHERE alliance_member_id = $1`,
+    [teamMemberId]
+  );
 
-  if (!member.length || member[0].alliance_member_role !== 'MEMBER') {
+  if (!member.length || !["ADMIN", "ACCOUNTING", "MERCHANT", "MEMBER"].includes(member[0].alliance_member_role)) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
 
   const offset = (page - 1) * limit;
 
-  const params = [teamMemberId, limit, offset];
+  const directReferrals = plv8.execute(
+    `SELECT alliance_referral_member_id
+     FROM alliance_schema.alliance_referral_table
+     WHERE alliance_referral_from_member_id = $1`,
+    [teamMemberId]
+  ).map((ref) => ref.alliance_referral_member_id);
 
-  const searchCondition = search ? `AND u.user_email = '${search}'`: "";
-  const sortBy = isAscendingSort ? "desc" : "asc";
+  if (!directReferrals.length) {
+    returnData = { success: true, data: [], totalCount: 0 };
+    return;
+  }
+
+  const params = [directReferrals, limit, offset];
+  const searchCondition = search ? `AND u.user_first_name ILIKE $4` : '';
+  if (search) params.push(`%${search}%`);
+
+  const sortBy = isAscendingSort ? "ASC" : "DESC";
   const sortCondition = columnAccessor
     ? `ORDER BY "${columnAccessor}" ${sortBy}`
-    : "";
+    : '';
 
-  const userRequest = plv8.execute(`
-    SELECT
-     u.user_id,
-     u.user_first_name,
-     u.user_last_name
-    FROM alliance_schema.alliance_member_table m
-    JOIN alliance_schema.alliance_referral_table r
-    ON r.alliance_referral_member_id = m.alliance_member_id
-    JOIN user_schema.user_table u
-    ON u.user_id = m.alliance_member_user_id
-    WHERE r.alliance_referral_level = '1'
-    AND r.alliance_referral_from_member_id = $1
-    ${searchCondition}
-    ${sortCondition}
-    LIMIT $2 OFFSET $3
-  `, params);
+  const userRequest = plv8.execute(
+    `SELECT
+       u.user_first_name,
+       u.user_last_name,
+       u.user_username
+     FROM alliance_schema.alliance_member_table m
+     JOIN user_schema.user_table u
+       ON u.user_id = m.alliance_member_user_id
+     WHERE m.alliance_member_id = ANY($1)
+     ${searchCondition}
+     ${sortCondition}
+     LIMIT $2 OFFSET $3`,
+    params
+  );
 
-    const totalCount = plv8.execute(`
-      SELECT
-        COUNT(*)
-    FROM alliance_schema.alliance_member_table m
-    JOIN alliance_schema.alliance_referral_table r
-    ON r.alliance_referral_member_id = m.alliance_member_id
-    JOIN user_schema.user_table u
-    ON u.user_id = m.alliance_member_user_id
-    WHERE r.alliance_referral_level = '1'
-    AND r.alliance_referral_from_member_id = $1
-      ${searchCondition}
-  `,[teamId])[0].count;
+  const totalCount = plv8.execute(
+    `SELECT COUNT(*)
+     FROM alliance_schema.alliance_member_table m
+     JOIN user_schema.user_table u
+       ON u.user_id = m.alliance_member_user_id
+     WHERE m.alliance_member_id = ANY($1)
+     ${searchCondition}`,
+    params.slice(0, search ? 2 : 1)
+  )[0].count;
 
   returnData.data = userRequest;
   returnData.totalCount = Number(totalCount);
 });
+
+return returnData;
+$$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION get_ally_bounty(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+    data: [],
+    totalCount: 0
+};
+
+plv8.subtransaction(function() {
+  const {
+    teamMemberId,
+  } = input_data;
+
+  const member = plv8.execute(
+    `SELECT alliance_member_role
+     FROM alliance_schema.alliance_member_table
+     WHERE alliance_member_id = $1`,
+    [teamMemberId]
+  );
+
+  if (!member.length || !["ADMIN", "ACCOUNTING", "MERCHANT", "MEMBER"].includes(member[0].alliance_member_role)) {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+  
+  const getSponsor = plv8.execute(`
+    SELECT u.user_username
+    FROM alliance_schema.alliance_referral_table
+    WHERE alliance_referral_member_id = $1
+    JOIN alliance_member_table am
+      ON am.alliance_member_id = alliance_referral_from_member_id
+    JOIN user_schema.user_table u
+      ON u.user_id = am.alliance_member_user_id
+  `, [teamMemberId])[0].user_username;
+
+  returnData.data = getSponsor;
+  returnData.totalCount = Number(totalCount);
+});
+
 return returnData;
 $$ LANGUAGE plv8;
 
@@ -1128,7 +1186,7 @@ plv8.subtransaction(function() {
     [teamMemberId]
   );
 
-  if (!member.length || member[0].alliance_member_role !== 'MEMBER') {
+  if (!member.length || !["ADMIN", "ACCOUNTING", "MERCHANT","MEMBER"].includes(member[0].alliance_member_role)) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
@@ -1227,7 +1285,106 @@ plv8.subtransaction(function() {
   returnData.data = indirectReferralDetails;
   returnData.totalCount = Number(totalCountResult[0].count);
 });
+return returnData;
+$$ LANGUAGE plv8;
 
+CREATE OR REPLACE FUNCTION get_total_referral(input_data JSON)
+RETURNS JSON
+AS $$
+let returnData = {
+  data: 0,
+  totalCount: 0,
+  success: true,
+  message: 'Data fetched successfully',
+};
+plv8.subtransaction(function() {
+  const { teamMemberId } = input_data;
+
+  if (!teamMemberId) {
+    returnData = { success: false, message: 'teamMemberId is required' };
+    return;
+  }
+
+  const member = plv8.execute(
+    `SELECT alliance_member_role
+     FROM alliance_schema.alliance_member_table
+     WHERE alliance_member_id = $1`,
+    [teamMemberId]
+  );
+
+  if (!member.length || member[0].alliance_member_role !== 'ADMIN') {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  // Get direct referrals
+  const directReferrals = plv8.execute(
+    `SELECT alliance_referral_member_id
+     FROM alliance_schema.alliance_referral_table
+     WHERE alliance_referral_from_member_id = $1`,
+    [teamMemberId]
+  ).map((ref) => ref.alliance_referral_member_id);
+
+  // Get indirect referrals
+  let indirectReferrals = new Set();
+  let currentLevelReferrals = [teamMemberId];
+  let currentLevel = 0;
+  const maxLevel = 11;
+
+  while (currentLevel < maxLevel && currentLevelReferrals.length > 0) {
+    const referrerData = plv8.execute(
+      `SELECT ar.alliance_referral_hierarchy
+       FROM alliance_schema.alliance_referral_table ar
+       JOIN alliance_schema.alliance_referral_link_table al
+         ON al.alliance_referral_link_id = ar.alliance_referral_link_id
+       WHERE al.alliance_referral_link_member_id = ANY($1)`,
+      [currentLevelReferrals]
+    );
+
+    let nextLevelReferrals = [];
+
+    referrerData.forEach((ref) => {
+      const hierarchyArray = ref.alliance_referral_hierarchy.split('.').slice(1);
+
+      hierarchyArray.forEach((id) => {
+        if (!indirectReferrals.has(id) && id !== teamMemberId) {
+          indirectReferrals.add(id);
+          nextLevelReferrals.push(id);
+        }
+      });
+    });
+
+    currentLevelReferrals = nextLevelReferrals;
+    currentLevel++;
+  }
+
+  indirectReferrals = Array.from(indirectReferrals).filter(
+    (id) => !directReferrals.includes(id)
+  );
+
+  let totalDirectBounty = 0;
+  if (directReferrals.length > 0) {
+    totalDirectBounty = plv8.execute(
+      `SELECT COALESCE(SUM(package_ally_bounty_earnings), 0) AS total_bounty
+       FROM packages_schema.package_ally_bounty_log
+       WHERE package_ally_bounty_member_id = ANY($1)`,
+      [directReferrals]
+    )[0].total_bounty;
+  }
+
+
+  let totalIndirectBounty = 0;
+  if (indirectReferrals.length > 0) {
+    totalIndirectBounty = plv8.execute(
+      `SELECT COALESCE(SUM(package_ally_bounty_earnings), 0) AS total_bounty
+       FROM packages_schema.package_ally_bounty_log
+       WHERE package_ally_bounty_member_id = ANY($1)`,
+      [indirectReferrals]
+    )[0].total_bounty;
+  }
+
+  returnData = totalDirectBounty;
+});
 return returnData;
 $$ LANGUAGE plv8;
 
@@ -1276,7 +1433,7 @@ plv8.subtransaction(function() {
   const totalEarnings = plv8.execute(`
     SELECT COALESCE(SUM(package_member_amount), 0) AS total_earnings
     FROM packages_schema.package_member_connection_table
-    WHERE package_member_status = 'ENDED' AND package_member_date_created BETWEEN $1 AND $2
+    WHERE package_member_connection_created BETWEEN $1 AND $2
   `, [startDate, endDate])[0];
 
 
@@ -2161,6 +2318,62 @@ USING (
 );
 
 
+ALTER TABLE alliance_schema.alliance_earnings_table ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for authenticated users" ON alliance_schema.alliance_earnings_table;
+CREATE POLICY "Allow READ for authenticated users" ON alliance_schema.alliance_earnings_table
+AS PERMISSIVE FOR SELECT 
+TO authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Allow Insert for authenticated users" ON alliance_schema.alliance_earnings_table;
+CREATE POLICY "Allow Insert for authenticated users" ON alliance_schema.alliance_earnings_table
+AS PERMISSIVE FOR INSERT
+TO authenticated
+WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow UPDATE for authenticated users with ADMIN role" ON alliance_schema.alliance_earnings_table;
+CREATE POLICY "Allow UPDATE for authenticated users with ADMIN role" ON alliance_schema.alliance_earnings_table
+AS PERMISSIVE FOR UPDATE
+TO authenticated
+USING (true);
+
+ALTER TABLE alliance_schema.alliance_referral_link_table ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for authenticated users" ON alliance_schema.alliance_referral_link_table;
+CREATE POLICY "Allow READ for authenticated users" ON alliance_schema.alliance_referral_link_table
+AS PERMISSIVE FOR SELECT 
+TO authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Allow Insert for authenticated users" ON alliance_schema.alliance_referral_link_table;
+CREATE POLICY "Allow Insert for authenticated users" ON alliance_schema.alliance_referral_link_table
+AS PERMISSIVE FOR INSERT
+TO authenticated
+WITH CHECK (true);
+
+ALTER TABLE alliance_schema.alliance_referral_table ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for authenticated users" ON alliance_schema.alliance_referral_table;
+CREATE POLICY "Allow READ for authenticated users" ON alliance_schema.alliance_referral_table
+AS PERMISSIVE FOR SELECT 
+TO authenticated
+USING (true);
+
+
+DROP POLICY IF EXISTS "Allow Insert for anon users" ON alliance_schema.alliance_referral_table;
+CREATE POLICY "Allow Insert for anon users" ON alliance_schema.alliance_referral_table
+AS PERMISSIVE FOR INSERT
+WITH CHECK (true);
+
+
+DROP POLICY IF EXISTS "Allow update for anon users" ON alliance_schema.alliance_referral_table;
+CREATE POLICY "Allow update for anon users" ON alliance_schema.alliance_referral_table
+AS PERMISSIVE FOR UPDATE
+TO authenticated
+USING (true);
+
+
 ALTER TABLE alliance_schema.alliance_withdrawal_request_table ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Allow READ for authenticated users" ON alliance_schema.alliance_withdrawal_request_table;
@@ -2174,19 +2387,109 @@ CREATE POLICY "Allow Insert for anon users" ON alliance_schema.alliance_withdraw
 AS PERMISSIVE FOR INSERT
 WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Allow UPDATE for authenticated users with MERCHANT role" ON alliance_schema.alliance_withdrawal_request_table;
-CREATE POLICY "Allow UPDATE for authenticated users with MERCHANT role" ON alliance_schema.alliance_withdrawal_request_table
+
+CREATE POLICY "Allow UPDATE for authenticated users with ACCOUNTING role" 
+ON alliance_schema.alliance_withdrawal_request_table
 AS PERMISSIVE FOR UPDATE
 TO authenticated
 USING (
-  alliance_member_id IN (
-    SELECT alliance_member_team_id FROM alliance_schema.alliance_table
-    WHERE alliance_member_user_id = (SELECT auth.uid())
-    AND alliance_member_role IN ('MERCHANT')
-  ) OR alliance_member_user_id = (SELECT auth.uid())
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_table at
+    JOIN alliance_schema.alliance_member_table ab
+      ON ab.alliance_member_alliance_id = at.alliance_id 
+    WHERE ab.alliance_member_user_id = auth.uid()
+    AND ab.alliance_member_role = 'ACCOUNTING'
+  )
+);
+
+ALTER TABLE user_schema.user_history_log ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow All for anon users" ON user_schema.user_history_log;
+CREATE POLICY "Allow All for anon users" ON user_schema.user_history_log
+AS PERMISSIVE FOR ALL
+
+
+ALTER TABLE packages_schema.package_ally_bounty_log ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for authenticated users" ON packages_schema.package_ally_bounty_log;
+CREATE POLICY "Allow READ for anon users" ON packages_schema.package_ally_bounty_log
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Allow Insert for authenticated users" ON packages_schema.package_ally_bounty_log;
+CREATE POLICY "Allow Insert for anon users" ON packages_schema.package_ally_bounty_log
+AS PERMISSIVE FOR INSERT
+WITH CHECK (true);
+
+ALTER TABLE packages_schema.package_earnings_log ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for authenticated users" ON packages_schema.package_earnings_log;
+CREATE POLICY "Allow READ for anon users" ON packages_schema.package_earnings_log
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Allow Insert for authenticated users" ON packages_schema.package_earnings_log;
+CREATE POLICY "Allow Insert for anon users" ON packages_schema.package_earnings_log
+AS PERMISSIVE FOR INSERT
+WITH CHECK (true);
+
+ALTER TABLE packages_schema.package_member_connection_table ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for authenticated users" ON packages_schema.package_member_connection_table;
+CREATE POLICY "Allow READ for anon users" ON packages_schema.package_member_connection_table
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Allow Insert for authenticated users" ON packages_schema.package_member_connection_table;
+CREATE POLICY "Allow Insert for anon users" ON packages_schema.package_member_connection_table
+AS PERMISSIVE FOR INSERT
+WITH CHECK (true);
+
+ALTER TABLE packages_schema.package_table ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for authenticated users" ON packages_schema.package_table;
+CREATE POLICY "Allow READ for anon users" ON packages_schema.package_table
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Allow INSERT for authenticated users with ADMIN role" ON packages_schema.package_table;
+
+
+CREATE POLICY "Allow INSERT for authenticated users with ADMIN role" 
+ON packages_schema.package_table
+AS PERMISSIVE FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_table at
+    JOIN alliance_schema.alliance_member_table ab
+      ON ab.alliance_member_alliance_id = at.alliance_id 
+    WHERE ab.alliance_member_user_id = auth.uid()
+    AND ab.alliance_member_role = 'ADMIN'
+  )
 );
 
 
+CREATE POLICY "Allow UPDATE for authenticated users with ADMIN role" 
+ON packages_schema.package_table
+AS PERMISSIVE FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_table at
+    JOIN alliance_schema.alliance_member_table ab
+      ON ab.alliance_member_alliance_id = at.alliance_id 
+    WHERE ab.alliance_member_user_id = auth.uid()
+    AND ab.alliance_member_role = 'ADMIN'
+  )
+);
 
 
 ALTER TABLE alliance_schema.alliance_top_up_request_table ENABLE ROW LEVEL SECURITY;
@@ -2202,18 +2505,20 @@ CREATE POLICY "Allow Insert for anon users" ON alliance_schema.alliance_top_up_r
 AS PERMISSIVE FOR INSERT
 WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Allow UPDATE for authenticated users with MERCHANT role" ON alliance_schema.alliance_top_up_request_table;
-CREATE POLICY "Allow UPDATE for authenticated users with MERCHANT role" ON alliance_schema.alliance_top_up_request_table
+CREATE POLICY "Allow UPDATE for authenticated users with MERCHANT role" 
+ON alliance_schema.alliance_withdrawal_request_table
 AS PERMISSIVE FOR UPDATE
 TO authenticated
 USING (
-  alliance_member_id IN (
-    SELECT alliance_member_team_id FROM alliance_schema.alliance_table
-    WHERE alliance_member_user_id = (SELECT auth.uid())
-    AND alliance_member_role IN ('MERCHANT')
-  ) OR alliance_member_user_id = (SELECT auth.uid())
-  );
-
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_table at
+    JOIN alliance_schema.alliance_member_table ab
+      ON ab.alliance_member_alliance_id = at.alliance_id -- Corrected the join condition
+    WHERE ab.alliance_member_user_id = auth.uid()
+    AND ab.alliance_member_role = 'MERCHANT'
+  )
+);
 
 -- Enable Row Level Security
 ALTER TABLE packages_schema.package_table ENABLE ROW LEVEL SECURITY;
@@ -2252,6 +2557,87 @@ WITH CHECK (
       AND amt.alliance_member_role = 'ADMIN'
   )
 );
+
+ALTER TABLE public.error_table ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for anon users" ON public.error_table;
+CREATE POLICY "Allow READ for anon users" ON public.error_table
+AS PERMISSIVE FOR SELECT
+USING (true);
+
+DROP POLICY IF EXISTS "Allow Insert for anon users" ON public.error_table;
+CREATE POLICY "Allow Insert for anon users" ON public.error_table
+AS PERMISSIVE FOR INSERT
+WITH CHECK (true);
+
+
+ALTER TABLE merchant_schema.merchant_member_table ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for auth users" ON merchant_schema.merchant_member_table;
+CREATE POLICY "Allow READ for auth users" ON merchant_schema.merchant_member_table
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Allow Insert for auth users" ON merchant_schema.merchant_member_table;
+CREATE POLICY "Allow Insert for auth users" ON merchant_schema.merchant_member_table
+AS PERMISSIVE FOR INSERT
+TO authenticated
+WITH CHECK ;
+
+
+DROP POLICY IF EXISTS "Allow UPDATE for ADMIN users" ON merchant_schema.merchant_member_table;
+CREATE POLICY "Allow UPDATE for ADMIN users" ON merchant_schema.merchant_member_table
+AS PERMISSIVE FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table amt
+    WHERE amt.alliance_member_user_id = (SELECT auth.uid())
+      AND amt.alliance_member_role = 'ADMIN'
+  )
+);
+
+
+ALTER TABLE merchant_schema.merchant_table ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow READ for auth users" ON merchant_schema.merchant_member_table;
+CREATE POLICY "Allow READ for auth users" ON merchant_schema.merchant_member_table
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Allow Insert for auth users" ON merchant_schema.merchant_member_table;
+CREATE POLICY "Allow Insert for auth users" ON merchant_schema.merchant_member_table
+AS PERMISSIVE FOR INSERT
+TO authenticated
+WITH CHECK ( EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table amt
+    WHERE amt.alliance_member_user_id = (SELECT auth.uid())
+      AND amt.alliance_member_role = 'MERCHANT'
+  ));
+
+
+DROP POLICY IF EXISTS "Allow UPDATE for ADMIN users" ON merchant_schema.merchant_member_table;
+CREATE POLICY "Allow UPDATE for ADMIN users" ON merchant_schema.merchant_member_table
+AS PERMISSIVE FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table amt
+    WHERE amt.alliance_member_user_id = (SELECT auth.uid())
+      AND amt.alliance_member_role = 'MERCHANT'
+  )
+);
+
+CREATE INDEX idx_alliance_top_up_request_member_id
+ON alliance_schema.alliance_top_up_request_table (alliance_top_up_request_member_id);
+
+CREATE INDEX idx_merchant_member_id
+ON merchant_schema.merchant_member_table (merchant_member_id);
 
 
 GRANT ALL ON ALL TABLES IN SCHEMA user_schema TO PUBLIC;

@@ -6,11 +6,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { PhilippinePeso } from "lucide-react";
+import { ReactNode } from "react";
 
 type Props = {
   title: string;
   value: number;
-  description?: string;
+  description?: ReactNode;
   descriptionClassName?: string;
   children?: React.ReactNode;
 };

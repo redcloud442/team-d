@@ -34,7 +34,7 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
       ),
       cell: ({ row }) => {
         const requestId = row.getValue("alliance_top_up_request_id") as string;
-        console.log(requestId);
+
         const maxLength = 15;
 
         const handleCopy = async () => {

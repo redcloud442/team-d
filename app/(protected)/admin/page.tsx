@@ -12,11 +12,16 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const { teamMemberProfile } = await protectionAdminUser();
+  const { teamMemberProfile, referral } = await protectionAdminUser();
 
   if (!teamMemberProfile) return redirect("/500");
 
-  return <AdminDashboardPage teamMemberProfile={teamMemberProfile} />;
+  return (
+    <AdminDashboardPage
+      teamMemberProfile={teamMemberProfile}
+      referral={referral}
+    />
+  );
 };
 
 export default Page;

@@ -76,7 +76,8 @@ model alliance_member_table {
   alliance_earnings_table         alliance_earnings_table[]
   package_member_connection_table package_member_connection_table[]
   alliance_referral_link_table    alliance_referral_link_table[]
-  alliance_referral_table         alliance_referral_table[]
+  alliance_referral_table         alliance_referral_table[] 
+  alliance_referral_from_table    alliance_referral_table[] @relation("FromMember")
   alliance_top_up_request_table   alliance_top_up_request_table[] @relation("Requestor")
   approved_top_up_requests        alliance_top_up_request_table[] @relation("Approver")
   alliance_withdrawal_request_table alliance_withdrawal_request_table[] @relation("WithdrawalRequestor")
@@ -107,8 +108,9 @@ model alliance_referral_table {
   alliance_referral_link_id          String    @db.Uuid
   alliance_referral_from_member_id   String?   @db.Uuid
 
-  alliance_member_table              alliance_member_table @relation(fields: [alliance_referral_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
+  alliance_member_table              alliance_member_table @relation("FromMember",fields: [alliance_referral_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
   alliance_referral_link_table       alliance_referral_link_table @relation(fields: [alliance_referral_link_id], references: [alliance_referral_link_id], onDelete: Cascade, onUpdate: Cascade)
+  alliance_referral_from_table      alliance_member_table? @relation(fields: [alliance_referral_from_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("alliance_schema")
 }

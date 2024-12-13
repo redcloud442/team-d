@@ -79,10 +79,19 @@ export const protectionAdminUser = async () => {
     ) {
       return { redirect: "/500" };
     }
+    const referral = await prisma.alliance_referral_link_table.findFirst({
+      where: {
+        alliance_referral_link_member_id: teamMember.alliance_member_id,
+      },
+    });
 
+    if (!referral) {
+      return { redirect: "/500" };
+    }
     return {
       profile: profile as user_table,
       teamMemberProfile: teamMember as alliance_member_table,
+      referral: referral as alliance_referral_link_table,
     };
   } catch (error) {
     return { redirect: "/error" };

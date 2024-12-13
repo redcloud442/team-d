@@ -35,13 +35,14 @@ import { AllyBountyColumn } from "./AllyBountyColum";
 
 type DataTableProps = {
   teamMemberProfile: alliance_member_table;
+  sponsor: string;
 };
 
 type FilterFormValues = {
   emailFilter: string;
 };
 
-const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
+const AllyBountyTable = ({ teamMemberProfile, sponsor }: DataTableProps) => {
   const supabaseClient = createClientSide();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -149,6 +150,11 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
             Refresh
           </Button>
         </form>
+        {sponsor && (
+          <div className="flex items-center justify-center gap-x-4 p-4">
+            <h1 className="Text">Sponsor {sponsor}</h1>
+          </div>
+        )}
       </div>
       <ScrollArea className="w-full overflow-x-auto ">
         {isFetchingList && <TableLoading />}

@@ -16,7 +16,9 @@ export const AllyBountyColumn = (): ColumnDef<user_table>[] => {
           Username <ArrowUpDown />
         </Button>
       ),
-      cell: ({ row }) => <div>{row.getValue("user_username")}</div>,
+      cell: ({ row }) => (
+        <div className="text-wrap">{row.getValue("user_username")}</div>
+      ),
     },
     {
       accessorKey: "user_first_name",
@@ -29,7 +31,9 @@ export const AllyBountyColumn = (): ColumnDef<user_table>[] => {
           First Name <ArrowUpDown />
         </Button>
       ),
-      cell: ({ row }) => <div>{row.getValue("user_first_name")}</div>,
+      cell: ({ row }) => (
+        <div className="text-wrap">{row.getValue("user_first_name")}</div>
+      ),
     },
     {
       accessorKey: "user_last_name",
@@ -42,7 +46,9 @@ export const AllyBountyColumn = (): ColumnDef<user_table>[] => {
           Last Name <ArrowUpDown />
         </Button>
       ),
-      cell: ({ row }) => <div>{row.getValue("user_last_name")}</div>,
+      cell: ({ row }) => (
+        <div className="text-wrap">{row.getValue("user_last_name")}</div>
+      ),
     },
   ];
 };

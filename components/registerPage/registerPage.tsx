@@ -11,7 +11,7 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -53,7 +53,10 @@ const RegisterSchema = z
 
 type RegisterFormData = z.infer<typeof RegisterSchema>;
 
-const RegisterPage = () => {
+type Props = {
+  referralLink: string;
+};
+const RegisterPage = ({ referralLink }: Props) => {
   const {
     register,
     handleSubmit,
@@ -64,12 +67,10 @@ const RegisterPage = () => {
   const supabase = createClientSide();
   const router = useRouter();
   const pathName = usePathname();
-  const searchParams = useSearchParams();
   const { toast } = useToast();
 
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const referalLink = searchParams.get("referralLink") as string;
   const url = `${process.env.NEXT_PUBLIC_BASE_URL}${pathName}`;
 
   const handleRegistrationSubmit = async (data: RegisterFormData) => {
@@ -83,7 +84,7 @@ const RegisterPage = () => {
         password: password,
         firstName,
         lastName,
-        referalLink,
+        referalLink: referralLink,
         url,
       });
       setIsSuccess(true);

@@ -1,5 +1,5 @@
 import LegionBountyPage from "@/components/LegionBountyPage/LegionBountyPage";
-import { protectionMemberUser } from "@/utils/serversideProtection";
+import { protectionAllUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -12,11 +12,11 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const { teamMemberProfile } = await protectionMemberUser();
+  const { teamMemberProfile } = await protectionAllUser();
 
   if (!teamMemberProfile) return redirect("/500");
 
-  if (teamMemberProfile) {
+  if (!teamMemberProfile) {
     redirect("/");
   }
 

@@ -4,9 +4,10 @@ import AllyBountyTable from "./AllyBountyTable";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
+  sponsor: string;
 };
 
-const AllyBountyPage = ({ teamMemberProfile }: Props) => {
+const AllyBountyPage = ({ teamMemberProfile, sponsor }: Props) => {
   return (
     <div className="md:p-10">
       <div>
@@ -18,9 +19,11 @@ const AllyBountyPage = ({ teamMemberProfile }: Props) => {
           </p>
         </header>
 
-        {/* Table Section */}
         <section className=" rounded-lg  p-6">
-          <AllyBountyTable teamMemberProfile={teamMemberProfile} />
+          <AllyBountyTable
+            teamMemberProfile={teamMemberProfile}
+            sponsor={sponsor}
+          />
         </section>
       </div>
     </div>

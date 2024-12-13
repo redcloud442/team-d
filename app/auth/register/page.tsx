@@ -11,16 +11,21 @@ export const metadata: Metadata = {
   },
 };
 
-const Page = async () => {
+const Page = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ referralLink: string }>;
+}) => {
+  const { referralLink } = await searchParams;
   const result = await protectionRegisteredUser();
 
-  if (result?.redirect) {
+  if (result?.redirect || !referralLink) {
     redirect("/");
   }
 
   return (
     <main className="max-w-full min-h-screen flex flex-col items-center justify-center">
-      <RegisterPage />
+      <RegisterPage referralLink={referralLink} />
     </main>
   );
 };

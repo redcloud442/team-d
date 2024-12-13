@@ -12,6 +12,8 @@ import {
 import { useEffect, useState } from "react";
 
 import { logError } from "@/services/Error/ErrorLogs";
+import { useRouter } from "next/navigation";
+import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import CardAmount from "../ui/cardAmount";
 import TableLoading from "../ui/tableLoading";
@@ -35,6 +37,7 @@ const DashboardPage = ({
   dashboardEarnings,
 }: Props) => {
   const supabaseClient = createClientSide();
+  const router = useRouter();
   const [chartData, setChartData] = useState<ChartDataMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [earnings, setEarnings] =
@@ -126,7 +129,13 @@ const DashboardPage = ({
                 dashboardEarnings.directReferralAmount
               ).toLocaleString() as unknown as number
             }
-            description=""
+            description={
+              <>
+                <Button size={"sm"} onClick={() => router.push("/direct-loot")}>
+                  Direct Referral
+                </Button>
+              </>
+            }
             descriptionClassName="text-sm text-green-600"
           />
           <CardAmount
@@ -136,7 +145,16 @@ const DashboardPage = ({
                 dashboardEarnings.indirectReferralAmount
               ).toLocaleString() as unknown as number
             }
-            description=""
+            description={
+              <>
+                <Button
+                  size={"sm"}
+                  onClick={() => router.push("/indirect-loot")}
+                >
+                  Indirect Referral
+                </Button>
+              </>
+            }
             descriptionClassName="text-sm text-red-600"
           />
         </div>
