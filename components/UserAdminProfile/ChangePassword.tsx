@@ -1,6 +1,8 @@
 import { useToast } from "@/hooks/use-toast";
 import { changeUserPassword } from "@/services/auth/auth";
+import { logError } from "@/services/Error/ErrorLogs";
 import { escapeFormData } from "@/utils/function";
+import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -35,6 +37,7 @@ type Props = {
 
 const ChangePassword = ({ userProfile }: Props) => {
   const { toast } = useToast();
+  const supabaseClient = createClientSide();
   const {
     register,
     handleSubmit,
@@ -64,12 +67,20 @@ const ChangePassword = ({ userProfile }: Props) => {
         variant: "success",
       });
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/UserAdminProfile/ChangePassword.tsx",
+        });
+      }
       toast({
         title: "Something went wrong",
         variant: "destructive",
       });
     }
   };
+
   return (
     <Card className="shadow-md">
       <CardHeader className="border-b pb-4">

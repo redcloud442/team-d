@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { logError } from "@/services/Error/ErrorLogs";
 import { getUserOptions } from "@/services/Options/Options";
 import { getAdminWithdrawalRequest } from "@/services/Withdrawal/Admin";
 import { escapeFormData } from "@/utils/function";
@@ -139,6 +140,14 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath:
+            "components/AdminWithdrawalListPage/AdminWithdrawalTable.tsx",
+        });
+      }
     } finally {
       setIsFetchingList(false);
     }

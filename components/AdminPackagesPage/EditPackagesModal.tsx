@@ -11,8 +11,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { logError } from "@/services/Error/ErrorLogs";
 import { updatePackagesData } from "@/services/Package/Admin";
 import { escapeFormData } from "@/utils/function";
+import { createClientSide } from "@/utils/supabase/client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, package_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
@@ -43,10 +46,10 @@ export type PackagesFormValues = z.infer<typeof PackagesSchema>;
 const EditPackagesModal = ({
   teamMemberProfile,
   selectedPackage,
-
   handleSelectPackage,
   fetchPackages,
 }: Props) => {
+  const supabaseClient = createClientSide();
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
@@ -94,11 +97,16 @@ const EditPackagesModal = ({
 
       fetchPackages();
     } catch (e) {
-      const errorMessage =
-        e instanceof Error ? e.message : "An unexpected error occurred.";
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/AdminPackagesPage/EditPackagesModal.tsx",
+        });
+      }
       toast({
         title: "Error",
-        description: errorMessage,
+        description: e instanceof Error ? e.message : "An error occurred",
         variant: "destructive",
       });
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { getAdminDashboard } from "@/services/Dasboard/Admin";
+import { logError } from "@/services/Error/ErrorLogs";
 import { createClientSide } from "@/utils/supabase/client";
 import { ChartData } from "@/utils/types";
 import { alliance_member_table } from "@prisma/client";
@@ -99,7 +100,13 @@ const AdminDashboardPage = ({ teamMemberProfile }: Props) => {
       setNumberOfRegisteredUser(numberOfRegisteredUser);
       setTotalActivatedPackage(totalActivatedPackage);
     } catch (e) {
-      console.error(e);
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/AdminDashboardPage/AdminDashboardPage.tsx",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

@@ -1,5 +1,6 @@
 "use client";
 
+import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminPackages } from "@/services/Package/Admin";
 import { createClientSide } from "@/utils/supabase/client";
 import { alliance_member_table, package_table } from "@prisma/client";
@@ -26,7 +27,15 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
       });
 
       setPackages(fetchedPackages);
-    } catch (e) {}
+    } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabase, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/AdminPackagesPage/AdminPackagesPage.tsx",
+        });
+      }
+    }
   };
 
   useEffect(() => {

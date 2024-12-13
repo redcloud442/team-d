@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { createTriggerUser } from "@/services/auth/auth";
+import { logError } from "@/services/Error/ErrorLogs";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,7 +30,7 @@ const RegisterSchema = z
       .max(50, "Last name must be less than 50 characters"),
     userName: z
       .string()
-      .min(3, "Username must be at least 3 characters long")
+      .min(6, "Username must be at least 6 characters long")
       .max(20, "Username must be at most 20 characters long")
       .regex(
         /^[a-zA-Z0-9_]+$/,
@@ -93,6 +94,13 @@ const RegisterPage = () => {
       router.push("/");
     } catch (e) {
       setIsSuccess(false);
+      if (e instanceof Error) {
+        await logError(supabase, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/registerPage/registerPage.tsx",
+        });
+      }
       const errorMessage =
         e instanceof Error ? e.message : "An unexpected error occurred.";
       toast({

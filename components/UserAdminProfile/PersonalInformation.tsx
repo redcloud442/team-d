@@ -1,3 +1,4 @@
+import { logError } from "@/services/Error/ErrorLogs";
 import { handleSignInUser } from "@/services/User/Admin";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
@@ -27,6 +28,13 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
         iv: userProfile.user_iv ?? "",
       });
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/UserAdminProfile/PersonalInformation.tsx",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

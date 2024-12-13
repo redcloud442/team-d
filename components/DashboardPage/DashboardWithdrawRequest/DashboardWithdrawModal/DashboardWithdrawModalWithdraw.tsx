@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { logError } from "@/services/Error/ErrorLogs";
 import { getEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
 import { escapeFormData } from "@/utils/function";
@@ -161,6 +162,14 @@ const DashboardWithdrawModalWithdraw = ({
       reset();
       setOpen(false);
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabase, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath:
+            "components/DashboardPage/DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw.tsx",
+        });
+      }
       const errorMessage =
         e instanceof Error ? e.message : "An unexpected error occurred.";
       toast({

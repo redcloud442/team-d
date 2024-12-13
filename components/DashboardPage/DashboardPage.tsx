@@ -11,6 +11,7 @@ import {
 } from "@prisma/client";
 import { useEffect, useState } from "react";
 
+import { logError } from "@/services/Error/ErrorLogs";
 import { Card } from "../ui/card";
 import CardAmount from "../ui/cardAmount";
 import TableLoading from "../ui/tableLoading";
@@ -47,6 +48,13 @@ const DashboardPage = ({
       });
       setChartData(data);
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/DashboardPage/DashboardPage.tsx",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

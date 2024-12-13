@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { logError } from "@/services/Error/ErrorLogs";
 import { getMerchantOptions } from "@/services/Options/Options";
 import { createTopUpRequest } from "@/services/TopUp/TopUp";
 import { escapeFormData } from "@/utils/function";
@@ -87,7 +88,16 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
           teamMemberId: teamMemberProfile.alliance_member_id,
         });
         setTopUpOptions(options);
-      } catch (e) {}
+      } catch (e) {
+        if (e instanceof Error) {
+          await logError(supabaseClient, {
+            errorMessage: e.message,
+            stackTrace: e.stack,
+            stackPath:
+              "components/DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit.tsx",
+          });
+        }
+      }
     };
 
     getOptions();
@@ -107,14 +117,22 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
         description: "Please wait for it to be approved.",
         variant: "success",
       });
+
       setOpen(false);
       reset();
     } catch (e) {
-      const errorMessage =
-        e instanceof Error ? e.message : "An unexpected error occurred.";
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath:
+            "components/DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit.tsx",
+        });
+      }
+
       toast({
         title: "Error",
-        description: errorMessage,
+        description: "Someting went wrong",
         variant: "destructive",
       });
     }

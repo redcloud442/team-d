@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { loginValidation } from "@/services/auth/auth";
+import { logError } from "@/services/Error/ErrorLogs";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,16 +20,13 @@ import NavigationLoader from "../ui/NavigationLoader";
 const LoginSchema = z.object({
   userName: z
     .string()
-    .min(3, "Username must be at least 3 characters long")
+    .min(6, "Username must be at least 6 characters long")
     .max(20, "Username must be at most 20 characters long")
     .regex(
       /^[a-zA-Z0-9_]+$/,
       "Username can only contain letters, numbers, and underscores"
     ),
-  password: z
-    .string()
-    .min(6, "Password must be at least 6 characters")
-    .min(1, "Password is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 type LoginFormValues = z.infer<typeof LoginSchema>;
@@ -68,6 +66,14 @@ const LoginPage = () => {
       setIsSuccess(true); // Indicate success
       router.push(result);
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabase, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath:
+            "components/AdminTopUpApprovalPage/AdminTopUpApprovalColumn.tsx",
+        });
+      }
       const errorMessage =
         e instanceof Error ? e.message : "An unexpected error occurred.";
       toast({

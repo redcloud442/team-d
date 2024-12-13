@@ -7,7 +7,7 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
-  schemas   = ["user_schema","alliance_schema","packages_schema","merchant_schema"]
+  schemas   = ["user_schema","alliance_schema","packages_schema","merchant_schema","public"]
 }
 
 enum Role {
@@ -23,6 +23,7 @@ enum ReferralType {
   INDIRECT
   @@schema("alliance_schema")
 }
+
 
 model user_table {
   user_id               String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
@@ -209,10 +210,9 @@ model package_earnings_log {
   package_member_amount_earnings       Float    @default(0.0)
   package_member_status                String
 
-  package_table       package_table       @relation(fields: [package_member_package_id], references: [package_id], onDelete: Cascade, onUpdate: Cascade)
-  alliance_member_table alliance_member_table @relation(fields: [package_member_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
-  package_member_connection_table package_member_connection_table @relation(fields: [package_member_connection_id], references: [package_member_connection_id], onDelete: Cascade, onUpdate: Cascade)
-
+  package_table                       package_table       @relation(fields: [package_member_package_id], references: [package_id], onDelete: Cascade, onUpdate: Cascade)
+  alliance_member_table               alliance_member_table @relation(fields: [package_member_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
+  package_member_connection_table     package_member_connection_table @relation(fields: [package_member_connection_id], references: [package_member_connection_id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("packages_schema")
   @@index([package_member_package_id], name: "idx_package_earnings_package_id")
@@ -236,27 +236,36 @@ model package_ally_bounty_log {
 }
 
 model merchant_table {
-  merchant_id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  merchant_date_created DateTime @default(now())
-  merchant_account_name String
-  merchant_account_number String
-  merchant_account_type String
+  merchant_id               String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchant_date_created     DateTime  @default(now())
+  merchant_account_name     String
+  merchant_account_number   String
+  merchant_account_type     String
 
   @@schema("merchant_schema")
 }
 
 
 model merchant_member_table {
-  merchant_member_id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  merchant_member_date_created DateTime @default(now())
-  merchant_member_merchant_id String @db.Uuid
-  merchant_member_balance Float @default(0.0)
+  merchant_member_id               String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  merchant_member_date_created     DateTime @default(now())
+  merchant_member_merchant_id      String   @db.Uuid
+  merchant_member_balance          Float    @default(0.0)
 
   alliance_member_table alliance_member_table @relation(fields: [merchant_member_merchant_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
 
-
-
-
   @@schema("merchant_schema")
+}
+
+
+model error_table {
+  error_id                String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  error_message           String
+  error_stack_trace       String
+  error_stack_path        String
+  error_function_name     String
+  error_date_created      DateTime     @default(now())
+
+  @@schema("public")
 }
 

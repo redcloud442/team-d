@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminUserRequest } from "@/services/User/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
@@ -112,6 +113,13 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/AdminUsersPage/AdminUsersTable.tsx",
+        });
+      }
     } finally {
       setIsFetchingList(false);
     }

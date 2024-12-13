@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { logError } from "@/services/Error/ErrorLogs";
 import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
+import { createClientSide } from "@/utils/supabase/client";
 import { TopUpRequestData } from "@/utils/types";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
@@ -33,6 +35,7 @@ const statusColorMap: Record<string, string> = {
 
 export const TopUpColumn = (handleFetch: () => void) => {
   const { toast } = useToast();
+  const supabaseClient = createClientSide();
   const [isLoading, setIsLoading] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState({
     open: false,
@@ -57,6 +60,14 @@ export const TopUpColumn = (handleFetch: () => void) => {
         });
         setIsOpenModal({ open: false, requestId: "", status: "" });
       } catch (e) {
+        if (e instanceof Error) {
+          await logError(supabaseClient, {
+            errorMessage: e.message,
+            stackTrace: e.stack,
+            stackPath:
+              "components/AdminTopUpApprovalPage/AdminTopUpApprovalColumn.tsx",
+          });
+        }
         toast({
           title: `Status Failed`,
           description: `Something went wrong`,

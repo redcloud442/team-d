@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import PackageCard from "@/components/ui/packageCard";
+import { logError } from "@/services/Error/ErrorLogs";
 import { getPackageModalData } from "@/services/Package/Member";
 import { createClientSide } from "@/utils/supabase/client";
 import { ChartDataMember } from "@/utils/types";
@@ -54,7 +55,16 @@ const DashboardDepositModalPackages = ({
         });
 
         setPackages(data);
-      } catch (e) {}
+      } catch (e) {
+        if (e instanceof Error) {
+          await logError(supabaseClient, {
+            errorMessage: e.message,
+            stackTrace: e.stack,
+            stackPath:
+              "components/DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositPackagesModal.tsx",
+          });
+        }
+      }
     };
 
     packagesData();

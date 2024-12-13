@@ -7,11 +7,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { logError } from "@/services/Error/ErrorLogs";
 import {
   handleUpdateRole,
   handleUpdateUserRestriction,
 } from "@/services/User/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
+import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Copy, MoreHorizontal } from "lucide-react";
@@ -22,6 +24,7 @@ import TableLoading from "../ui/tableLoading";
 export const AdminUsersColumn = (
   handleFetch: () => void
 ): ColumnDef<UserRequestdata>[] => {
+  const supabaseClient = createClientSide();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -50,6 +53,13 @@ export const AdminUsersColumn = (
         variant: "success",
       });
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/AdminUsersPage/AdminUsersColumn.tsx",
+        });
+      }
       toast({
         title: `Role Update Failed`,
         description: `Something went wrong`,
@@ -73,6 +83,13 @@ export const AdminUsersColumn = (
         variant: "success",
       });
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/AdminUsersPage/AdminUsersColumn.tsx",
+        });
+      }
       toast({
         title: `User Ban Failed`,
         description: `Something went wrong`,

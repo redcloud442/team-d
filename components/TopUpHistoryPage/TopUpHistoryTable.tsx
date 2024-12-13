@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { logError } from "@/services/Error/ErrorLogs";
 import { getMemberTopUpRequest } from "@/services/TopUp/Member";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
@@ -92,6 +93,13 @@ const TopUpHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/TopUpHistoryPage/TopUpHistoryTable.tsx",
+        });
+      }
     } finally {
       setIsFetchingList(false);
     }

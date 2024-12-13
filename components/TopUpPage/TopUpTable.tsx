@@ -1,5 +1,6 @@
 "use client";
 
+import { logError } from "@/services/Error/ErrorLogs";
 import { getUserOptions } from "@/services/Options/Options";
 import { getMerchantTopUpRequest } from "@/services/TopUp/Member";
 import { escapeFormData } from "@/utils/function";
@@ -138,6 +139,13 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
       setRequestCount(totalCount || 0);
       setMerchantBalance(merchantBalance || 0);
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/TopUpPage/TopUpTable.tsx",
+        });
+      }
     } finally {
       setIsFetchingList(false);
     }
@@ -219,7 +227,15 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
         }
 
         setUserOptions(allUserOptions);
-      } catch (e) {}
+      } catch (e) {
+        if (e instanceof Error) {
+          await logError(supabaseClient, {
+            errorMessage: e.message,
+            stackTrace: e.stack,
+            stackPath: "components/TopUpPage/TopUpTable.tsx",
+          });
+        }
+      }
     };
 
     fetchOptions();

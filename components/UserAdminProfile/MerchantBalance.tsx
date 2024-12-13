@@ -1,6 +1,8 @@
 import { useToast } from "@/hooks/use-toast";
+import { logError } from "@/services/Error/ErrorLogs";
 import { handleUpdateBalance } from "@/services/merchant/Merchant";
 import { escapeFormData } from "@/utils/function";
+import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PhilippinePeso } from "lucide-react";
@@ -27,6 +29,7 @@ type Data = z.infer<typeof schema>;
 
 const MerchantBalance = ({ userProfile }: Props) => {
   const { toast } = useToast();
+  const supabaseClient = createClientSide();
   const [isLoading, setIsLoading] = useState(false);
   const [merchantData, setMerchantData] =
     useState<UserRequestdata>(userProfile);
@@ -62,6 +65,13 @@ const MerchantBalance = ({ userProfile }: Props) => {
       });
       reset();
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/UserAdminProfile/MerchantBalance.tsx",
+        });
+      }
       toast({
         title: "Error",
         description:

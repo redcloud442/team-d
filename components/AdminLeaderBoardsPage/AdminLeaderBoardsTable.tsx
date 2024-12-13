@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getLeaderBoardData } from "@/services/Dasboard/Admin";
+import { logError } from "@/services/Error/ErrorLogs";
 import { createClientSide } from "@/utils/supabase/client";
 import { alliance_member_table } from "@prisma/client";
 import {
@@ -84,6 +85,14 @@ const AdminLeaderBoardsPage = ({ teamMemberProfile }: Props) => {
 
         setTotalCount(totalCount);
       } catch (e) {
+        if (e instanceof Error) {
+          await logError(supabaseClient, {
+            errorMessage: e.message,
+            stackTrace: e.stack,
+            stackPath:
+              "components/AdminLeaderBoardsPage/AdminLeaderBoardsTable.tsx",
+          });
+        }
       } finally {
         setIsFetchingList(false);
       }

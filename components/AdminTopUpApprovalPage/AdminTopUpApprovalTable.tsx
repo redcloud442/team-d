@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { logError } from "@/services/Error/ErrorLogs";
 import {
   getUserOptions,
   getUserOptionsMerchant,
@@ -150,6 +151,14 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath:
+            "components/AdminTopUpApprovalPage/AdminTopUpApprovalTable.tsx",
+        });
+      }
     } finally {
       setIsFetchingList(false);
     }

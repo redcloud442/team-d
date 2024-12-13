@@ -9,8 +9,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { logError } from "@/services/Error/ErrorLogs";
 import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
+import { createClientSide } from "@/utils/supabase/client";
 import { TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Copy } from "lucide-react";
@@ -25,6 +27,7 @@ const statusColorMap: Record<string, string> = {
 
 export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
   const { toast } = useToast();
+  const supabaseClient = createClientSide();
   const [isLoading, setIsLoading] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState({
     open: false,
@@ -45,6 +48,14 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
         });
         setIsOpenModal({ open: false, requestId: "", status: "" });
       } catch (e) {
+        if (e instanceof Error) {
+          await logError(supabaseClient, {
+            errorMessage: e.message,
+            stackTrace: e.stack,
+            stackPath:
+              "components/AdminTopUpApprovalPage/AdminTopUpApprovalColumn.tsx",
+          });
+        }
         toast({
           title: `Status Failed`,
           description: `Something went wrong`,

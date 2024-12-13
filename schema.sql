@@ -2045,6 +2045,47 @@ return returnData;
 
 $$ LANGUAGE plv8;
 
+CREATE OR REPLACE FUNCTION log_error(input_data JSON)
+RETURNS JSON
+AS $$
+
+let returnData = [];
+
+plv8.subtransaction(() => {
+  const { errorMessage, stackTrace, stackPath} = input_data;
+
+const offset = (page - 1) * limit;
+
+  const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+    `,
+    [teamMemberId]
+  );
+
+  if (!member.length || ["MEMBER", "MERCHANT", "ACCOUNTING","ADMIN"].includes(member[0].alliance_member_role)) {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const query = plv8.execute(`
+    INSERT INTO error_schema.error_table (
+      error_message,
+      error_stack_trace,
+      error_stack_path
+    ) VALUES ($1, $2, $3)
+  `, [errorMessage, stackTrace, stackPath]);
+
+  returnData = query; 
+});
+
+return returnData;
+
+$$ LANGUAGE plv8;
+
+
 
 
 CREATE OR REPLACE FUNCTION update_earnings_based_on_packages()

@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { logError } from "@/services/Error/ErrorLogs";
 import {
   getMerchantData,
   handleCreateMerchantData,
@@ -172,6 +173,13 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
       fetchMerchant();
       setIsOpenModal(false);
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/MerchantPage/MerchantTable.tsx",
+        });
+      }
       toast({
         title: "Error",
         description: "An error occurred while creating the merchant.",

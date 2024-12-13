@@ -1,5 +1,6 @@
 "use client";
 
+import { logError } from "@/services/Error/ErrorLogs";
 import { getUserOptions } from "@/services/Options/Options";
 import { getWithdrawalRequestAccountant } from "@/services/Withdrawal/Member";
 import { escapeFormData } from "@/utils/function";
@@ -138,6 +139,13 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
       setRequestCount(totalCount || 0);
       setCount(count || 0);
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/WithdrawalPage/WithdrawalTable.tsx",
+        });
+      }
     } finally {
       setIsFetchingList(false);
     }

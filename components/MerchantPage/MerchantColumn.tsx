@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { logError } from "@/services/Error/ErrorLogs";
 import { handleUpdateMerchantData } from "@/services/merchant/Merchant";
 import { escapeFormData } from "@/utils/function";
+import { createClientSide } from "@/utils/supabase/client";
 import { merchant_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
@@ -17,6 +19,7 @@ import TableLoading from "../ui/tableLoading";
 
 export const useMerchantColumn = (handleFetch: () => void) => {
   const { toast } = useToast();
+  const supabase = createClientSide();
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteModal, setIsDeleteModal] = useState({
     merchantId: "",
@@ -43,6 +46,13 @@ export const useMerchantColumn = (handleFetch: () => void) => {
       setIsDeleteModal({ merchantId: "", isOpen: false });
       handleFetch();
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabase, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/MerchantPage/MerchantColumn.tsx",
+        });
+      }
       toast({
         title: "Error",
         description: "An error occurred while creating the merchant.",
