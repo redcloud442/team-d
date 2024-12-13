@@ -189,8 +189,8 @@ const WithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
                 >
                   <span>
                     {typeof column.columnDef.header === "function"
-                      ? column.columnDef.label
-                      : column.columnDef.label}
+                      ? column.columnDef.id
+                      : column.columnDef.id}
                   </span>
 
                   {column.getIsVisible() && <Check className="w-4 h-4" />}

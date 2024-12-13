@@ -24,7 +24,6 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
   return [
     {
       accessorKey: "alliance_top_up_request_id",
-      label: "Reference ID",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -34,12 +33,13 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
         </Button>
       ),
       cell: ({ row }) => {
-        const id = row.getValue("alliance_top_up_request_id") as string;
+        const requestId = row.getValue("alliance_top_up_request_id") as string;
+        console.log(requestId);
         const maxLength = 15;
 
         const handleCopy = async () => {
-          if (id) {
-            await navigator.clipboard.writeText(id);
+          if (requestId) {
+            await navigator.clipboard.writeText(requestId);
           }
         };
 
@@ -47,11 +47,13 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
           <div className="flex items-center space-x-2">
             <div
               className="truncate"
-              title={id.length > maxLength ? id : undefined}
+              title={requestId.length > maxLength ? requestId : undefined}
             >
-              {id.length > maxLength ? `${id.slice(0, maxLength)}...` : id}
+              {requestId.length > maxLength
+                ? `${requestId.slice(0, maxLength)}...`
+                : requestId}
             </div>
-            {id && (
+            {requestId && (
               <Button variant="ghost" size="sm" onClick={handleCopy}>
                 <Copy />
               </Button>
@@ -62,7 +64,6 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
     },
     {
       accessorKey: "alliance_top_up_request_status",
-      label: "Status",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -80,7 +81,6 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
 
     {
       accessorKey: "alliance_top_up_request_amount",
-      label: "Amount",
       header: () => <Button variant="ghost">Amount</Button>,
       cell: ({ row }) => {
         const amount = parseFloat(
@@ -95,7 +95,6 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
     },
     {
       accessorKey: "alliance_top_up_request_name",
-      label: "Bank Name",
       header: () => (
         <Button variant="ghost">
           Bank Name <ArrowUpDown />
@@ -109,7 +108,6 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
     },
     {
       accessorKey: "alliance_top_up_request_account",
-      label: "Bank Account",
       header: () => (
         <Button variant="ghost">
           Bank Account <ArrowUpDown />
@@ -123,7 +121,6 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
     },
     {
       accessorKey: "alliance_top_up_request_date",
-      label: "Date Created",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -140,7 +137,6 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
     },
     {
       accessorKey: "alliance_top_up_request_reject_note",
-      label: "Rejection Note",
       header: () => <div>Rejection Note</div>,
       cell: ({ row }) => {
         const rejectionNote = row.getValue(

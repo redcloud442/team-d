@@ -71,7 +71,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
   const columns: ColumnDef<TopUpRequestData>[] = [
     {
       accessorKey: "alliance_top_up_request_id",
-      label: "Reference ID",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -109,7 +109,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_status",
-      label: "Status",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -126,7 +126,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
     },
     {
       accessorKey: "user_username",
-      label: "Requestor Username",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -141,7 +141,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_amount",
-      label: "Amount",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -163,7 +163,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_name",
-      label: "Bank Name",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -180,7 +180,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_account",
-      label: "Bank Account",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -197,7 +197,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_date",
-      label: "Date Created",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -214,7 +214,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
     },
     {
       accessorKey: "approver_username",
-      label: "Approver",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -229,7 +229,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_attachment",
-      label: "Attachment",
+
       header: () => <div>Attachment</div>,
       cell: ({ row }) => {
         const attachmentUrl = row.getValue(
@@ -262,7 +262,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_reject_note",
-      label: "Rejection Note",
+
       header: () => <div>Rejection Note</div>,
       cell: ({ row }) => {
         const rejectionNote = row.getValue(

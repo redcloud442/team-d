@@ -83,7 +83,6 @@ export const TopUpColumn = (handleFetch: () => void) => {
   const columns: ColumnDef<TopUpRequestData>[] = [
     {
       accessorKey: "alliance_top_up_request_id",
-      label: "Reference ID",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -121,7 +120,7 @@ export const TopUpColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_status",
-      label: "Status",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -138,7 +137,7 @@ export const TopUpColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_amount",
-      label: "Amount",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -160,7 +159,7 @@ export const TopUpColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_type",
-      label: "Bank Name",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -177,7 +176,7 @@ export const TopUpColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_name",
-      label: "Name",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -194,7 +193,7 @@ export const TopUpColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_account",
-      label: "Bank Account",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -211,7 +210,7 @@ export const TopUpColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_date",
-      label: "Date Created",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -228,7 +227,7 @@ export const TopUpColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_attachment",
-      label: "Attachment",
+
       header: () => <div>Attachment</div>,
       cell: ({ row }) => {
         const attachmentUrl = row.getValue(
@@ -261,7 +260,7 @@ export const TopUpColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_top_up_request_reject_note",
-      label: "Rejection Note",
+
       header: () => <div>Rejection Note</div>,
       cell: ({ row }) => {
         const rejectionNote = row.getValue(
@@ -289,8 +288,7 @@ export const TopUpColumn = (handleFetch: () => void) => {
       },
     },
     {
-      id: "actions",
-      label: "Actions",
+      header: "Actions",
       cell: ({ row }) => {
         const data = row.original;
         return (

@@ -7,12 +7,6 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { createClientSide } from "@/utils/supabase/client";
 import { alliance_member_table } from "@prisma/client";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
-import {
   ColumnFiltersState,
   getCoreRowModel,
   getFilteredRowModel,
@@ -20,13 +14,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import {
-  Check,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Trophy,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Trophy } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Card } from "../ui/card";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
@@ -132,34 +120,6 @@ const AdminLeaderBoardsPage = ({ teamMemberProfile }: Props) => {
           <h1 className="Title pr-4 text-2xl font-bold">Leaderboards</h1>
           <Trophy size={40} />
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-gray-100 z-50 border border-gray-300 rounded-lg shadow-lg">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="flex cursor-pointer items-center justify-between px-6 py-2 hover:bg-gray-200 transition-colors duration-200 rounded-md"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  <span>
-                    {typeof column.columnDef.header === "function"
-                      ? column.columnDef.label
-                      : column.columnDef.label}
-                  </span>
-
-                  {column.getIsVisible() && <Check className="w-4 h-4" />}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
       <Tabs defaultValue="DIRECT" onValueChange={handleTabChange}>

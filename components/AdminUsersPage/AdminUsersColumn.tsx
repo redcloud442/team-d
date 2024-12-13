@@ -23,7 +23,8 @@ import TableLoading from "../ui/tableLoading";
 
 export const AdminUsersColumn = (
   handleFetch: () => void
-): ColumnDef<UserRequestdata>[] => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): ColumnDef<UserRequestdata, any>[] => {
   const supabaseClient = createClientSide();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -107,7 +108,7 @@ export const AdminUsersColumn = (
   return [
     {
       accessorKey: "user_id",
-      label: "User ID",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -150,7 +151,7 @@ export const AdminUsersColumn = (
     },
     {
       accessorKey: "user_username",
-      label: "Username",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -172,7 +173,7 @@ export const AdminUsersColumn = (
     },
     {
       accessorKey: "user_first_name",
-      label: "First Name",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -187,7 +188,7 @@ export const AdminUsersColumn = (
     },
     {
       accessorKey: "user_last_name",
-      label: "Last Name",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -202,7 +203,7 @@ export const AdminUsersColumn = (
     },
     {
       accessorKey: "user_date_created",
-      label: "Date Created",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -219,7 +220,7 @@ export const AdminUsersColumn = (
     },
     {
       accessorKey: "alliance_member_restricted",
-      label: "Restricted",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -237,7 +238,7 @@ export const AdminUsersColumn = (
 
     {
       accessorKey: "alliance_member_is_active",
-      label: "Active",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -256,8 +257,6 @@ export const AdminUsersColumn = (
       },
     },
     {
-      id: "actions",
-      label: "Actions",
       header: "Actions",
       cell: ({ row }) => {
         const data = row.original;

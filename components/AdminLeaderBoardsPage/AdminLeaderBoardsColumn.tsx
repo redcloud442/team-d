@@ -8,8 +8,7 @@ export const leaderBoardColumn = (): ColumnDef<{
 }>[] => {
   return [
     {
-      id: "rank",
-      label: "Rank",
+      id: "Rank",
       header: () => <Button variant="ghost">Rank</Button>,
       cell: ({ row }) => {
         const rank = row.index + 1;
@@ -40,7 +39,7 @@ export const leaderBoardColumn = (): ColumnDef<{
     },
     {
       accessorKey: "username",
-      label: "Username",
+
       header: () => <Button variant="ghost">Username</Button>,
       cell: ({ row }) => {
         const username = row.getValue("username") as string;
@@ -49,7 +48,7 @@ export const leaderBoardColumn = (): ColumnDef<{
     },
     {
       accessorKey: "totalAmount",
-      label: "Amount",
+
       header: () => <Button variant="ghost">Amount</Button>,
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue("totalAmount"));

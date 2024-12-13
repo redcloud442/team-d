@@ -7,7 +7,7 @@ export const AllyBountyColumn = (): ColumnDef<user_table>[] => {
   return [
     {
       accessorKey: "user_username",
-      label: "Username",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -20,7 +20,7 @@ export const AllyBountyColumn = (): ColumnDef<user_table>[] => {
     },
     {
       accessorKey: "user_first_name",
-      label: "First Name",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -33,7 +33,7 @@ export const AllyBountyColumn = (): ColumnDef<user_table>[] => {
     },
     {
       accessorKey: "user_last_name",
-      label: "Last Name",
+
       header: ({ column }) => (
         <Button
           variant="ghost"

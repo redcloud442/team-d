@@ -20,12 +20,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, merchant_table } from "@prisma/client";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
-import {
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
@@ -35,14 +29,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import {
-  Check,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  RefreshCw,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -241,7 +228,7 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
             }}
           >
             <DialogTrigger asChild>
-              <Button variant="outline">Create</Button>
+              <Button variant="outline">Create New Merchant</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogDescription />
@@ -349,34 +336,6 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
             Refresh
           </Button>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-gray-100 z-50 border border-gray-300 rounded-lg shadow-lg">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="flex cursor-pointer items-center justify-between px-6 py-2 hover:bg-gray-200 transition-colors duration-200 rounded-md"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  <span>
-                    {typeof column.columnDef.header === "function"
-                      ? column.columnDef.label
-                      : column.columnDef.label}
-                  </span>
-
-                  {column.getIsVisible() && <Check className="w-4 h-4" />}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
       <ScrollArea className="w-full overflow-x-auto ">

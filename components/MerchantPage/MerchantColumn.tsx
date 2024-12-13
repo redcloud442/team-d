@@ -66,7 +66,7 @@ export const useMerchantColumn = (handleFetch: () => void) => {
   const columns: ColumnDef<merchant_table>[] = [
     {
       accessorKey: "merchant_account_name",
-      label: "Account Name",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -81,7 +81,7 @@ export const useMerchantColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "merchant_account_number",
-      label: "Account Number",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -92,7 +92,7 @@ export const useMerchantColumn = (handleFetch: () => void) => {
       ),
       cell: ({ row }) => {
         return (
-          <div className="font-medium text-center">
+          <div className="font-medium text-wrap">
             {row.getValue("merchant_account_number")}
           </div>
         );
@@ -100,7 +100,7 @@ export const useMerchantColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "merchant_account_type",
-      label: "Account Type",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -110,14 +110,11 @@ export const useMerchantColumn = (handleFetch: () => void) => {
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
-          {row.getValue("merchant_account_type")}
-        </div>
+        <div className="text-wrap">{row.getValue("merchant_account_type")}</div>
       ),
     },
     {
-      id: "actions",
-      label: "Actions",
+      header: "Action",
       cell: ({ row }) => {
         const data = row.original;
         return (

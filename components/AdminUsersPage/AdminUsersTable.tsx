@@ -15,12 +15,6 @@ import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
 import { alliance_member_table } from "@prisma/client";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
-import {
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
@@ -33,8 +27,6 @@ import {
 import { format } from "date-fns";
 import {
   CalendarIcon,
-  Check,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   RefreshCw,
@@ -133,9 +125,9 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const columns = AdminUsersColumn(fetchAdminRequest);
 
-  const table = useReactTable({
+  const table = useReactTable<UserRequestdata>({
     data: requestData,
-    columns,
+    columns: columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -278,35 +270,6 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
             </div>
           )}
         </form>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-gray-100 z-50 border border-gray-300 rounded-lg shadow-lg">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="flex cursor-pointer items-center justify-between px-6 py-2 hover:bg-gray-200 transition-colors duration-200 rounded-md"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  <span>
-                    {typeof column.columnDef.header === "function"
-                      ? column.columnDef.label
-                      : column.columnDef.label}
-                  </span>
-
-                  {column.getIsVisible() && <Check className="w-4 h-4" />}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
       <ScrollArea className="w-full overflow-x-auto ">

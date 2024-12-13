@@ -76,10 +76,11 @@ export const WithdrawalColumn = (handleFetch: () => void) => {
     [handleFetch, toast]
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const columns: ColumnDef<WithdrawalRequestData>[] = [
     {
       accessorKey: "alliance_withdrawal_request_id",
-      label: "Reference ID",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -117,7 +118,7 @@ export const WithdrawalColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_withdrawal_request_status",
-      label: "Status",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -136,7 +137,7 @@ export const WithdrawalColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_withdrawal_request_amount",
-      label: "Amount",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -158,7 +159,7 @@ export const WithdrawalColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_withdrawal_request_type",
-      label: "Bank Name",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -175,7 +176,7 @@ export const WithdrawalColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_withdrawal_request_account",
-      label: "Bank Account",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -192,7 +193,7 @@ export const WithdrawalColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_withdrawal_request_date",
-      label: "Date Created",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -211,7 +212,7 @@ export const WithdrawalColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_withdrawal_request_reject_note",
-      label: "Rejection Note",
+
       header: () => <div>Rejection Note</div>,
       cell: ({ row }) => {
         const rejectionNote = row.getValue(
@@ -239,8 +240,7 @@ export const WithdrawalColumn = (handleFetch: () => void) => {
       },
     },
     {
-      id: "actions",
-      label: "Actions",
+      header: "Actions",
       cell: ({ row }) => {
         const data = row.original;
         return (

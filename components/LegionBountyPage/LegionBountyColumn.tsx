@@ -7,7 +7,7 @@ export const LegionBountyColumn = (): ColumnDef<LegionRequestData>[] => {
   return [
     {
       accessorKey: "user_username",
-      label: "Username",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -23,7 +23,7 @@ export const LegionBountyColumn = (): ColumnDef<LegionRequestData>[] => {
 
     {
       accessorKey: "user_first_name",
-      label: "First Name",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -36,7 +36,7 @@ export const LegionBountyColumn = (): ColumnDef<LegionRequestData>[] => {
     },
     {
       accessorKey: "user_last_name",
-      label: "Last Name",
+
       header: ({ column }) => (
         <Button
           variant="ghost"

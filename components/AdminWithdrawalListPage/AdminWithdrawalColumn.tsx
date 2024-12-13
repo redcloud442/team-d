@@ -60,7 +60,7 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
   const columns: ColumnDef<WithdrawalRequestData>[] = [
     {
       accessorKey: "alliance_withdrawal_request_id",
-      label: "Reference ID",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -98,7 +98,7 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_withdrawal_request_status",
-      label: "Status",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -117,7 +117,7 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "user_email",
-      label: "Requestor Email",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -132,7 +132,7 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_withdrawal_request_amount",
-      label: "Amount",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -154,7 +154,7 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_withdrawal_request_type",
-      label: "Bank Name",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -171,7 +171,7 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_withdrawal_request_account",
-      label: "Bank Account",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -188,7 +188,7 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_withdrawal_request_date",
-      label: "Date Created",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -208,7 +208,6 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
 
     {
       accessorKey: "approver_username",
-      label: "Approver",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -223,7 +222,6 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "alliance_withdrawal_request_reject_note",
-      label: "Rejection Note",
       header: () => <div>Rejection Note</div>,
       cell: ({ row }) => {
         const rejectionNote = row.getValue(

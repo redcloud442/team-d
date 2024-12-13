@@ -25,7 +25,7 @@ export const WithdrawalHistoryColumn =
     return [
       {
         accessorKey: "alliance_withdrawal_request_id",
-        label: "Reference ID",
+
         header: ({ column }) => (
           <Button
             variant="ghost"
@@ -63,7 +63,7 @@ export const WithdrawalHistoryColumn =
       },
       {
         accessorKey: "alliance_withdrawal_request_status",
-        label: "Status",
+
         header: ({ column }) => (
           <Button
             variant="ghost"
@@ -83,7 +83,7 @@ export const WithdrawalHistoryColumn =
 
       {
         accessorKey: "alliance_withdrawal_request_amount",
-        label: "Amount",
+
         header: () => <Button variant="ghost">Amount</Button>,
         cell: ({ row }) => {
           const amount = parseFloat(
@@ -98,7 +98,7 @@ export const WithdrawalHistoryColumn =
       },
       {
         accessorKey: "alliance_withdrawal_request_type",
-        label: "Bank Name",
+
         header: () => (
           <Button variant="ghost">
             Bank Name <ArrowUpDown />
@@ -112,7 +112,7 @@ export const WithdrawalHistoryColumn =
       },
       {
         accessorKey: "alliance_withdrawal_request_account",
-        label: "Bank Account",
+
         header: () => (
           <Button variant="ghost">
             Bank Account <ArrowUpDown />
@@ -126,7 +126,7 @@ export const WithdrawalHistoryColumn =
       },
       {
         accessorKey: "alliance_withdrawal_request_date",
-        label: "Date Created",
+
         header: ({ column }) => (
           <Button
             variant="ghost"
@@ -145,7 +145,7 @@ export const WithdrawalHistoryColumn =
       },
       {
         accessorKey: "alliance_withdrawal_request_reject_note",
-        label: "Rejection Note",
+
         header: () => <div>Rejection Note</div>,
         cell: ({ row }) => {
           const rejectionNote = row.getValue(
