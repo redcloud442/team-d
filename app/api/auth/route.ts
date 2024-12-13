@@ -27,7 +27,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Fetch user from database
     const user = await prisma.user_table.findFirst({
       where: {
         user_username: {
@@ -41,7 +40,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid email." }, { status: 401 });
     }
 
-    // Fetch team member profile
     const teamMemberProfile = await prisma.alliance_member_table.findFirst({
       where: { alliance_member_user_id: user.user_id },
     });
