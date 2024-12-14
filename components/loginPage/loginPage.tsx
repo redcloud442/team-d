@@ -87,7 +87,7 @@ const LoginPage = () => {
   };
 
   return (
-    <Card className="w-[380px] md:w-[400px] mx-auto p-4">
+    <Card className="w-[400px] mx-auto p-4">
       <NavigationLoader visible={isSubmitting || isLoading || isSuccess} />
       <CardTitle>Login Page</CardTitle>
       <CardContent className="p-4">

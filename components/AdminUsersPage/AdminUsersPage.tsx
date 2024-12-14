@@ -18,7 +18,7 @@ const AdminUserPage = ({ teamMemberProfile }: Props) => {
         </header>
 
         {/* Table Section */}
-        <section className=" rounded-lg ">
+        <section className=" rounded-lg  p-6">
           <AdminUserTable teamMemberProfile={teamMemberProfile} />
         </section>
       </div>

@@ -19,7 +19,7 @@ const AllyBountyPage = ({ teamMemberProfile, sponsor }: Props) => {
           </p>
         </header>
 
-        <section className=" rounded-lg ">
+        <section className=" rounded-lg  p-6">
           <AllyBountyTable
             teamMemberProfile={teamMemberProfile}
             sponsor={sponsor}

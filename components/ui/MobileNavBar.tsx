@@ -1,14 +1,5 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
@@ -31,7 +22,6 @@ const MobileNavBar = () => {
   const { role } = useRole();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -42,7 +32,6 @@ const MobileNavBar = () => {
       console.error("Error during sign out:", e);
     } finally {
       setIsLoading(false);
-      setIsModalOpen(false); // Close the modal after logout
     }
   };
 
@@ -76,7 +65,7 @@ const MobileNavBar = () => {
       href: "/auth/login",
       label: "Logout",
       icon: <LogOut className="w-8 h-8" />,
-      onClick: () => setIsModalOpen(true),
+      onClick: handleSignOut,
     },
   ];
 
@@ -97,46 +86,26 @@ const MobileNavBar = () => {
   }, [pathname]);
 
   return (
-    <>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t dark:bg-zinc-800 shadow-md md:hidden">
-        {isLoading && <NavigationLoader visible={isLoading} />}
-        <ul className="flex justify-around py-2">
-          {navItems.map((item) => (
-            <li key={item.href}>
-              <Button
-                onClick={() => handleNavigation(item.href, item.onClick)}
-                variant="link"
-                className={cn(
-                  "flex flex-col items-center text-gray-500 hover:text-black",
-                  pathname === item.href && "text-black font-semibold"
-                )}
-              >
-                {item.icon}
-                <span className="text-xs">{item.label}</span>
-              </Button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <AlertDialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Are you sure you want to log out?
-            </AlertDialogTitle>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex">
-            <AlertDialogCancel onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleSignOut}>
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t dark:bg-zinc-800 shadow-md md:hidden">
+      {isLoading && <NavigationLoader visible={isLoading} />}
+      <ul className="flex justify-around py-2">
+        {navItems.map((item) => (
+          <li key={item.href}>
+            <Button
+              onClick={() => handleNavigation(item.href, item.onClick)}
+              variant="link"
+              className={cn(
+                "flex flex-col items-center text-gray-500 hover:text-black",
+                pathname === item.href && "text-black font-semibold"
+              )}
+            >
+              {item.icon}
+              <span className="text-xs">{item.label}</span>
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 };
 

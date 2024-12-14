@@ -8,27 +8,20 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "X-Frame-Options",
-            value: "DENY",
+            value: "DENY", // Prevents embedding your site in iframes (clickjacking protection)
           },
           {
             key: "X-Content-Type-Options",
-            value: "nosniff",
+            value: "nosniff", // Prevents MIME type sniffing
           },
           {
             key: "Content-Security-Policy",
-            value: "frame-ancestors 'none';",
+            value: "frame-ancestors 'none';", // Adds extra protection against clickjacking
           },
+
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
-          {
-            key: "Permissions-Policy",
-            value: "geolocation=(), microphone=(), camera=()",
           },
         ],
       },

@@ -18,7 +18,7 @@ const AdminWithdrawalHistoryPage = ({ teamMemberProfile }: Props) => {
         </header>
 
         {/* Table Section */}
-        <section className=" rounded-lg">
+        <section className=" rounded-lg p-6">
           <AdminWithdrawalHistoryTable teamMemberProfile={teamMemberProfile} />
         </section>
       </div>

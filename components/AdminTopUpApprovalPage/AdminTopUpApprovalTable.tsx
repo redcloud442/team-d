@@ -293,9 +293,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
             >
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle className="text-start border-2">
-                    {isOpenModal.status} Request
-                  </DialogTitle>
+                  <DialogTitle>{isOpenModal.status} Request</DialogTitle>
                 </DialogHeader>
                 {isOpenModal.status === "REJECTED" && (
                   <Controller
@@ -357,6 +355,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
               className="w-full sm:w-auto"
             >
               <Search className="mr-2" />
+              Search
             </Button>
             <Button
               onClick={fetchAdminRequest}
