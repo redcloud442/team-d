@@ -32,8 +32,8 @@ services:
 
   red-app:
     build:
-      context: ./red-app # Path to the directory containing your Dockerfile
-      dockerfile: Dockerfile # Dockerfile for red-app
+      context: .
+      dockerfile: Dockerfile
     image: red-app:latest
     env_file:
       - .env # Path to your .env file (if applicable)
