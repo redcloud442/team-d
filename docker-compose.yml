@@ -1,12 +1,54 @@
 services:
-  app:
+  watchtower:
+    image: containrrr/watchtower
+    command:
+      - "--label-enable"
+      - "--interval"
+      - "30"
+      - "--rolling-restart"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+
+  reverse-proxy:
+    image: traefik:v3.1
+    command:
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=adminuser@greenful.website"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+
+  red-app:
     build:
-      context: .
-      dockerfile: Dockerfile
-    env_file:
-      - .env
+      context: ./red-app # Path to the directory containing your Dockerfile
+      dockerfile: Dockerfile # Dockerfile for red-app
     image: red-app:latest
+    env_file:
+      - .env # Path to your .env file (if applicable)
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.red-app.rule=Host(`red-app.greenful.website`)"
+      - "traefik.http.routers.red-app.entrypoints=websecure"
+      - "traefik.http.routers.red-app.tls.certresolver=myresolver"
+      - "com.centurylinklabs.watchtower.enable=true"
     ports:
       - "3000:3000"
     deploy:
-      replicas: 1
+      mode: replicated
+      replicas: 3
+    restart: always
+
+volumes:
+  letsencrypt:
