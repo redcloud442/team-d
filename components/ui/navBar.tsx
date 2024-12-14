@@ -23,6 +23,7 @@ const NavBar = ({ teamMemberProfile }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClientSide();
+  const { role } = useRole();
   const { userName } = useRole();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -84,7 +85,7 @@ const NavBar = ({ teamMemberProfile }: Props) => {
           >
             Indirect Referral
           </Button> */}
-          {teamMemberProfile.alliance_member_role === "MERCHANT" && (
+          {role === "MERCHANT" && (
             <>
               <Button
                 variant="ghost"
@@ -100,7 +101,7 @@ const NavBar = ({ teamMemberProfile }: Props) => {
               </Button>
             </>
           )}
-          {teamMemberProfile.alliance_member_role === "ACCOUNTING" && (
+          {role === "ACCOUNTING" && (
             <Button
               variant="ghost"
               onClick={() => handleNavigation("/withdraw")}

@@ -20,9 +20,9 @@ import {
 import { Textarea } from "../ui/textarea";
 
 const statusColorMap: Record<string, string> = {
-  APPROVED: "bg-green-500",
-  PENDING: "bg-yellow-600",
-  REJECTED: "bg-red-600",
+  APPROVED: "bg-green-500 dark:bg-green-500",
+  PENDING: "bg-yellow-600 dark:bg-yellow-600",
+  REJECTED: "bg-red-600 dark:bg-red-600",
 };
 
 export const TopUpColumn = (handleFetch: () => void) => {
