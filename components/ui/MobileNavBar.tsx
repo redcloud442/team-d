@@ -23,7 +23,7 @@ type NavItem = {
 const MobileNavBar = ({ teamMemberProfile }: Props) => {
   const supabase = createClientSide();
   const pathname = usePathname();
-
+  const { role } = useRole();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -42,7 +42,7 @@ const MobileNavBar = ({ teamMemberProfile }: Props) => {
   const navItems: NavItem[] = [
     { href: "/", label: "Home", icon: <Home className="w-8 h-8" /> },
     { href: "/profile", label: "Profile", icon: <User className="w-8 h-8" /> },
-    ...(teamMemberProfile.alliance_member_role === "MERCHANT"
+    ...(role === "MERCHANT"
       ? [
           {
             href: "/top-up",
@@ -56,7 +56,7 @@ const MobileNavBar = ({ teamMemberProfile }: Props) => {
           },
         ]
       : []),
-    ...(teamMemberProfile.alliance_member_role === "ACCOUNTING"
+    ...(role === "ACCOUNTING"
       ? [
           {
             href: "/withdrawal",
