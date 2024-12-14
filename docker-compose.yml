@@ -9,7 +9,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: always
-
   reverse-proxy:
     image: traefik:v3.1
     command:
@@ -29,7 +28,6 @@ services:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock
     restart: always
-
   red-app:
     build:
       context: .
@@ -39,7 +37,7 @@ services:
       - .env # Path to your .env file (if applicable)
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.red-app.rule=Host(`red-app.greenful.website`)"
+      - "traefik.http.routers.red-app.rule=Host(`greenful.website`)"
       - "traefik.http.routers.red-app.entrypoints=websecure"
       - "traefik.http.routers.red-app.tls.certresolver=myresolver"
       - "com.centurylinklabs.watchtower.enable=true"
