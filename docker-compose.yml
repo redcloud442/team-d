@@ -24,6 +24,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "3000:3000"
     volumes:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock
@@ -40,6 +41,7 @@ services:
       - "traefik.http.routers.red-app.rule=Host(`greenful.website`)"
       - "traefik.http.routers.red-app.entrypoints=websecure"
       - "traefik.http.routers.red-app.tls.certresolver=myresolver"
+      - "traefik.http.services.red-app.loadbalancer.server.port=3000"
       - "com.centurylinklabs.watchtower.enable=true"
     deploy:
       mode: replicated
