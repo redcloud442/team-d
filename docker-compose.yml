@@ -32,7 +32,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: red-app:latest
+    image: ghcr.io/redcloud442/red:prod
     env_file:
       - .env # Path to your .env file (if applicable)
     labels:
