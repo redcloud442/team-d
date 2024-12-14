@@ -1,0 +1,310 @@
+[33mcommit 2f22a43a61bb2573455a01b78a2187cac8d20727[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 23:46:59 2024 +0800
+
+    Revert " fix ui"
+    
+    This reverts commit fb835127a4b52489f807082e4b5504faf4cd7355.
+
+[33mcommit c7ca11bd4a57bb9cded463b1a836e16f3785932e[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 23:22:43 2024 +0800
+
+    new commit
+
+[33mcommit 80549f30b0a4fd48ee1d7dac0ec4cf18e8512704[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 23:20:34 2024 +0800
+
+    new commit
+
+[33mcommit 44f61f1d0b87df97c47180d93d11ea10cc5da304[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 23:18:57 2024 +0800
+
+     new commit
+
+[33mcommit dca85cb06fff3683031d3bb77676c7e8f0afeb3a[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 23:15:42 2024 +0800
+
+     new docker
+
+[33mcommit 0d645ec37604ce5d43ba6c1a3ac4b22bddf45780[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 23:09:59 2024 +0800
+
+    add volumes
+
+[33mcommit fb835127a4b52489f807082e4b5504faf4cd7355[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 23:01:58 2024 +0800
+
+     fix ui
+
+[33mcommit 467645ee03f687b2cc51c24971c329d9b6027dc1[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 18:35:15 2024 +0800
+
+    new commit
+
+[33mcommit 7ffbe5cdae80c75d5960dbd8819e006b6e82c926[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 17:58:20 2024 +0800
+
+     newest commit
+
+[33mcommit 4651e147ff4a048a78ba43fa99e418adc42e48a4[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 17:56:46 2024 +0800
+
+    add yml
+
+[33mcommit 345c7d0fd1dacb06e56d95c79c392c8716900a51[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 17:39:18 2024 +0800
+
+    new commit
+
+[33mcommit 35588a932ab303efbf4ce5bfca57b248445e663d[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 17:36:38 2024 +0800
+
+    docker compose
+
+[33mcommit 1f8c487d01f440965f32f7426780308bc82be094[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 17:07:06 2024 +0800
+
+     add package history
+
+[33mcommit d82aa858a5721cc74aa3ee82d0848a1ea06eb38f[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 15:53:23 2024 +0800
+
+    fix mobile responsive
+
+[33mcommit ad7bec1516d79a3be2d29cc71ec223d679a1210b[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 15:10:35 2024 +0800
+
+     new commit
+
+[33mcommit 61c8c2ea46d7d4a7dfb3902fc5a2b4f6f5e8fe2e[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 15:00:46 2024 +0800
+
+    add sponsor
+
+[33mcommit a8d8c10b6d4b6fecfa74b5e52fa0ba1a308b32bf[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 09:39:45 2024 +0800
+
+    fix user context
+
+[33mcommit 7d6c94869f99511fafbfd502e84513f6405b8fb6[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 09:38:46 2024 +0800
+
+     new commit
+
+[33mcommit 340c8a011c359fc7cc48ddf766c07de9561d2778[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 00:16:39 2024 +0800
+
+    add context:
+
+[33mcommit 3de7ead568c9be800767b6bcf89f0010728775cb[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Sat Dec 14 00:06:54 2024 +0800
+
+    optimize queries
+
+[33mcommit c079f6deabcffca7f8bf2edceb00ae60bb8fd425[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Fri Dec 13 21:44:57 2024 +0800
+
+    new commit
+
+[33mcommit 3f2582ace959c8de68907ee0060f7d7095701f51[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Fri Dec 13 21:38:51 2024 +0800
+
+    change server
+
+[33mcommit 63052dda12a457ae573723a1d0b3e4d643c76218[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Fri Dec 13 19:52:16 2024 +0800
+
+    add optimization
+
+[33mcommit e2559cb8212974db936bcf9bac806f3985c68b89[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Fri Dec 13 18:37:32 2024 +0800
+
+    optimize api query
+
+[33mcommit fda25244718963d60b63138d138a83c11205cde4[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Fri Dec 13 15:08:44 2024 +0800
+
+    add referral count
+
+[33mcommit b30fdac5215b386ddd0fe1ddd725d89376b205af[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Fri Dec 13 12:11:39 2024 +0800
+
+    new commit
+
+[33mcommit 17a076c3d49a8c50374cbafe0f81b4d2bd06007f[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Fri Dec 13 11:53:56 2024 +0800
+
+     new commit
+
+[33mcommit 654cd0bb245bebb505c0101b9fa1068f26ff73ab[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Fri Dec 13 10:07:08 2024 +0800
+
+    new commit
+
+[33mcommit c15fbe384072f7dc1613a6b95d071eba38d6e27b[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Fri Dec 13 09:09:35 2024 +0800
+
+    add error logs
+
+[33mcommit 13aea11fb05bc48cfea98897010e6fadbca1994b[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Thu Dec 12 23:11:41 2024 +0800
+
+    fix database logs
+
+[33mcommit 6fcb2b0218c5c627159874d7250c35a2b3b7b3c2[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Thu Dec 12 17:14:31 2024 +0800
+
+    new commit
+
+[33mcommit cb772d0960f36e2b2697a018a1df7c2d42a0e046[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Thu Dec 12 14:03:54 2024 +0800
+
+    fix amount
+
+[33mcommit 710e64eab1674f0bb80c584f7b2a9ad58ddea69e[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Thu Dec 12 13:36:59 2024 +0800
+
+    fix error
+
+[33mcommit c05e05598b140882fed67f7b423b5188708f6d4d[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Thu Dec 12 13:12:38 2024 +0800
+
+    add leaderboards
+
+[33mcommit 103e26d79e57416ba9e017ce923a97ea4a4e0871[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Thu Dec 12 12:25:18 2024 +0800
+
+    new commit
+
+[33mcommit 11d77ff3fbb60e3db66365176fb95f33d1f13c07[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Thu Dec 12 10:15:18 2024 +0800
+
+    new commit
+
+[33mcommit 985687ca73cfe39ba2a8b57235b7d73795a4a272[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Thu Dec 12 09:27:56 2024 +0800
+
+    new commit
+
+[33mcommit 1bd592d2429a369f71d75b17b0314a08bfaa203f[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Wed Dec 11 22:40:06 2024 +0800
+
+    add changes
+
+[33mcommit 459f61a55bd88d0222c05481cb1996de49e9a999[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Wed Dec 11 18:25:40 2024 +0800
+
+    add new role
+
+[33mcommit 4fb874c7de6293648cc43396697e8de669fc666d[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Wed Dec 11 17:48:18 2024 +0800
+
+    add more filter
+
+[33mcommit c8dbdaa3938f0dcc2acb70feb5d3bdfcbfdc2b4b[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Wed Dec 11 14:02:06 2024 +0800
+
+    polish all
+
+[33mcommit a9585579109fb905728b5d5d3343edfc29867ddd[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Wed Dec 11 12:40:49 2024 +0800
+
+    change ally to legion
+
+[33mcommit 6c2a5ab38afb6efc2a932328292b72a5c23838fa[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Wed Dec 11 12:32:14 2024 +0800
+
+    fix reject
+
+[33mcommit 88c014046a2bd4378dac28acb63c089547f28e58[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Wed Dec 11 12:31:02 2024 +0800
+
+    add dark mode
+
+[33mcommit 93288df059f100e304f959b3007bb73d62a86c12[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Wed Dec 11 10:15:44 2024 +0800
+
+    added fix to indirect referral
+
+[33mcommit 768417f62ea27dfa13182cc58eefa208ca44f5fb[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Tue Dec 10 23:42:59 2024 +0800
+
+    fix fetching
+
+[33mcommit 94eb4210f6735f989a96649335f845af26b20976[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Tue Dec 10 23:35:32 2024 +0800
+
+    fix package route
+
+[33mcommit e692afd8081b160fe4229a9441427669243481e1[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Tue Dec 10 23:16:34 2024 +0800
+
+    fix problem
+
+[33mcommit 65755cefb83a05d5cf68a672fb59e4ed6bb0bb36[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Tue Dec 10 22:44:55 2024 +0800
+
+    fix api package
+
+[33mcommit c0dbcefb00c3e719d2b4bbc58da0f4c3687ebf8a[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Tue Dec 10 18:28:49 2024 +0800
+
+    fix register
+
+[33mcommit ff32d7c444d86fa8510ed1677546ef7dbd772184[m
+Author: cloudred <cloudred442@gmail.com>
+Date:   Tue Dec 10 18:06:10 2024 +0800
+
+    setup server ready
+
+[33mcommit ee28e97c3126c36306c697ba97a2bcacbac3345d[m
+Autho
