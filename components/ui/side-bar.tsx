@@ -218,7 +218,12 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="top">
-                  <DropdownMenuItem onClick={() => router.push("/profile")}>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      router.push("/profile");
+                      setOpenMobile(false);
+                    }}
+                  >
                     <span>Profile</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleSignOut}>

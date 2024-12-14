@@ -42,7 +42,7 @@ export default function LayoutContent({
 
         {role !== "ADMIN" && (
           <div className="hidden md:block">
-            <NavBar teamMemberProfile={teamMemberProfile} />
+            <NavBar />
           </div>
         )}
 

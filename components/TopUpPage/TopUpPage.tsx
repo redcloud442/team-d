@@ -19,7 +19,7 @@ const TopUpPage = ({ teamMemberProfile }: Props) => {
         </header>
 
         {/* Table Section */}
-        <section className=" rounded-lg p-6">
+        <section className=" rounded-lg">
           <TopUpTable teamMemberProfile={teamMemberProfile} />
         </section>
       </div>

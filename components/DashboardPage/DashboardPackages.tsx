@@ -23,7 +23,7 @@ const DashboardPackages = ({ chartData }: Props) => {
         {chartData.map((data, index) => (
           <Card
             key={index}
-            className="min-w-[350px] md:w-full hover:shadow-gray-500 dark:hover:shadow-gray-200 transition-all duration-300"
+            className="min-w-[310px] md:w-full hover:shadow-gray-500 dark:hover:shadow-gray-200 transition-all duration-300"
           >
             <CardHeader>
               <CardTitle>{data.package}</CardTitle>

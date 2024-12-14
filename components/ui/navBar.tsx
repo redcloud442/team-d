@@ -9,17 +9,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
-import { alliance_member_table } from "@prisma/client";
 import { ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import NavigationLoader from "./NavigationLoader";
 
-type Props = {
-  teamMemberProfile: alliance_member_table;
-};
-
-const NavBar = ({ teamMemberProfile }: Props) => {
+const NavBar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClientSide();

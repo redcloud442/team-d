@@ -161,7 +161,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
   return (
     <div className="mx-auto md:p-10 space-y-6">
       {isLoading && <TableLoading />}
-      <div className="flex flex-col md:flex-row items-center justify-between">
+      <div className="flex flex-col md:flex-row justify-between">
         <h1 className="Title">Admin Dashboard</h1>
         <form
           onSubmit={handleSubmit(fetchAdminDashboardData)}
@@ -175,7 +175,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="font-normal justify-start"
+                    className="font-normal w-full md:w-auto md:justify-start"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {field.value
@@ -204,7 +204,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="font-normal justify-start"
+                    className="font-normal w-full md:w-auto md:justify-start"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {field.value
@@ -261,18 +261,29 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap w-full  items-center gap-4">
+            <div className="flex flex-wrap w-full items-center gap-4">
               <Input
                 type="text"
                 value={referral.alliance_referral_link}
                 readOnly
                 className="flex-0 md:flex-2 lg:flex-1"
               />
-              <Button onClick={handleCopyLink}>Copy Link</Button>
-              <Button onClick={() => router.push("/direct-loot")}>
+              <Button
+                className="font-normal w-full md:w-auto md:justify-start"
+                onClick={handleCopyLink}
+              >
+                Copy Link
+              </Button>
+              <Button
+                className="font-normal w-full md:w-auto md:justify-start"
+                onClick={() => router.push("/direct-loot")}
+              >
                 Direct Referral
               </Button>
-              <Button onClick={() => router.push("/indirect-loot")}>
+              <Button
+                className="font-normal w-full md:w-auto md:justify-start"
+                onClick={() => router.push("/indirect-loot")}
+              >
                 Indirect Referral
               </Button>
             </div>
