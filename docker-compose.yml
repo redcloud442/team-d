@@ -45,6 +45,5 @@ services:
       mode: replicated
       replicas: 3
     restart: always
-
 volumes:
   letsencrypt:
