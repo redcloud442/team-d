@@ -99,6 +99,7 @@ const DashboardDepositModalPackages = ({
         {selectedPackage ? (
           <AvailPackagePage
             setOpen={setOpen}
+            setSelectedPackage={setSelectedPackage}
             earnings={earnings}
             pkg={selectedPackage}
             teamMemberProfile={teamMemberProfile}

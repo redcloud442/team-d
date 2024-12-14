@@ -26,6 +26,7 @@ type Props = {
   setEarnings: Dispatch<SetStateAction<alliance_earnings_table>>;
   setOpen: Dispatch<SetStateAction<boolean>>;
   setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
+  setSelectedPackage: Dispatch<SetStateAction<package_table | null>>;
 };
 
 const AvailPackagePage = ({
@@ -35,6 +36,7 @@ const AvailPackagePage = ({
   setEarnings,
   setOpen,
   setChartData,
+  setSelectedPackage,
 }: Props) => {
   const { toast } = useToast();
   const [maxAmount, setMaxAmount] = useState(earnings.alliance_olympus_wallet);
@@ -114,7 +116,7 @@ const AvailPackagePage = ({
           amount: sumOfTotal,
         },
       ]);
-
+      setSelectedPackage(null);
       setOpen(false);
     } catch (e) {
       const errorMessage =
