@@ -18,6 +18,7 @@ import { Card } from "../ui/card";
 import CardAmount from "../ui/cardAmount";
 import TableLoading from "../ui/tableLoading";
 import DashboardDepositRequest from "./DashboardDepositRequest/DashboardDepositRequest";
+import DashboardPackageRequest from "./DashboardPackageRequest/DashboardPackageRequest";
 import DashboardPackages from "./DashboardPackages";
 import DashboardWithdrawRequest from "./DashboardWithdrawRequest/DashboardWithdrawRequest";
 
@@ -112,7 +113,13 @@ const DashboardPage = ({
                 dashboardEarnings.totalEarnings
               ).toLocaleString() as unknown as number
             }
-            description=""
+            description={
+              <>
+                <DashboardPackageRequest
+                  teamMemberProfile={teamMemberProfile}
+                />
+              </>
+            }
             descriptionClassName="text-sm text-green-600"
           />
           <CardAmount

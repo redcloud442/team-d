@@ -22,6 +22,15 @@ export type TopUpRequestData = alliance_top_up_request_table & {
   alliance_member_id: string;
 };
 
+export type PackageHistoryData = {
+  package_member_connection_id: string;
+  package_name: string;
+  package_member_amount: number;
+  package_member_amount_earnings: number;
+  package_member_status: string;
+  package_member_connection_created: string;
+};
+
 export type WithdrawalRequestData = alliance_withdrawal_request_table & {
   user_first_name: string;
   user_last_name: string;

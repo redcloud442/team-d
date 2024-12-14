@@ -1,3 +1,4 @@
+import { PackageHistoryData } from "@/utils/types";
 import { package_table } from "@prisma/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 
@@ -44,4 +45,29 @@ export const getPackageModalData = async (
   if (error) throw error;
 
   return data as package_table[];
+};
+
+export const getPackageHistory = async (
+  supabaseClient: SupabaseClient,
+  params: {
+    search: string;
+    page: number;
+    limit: number;
+    sortBy: boolean;
+    columnAccessor: string;
+    teamMemberId: string;
+  }
+) => {
+  const { data, error } = await supabaseClient.rpc(
+    "get_member_package_history",
+    {
+      input_data: params,
+    }
+  );
+  if (error) throw error;
+
+  return data as {
+    data: PackageHistoryData[];
+    totalCount: number;
+  };
 };

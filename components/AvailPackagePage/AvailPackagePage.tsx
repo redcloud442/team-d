@@ -108,13 +108,13 @@ const AvailPackagePage = ({
 
       setMaxAmount((prev) => prev - result.amount);
       setChartData((prev) => [
-        ...prev,
         {
           package: pkg.package_name,
           completion: 0,
           completion_date: completionDate.toISOString(),
           amount: sumOfTotal,
         },
+        ...prev,
       ]);
       setSelectedPackage(null);
       setOpen(false);

@@ -935,7 +935,6 @@ plv8.subtransaction(function() {
     FROM alliance_earnings_table
     WHERE alliance_earnings_member_id = $1
   `,[teamMemberId]);
-
 });
 return returnData;
 $$ LANGUAGE plv8;
@@ -979,7 +978,7 @@ plv8.subtransaction(function() {
 
   const searchCondition = search ? `AND u.user_username ILIKE '%${search}%' OR u.user_first_name ILIKE '%${search}%' OR u.user_last_name ILIKE '%${search}%'`: "";
   const roleCondition = userRole ? `AND m.alliance_member_role = '${userRole}'`: "";
-  const dateCreatedCondition = dateCreated ? `AND u.user_date_created = '${dateCreated}'`: "";
+  const dateCreatedCondition = dateCreated ? `AND u.user_date_created::Date = '${dateCreated}'`: "";
   const sortBy = isAscendingSort ? "desc" : "asc";
   const sortCondition = columnAccessor
     ? `ORDER BY "${columnAccessor}" ${sortBy}`
@@ -1027,7 +1026,6 @@ let returnData = {
     data: [],
     totalCount: 0
 };
-
 plv8.subtransaction(function() {
   const {
     page = 1,
@@ -1157,9 +1155,7 @@ plv8.subtransaction(function() {
 return returnData;
 $$ LANGUAGE plv8;
 
-CREATE OR REPLACE FUNCTION get_legion_bounty(
-  input_data JSON
-)
+CREATE OR REPLACE FUNCTION get_legion_bounty(input_data JSON)
 RETURNS JSON
 AS $$
 let returnData = {
@@ -1168,6 +1164,7 @@ let returnData = {
   success: true,
   message: 'Data fetched successfully',
 };
+
 plv8.subtransaction(function() {
   const {
     page = 1,
@@ -1183,6 +1180,7 @@ plv8.subtransaction(function() {
     return;
   }
 
+
   const member = plv8.execute(
     `
     SELECT alliance_member_role
@@ -1192,7 +1190,7 @@ plv8.subtransaction(function() {
     [teamMemberId]
   );
 
-  if (!member.length || !["ADMIN", "ACCOUNTING", "MERCHANT","MEMBER"].includes(member[0].alliance_member_role)) {
+  if (!member.length || !["ADMIN", "ACCOUNTING", "MERCHANT", "MEMBER"].includes(member[0].alliance_member_role)) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
@@ -1205,7 +1203,6 @@ plv8.subtransaction(function() {
     `,
     [teamMemberId]
   ).map((ref) => ref.alliance_referral_member_id);
-
 
   let indirectReferrals = new Set();
   let currentLevelReferrals = [teamMemberId];
@@ -1252,24 +1249,38 @@ plv8.subtransaction(function() {
   }
 
   const offset = Math.max((page - 1) * limit, 0);
-  let params = [indirectReferrals, limit, offset];
+  let params = [indirectReferrals, teamMemberId, limit, offset];
   let searchCondition = '';
 
   if (search) {
-    searchCondition = `AND (ut.user_first_name ILIKE '%${search}%'  OR ut.user_last_name ILIKE '%${search}%' OR ut.user_username ILIKE '%${search}%')`;
+    searchCondition = `AND (ut.user_first_name ILIKE '%${search}%' OR ut.user_last_name ILIKE '%${search}%' OR ut.user_username ILIKE '%${search}%')`;
   }
-
 
   const indirectReferralDetails = plv8.execute(
     `
-    SELECT user_first_name, user_last_name, user_username
+    SELECT 
+      ut.user_first_name, 
+      ut.user_last_name, 
+      ut.user_username, 
+      ut.user_date_created,
+      am.alliance_member_id,
+      COALESCE(SUM(pa.package_ally_bounty_earnings), 0) AS total_bounty_earnings
     FROM alliance_schema.alliance_member_table am
     JOIN user_schema.user_table ut
       ON ut.user_id = am.alliance_member_user_id
-    WHERE am.alliance_member_id = ANY($1)
+    JOIN packages_schema.package_ally_bounty_log pa
+      ON am.alliance_member_id = pa.package_ally_bounty_from
+    WHERE pa.package_ally_bounty_from  = ANY($1)
+      AND pa.package_ally_bounty_member_id = $2
       ${searchCondition}
+    GROUP BY 
+      ut.user_first_name, 
+      ut.user_last_name, 
+      ut.user_username, 
+      ut.user_date_created,
+      am.alliance_member_id
     ORDER BY ${columnAccessor} ${isAscendingSort ? 'ASC' : 'DESC'}
-    LIMIT $2 OFFSET $3
+    LIMIT $3 OFFSET $4
     `,
     params
   );
@@ -1286,11 +1297,15 @@ plv8.subtransaction(function() {
     [indirectReferrals]
   );
 
+  // Set the result data
   returnData.data = indirectReferralDetails;
   returnData.totalCount = Number(totalCountResult[0].count);
 });
+
 return returnData;
 $$ LANGUAGE plv8;
+
+
 
 CREATE OR REPLACE FUNCTION get_total_referral(input_data JSON)
 RETURNS JSON
@@ -1556,9 +1571,7 @@ CREATE OR REPLACE FUNCTION get_dashboard_data(
 )
 RETURNS JSON
 AS $$
-
 let returnData = [];
-
 plv8.subtransaction(function() {
   const { teamMemberId } = input_data;
 
@@ -1591,11 +1604,14 @@ plv8.subtransaction(function() {
   (pmc.package_member_amount + pmc.package_amount_earnings) AS amount,
   pmc.package_member_connection_id,
   pmc.package_member_package_id,
-  pmc.package_member_member_id
-FROM packages_schema.package_member_connection_table pmc
-JOIN packages_schema.package_table p
-  ON pmc.package_member_package_id = p.package_id
-WHERE pmc.package_member_status = $1 AND pmc.package_member_member_id = $2
+  pmc.package_member_member_id,
+  pmc.package_member_amount,
+  pmc.package_amount_earnings
+  FROM packages_schema.package_member_connection_table pmc
+  JOIN packages_schema.package_table p
+    ON pmc.package_member_package_id = p.package_id
+  WHERE pmc.package_member_status = $1 AND pmc.package_member_member_id = $2
+  ORDER BY pmc.package_member_connection_created DESC
      `,
     ['ACTIVE', teamMemberId]
   );
@@ -1604,8 +1620,7 @@ WHERE pmc.package_member_status = $1 AND pmc.package_member_member_id = $2
     const startDate = new Date(row.package_member_connection_created);
     const completionDate = new Date(row.completion_date);
 
-    plv8.elog(NOTICE, `Start Date: ${startDate}`);
-    plv8.elog(NOTICE, `Completion Date: ${completionDate}`);
+
 
     if (isNaN(startDate.getTime()) || isNaN(completionDate.getTime())) {
       plv8.elog(NOTICE, `Invalid dates detected.`);
@@ -1624,7 +1639,7 @@ WHERE pmc.package_member_status = $1 AND pmc.package_member_member_id = $2
       ? parseFloat(((elapsedTimeMs / totalTimeMs) * 100).toFixed(2))
       : 100.0;
 
-    if (percentage >= 100) {
+    if (percentage > 99) {
       const earnings = row.amount;
 
       plv8.execute(
@@ -1641,27 +1656,28 @@ WHERE pmc.package_member_status = $1 AND pmc.package_member_member_id = $2
         [row.package_member_connection_id]
       );
 
-      plv8.execute(
-        `INSERT INTO packages_schema.package_earnings_log (
-           package_member_connection_id,
-           package_member_package_id,
-           package_member_member_id,
-           package_member_connection_created,
-           package_member_amount,
-           package_member_amount_earnings,
-           package_member_status
-         ) VALUES (
-           $1, $2, $3, $4, $5, $6, 'ENDED'
-         )`,
-        [
-          row.package_member_connection_id,
-          row.package_member_package_id,
-          row.package_member_member_id,
-          row.package_member_connection_created,
-          row.package_member_amount,
-          row.package_amount_earnings
-        ]
-      );
+  plv8.execute(
+    `INSERT INTO packages_schema.package_earnings_log (
+      package_member_connection_id,
+      package_member_package_id,
+      package_member_member_id,
+      package_member_connection_created,
+      package_member_amount,
+      package_member_amount_earnings,
+      package_member_status
+    ) VALUES (
+      $1, $2, $3, $4, $5, $6, 'ENDED'
+    )`,
+    [
+      row.package_member_connection_id,
+      row.package_member_package_id,
+      row.package_member_member_id,
+      row.package_member_connection_created,
+      row.package_member_amount,
+      row.package_amount_earnings
+    ]
+  );
+
     }
 
     return {
@@ -1674,8 +1690,75 @@ WHERE pmc.package_member_status = $1 AND pmc.package_member_member_id = $2
 });
 
 return returnData;
-
 $$ LANGUAGE plv8;
+
+CREATE OR REPLACE FUNCTION get_member_package_history(
+  input_data JSON
+)
+RETURNS JSON
+AS $$
+let returnData = {
+  data: [],
+  totalCount: 0,
+  success: true,
+  message: "Data fetched successfully",
+};
+plv8.subtransaction(function() {
+  const { teamMemberId, search, sortBy, columnAccessor, page, limit } = input_data;
+
+  if (!teamMemberId) {
+    returnData = { success: false, message: 'teamMemberId is required' };
+    return;
+  }
+
+ const offset = (page - 1) * limit;
+
+  const member = plv8.execute(
+    `SELECT alliance_member_role FROM alliance_schema.alliance_member_table WHERE alliance_member_id = $1`,
+    [teamMemberId]
+  );
+
+  if (!member.length || (!["MEMBER", "MERCHANT", "ACCOUNTING"].includes(member[0].alliance_member_role))) {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+  const searchCondition = search ? `WHERE p.package_name ILIKE '%${search}%'` : '';
+  const sortBy = sortBy === 'asc' ? 'ASC' : 'DESC';
+  const orderByCondition = columnAccessor ? `ORDER BY ${columnAccessor} ${sortBy}` : '';
+
+
+  const packageHistory = plv8.execute(
+    `SELECT 
+     p.package_name, 
+     pmc.package_member_connection_created,
+     pmc.package_amount_earnings, 
+     pmc.package_member_status
+    FROM packages_schema.package_earnings_log pmc
+    JOIN packages_schema.package_table p
+    ON pmc.package_member_package_id = p.package_id
+    WHERE pmc.package_member_member_id = $1
+    ${searchCondition}
+    ${orderByCondition}
+    LIMIT $2 OFFSET $3`,
+    [teamMemberId, limit, offset]
+  );
+
+  const totalCount = plv8.execute(
+    `SELECT COUNT(*)
+    FROM packages_schema.package_earnings_log
+    WHERE package_member_member_id = $1
+    ${searchCondition}`,
+    [teamMemberId]
+  )[0].count; 
+
+  returnData = packageHistory;
+  returnData.totalCount = Number(totalCount);
+});
+
+return returnData;
+$$ LANGUAGE plv8;
+
 
 
 CREATE OR REPLACE FUNCTION get_history_log(
@@ -1949,7 +2032,6 @@ CREATE OR REPLACE FUNCTION get_dashboard_earnings(
 RETURNS JSON
 AS $$
 let returnData = {};
-
 plv8.subtransaction(function() {
   const {
     page = 1,
@@ -1972,15 +2054,25 @@ plv8.subtransaction(function() {
   }
 
 
-  const earningsAndWithdrawals = plv8.execute(
+  const totalEarnings = plv8.execute(
     `
     SELECT
-      COALESCE(SUM(CASE WHEN pe.package_member_status = 'ENDED' THEN pe.package_member_amount ELSE 0 END), 0) AS total_earnings,
-      COALESCE(SUM(CASE WHEN aw.alliance_withdrawal_request_status = 'APPROVED' THEN aw.alliance_withdrawal_request_amount ELSE 0 END), 0) AS total_withdrawal
-    FROM packages_schema.package_earnings_log pe
-    LEFT JOIN alliance_schema.alliance_withdrawal_request_table aw
-      ON pe.package_member_member_id = aw.alliance_withdrawal_request_member_id
-    WHERE pe.package_member_member_id = $1
+      COALESCE(SUM(package_member_amount), 0) AS total_earnings
+    FROM packages_schema.package_earnings_log
+    WHERE package_member_member_id = $1
+      AND package_member_status = 'ENDED'
+    `,
+    [teamMemberId]
+  );
+
+
+  const totalWithdrawals = plv8.execute(
+    `
+    SELECT
+      COALESCE(SUM(alliance_withdrawal_request_amount), 0) AS total_withdrawal
+    FROM alliance_schema.alliance_withdrawal_request_table
+    WHERE alliance_withdrawal_request_member_id = $1
+      AND alliance_withdrawal_request_status = 'APPROVED'
     `,
     [teamMemberId]
   );
@@ -1999,19 +2091,18 @@ plv8.subtransaction(function() {
     `
     SELECT COALESCE(SUM(package_ally_bounty_earnings), 0) AS total_bounty 
     FROM packages_schema.package_ally_bounty_log
-    WHERE package_ally_bounty_member_id = 'c960b597-4032-4609-bc2c-97687a5e59ac AND package_ally_bounty_type = 'INDIRECT'
+    WHERE package_ally_bounty_member_id = $1 AND package_ally_bounty_type = 'INDIRECT'
     `,
     [teamMemberId]
   );
 
   returnData = {
-    totalEarnings: earningsAndWithdrawals[0]?.total_earnings || 0,
-    withdrawalAmount: earningsAndWithdrawals[0]?.total_withdrawal || 0,
+    totalEarnings: totalEarnings[0]?.total_earnings || 0,
+    withdrawalAmount: totalWithdrawals[0]?.total_withdrawal || 0,
     directReferralAmount: directReferralAmount[0]?.total_bounty || 0,
     indirectReferralAmount: indirectReferralAmount[0]?.total_bounty || 0
   };
 });
-
 return returnData;
 $$ LANGUAGE plv8;
 
@@ -2046,7 +2137,6 @@ plv8.subtransaction(function() {
   returnData = packageData
 });
 return returnData;
-
 $$ LANGUAGE plv8;
 
 
@@ -2125,7 +2215,7 @@ AS $$
 let returnData = {};
 plv8.subtransaction(() => {
   const { leaderBoardType, teamMemberId, limit = 10, page = 0 } = input_data;
-const offset = (page - 1) * limit;
+  const offset = (page - 1) * limit;
 
   const member = plv8.execute(
     `
@@ -2440,18 +2530,56 @@ CREATE POLICY "Allow Insert for anon users" ON packages_schema.package_earnings_
 AS PERMISSIVE FOR INSERT
 WITH CHECK (true);
 
+-- Enable Row Level Security (RLS) for the table
 ALTER TABLE packages_schema.package_member_connection_table ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
 DROP POLICY IF EXISTS "Allow READ for authenticated users" ON packages_schema.package_member_connection_table;
-CREATE POLICY "Allow READ for anon users" ON packages_schema.package_member_connection_table
+DROP POLICY IF EXISTS "Allow INSERT for authenticated users" ON packages_schema.package_member_connection_table;
+DROP POLICY IF EXISTS "Allow UPDATE for authenticated users" ON packages_schema.package_member_connection_table;
+
+-- Create READ policy: Allow authenticated users to read only their own data
+CREATE POLICY "Allow READ for authenticated users" 
+ON packages_schema.package_member_connection_table
 AS PERMISSIVE FOR SELECT
 TO authenticated
-USING (true);
+USING (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table am
+    WHERE am.alliance_member_id = package_member_member_id
+      AND am.alliance_member_user_id = auth.uid()
+  )
+);
 
-DROP POLICY IF EXISTS "Allow Insert for authenticated users" ON packages_schema.package_member_connection_table;
-CREATE POLICY "Allow Insert for anon users" ON packages_schema.package_member_connection_table
+-- Create INSERT policy: Allow authenticated users to insert data associated with their own user ID
+CREATE POLICY "Allow INSERT for authenticated users" 
+ON packages_schema.package_member_connection_table
 AS PERMISSIVE FOR INSERT
-WITH CHECK (true);
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table am
+    WHERE am.alliance_member_id = package_member_member_id
+      AND am.alliance_member_user_id = auth.uid()
+  )
+);
+
+-- Create UPDATE policy: Allow authenticated users to update only their own data
+CREATE POLICY "Allow UPDATE for authenticated users" 
+ON packages_schema.package_member_connection_table
+AS PERMISSIVE FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table am
+    WHERE am.alliance_member_id = package_member_member_id
+      AND am.alliance_member_user_id = auth.uid()
+  )
+);
+
 
 ALTER TABLE packages_schema.package_table ENABLE ROW LEVEL SECURITY;
 
