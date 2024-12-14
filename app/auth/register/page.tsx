@@ -43,14 +43,15 @@ const Page = async ({
   });
 
   if (!teamMemberProfile?.alliance_member_is_active) {
-    console.log(teamMemberProfile?.alliance_member_is_active);
-
     redirect("/auth/login");
   }
 
   return (
     <main className="max-w-full min-h-screen flex flex-col items-center justify-center">
-      <RegisterPage referralLink={referralLink} />
+      <RegisterPage
+        referralLink={referralLink}
+        userName={user?.user_username || ""}
+      />
     </main>
   );
 };

@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { user_table } from "@prisma/client";
+import { Prisma, user_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 
-export const AllyBountyColumn = (): ColumnDef<user_table>[] => {
+export const AllyBountyColumn = (): ColumnDef<
+  user_table & { total_bounty_earnings: string }
+>[] => {
   return [
     {
       accessorKey: "user_username",
@@ -48,6 +50,24 @@ export const AllyBountyColumn = (): ColumnDef<user_table>[] => {
       ),
       cell: ({ row }) => (
         <div className="text-wrap">{row.getValue("user_last_name")}</div>
+      ),
+    },
+    {
+      accessorKey: "total_bounty_earnings",
+
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Total Referral Earnings <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-wrap">
+          ₱{" "}
+          {new Prisma.Decimal(row.getValue("total_bounty_earnings")).toNumber()}
+        </div>
       ),
     },
   ];

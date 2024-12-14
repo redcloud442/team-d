@@ -84,6 +84,8 @@ model alliance_member_table {
   approved_withdrawal_requests     alliance_withdrawal_request_table[] @relation("WithdrawalApprover")
   package_ally_bounty_log package_ally_bounty_log[]
   package_earnings_log package_earnings_log[]
+  
+  package_ally_bounty_log_from package_ally_bounty_log[] @relation("FromMember")
   @@schema("alliance_schema")
 }
 
@@ -210,7 +212,7 @@ model package_member_connection_table {
 }
 
 model package_earnings_log {
-  package_earnings_log_id              String   @id @default(uuid()) @db.Uuid
+  package_earnings_log_id              String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   package_member_connection_id         String   @db.Uuid
   package_member_package_id            String   @db.Uuid
   package_member_member_id             String   @db.Uuid
@@ -230,21 +232,21 @@ model package_earnings_log {
 }
 
 model package_ally_bounty_log {
-  package_ally_bounty_log_id              String   @id @default(uuid()) @db.Uuid
+  package_ally_bounty_log_id              String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   package_ally_bounty_log_date_created    DateTime @default(now())
   package_ally_bounty_member_id           String   @db.Uuid
   package_ally_bounty_percentage          Float    @default(0.0)
   package_ally_bounty_earnings            Float    @default(0.0)
   package_ally_bounty_type                String
-  package_ally_bounty_connection_id            String   @db.Uuid
+  package_ally_bounty_connection_id       String   @db.Uuid
+  package_ally_bounty_from                String?   @db.Uuid
 
   alliance_member_table alliance_member_table @relation(fields: [package_ally_bounty_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
   package_member_connection_table package_member_connection_table @relation(fields: [package_ally_bounty_connection_id], references: [package_member_connection_id], onDelete: Cascade, onUpdate: Cascade)
-
+  alliance_member_table_from alliance_member_table? @relation("FromMember",fields: [package_ally_bounty_from], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
   @@schema("packages_schema")
 
 }
-
 model merchant_table {
   merchant_id               String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   merchant_date_created     DateTime  @default(now())

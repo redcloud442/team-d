@@ -1,17 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
-import { alliance_member_table } from "@prisma/client";
 import { DollarSign, Home, LogOut, ShoppingBag, User } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import NavigationLoader from "./NavigationLoader";
 import { Button } from "./button";
-
-type Props = {
-  teamMemberProfile: alliance_member_table;
-};
 
 type NavItem = {
   href: string;
@@ -20,7 +16,7 @@ type NavItem = {
   onClick?: () => void | Promise<void>;
 };
 
-const MobileNavBar = ({ teamMemberProfile }: Props) => {
+const MobileNavBar = () => {
   const supabase = createClientSide();
   const pathname = usePathname();
   const { role } = useRole();

@@ -113,6 +113,7 @@ export async function POST(request: Request) {
           package_ally_bounty_type: ref.level === 1 ? "DIRECT" : "INDIRECT",
           package_ally_bounty_connection_id:
             connectionData.package_member_connection_id,
+          package_ally_bounty_from: teamMemberId,
         }));
 
         await prisma.package_ally_bounty_log.createMany({ data: bountyLogs });

@@ -55,8 +55,9 @@ type RegisterFormData = z.infer<typeof RegisterSchema>;
 
 type Props = {
   referralLink: string;
+  userName: string;
 };
-const RegisterPage = ({ referralLink }: Props) => {
+const RegisterPage = ({ referralLink, userName }: Props) => {
   const {
     register,
     handleSubmit,
@@ -115,7 +116,7 @@ const RegisterPage = ({ referralLink }: Props) => {
   return (
     <Card className="w-[400px] mx-auto p-4">
       <NavigationLoader visible={isSubmitting || isSuccess} />
-      <CardTitle>Register</CardTitle>
+      <CardTitle>Registration Sponsored by: {userName}</CardTitle>
       <CardContent className="p-4">
         <form
           className="flex flex-col gap-4"

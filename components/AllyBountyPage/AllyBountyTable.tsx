@@ -48,7 +48,9 @@ const AllyBountyTable = ({ teamMemberProfile, sponsor }: DataTableProps) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [requestData, setRequestData] = useState<user_table[]>([]);
+  const [requestData, setRequestData] = useState<
+    (user_table & { total_bounty_earnings: string })[]
+  >([]);
   const [requestCount, setRequestCount] = useState(0);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);

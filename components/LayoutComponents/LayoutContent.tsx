@@ -49,9 +49,7 @@ export default function LayoutContent({
         <div className="p-4 pb-10 md:pb-0">{children}</div>
         <ModeToggle />
 
-        {role !== "ADMIN" && (
-          <MobileNavBar teamMemberProfile={teamMemberProfile} />
-        )}
+        {role !== "ADMIN" && <MobileNavBar />}
       </div>
     </div>
   );

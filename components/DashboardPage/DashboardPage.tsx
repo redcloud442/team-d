@@ -88,7 +88,7 @@ const DashboardPage = ({
 
         <Card className="flex items-center justify-between p-4 rounded-lg shadow-md hover:shadow-gray-500 dark:hover:shadow-gray-200 transition-all duration-300">
           {isActive && chartData.length > 0 && (
-            <div className="flex items-center flex-wrap w-full max-w-sm gap-4">
+            <div className="flex items-center flex-wrap  md:max-w-sm gap-4">
               <p className="font-medium hidden md:block">Referral Link</p>
               <Button id=".copy-link" onClick={copyReferralLink}>
                 Copy Referral Link

@@ -119,15 +119,8 @@ const LoginPage = () => {
             )}
           </div>
 
-          <Button
-            disabled={isSubmitting || isLoading}
-            variant="secondary"
-            type="submit"
-          >
+          <Button disabled={isSubmitting || isLoading} type="submit">
             {isSubmitting || isLoading ? "Signing in..." : "Sign in"}
-          </Button>
-          <Button type="button" onClick={() => router.push("/auth/register")}>
-            Sign up
           </Button>
         </form>
       </CardContent>

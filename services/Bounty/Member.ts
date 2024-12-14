@@ -20,7 +20,7 @@ export const getAllyBounty = async (
   if (error) throw error;
 
   return data as {
-    data: user_table[];
+    data: (user_table & { total_bounty_earnings: string })[];
     totalCount: 0;
   };
 };

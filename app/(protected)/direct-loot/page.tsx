@@ -24,7 +24,7 @@ const Page = async () => {
   });
 
   if (error) throw error;
-  console.log(teamMemberProfile);
+
   return (
     <AllyBountyPage
       teamMemberProfile={teamMemberProfile}
