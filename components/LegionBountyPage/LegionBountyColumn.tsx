@@ -62,7 +62,9 @@ export const LegionBountyColumn = (): ColumnDef<LegionRequestData>[] => {
       cell: ({ row }) => (
         <div>
           ₱{" "}
-          {new Prisma.Decimal(row.getValue("total_bounty_earnings")).toNumber()}
+          {new Prisma.Decimal(
+            row.getValue("total_bounty_earnings")
+          ).toLocaleString()}
         </div>
       ),
     },

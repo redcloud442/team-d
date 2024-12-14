@@ -66,7 +66,9 @@ export const AllyBountyColumn = (): ColumnDef<
       cell: ({ row }) => (
         <div className="text-wrap">
           ₱{" "}
-          {new Prisma.Decimal(row.getValue("total_bounty_earnings")).toNumber()}
+          {new Prisma.Decimal(
+            row.getValue("total_bounty_earnings")
+          ).toLocaleString()}
         </div>
       ),
     },
