@@ -31,7 +31,7 @@ services:
     restart: always
 
   red-app:
-    image: ghcr.io/redcloud442/red:prod
+    image: ghcr.io/redcloud442/red@sha256:bd5acee446a3cc649272bfc76cf33fd8bb749915d63fd8a4dc19dbfa45bda228
     secrets:
       - red_app_env
     labels:
