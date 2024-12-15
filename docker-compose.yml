@@ -37,11 +37,38 @@ services:
       - "traefik.http.routers.red-app.entrypoints=websecure"
       - "traefik.http.routers.red-app.tls.certresolver=myresolver"
       - "com.centurylinklabs.watchtower.enable=true"
-    volumes:
-      - ./secrets:/run/secrets:ro
+    secrets:
+      - databaseUrl
+      - directUrl
+      - supabaseUrl
+      - anon
+      - cryptokey
+      - role
+    environment:
+      - DATABASE_URL=/run/secrets/databaseUrl
+      - DIRECT_URL=/run/secrets/directUrl
+      - NEXT_PUBLIC_SUPABASE_URL=/run/secrets/supabaseUrl
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=/run/secrets/anon
+      - NEXT_PUBLIC_BASE_URL=https://redful.xyz
+      - NEXT_PUBLIC_CRYPTO_SECRET_KEY=/run/secrets/cryptokey
+      - SUPABASE_SERVICE_ROLE_KEY=/run/secrets/role
     deploy:
       mode: replicated
       replicas: 3
     restart: always
 volumes:
   letsencrypt:
+
+secrets:
+  databaseUrl:
+    file: ./secrets/databaseUrl
+  directUrl:
+    file: ./secrets/directUrl
+  supabaseUrl:
+    file: ./secrets/supabaseUrl
+  anon:
+    file: ./secrets/anon
+  cryptokey:
+    file: ./secrets/cryptokey
+  role:
+    file: ./secrets/role
