@@ -21,7 +21,8 @@ COPY . .
 # Build the application (if applicable)
 RUN npm run build
 
-# Expose the application port
+ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
+
 ENV PORT=8080
 EXPOSE 8080
 
