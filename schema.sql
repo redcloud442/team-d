@@ -25,7 +25,6 @@ CREATE OR REPLACE FUNCTION create_user_trigger(
 RETURNS JSON
 SET search_path TO ''
 AS $$
-
 let returnData;
 plv8.subtransaction(function() {
   const {
@@ -91,7 +90,6 @@ plv8.subtransaction(function() {
   }
 
 });
-
 function handleReferral(referalLink, allianceMemberId) {
   
   const referrerData = plv8.execute(`
@@ -144,6 +142,8 @@ function handleReferral(referalLink, allianceMemberId) {
 }
 return returnData;
 $$ LANGUAGE plv8;
+
+
 CREATE OR REPLACE FUNCTION get_admin_top_up_history(
   input_data JSON
 )
@@ -1711,32 +1711,32 @@ plv8.subtransaction(function() {
     return;
   }
 
- const offset = (page - 1) * limit;
+  const offset = (page - 1) * limit;
 
   const member = plv8.execute(
     `SELECT alliance_member_role FROM alliance_schema.alliance_member_table WHERE alliance_member_id = $1`,
     [teamMemberId]
   );
 
-  if (!member.length || (!["MEMBER", "MERCHANT", "ACCOUNTING"].includes(member[0].alliance_member_role))) {
+  if (!member.length || !["MEMBER", "MERCHANT", "ACCOUNTING"].includes(member[0].alliance_member_role)) {
     returnData = { success: false, message: 'Unauthorized access' };
     return;
   }
 
-  const searchCondition = search ? `WHERE p.package_name ILIKE '%${search}%'` : '';
-  const sortBy = sortBy === 'asc' ? 'ASC' : 'DESC';
-  const orderByCondition = columnAccessor ? `ORDER BY ${columnAccessor} ${sortBy}` : '';
-
+  const searchCondition = search ? `AND p.package_name ILIKE '%${search}%'` : '';
+  const sortByCondition = sortBy === 'DESC' ? 'DESC' : 'ASC';
+  const orderByCondition = columnAccessor ? `ORDER BY ${columnAccessor} ${sortByCondition}` : '';
 
   const packageHistory = plv8.execute(
     `SELECT 
+     pmc.package_member_connection_id,
      p.package_name, 
      pmc.package_member_connection_created,
-     pmc.package_amount_earnings, 
+     pmc.package_member_amount_earnings, 
      pmc.package_member_status
     FROM packages_schema.package_earnings_log pmc
     JOIN packages_schema.package_table p
-    ON pmc.package_member_package_id = p.package_id
+      ON pmc.package_member_package_id = p.package_id
     WHERE pmc.package_member_member_id = $1
     ${searchCondition}
     ${orderByCondition}
@@ -1746,19 +1746,19 @@ plv8.subtransaction(function() {
 
   const totalCount = plv8.execute(
     `SELECT COUNT(*)
-    FROM packages_schema.package_earnings_log
-    WHERE package_member_member_id = $1
-    ${searchCondition}`,
+     FROM packages_schema.package_earnings_log pmc
+     JOIN packages_schema.package_table p
+       ON pmc.package_member_package_id = p.package_id
+     WHERE pmc.package_member_member_id = $1
+     ${searchCondition}`,
     [teamMemberId]
-  )[0].count; 
+  )[0].count;
 
-  returnData = packageHistory;
+  returnData.data = packageHistory;
   returnData.totalCount = Number(totalCount);
 });
-
 return returnData;
 $$ LANGUAGE plv8;
-
 
 
 CREATE OR REPLACE FUNCTION get_history_log(

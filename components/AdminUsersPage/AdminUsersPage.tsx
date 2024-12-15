@@ -8,8 +8,8 @@ type Props = {
 
 const AdminUserPage = ({ teamMemberProfile }: Props) => {
   return (
-    <div className="mx-auto">
-      <div className="w-full flex flex-col gap-6 max-w-6xl">
+    <div className="mx-auto md:p-10 space-y-6">
+      <div>
         {/* Page Title */}
         <header className="mb-4">
           <h1 className="Title">User List Page</h1>

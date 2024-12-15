@@ -175,7 +175,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="font-normal justify-start"
+                    className="font-normal w-full md:w-auto justify-start"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {field.value
@@ -204,7 +204,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="font-normal justify-start"
+                    className="font-normal w-full md:w-auto justify-start"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {field.value
