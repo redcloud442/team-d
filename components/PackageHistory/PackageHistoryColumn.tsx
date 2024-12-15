@@ -50,7 +50,7 @@ export const usePackageHistoryColumns = () => {
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Bank Name <ArrowUpDown />
+          Amount <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (

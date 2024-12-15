@@ -47,7 +47,7 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
   };
 
   return (
-    <div className="container mx-auto p-10">
+    <div className="container mx-auto">
       <h1 className="Title">List of Packages</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {packages.map((pkg) => (

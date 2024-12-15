@@ -19,7 +19,7 @@ const LegionBountyPage = ({ teamMemberProfile }: Props) => {
         </header>
 
         {/* Table Section */}
-        <section className="rounded-lg  p-6">
+        <section className="rounded-lg ">
           <LegionBountyTable teamMemberProfile={teamMemberProfile} />
         </section>
       </div>

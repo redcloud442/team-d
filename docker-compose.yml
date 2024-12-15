@@ -39,7 +39,7 @@ services:
       context: .
       dockerfile: Dockerfile
     env_file:
-      - .env # Path to your .env file (if applicable)
+      - /etc/secrets/secrets.env
     deploy:
       mode: replicated
       replicas: 3

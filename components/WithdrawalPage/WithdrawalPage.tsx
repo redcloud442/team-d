@@ -19,7 +19,7 @@ const WithdrawalPage = ({ teamMemberProfile }: Props) => {
         </header>
 
         {/* Table Section */}
-        <section className=" rounded-lg p-6">
+        <section className=" rounded-lg ">
           <WithdrawalTable teamMemberProfile={teamMemberProfile} />
         </section>
       </div>

@@ -8,8 +8,9 @@ type Props = {
 
 const AdminUserPage = ({ teamMemberProfile }: Props) => {
   return (
-    <div className=" md:p-10">
-      <div>
+    <div className="mx-auto">
+      <div className="w-full flex flex-col gap-6 max-w-6xl">
+        {/* Page Title */}
         <header className="mb-4">
           <h1 className="Title">User List Page</h1>
           <p className="text-gray-600 dark:text-white">
@@ -18,7 +19,7 @@ const AdminUserPage = ({ teamMemberProfile }: Props) => {
         </header>
 
         {/* Table Section */}
-        <section className=" rounded-lg  p-6">
+        <section className=" rounded-lg ">
           <AdminUserTable teamMemberProfile={teamMemberProfile} />
         </section>
       </div>

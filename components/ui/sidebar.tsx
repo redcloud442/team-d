@@ -3,7 +3,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
@@ -13,12 +18,10 @@ import {
 } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { DialogDescription } from "@radix-ui/react-dialog";
 import { Slot } from "@radix-ui/react-slot";
 import { VariantProps, cva } from "class-variance-authority";
 import { Menu } from "lucide-react";
 import * as React from "react";
-import { DialogContent, DialogTitle } from "./dialog";
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -197,10 +200,8 @@ const Sidebar = React.forwardRef<
     if (isMobile) {
       return (
         <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-          <DialogContent>
-            <DialogDescription />
-            <DialogTitle></DialogTitle>
-          </DialogContent>
+          <SheetDescription></SheetDescription>
+          <SheetTitle></SheetTitle>
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
