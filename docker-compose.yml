@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   watchtower:
     image: containrrr/watchtower
@@ -9,6 +8,7 @@ services:
       - "--rolling-restart"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
   reverse-proxy:
     image: traefik:v3.1
     command:
@@ -21,42 +21,30 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-  ports:
-    - mode: host
-      protocol: tcp
-      published: 80
-      target: 80
-    - mode: host
-      protocol: tcp
-      published: 443
-      target: 443
-  volumes:
-    - letsencrypt:/letsencrypt
-    - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
   red-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: ghcr.io/redcloud442/red:prod
-    secrets:
-      - red-app-stack_red_app_env
+    env_file:
+      - .env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.red-app.rule=Host(`greenful.website`)"
       - "traefik.http.routers.red-app.entrypoints=websecure"
       - "traefik.http.routers.red-app.tls.certresolver=myresolver"
       - "com.centurylinklabs.watchtower.enable=true"
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      - /run/secrets/red-app-stack_red_app_env
     deploy:
       mode: replicated
       replicas: 3
-      restart_policy:
-        condition: on-failure
     restart: always
 
 volumes:
   letsencrypt:
-secrets:
-  red_app_env:
-    external: true
