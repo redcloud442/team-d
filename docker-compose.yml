@@ -33,8 +33,6 @@ services:
 
   red-app:
     image: ghcr.io/redcloud442/red:prod
-    volumes:
-      - /etc/secrets/.env:/run/secrets/.env:ro
     secrets:
       - red_app_env
     labels:
@@ -46,8 +44,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - /run/secrets/.env
     deploy:
       mode: replicated
       replicas: 3
