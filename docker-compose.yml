@@ -38,20 +38,20 @@ services:
       - "traefik.http.routers.red-app.tls.certresolver=myresolver"
       - "com.centurylinklabs.watchtower.enable=true"
     secrets:
-      - /secrets/databaseUrl
-      - /secrets/directUrl
-      - /secrets/supabaseUrl
-      - /secrets/anon
-      - /secrets/cryptokey
-      - /secrets/role
+      - databaseUrl
+      - directUrl
+      - supabaseUrl
+      - anon
+      - cryptokey
+      - role
     environment:
-      - DATABASE_URL=/run/secrets/secrets/databaseUrl
-      - DIRECT_URL=/run/secrets/secrets/directUrl
-      - NEXT_PUBLIC_SUPABASE_URL=/run/secrets/secrets/supabaseUrl
-      - NEXT_PUBLIC_SUPABASE_ANON_KEY=/run/secrets/secrets/anon
+      - DATABASE_URL=/run/secrets/databaseUrl
+      - DIRECT_URL=/run/secrets/directUrl
+      - NEXT_PUBLIC_SUPABASE_URL=/run/secrets/supabaseUrl
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=/run/secrets/anon
       - NEXT_PUBLIC_BASE_URL=https://redful.xyz
-      - NEXT_PUBLIC_CRYPTO_SECRET_KEY=/run/secrets/secrets/cryptokey
-      - SUPABASE_SERVICE_ROLE_KEY=/run/secrets/secrets/role
+      - NEXT_PUBLIC_CRYPTO_SECRET_KEY=/run/secrets/cryptokey
+      - SUPABASE_SERVICE_ROLE_KEY=/run/secrets/role
     deploy:
       mode: replicated
       replicas: 3
