@@ -1,0 +1,95 @@
+version: "3.8"
+
+services:
+  traefik:
+    image: traefik:v3.1
+    command:
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=adminuser@redful.xyz"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    ports:
+      - mode: host
+        protocol: tcp
+        published: 80
+        target: 80
+      - mode: host
+        protocol: tcp
+        published: 443
+        target: 443
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+    networks:
+      - app-network
+
+  red-app:
+    image: ghcr.io/redcloud442/red:prod
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.red-app.loadbalancer.server.port=8080"
+      - "traefik.http.routers.red-app.rule=Host(`redful.xyz`)"
+      - "traefik.http.routers.red-app.entrypoints=websecure"
+      - "traefik.http.routers.red-app.tls.certresolver=myresolver"
+    secrets:
+      - source: databaseUrl
+        target: /run/secrets/databaseUrl
+      - source: directUrl
+        target: /run/secrets/directUrl
+      - source: supabaseUrl
+        target: /run/secrets/supabaseUrl
+      - source: anon
+        target: /run/secrets/anon
+      - source: cryptokey
+        target: /run/secrets/cryptokey
+      - source: role
+        target: /run/secret`s/role
+    environment:
+      - DATABASE_URL=/run/secrets/databaseUrl
+      - DIRECT_URL=/run/secrets/directUrl
+      - NEXT_PUBLIC_SUPABASE_URL=/run/secrets/supabaseUrl
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=/run/secrets/anon
+      - NEXT_PUBLIC_BASE_URL=https://redful.xyz
+      - NEXT_PUBLIC_CRYPTO_SECRET_KEY=/run/secrets/cryptokey
+      - SUPABASE_SERVICE_ROLE_KEY=/run/secrets/role
+    deploy:
+      mode: replicated
+      replicas: 3
+      restart_policy:
+        condition: any
+      update_config:
+        order: start-first
+        parallelism: 2
+        delay: 10s
+    networks:
+      - app-network
+
+volumes:
+  letsencrypt:
+
+secrets:
+  databaseUrl:
+    external: true
+  directUrl:
+    external: true
+  supabaseUrl:
+    external: true
+  anon:
+    external: true
+  cryptokey:
+    external: true
+  role:
+    external: true
+
+networks:
+  app-network:
+    driver: overlay
