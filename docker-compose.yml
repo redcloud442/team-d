@@ -15,6 +15,7 @@ services:
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
       - "--entryPoints.websecure.address=:443"
+      - "--entryPoints.websecure.http.tls.options=default"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=adminuser@greenful.website"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
@@ -45,6 +46,5 @@ services:
       mode: replicated
       replicas: 3
     restart: always
-
 volumes:
   letsencrypt:

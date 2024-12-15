@@ -116,7 +116,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
   return (
     <Card className="w-[400px] mx-auto p-4">
       <NavigationLoader visible={isSubmitting || isSuccess} />
-      <CardTitle>Registration Sponsored by: {userName}</CardTitle>
+      <CardTitle>Registration Sponsored by: {referralLink}</CardTitle>
       <CardContent className="p-4">
         <form
           className="flex flex-col gap-4"
