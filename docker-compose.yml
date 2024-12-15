@@ -29,6 +29,8 @@ services:
     restart: always
   red-app:
     image: ghcr.io/redcloud442/red:prod
+    volumes:
+      - /tmp/secrets.env:/run/secrets/secrets.env:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.red-app.rule=Host(`greenful.website`)"
@@ -39,7 +41,7 @@ services:
       context: .
       dockerfile: Dockerfile
     env_file:
-      - /etc/secrets/secrets.env
+      - /run/secrets/secrets.env
     deploy:
       mode: replicated
       replicas: 3
