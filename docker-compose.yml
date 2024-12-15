@@ -37,13 +37,6 @@ services:
       - "traefik.http.routers.red-app.entrypoints=websecure"
       - "traefik.http.routers.red-app.tls.certresolver=myresolver"
       - "com.centurylinklabs.watchtower.enable=true"
-    secrets:
-      - databaseUrl
-      - directUrl
-      - supabaseUrl
-      - anon
-      - cryptokey
-      - role
     entrypoint: ["/usr/src/app/entrypoint.sh"]
     deploy:
       mode: replicated
