@@ -40,7 +40,7 @@ services:
       - "traefik.http.routers.red-app.entrypoints=websecure"
       - "traefik.http.routers.red-app.tls.certresolver=myresolver"
       - "com.centurylinklabs.watchtower.enable=true"
-    .env_file:
+    env_file:
       - .env
     deploy:
       mode: replicated
