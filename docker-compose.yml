@@ -30,6 +30,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: always
   red-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: ghcr.io/redcloud442/red:prod
     labels:
       - "traefik.enable=true"
