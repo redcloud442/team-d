@@ -17,7 +17,7 @@ services:
       - "--entryPoints.websecure.address=:443"
       - "--entryPoints.websecure.http.tls.options=default"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=adminuser@greenful.website"
+      - "--certificatesresolvers.myresolver.acme.email=adminuser@redful.xyz"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
@@ -38,7 +38,7 @@ services:
       - .env
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.red-app.rule=Host(`greenful.website`)"
+      - "traefik.http.routers.red-app.rule=Host(`redful.xyz`)"
       - "traefik.http.routers.red-app.entrypoints=websecure"
       - "traefik.http.routers.red-app.tls.certresolver=myresolver"
       - "com.centurylinklabs.watchtower.enable=true"
