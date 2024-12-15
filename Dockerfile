@@ -16,6 +16,7 @@ RUN npm install prisma --save-dev
 
 RUN npx prisma generate --schema ./prisma/schema.prisma
 
+COPY /etc/secrets/.env .env
 # Copy the rest of the application files
 COPY . .
 
