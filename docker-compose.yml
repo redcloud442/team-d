@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   watchtower:
     image: containrrr/watchtower
@@ -8,6 +10,7 @@ services:
       - "--rolling-restart"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
   reverse-proxy:
     image: traefik:v3.1
     command:
@@ -27,10 +30,13 @@ services:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock
     restart: always
+
   red-app:
     image: ghcr.io/redcloud442/red:prod
     volumes:
       - /etc/secrets/.env:/run/secrets/.env:ro
+    secrets:
+      - red_app_env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.red-app.rule=Host(`greenful.website`)"
@@ -41,10 +47,17 @@ services:
       context: .
       dockerfile: Dockerfile
     env_file:
-      - /etc/secrets/.env
+      - /run/secrets/.env
     deploy:
       mode: replicated
       replicas: 3
+      restart_policy:
+        condition: on-failure
     restart: always
+
 volumes:
   letsencrypt:
+
+secrets:
+  red_app_env:
+    file: /etc/secrets/.env
