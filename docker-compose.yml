@@ -61,14 +61,14 @@ volumes:
 
 secrets:
   databaseUrl:
-    file: ./secrets/databaseUrl
+    file: ./secrets/databaseUrl.txt
   directUrl:
-    file: ./secrets/directUrl
+    file: ./secrets/directUrl.txt
   supabaseUrl:
-    file: ./secrets/supabaseUrl
+    file: ./secrets/supabaseUrl.txt
   anon:
-    file: ./secrets/anon
+    file: ./secrets/anon.txt
   cryptokey:
-    file: ./secrets/cryptokey
+    file: ./secrets/cryptokey.txt
   role:
-    file: ./secrets/role
+    file: ./secrets/role.txt
