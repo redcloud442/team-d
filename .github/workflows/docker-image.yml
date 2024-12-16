@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build-and-push:
@@ -31,6 +31,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build . --file Dockerfile --tag ghcr.io/redcloud442/red:prod
+        continue-on-error: false
 
       # Push the Docker image to GHCR
       - name: Push Docker image
