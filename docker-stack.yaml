@@ -24,7 +24,7 @@ services:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock
 
-  red-app:
+  web:
     image: ghcr.io/redcloud442/red:prod
     labels:
       - "traefik.enable=true"
