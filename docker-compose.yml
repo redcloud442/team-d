@@ -38,8 +38,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - ./secrets.env
+    environment:
+      - DATABASE_URL=${cat ./secrets/databaseUrl.txt}
+      - DIRECT_URL=${cat ./secrets/directUrl.txt}
+      - NEXT_PUBLIC_SUPABASE_URL=${cat ./secrets/supabaseUrl.txt}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${cat ./secrets/anon.txt}
+      - NEXT_PUBLIC_CRYPTO_SECRET_KEY=${cat ./secrets/cryptokey.txt}
+      - SUPABASE_SERVICE_ROLE_KEY=${cat ./secrets/role.txt}
     deploy:
       mode: replicated
       replicas: 3
