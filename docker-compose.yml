@@ -40,12 +40,12 @@ services:
       - cryptokey
       - role
     environment:
-      - DATABASE_URL_FILE=/run/secrets/databaseUrl
-      - DIRECT_URL_FILE=/run/secrets/directUrl
-      - NEXT_PUBLIC_SUPABASE_URL_FILE=/run/secrets/supabaseUrl
-      - NEXT_PUBLIC_SUPABASE_ANON_KEY_FILE=/run/secrets/anon
-      - NEXT_PUBLIC_CRYPTO_SECRET_KEY_FILE=/run/secrets/cryptokey
-      - SUPABASE_SERVICE_ROLE_KEY_FILE=/run/secrets/role
+      DATABASE_URL: /run/secrets/databaseUrl
+      DIRECT_URL: /run/secrets/directUrl
+      NEXT_PUBLIC_SUPABASE_URL: /run/secrets/supabaseUrl
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: /run/secrets/anon
+      NEXT_PUBLIC_CRYPTO_SECRET_KEY: /run/secrets/cryptokey
+      SUPABASE_SERVICE_ROLE_KEY: /run/secrets/role
     deploy:
       mode: replicated
       replicas: 3
