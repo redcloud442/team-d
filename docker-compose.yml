@@ -1,69 +1,48 @@
 services:
-  traefik:
+  watchtower:
+    image: containrrr/watchtower
+    command:
+      - "--label-enable"
+      - "--interval"
+      - "30"
+      - "--rolling-restart"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  reverse-proxy:
     image: traefik:v3.1
     command:
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
       - "--entryPoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=adminuser@redful.xyz"
+      - "--certificatesresolvers.myresolver.acme.email=adminuser@greenful.website"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
     ports:
-      - mode: host
-        protocol: tcp
-        published: 80
-        target: 80
-      - mode: host
-        protocol: tcp
-        published: 443
-        target: 443
+      - "80:80"
+      - "443:443"
     volumes:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock
-
-  web:
+    restart: always
+  red-app:
     image: ghcr.io/redcloud442/red:prod
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.red-app.loadbalancer.server.port=8080"
-      - "traefik.http.routers.red-app.rule=Host(`redful.xyz`)"
+      - "traefik.http.routers.red-app.rule=Host(`greenful.website`)"
       - "traefik.http.routers.red-app.entrypoints=websecure"
       - "traefik.http.routers.red-app.tls.certresolver=myresolver"
-    secrets:
-      - databaseUrl
-      - directUrl
-      - supabaseUrl
-      - anon
-      - cryptokey
-      - role
-    environment:
-      DATABASE_URL: /run/secrets/databaseUrl
-      DIRECT_URL: /run/secrets/directUrl
-      NEXT_PUBLIC_SUPABASE_URL: /run/secrets/supabaseUrl
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: /run/secrets/anon
-      NEXT_PUBLIC_CRYPTO_SECRET_KEY: /run/secrets/cryptokey
-      SUPABASE_SERVICE_ROLE_KEY: /run/secrets/role
+      - "com.centurylinklabs.watchtower.enable=true"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./secrets.env
     deploy:
       mode: replicated
       replicas: 3
-      update_config:
-        order: start-first
-
+    restart: always
 volumes:
   letsencrypt:
-secrets:
-  databaseUrl:
-    external: true
-  directUrl:
-    external: true
-  supabaseUrl:
-    external: true
-  anon:
-    external: true
-  cryptokey:
-    external: true
-  role:
-    external: true
