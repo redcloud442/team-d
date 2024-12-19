@@ -24,8 +24,13 @@ export async function PUT(
     if (!packageId) return errorResponse("Package ID is required.", 400);
 
     const { packageData, teamMemberId } = await request.json();
-    const { packageName, packageDescription, packagePercentage, packageDays } =
-      packageData;
+    const {
+      packageName,
+      packageDescription,
+      packagePercentage,
+      packageDays,
+      packageIsDisabled,
+    } = packageData;
 
     if (
       !packageName ||
@@ -60,6 +65,7 @@ export async function PUT(
           package_description: packageDescription,
           package_percentage: parseFloat(packagePercentage),
           packages_days: parseInt(packageDays),
+          package_is_disabled: packageIsDisabled,
         },
       });
     });

@@ -45,3 +45,31 @@ export const updatePackagesData = async (params: {
 
   return response;
 };
+
+export const createPackage = async (params: {
+  packageName: string;
+  packageDescription: string;
+  packagePercentage: string;
+  packageDays: string;
+}) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/package/create`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(params),
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while creating the top-up request."
+    );
+  }
+
+  return response;
+};

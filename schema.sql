@@ -6,7 +6,6 @@ CREATE POLICY buckets_policy ON storage.buckets FOR ALL TO PUBLIC USING (true) W
 
 INSERT INTO storage.buckets (id, name) VALUES ('REQUEST_ATTACHMENTS', 'REQUEST_ATTACHMENTS');
 
-UPDATE storage.buckets SET public = true;
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 
 
@@ -1114,13 +1113,11 @@ let returnData = ""
 plv8.subtransaction(function() {
   const { teamMemberId } = input_data;
 
-  // Check if teamMemberId is provided
   if (!teamMemberId) {
     returnData = { success: false, message: "teamMemberId is required" };
     return;
   }
 
-  // Check member role
   const member = plv8.execute(
     `SELECT alliance_member_role
      FROM alliance_schema.alliance_member_table
@@ -2132,6 +2129,7 @@ plv8.subtransaction(function() {
   const packageData = plv8.execute(`
     SELECT *
     FROM packages_schema.package_table
+    WHERE package_is_disabled = false
   `);
 
   returnData = packageData

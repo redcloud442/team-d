@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       [
         prisma.package_table.findUnique({
           where: { package_id: packageId },
-          select: { package_percentage: true },
+          select: { package_percentage: true, package_is_disabled: true },
         }),
         prisma.alliance_earnings_table.findUnique({
           where: { alliance_earnings_member_id: teamMemberId },
@@ -54,6 +54,13 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Package not found." },
         { status: 404 }
+      );
+    }
+
+    if (packageData.package_is_disabled) {
+      return NextResponse.json(
+        { error: "Package is disabled." },
+        { status: 400 }
       );
     }
 

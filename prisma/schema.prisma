@@ -184,7 +184,8 @@ model package_table {
   package_description String
   package_percentage Float    @default(0.0)
   packages_days      Int
-
+  package_is_disabled Boolean @default(false)
+  
   package_member_connection_table package_member_connection_table[]
   package_earnings_log package_earnings_log[]
   @@schema("packages_schema")

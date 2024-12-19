@@ -10,23 +10,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
-import { updatePackagesData } from "@/services/Package/Admin";
+import { createPackage } from "@/services/Package/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import { alliance_member_table, package_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
 type Props = {
-  teamMemberProfile: alliance_member_table;
-  selectedPackage: package_table | null;
-  handleSelectPackage: () => void;
   fetchPackages: () => void;
 };
 
@@ -39,17 +35,11 @@ const PackagesSchema = z.object({
   packageDays: z.string().refine((value) => Number(value) > 0, {
     message: "Days must be greater than 0",
   }),
-  packageIsDisabled: z.boolean().optional(),
 });
 
 export type PackagesFormValues = z.infer<typeof PackagesSchema>;
 
-const EditPackagesModal = ({
-  teamMemberProfile,
-  selectedPackage,
-  handleSelectPackage,
-  fetchPackages,
-}: Props) => {
+const CreatePackageModal = ({ fetchPackages }: Props) => {
   const supabaseClient = createClientSide();
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
@@ -66,29 +56,17 @@ const EditPackagesModal = ({
       packageDescription: "",
       packagePercentage: "",
       packageDays: "",
-      packageIsDisabled: false,
     },
   });
-
-  useEffect(() => {
-    if (selectedPackage) {
-      reset({
-        packageName: selectedPackage.package_name,
-        packageDescription: selectedPackage.package_description,
-        packagePercentage: selectedPackage.package_percentage.toString(),
-        packageDays: selectedPackage.packages_days.toString(),
-        packageIsDisabled: selectedPackage.package_is_disabled,
-      });
-    }
-  }, [selectedPackage, reset]);
 
   const onSubmit = async (data: PackagesFormValues) => {
     try {
       const sanitizedData = escapeFormData(data);
-      await updatePackagesData({
-        packageData: sanitizedData,
-        teamMemberId: teamMemberProfile.alliance_member_id,
-        packageId: selectedPackage?.package_id ?? "",
+      await createPackage({
+        packageName: sanitizedData.packageName,
+        packageDescription: sanitizedData.packageDescription,
+        packagePercentage: sanitizedData.packagePercentage,
+        packageDays: sanitizedData.packageDays,
       });
       toast({
         title: "Package Updated Successfully",
@@ -130,41 +108,17 @@ const EditPackagesModal = ({
           variant="outline"
           onClick={() => {
             setOpen(true);
-            handleSelectPackage();
           }}
         >
-          Update Package
+          Create Package
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Update Package</DialogTitle>
-          <DialogDescription>
-            Update the package details below.
-          </DialogDescription>
+          <DialogTitle>Create Package</DialogTitle>
+          <DialogDescription>Create a new package below.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="flex justify-between items-center space-x-2">
-            <Label htmlFor="packageIsDisabled">Package Disabled</Label>
-            <div className="flex items-center space-x-2">
-              <Controller
-                name="packageIsDisabled"
-                control={control}
-                render={({ field }) => (
-                  <>
-                    <span className="text-sm">
-                      {field.value ? "Hide" : "Show"}
-                    </span>
-                    <Switch
-                      id="packageIsDisabled"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </>
-                )}
-              />
-            </div>
-          </div>
           {/* Package Name */}
           <div>
             <Label htmlFor="packageName">Package Name</Label>
@@ -175,7 +129,6 @@ const EditPackagesModal = ({
                 <Input
                   id="packageName"
                   placeholder="Enter package name"
-                  readOnly={control._formValues.packageIsDisabled}
                   {...field}
                 />
               )}
@@ -197,7 +150,6 @@ const EditPackagesModal = ({
                 <Input
                   id="packageDescription"
                   placeholder="Enter package description"
-                  readOnly={control._formValues.packageIsDisabled}
                   {...field}
                 />
               )}
@@ -220,7 +172,6 @@ const EditPackagesModal = ({
                   id="packagePercentage"
                   type="number"
                   placeholder="Enter package percentage"
-                  readOnly={control._formValues.packageIsDisabled}
                   min="1"
                   {...field}
                 />
@@ -244,7 +195,6 @@ const EditPackagesModal = ({
                   id="packageDays"
                   type="number"
                   placeholder="Enter package days"
-                  readOnly={control._formValues.packageIsDisabled}
                   min="1"
                   {...field}
                 />
@@ -267,4 +217,4 @@ const EditPackagesModal = ({
   );
 };
 
-export default EditPackagesModal;
+export default CreatePackageModal;

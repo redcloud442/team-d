@@ -29,7 +29,11 @@ const Page = async () => {
 
   if (!earnings || !teamMemberProfile) return redirect("/500");
 
-  const packages = await prisma.package_table.findMany();
+  const packages = await prisma.package_table.findMany({
+    where: {
+      package_is_disabled: false,
+    },
+  });
 
   if (teamMemberProfile.alliance_member_role === "ADMIN")
     return redirect("/admin");

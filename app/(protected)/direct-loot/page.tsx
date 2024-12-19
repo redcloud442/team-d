@@ -17,18 +17,16 @@ const Page = async () => {
 
   if (!teamMemberProfile) return redirect("/500");
 
-  const { data, error } = await supabase.rpc("get_direct_sponsor", {
+  const { data } = await supabase.rpc("get_direct_sponsor", {
     input_data: {
       teamMemberId: teamMemberProfile.alliance_member_id,
     },
   });
 
-  if (error) throw error;
-
   return (
     <AllyBountyPage
       teamMemberProfile={teamMemberProfile}
-      sponsor={data as string}
+      sponsor={(data as string) || ""}
     />
   );
 };

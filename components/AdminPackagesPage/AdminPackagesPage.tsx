@@ -7,6 +7,7 @@ import { alliance_member_table, package_table } from "@prisma/client";
 import { useEffect, useState } from "react";
 import EditPackagesModal from "../AdminPackagesPage/EditPackagesModal";
 import { Card } from "../ui/card";
+import CreatePackageModal from "./CreatePackageModal";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
@@ -47,8 +48,11 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
   };
 
   return (
-    <div className="container mx-auto">
-      <h1 className="Title">List of Packages</h1>
+    <div className="container mx-auto p-0 md:p-10">
+      <div className="flex justify-between items-center">
+        <h1 className="Title">List of Packages</h1>
+        <CreatePackageModal fetchPackages={fetchPackages} />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {packages.map((pkg) => (
           <Card
