@@ -11,7 +11,7 @@ type Props = {
 const UserProfilePage = ({ userProfile }: Props) => {
   return (
     <div className="mx-auto">
-      <div className="w-full flex flex-col gap-6 max-w-6xl">
+      <div className="w-full flex flex-col gap-6">
         {/* Page Title */}
         <header>
           <h1 className="Title">User Profile</h1>
