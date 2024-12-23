@@ -10,7 +10,7 @@ type Props = {
 
 const UserProfilePage = ({ userProfile }: Props) => {
   return (
-    <div className="mx-auto">
+    <div className="mx-auto py-8">
       <div className="w-full flex flex-col gap-6">
         {/* Page Title */}
         <header>

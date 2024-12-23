@@ -84,7 +84,7 @@ const DashboardPage = ({
     <div className="min-h-screen h-full mx-auto py-8 ">
       {isLoading && <TableLoading />}
 
-      <div className="w-full space-y-6 px-4 md:px-10">
+      <div className="w-full space-y-6 md:px-10">
         <h1 className="Title">Dashboard</h1>
 
         <Card className="flex items-center justify-between p-4 rounded-lg shadow-md hover:shadow-gray-500 dark:hover:shadow-gray-200 transition-all duration-300">

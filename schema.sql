@@ -1,13 +1,11 @@
 
 
 DELETE FROM storage.buckets;
-
 CREATE POLICY buckets_policy ON storage.buckets FOR ALL TO PUBLIC USING (true) WITH CHECK (true);
 
 INSERT INTO storage.buckets (id, name) VALUES ('REQUEST_ATTACHMENTS', 'REQUEST_ATTACHMENTS');
 
-CREATE EXTENSION IF NOT EXISTS pg_cron;
-
+CREATE EXTENSION IF NOT EXISTS plv8;
 
 CREATE OR REPLACE FUNCTION get_current_date()
 RETURNS TIMESTAMPTZ
@@ -68,7 +66,7 @@ plv8.subtransaction(function() {
   `, ['MEMBER', DEFAULT_ALLIANCE_ID, userId])[0].alliance_member_id;
 
   plv8.execute(`
-    INSERT INTO alliance_schema.alliance_earnings_table (alliance_earnings_member_id)
+C    INSERT INTO alliance_schema.alliance_earnings_table (alliance_earnings_member_id)
     VALUES ($1)
   `, [allianceMemberId]);
 
@@ -671,8 +669,6 @@ plv8.subtransaction(function() {
     statusFilter = 'PENDING',
     dateFilter = null
   } = input_data;
-
-
   const member = plv8.execute(
     `
     SELECT alliance_member_role

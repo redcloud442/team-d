@@ -9,7 +9,7 @@ type Props = {
 
 const TopUpPage = ({ teamMemberProfile }: Props) => {
   return (
-    <div className="mx-auto md:p-10">
+    <div className="mx-auto py-8 md:p-10">
       <div>
         <header className="mb-4">
           <h1 className="Title">Top Up List Page</h1>
@@ -19,7 +19,7 @@ const TopUpPage = ({ teamMemberProfile }: Props) => {
         </header>
 
         {/* Table Section */}
-        <section className=" rounded-lg">
+        <section className="rounded-lg">
           <TopUpTable teamMemberProfile={teamMemberProfile} />
         </section>
       </div>

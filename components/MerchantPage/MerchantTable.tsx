@@ -179,7 +179,7 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
     <Card className="w-full rounded-sm p-4">
       <div className="flex flex-wrap gap-4 items-start py-4">
         {" "}
-        <div className="flex  gap-2 items-center w-full">
+        <div className="flex flex-wrap  gap-2 items-center w-full">
           {isDeleteModal.isOpen && (
             <Dialog
               open={isDeleteModal.isOpen}
@@ -228,7 +228,9 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
             }}
           >
             <DialogTrigger asChild>
-              <Button variant="outline">Create New Merchant</Button>
+              <Button className="w-full sm:w-auto" variant="outline">
+                Create New Merchant
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogDescription />

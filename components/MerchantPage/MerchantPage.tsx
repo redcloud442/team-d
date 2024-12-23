@@ -9,7 +9,7 @@ type Props = {
 
 const MerchantPage = ({ teamMemberProfile }: Props) => {
   return (
-    <div className="mx-auto md:p-10">
+    <div className="mx-auto py-8 md:p-10">
       <div>
         <header className="mb-4">
           <h1 className="Title">Merchant Page</h1>
@@ -19,7 +19,7 @@ const MerchantPage = ({ teamMemberProfile }: Props) => {
         </header>
 
         {/* Table Section */}
-        <section className=" rounded-lg p-6">
+        <section className=" rounded-lg">
           <MerchantTable teamMemberProfile={teamMemberProfile} />
         </section>
       </div>
