@@ -63,7 +63,7 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
       const { data, totalCount } = await getHistoryLog(supabaseClient, {
         teamMemberId: teamMemberProfile.alliance_member_id,
         page: activePage,
-        limit: 13,
+        limit: 10,
         columnAccessor: columnAccessor,
         isAscendingSort: isAscendingSort,
       });

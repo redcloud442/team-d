@@ -13,7 +13,10 @@ export const getDashboard = async (
 
   if (error) throw error;
 
-  return data as ChartDataMember[];
+  return data as {
+    data: ChartDataMember[];
+    totalCompletedAmount: number;
+  };
 };
 
 export const getDashboardEarnings = async (

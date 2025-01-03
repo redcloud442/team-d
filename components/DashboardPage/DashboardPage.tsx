@@ -47,13 +47,26 @@ const DashboardPage = ({
   const [isActive, setIsActive] = useState(
     teamMemberProfile.alliance_member_is_active
   );
+  const [totalEarnings, setTotalEarnings] =
+    useState<DashboardEarnings>(dashboardEarnings);
+
   const getPackagesData = async () => {
     try {
       setIsLoading(true);
-      const data = await getDashboard(supabaseClient, {
-        teamMemberId: earnings.alliance_earnings_member_id,
-      });
+      const { data, totalCompletedAmount } = await getDashboard(
+        supabaseClient,
+        {
+          teamMemberId: earnings.alliance_earnings_member_id,
+        }
+      );
       setChartData(data);
+      if (totalCompletedAmount !== 0) {
+        setTotalEarnings((prev) => ({
+          ...prev,
+          totalEarnings:
+            Number(prev.totalEarnings) + Number(totalCompletedAmount),
+        }));
+      }
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
@@ -110,7 +123,7 @@ const DashboardPage = ({
             title="Total Earnings"
             value={
               Number(
-                dashboardEarnings.totalEarnings
+                totalEarnings.totalEarnings
               ).toLocaleString() as unknown as number
             }
             description={
@@ -126,7 +139,7 @@ const DashboardPage = ({
             title="Total Withdraw"
             value={
               Number(
-                dashboardEarnings.withdrawalAmount
+                totalEarnings.withdrawalAmount
               ).toLocaleString() as unknown as number
             }
             description=""
@@ -136,7 +149,7 @@ const DashboardPage = ({
             title="Direct Referral"
             value={
               Number(
-                dashboardEarnings.directReferralAmount
+                totalEarnings.directReferralAmount
               ).toLocaleString() as unknown as number
             }
             description={
@@ -152,7 +165,7 @@ const DashboardPage = ({
             title="Indirect Referral"
             value={
               Number(
-                dashboardEarnings.indirectReferralAmount
+                totalEarnings.indirectReferralAmount
               ).toLocaleString() as unknown as number
             }
             description={

@@ -14,7 +14,6 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { createClientSide } from "@/utils/supabase/client";
 import { alliance_member_table, user_table } from "@prisma/client";
@@ -42,7 +41,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
-import NavigationLoader from "./NavigationLoader";
 
 type Props = {
   userData: user_table;
@@ -53,20 +51,17 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClientSide();
-  const [isLoading, setIsLoading] = useState(true);
+
   const [isAdmin, setIsAdmin] = useState(
     teamMemberProfile.alliance_member_role === "ADMIN"
   );
-  const { setOpenMobile } = useSidebar();
 
   const handleSignOut = async () => {
     try {
-      setIsLoading(true);
       await supabase.auth.signOut();
-      router.refresh();
+      router.push("/auth/login");
     } catch (e) {
     } finally {
-      setIsLoading(false);
     }
   };
 
@@ -128,17 +123,11 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
 
   const handleNavigation = (url: string) => {
     if (pathname !== url) {
-      setIsLoading(true);
-      setOpenMobile(false);
       router.push(url);
     }
   };
 
   const isActive = (url: string) => pathname === url;
-
-  useEffect(() => {
-    setIsLoading(false);
-  }, [pathname]);
 
   const renderMenu = (menu: typeof menuItems) =>
     menu.map((item) => (
@@ -180,7 +169,6 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
 
   return (
     <>
-      <NavigationLoader visible={isLoading} />
       <Sidebar>
         <SidebarHeader>
           <SidebarMenu>

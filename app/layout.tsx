@@ -1,5 +1,7 @@
+import RouterTransition from "@/components/ui/routerTransition";
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,7 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <main>{children}</main>
+        <main>
+          <RouterTransition />
+          <Suspense fallback={<RouterTransition />}>{children}</Suspense>
+        </main>
         <Toaster />
       </body>
     </html>

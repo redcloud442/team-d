@@ -14,8 +14,7 @@ import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
 import { DollarSign, Home, LogOut, ShoppingBag, User } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import NavigationLoader from "./NavigationLoader";
+import { useState } from "react";
 import { Button } from "./button";
 
 type NavItem = {
@@ -30,19 +29,16 @@ const MobileNavBar = () => {
   const pathname = usePathname();
   const { role } = useRole();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
-      setIsLoading(true);
       await supabase.auth.signOut();
-      router.refresh();
+      router.push("/auth/login");
     } catch (e) {
       console.error("Error during sign out:", e);
     } finally {
-      setIsLoading(false);
-      setIsModalOpen(false); // Close the modal after logout
+      setIsModalOpen(false);
     }
   };
 
@@ -87,19 +83,13 @@ const MobileNavBar = () => {
     if (onClick) {
       onClick();
     } else if (pathname !== url) {
-      setIsLoading(true);
       router.push(url);
     }
   };
 
-  useEffect(() => {
-    setIsLoading(false);
-  }, [pathname]);
-
   return (
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t dark:bg-zinc-800 shadow-md md:hidden">
-        {isLoading && <NavigationLoader visible={isLoading} />}
         <ul className="flex justify-around py-2">
           {navItems.map((item) => (
             <li key={item.href}>

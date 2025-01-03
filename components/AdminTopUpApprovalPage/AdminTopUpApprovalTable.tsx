@@ -354,8 +354,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
               variant="outline"
               className="w-full sm:w-auto"
             >
-              <Search className="mr-2" />
-              Search
+              <Search />
             </Button>
             <Button
               onClick={fetchAdminRequest}

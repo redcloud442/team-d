@@ -55,6 +55,21 @@ export async function POST(request: Request) {
     await protectionMemberUser(ip);
     await applyRateLimit(teamMemberId, ip);
 
+    const merchantData = await prisma.merchant_table.findFirst({
+      where: {
+        merchant_account_name: accountName,
+        merchant_account_number: accountNumber,
+        merchant_account_type: topUpMode,
+      },
+    });
+
+    if (!merchantData) {
+      return NextResponse.json(
+        { error: "Merchant not found." },
+        { status: 404 }
+      );
+    }
+
     const filePath = `uploads/${Date.now()}_${file.name}`;
 
     const { error: uploadError } = await supabase.storage

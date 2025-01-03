@@ -9,58 +9,33 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
-import { alliance_member_table } from "@prisma/client";
 import { ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import NavigationLoader from "./NavigationLoader";
 
-type Props = {
-  teamMemberProfile: alliance_member_table;
-};
-
-const NavBar = ({ teamMemberProfile }: Props) => {
+const NavBar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClientSide();
   const { role } = useRole();
   const { userName } = useRole();
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleNavigation = (url: string) => {
     if (pathname !== url) {
-      setIsLoading(true);
       router.push(url);
     }
   };
 
   const handleSignOut = async () => {
     try {
-      setIsLoading(true);
       await supabase.auth.signOut();
-      router.refresh();
+      router.push("/auth/login");
     } catch (e) {
     } finally {
-      setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    setIsLoading(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsLoading(false);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
     <nav className="w-full bg-gray-600 dark:bg-gray-700 text-white shadow-lg z-50">
-      <NavigationLoader visible={isLoading} />
       <div className="w-full mx-auto px-4 flex justify-between items-center h-16">
         {/* Logo Section */}
         <Button

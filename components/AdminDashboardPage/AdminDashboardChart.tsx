@@ -20,13 +20,6 @@ type Props = {
   chartData: ChartData[];
 };
 
-type FormContextType = {
-  dateFilter: {
-    start: string;
-    end: string;
-  };
-};
-
 const chartConfig = {
   visitors: {
     label: "Visitors",

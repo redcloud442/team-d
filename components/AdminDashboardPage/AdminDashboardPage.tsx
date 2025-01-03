@@ -52,7 +52,6 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
   const supabaseClient = createClientSide();
   const router = useRouter();
   const { toast } = useToast();
-  const [copySuccess, setCopySuccess] = useState("");
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [totalWithdraw, setTotalWithdraw] = useState(0);
   const [directLoot, setDirectLoot] = useState(0);
