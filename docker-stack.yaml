@@ -19,7 +19,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   web:
-    image: ghcr.io/redcloud442/red:prod
+    image: ghcr.io/redcloud442/red:latest
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.red-app.loadbalancer.server.port=8080"

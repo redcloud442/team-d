@@ -33,8 +33,9 @@ jobs:
       - name: Build and push Docker image
         run: |
           IMAGE_TAG=ghcr.io/redcloud442/red:v${{ github.run_number }}
-          docker build . --file Dockerfile --tag $IMAGE_TAG --no-cache
+          docker build . --file Dockerfile --tag $IMAGE_TAG --tag ghcr.io/redcloud442/red:latest --no-cache
           docker push $IMAGE_TAG
+          docker push ghcr.io/redcloud442/red:latest
 
       # Verify Docker login success
       - name: Verify Docker login
