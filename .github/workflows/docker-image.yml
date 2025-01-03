@@ -29,7 +29,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build and push versioned Docker image
+      # Build and push Docker image
       - name: Build and push Docker image
         run: |
           IMAGE_TAG=ghcr.io/redcloud442/red:v${{ github.run_number }}
@@ -37,19 +37,22 @@ jobs:
           docker push $IMAGE_TAG
           docker push ghcr.io/redcloud442/red:latest
 
-      # Verify Docker login success
-      - name: Verify Docker login
-        run: docker info
+      # Add SSH private key
+      - name: Add SSH private key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-      # Verify image tagging
-      - name: Verify image tagging
-        run: docker images
+      # Add server to known hosts
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H pinkful.website >> ~/.ssh/known_hosts
 
       # Deploy to Docker Swarm
       - name: Deploy to Docker Swarm
         run: |
-          ssh adminuser@pinkful.website << EOF
+          ssh -o StrictHostKeyChecking=no adminuser@pinkful.website << EOF
           docker pull ghcr.io/redcloud442/red:v${{ github.run_number }}
-          sed -i "s|image: ghcr.io/redcloud442/red:.*|image: ghcr.io/redcloud442/red:v${{ github.run_number }}|g" docker-stack.yml
-          docker stack deploy --with-registry-auth -c docker-stack.yaml red-stack
+          docker stack deploy --with-registry-auth --resolve-image always -c docker-stack.yml red-stack
           EOF
