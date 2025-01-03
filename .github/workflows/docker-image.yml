@@ -2,19 +2,21 @@ name: Docker Image CI
 
 on:
   push:
-    branches:
-      - main
+    branches: ["main"]
   pull_request:
-    branches:
-      - main
+    branches: ["main"]
 
 permissions:
   contents: read
   packages: write
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       # Checkout the repository
@@ -29,30 +31,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build and push Docker image
-      - name: Build and push Docker image
+      # Build the Docker image
+      - name: Build Docker image
         run: |
-          IMAGE_TAG=ghcr.io/redcloud442/red:v${{ github.run_number }}
-          docker build . --file Dockerfile --tag $IMAGE_TAG --tag ghcr.io/redcloud442/red:latest --no-cache
-          docker push $IMAGE_TAG
-          docker push ghcr.io/redcloud442/red:latest
+          docker build . --file Dockerfile --tag ghcr.io/redcloud442/red:prod
+        continue-on-error: false
 
-      # Add SSH private key
-      - name: Add SSH private key
+      # Push the Docker image to GHCR
+      - name: Push Docker image
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-
-      # Add server to known hosts
-      - name: Add server to known hosts
-        run: |
-          ssh-keyscan -H pinkful.website >> ~/.ssh/known_hosts
-
-      # Deploy to Docker Swarm
-      - name: Deploy to Docker Swarm
-        run: |
-          ssh -o StrictHostKeyChecking=no adminuser@pinkful.website << EOF
-          docker pull ghcr.io/redcloud442/red:v${{ github.run_number }}
-          docker stack deploy --with-registry-auth --resolve-image always -c docker-stack.yml red-stack
-          EOF
+          docker push ghcr.io/redcloud442/red:prod
