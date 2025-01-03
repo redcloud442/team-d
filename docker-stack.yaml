@@ -46,6 +46,7 @@ services:
       replicas: 3
       update_config:
         order: start-first
+      pull_policy: always
 
 volumes:
   letsencrypt:

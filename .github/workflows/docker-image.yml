@@ -24,6 +24,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build Docker image
         run: |
           docker build . --file Dockerfile --tag ghcr.io/redcloud442/red:prod --no-cache
