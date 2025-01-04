@@ -32,5 +32,4 @@ EXPOSE 8080
 # Use the custom script as the entrypoint
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
 
-# Default command to run the app
 CMD ["npm", "start"]
