@@ -35,12 +35,6 @@ services:
       - cryptokey
       - serviceRoleKey
     environment:
-      - DATABASE_URL
-      - DIRECT_URL
-      - NEXT_PUBLIC_SUPABASE_URL
-      - NEXT_PUBLIC_SUPABASE_ANON_KEY
-      - NEXT_PUBLIC_CRYPTO_SECRET_KEY
-      - SUPABASE_SERVICE_ROLE_KEY
       - NEXT_PUBLIC_BASE_URL=https://pinkful.website
     deploy:
       mode: replicated
@@ -50,7 +44,6 @@ services:
 
 volumes:
   letsencrypt:
-
 secrets:
   databaseUrl:
     external: true
