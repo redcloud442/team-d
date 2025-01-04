@@ -1,29 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 
-# Read secrets from files and sanitize
-if [ -f "/run/secrets/databaseUrl" ]; then
-  export DATABASE_URL=$(cat /run/secrets/databaseUrl | tr -d '\n')
-fi
+# Export all secrets in /run/secrets as environment variables
+for secret_file in /run/secrets/*; do
+  if [ -f "$secret_file" ]; then
+    secret_name=$(basename "$secret_file")
+    secret_value=$(cat "$secret_file")
+    export "$secret_value"
+  fi
+done
 
-if [ -f "/run/secrets/directUrl" ]; then
-  export DIRECT_URL=$(cat /run/secrets/directUrl | tr -d '\n')
-fi
-
-if [ -f "/run/secrets/supabaseUrl" ]; then
-  export NEXT_PUBLIC_SUPABASE_URL=$(cat /run/secrets/supabaseUrl | tr -d '\n')
-fi
-
-if [ -f "/run/secrets/anonKey" ]; then
-  export NEXT_PUBLIC_SUPABASE_ANON_KEY=$(cat /run/secrets/anonKey | tr -d '\n')
-fi
-
-if [ -f "/run/secrets/cryptokey" ]; then
-  export NEXT_PUBLIC_CRYPTO_SECRET_KEY=$(cat /run/secrets/cryptokey | tr -d '\n')
-fi
-
-if [ -f "/run/secrets/serviceRoleKey" ]; then
-  export SUPABASE_SERVICE_ROLE_KEY=$(cat /run/secrets/serviceRoleKey | tr -d '\n')
-fi
-
-# Run the actual application
+# Execute the default command
 exec "$@"
