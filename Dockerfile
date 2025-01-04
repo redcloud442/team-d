@@ -18,12 +18,19 @@ RUN npx prisma generate --schema ./prisma/schema.prisma
 # Copy the rest of the application files
 COPY . .
 
+# Copy the script to the image
+COPY /scripts/entrypoint_overwrited.sh /usr/src/app/entrypoint.sh
+RUN chmod +x /usr/src/app/entrypoint.sh
+
 # Build the application (if applicable)
 RUN npm run build
 
 # Expose the application port
 ENV PORT=8080
 EXPOSE 8080
+
+# Use the custom script as the entrypoint
+ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
 
 # Default command to run the app
 CMD ["npm", "start"]
