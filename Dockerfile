@@ -29,7 +29,4 @@ RUN npm run build
 ENV PORT=8080
 EXPOSE 8080
 
-# Use the custom script as the entrypoint
-ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
-
 CMD ["npm", "start"]
