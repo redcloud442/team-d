@@ -26,6 +26,9 @@ COPY /scripts/entrypoint_overwrited.sh /usr/src/app/entrypoint.sh
 # Ensure the script is executable
 RUN chmod +x /usr/src/app/entrypoint.sh
 
+# Set the entrypoint
+ENTRYPOINT ["/bin/bash", "/usr/src/app/entrypoint.sh"]
+
 # Build the application (if applicable)
 RUN npm run build
 
