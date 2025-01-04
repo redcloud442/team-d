@@ -11,8 +11,7 @@ declare -A secret_env_map=(
   ["baseUrl"]="NEXT_PUBLIC_BASE_URL"
 )
 
-# Export secrets as environment variables and write to .env file
-echo "# Auto-generated env file" > /usr/src/app/.env
+# Export secrets as environment variables and overwrite any existing variables
 for secret_file in /run/secrets/*; do
   if [ -f "$secret_file" ]; then
     secret_name=$(basename "$secret_file")
@@ -20,18 +19,16 @@ for secret_file in /run/secrets/*; do
     env_var_name="${secret_env_map[$secret_name]}"
 
     if [ -n "$env_var_name" ]; then
-      echo "Exported $env_var_name from $secret_name"
+      echo "Overwriting $env_var_name with value from $secret_name"
       export "$env_var_name=$secret_value"
-      echo "$env_var_name=$secret_value" >> /usr/src/app/.env
     else
       echo "Warning: No mapping found for secret $secret_name"
     fi
   fi
 done
 
-# Load .env file (optional for debugging)
-set -a
-. /usr/src/app/.env
-set +a
+# Debugging: Print all overwritten environment variables (remove in production)
+env | grep -E 'DATABASE_URL|DIRECT_URL|NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|NEXT_PUBLIC_CRYPTO_SECRET_KEY|SUPABASE_SERVICE_ROLE_KEY|NEXT_PUBLIC_BASE_URL'
 
+# Execute the default command passed to the container
 exec "$@"
