@@ -26,6 +26,7 @@ services:
       - "traefik.http.routers.red-app.rule=Host(`pinkful.website`)"
       - "traefik.http.routers.red-app.entrypoints=websecure"
       - "traefik.http.routers.red-app.tls.certresolver=myresolver"
+    env_file: /usr/src/app/.env
     secrets:
       - databaseUrl
       - directUrl

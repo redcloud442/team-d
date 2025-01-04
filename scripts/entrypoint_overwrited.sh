@@ -11,24 +11,27 @@ declare -A secret_env_map=(
   ["baseUrl"]="NEXT_PUBLIC_BASE_URL"
 )
 
-# Export secrets as environment variables based on the mapping
+# Export secrets as environment variables and write to .env file
+echo "# Auto-generated env file" > /usr/src/app/.env
 for secret_file in /run/secrets/*; do
   if [ -f "$secret_file" ]; then
-    secret_name=$(basename "$secret_file")          # Extract the secret name
-    secret_value=$(cat "$secret_file")             # Read the secret value
-    env_var_name="${secret_env_map[$secret_name]}" # Get the mapped environment variable name
+    secret_name=$(basename "$secret_file")
+    secret_value=$(cat "$secret_file")
+    env_var_name="${secret_env_map[$secret_name]}"
 
-    if [ -n "$env_var_name" ]; then                # Check if mapping exists
-      export "$env_var_name=$secret_value"         # Export the environment variable
-      echo "Exported $env_var_name from $secret_name"  # Debug log
+    if [ -n "$env_var_name" ]; then
+      echo "Exported $env_var_name from $secret_name"
+      export "$env_var_name=$secret_value"
+      echo "$env_var_name=$secret_value" >> /usr/src/app/.env
     else
-      echo "Warning: No mapping found for secret $secret_name"  # Debug log for unmapped secrets
+      echo "Warning: No mapping found for secret $secret_name"
     fi
   fi
 done
 
-# Debugging: Print all exported environment variables (remove in production)
-env | grep -E 'DATABASE_URL|DIRECT_URL|NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|NEXT_PUBLIC_CRYPTO_SECRET_KEY|SUPABASE_SERVICE_ROLE_KEY|NEXT_PUBLIC_BASE_URL'
+# Load .env file (optional for debugging)
+set -a
+. /usr/src/app/.env
+set +a
 
-# Execute the default command
 exec "$@"
