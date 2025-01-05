@@ -13,7 +13,7 @@ permissions:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
+    environment: Production
     steps:
       # Checkout the repository
       - name: Checkout code
@@ -43,3 +43,10 @@ jobs:
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
             NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL }}
             NEXT_PUBLIC_CRYPTO_SECRET_KEY=${{ secrets.NEXT_PUBLIC_CRYPTO_SECRET_KEY }}
+
+      - name: Debug Secrets
+        run: |
+          echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
+          echo "NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL }}"
+          echo "NEXT_PUBLIC_CRYPTO_SECRET_KEY=${{ secrets.NEXT_PUBLIC_CRYPTO_SECRET_KEY }}"
