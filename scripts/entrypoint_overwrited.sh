@@ -11,6 +11,8 @@ declare -A secret_env_map=(
   ["baseUrl"]="NEXT_PUBLIC_BASE_URL"
 )
 
+echo "Loading secrets and overwriting environment variables..."
+
 # Export secrets as environment variables and overwrite any existing variables
 for secret_file in /run/secrets/*; do
   if [ -f "$secret_file" ]; then
@@ -27,12 +29,9 @@ for secret_file in /run/secrets/*; do
   fi
 done
 
-# Debugging: Print all overwritten environment variables (remove in production)
+# Debugging: Print all environment variables (remove in production)
+echo "Debugging environment variables..."
 env | grep -E 'DATABASE_URL|DIRECT_URL|NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|NEXT_PUBLIC_CRYPTO_SECRET_KEY|SUPABASE_SERVICE_ROLE_KEY|NEXT_PUBLIC_BASE_URL'
 
-printenv | while IFS='=' read -r key value; do
-  echo "Replacing $key in .next files with runtime value..."
-  find /usr/src/app/.next/ -type f -exec sed -i "s|$key|$value|g" {} +
-done
-# Execute the default command passed to the container
+
 exec "$@"
