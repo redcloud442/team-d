@@ -1,3 +1,4 @@
+version: "3.8"
 services:
   traefik:
     image: traefik:v3.1
@@ -34,6 +35,15 @@ services:
       - cryptokey
       - serviceRoleKey
       - baseUrl
+    environment:
+      - NEXT_PUBLIC_SUPABASE_URL=/run/secrets/supabaseUrl
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=/run/secrets/anonKey
+      - NEXT_PUBLIC_BASE_URL=/run/secrets/baseUrl
+      - NEXT_PUBLIC_CRYPTO_SECRET_KEY=/run/secrets/cryptokey
+      - SUPABASE_SERVICE_ROLE_KEY=/run/secrets/serviceRoleKey
+      - DATABASE_URL=/run/secrets/databaseUrl
+      - DIRECT_URL=/run/secrets/directUrl
+      - NODE_ENV=production
     deploy:
       mode: replicated
       replicas: 3

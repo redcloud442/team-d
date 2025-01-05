@@ -26,15 +26,29 @@ COPY /scripts/entrypoint_overwrited.sh /usr/src/app/entrypoint.sh
 # Ensure the script is executable
 RUN chmod +x /usr/src/app/entrypoint.sh
 
-# Set the entrypoint
-ENTRYPOINT ["/bin/bash", "/usr/src/app/entrypoint.sh"]
 
 # Build the application (if applicable)
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_BASE_URL
+ARG NEXT_PUBLIC_CRYPTO_SECRET_KEY
+ARG SUPABASE_SERVICE_ROLE_KEY
+ARG DATABASE_URL
+ARG DIRECT_URL
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
+ENV NEXT_PUBLIC_CRYPTO_SECRET_KEY=$NEXT_PUBLIC_CRYPTO_SECRET_KEY
+ENV SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY
+ENV DATABASE_URL=$DATABASE_URL
+ENV DIRECT_URL=$DIRECT_URL
 RUN npm run build
 
-# Expose the application port
+
 ENV PORT=8080
 EXPOSE 8080
 
-# Default command to run the app
+ENTRYPOINT ["/bin/bash", "/usr/src/app/entrypoint.sh"]
+
+# # Default command to run the app
 CMD ["npm", "start"]
