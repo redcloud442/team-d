@@ -48,5 +48,7 @@ RUN npm run build
 ENV PORT=8080
 EXPOSE 8080
 
+ENTRYPOINT ["/bin/bash", "/usr/src/app/entrypoint.sh"]
+
 # # Default command to run the app
 CMD ["npm", "start"]
