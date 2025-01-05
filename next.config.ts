@@ -1,6 +1,4 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+const nextConfig = {
   async headers() {
     return [
       {
@@ -8,7 +6,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "X-Frame-Options",
-            value: "DENY",
+            value: "SAMEORIGIN", // Allows embedding within the same origin
           },
           {
             key: "X-Content-Type-Options",
@@ -18,11 +16,14 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value:
               "default-src 'self'; " +
-              "connect-src 'self' https://mromobfjpmxcrgyrjpbn.supabase.co; " + // Allow connections to Supabase
-              "frame-ancestors 'none'; " +
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+              "connect-src 'self' https://mromobfjpmxcrgyrjpbn.supabase.co; " +
+              "frame-src 'self' https://mromobfjpmxcrgyrjpbn.supabase.co; " +
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com; " +
               "style-src 'self' 'unsafe-inline'; " +
-              "object-src 'none';",
+              "object-src 'none'; " +
+              "img-src 'self' data: blob:; " +
+              "media-src 'self' blob:; " +
+              "font-src 'self' data:;",
           },
           {
             key: "Strict-Transport-Security",

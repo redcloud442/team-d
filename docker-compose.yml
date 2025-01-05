@@ -44,6 +44,10 @@ services:
     deploy:
       mode: replicated
       replicas: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
     restart: always
 volumes:
   letsencrypt:
