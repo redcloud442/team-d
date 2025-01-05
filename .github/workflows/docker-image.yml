@@ -14,14 +14,14 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-      packages: write
-
     steps:
       # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       # Log in to GitHub Container Registry
       - name: Log in to GitHub Container Registry
@@ -31,18 +31,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build the Docker image
-      - name: Build Docker image
-        run: |
-          docker build `
-          --build-arg NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} `
-          --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }} `
-          --build-arg NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL }} `
-          --build-arg NEXT_PUBLIC_CRYPTO_SECRET_KEY=${{ secrets.NEXT_PUBLIC_CRYPTO_SECRET_KEY }} `
-          -t ghcr.io/redcloud442/red:prod .
-        continue-on-error: false
-
-      # Push the Docker image to GHCR
-      - name: Push Docker image
-        run: |
-          docker push ghcr.io/redcloud442/red:prod
+      # Build and push the Docker image
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/redcloud442/red:prod
+          build-args: |
+            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL }}
+            NEXT_PUBLIC_CRYPTO_SECRET_KEY=${{ secrets.NEXT_PUBLIC_CRYPTO_SECRET_KEY }}
