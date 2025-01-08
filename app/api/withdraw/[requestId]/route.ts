@@ -1,3 +1,4 @@
+import { WITHDRAWAL_STATUS } from "@/utils/constant";
 import { applyRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { protectionAccountingUser } from "@/utils/serversideProtection";
@@ -24,7 +25,7 @@ export async function PUT(
     const { status, note }: { status: string; note?: string | null } =
       await request.json();
 
-    if (!status || !["APPROVED", "PENDING", "REJECTED"].includes(status)) {
+    if (!status || !Object.values(WITHDRAWAL_STATUS).includes(status)) {
       return sendErrorResponse("Invalid or missing status.");
     }
 
@@ -55,7 +56,7 @@ export async function PUT(
         },
       });
 
-      if (status === "REJECTED") {
+      if (status === WITHDRAWAL_STATUS.REJECTED) {
         const earningsType =
           updatedRequest.alliance_withdrawal_request_withdraw_type;
 
@@ -83,7 +84,6 @@ export async function PUT(
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error in PUT request:", error);
     return NextResponse.json(
       {
         error:

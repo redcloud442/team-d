@@ -1,40 +1,7 @@
 version: "3.8"
 services:
-  traefik:
-    image: traefik:v3.1
-    command:
-      - "--providers.docker"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entryPoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=adminuser@pinkful.website"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - letsencrypt:/letsencrypt
-      - /var/run/docker.sock:/var/run/docker.sock
-
   web:
     image: ghcr.io/redcloud442/red:prod
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.services.red-app.loadbalancer.server.port=8080"
-      - "traefik.http.routers.red-app.rule=Host(`pinkful.website`)"
-      - "traefik.http.routers.red-app.entrypoints=websecure"
-      - "traefik.http.routers.red-app.tls.certresolver=myresolver"
-    secrets:
-      - databaseUrl
-      - directUrl
-      - supabaseUrl
-      - anonKey
-      - cryptokey
-      - serviceRoleKey
-      - baseUrl
     environment:
       NEXT_PUBLIC_SUPABASE_URL: /run/secrets/supabaseUrl
       NEXT_PUBLIC_SUPABASE_ANON_KEY: /run/secrets/anonKey
@@ -43,14 +10,33 @@ services:
       SUPABASE_SERVICE_ROLE_KEY: /run/secrets/serviceRoleKey
       DATABASE_URL: /run/secrets/databaseUrl
       DIRECT_URL: /run/secrets/directUrl
+    secrets:
+      - databaseUrl
+      - directUrl
+      - supabaseUrl
+      - anonKey
+      - cryptokey
+      - serviceRoleKey
+      - baseUrl
     deploy:
       mode: replicated
       replicas: 3
       update_config:
         order: start-first
+    ports:
+      - "8080:8080"
 
-volumes:
-  letsencrypt:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    networks:
+      - public
+    secrets:
+      - tunnelKey
+    environment:
+      - TUNNEL_TOKEN=/run/secrets/tunnelKey
+    deploy:
+      replicas: 1
 
 secrets:
   databaseUrl:
@@ -66,4 +52,10 @@ secrets:
   serviceRoleKey:
     external: true
   baseUrl:
+    external: true
+  tunnelKey:
+    external: true
+
+networks:
+  public:
     external: true

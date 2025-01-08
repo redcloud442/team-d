@@ -1,3 +1,4 @@
+import { WITHDRAWAL_STATUS } from "@/utils/constant";
 import { applyRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
           alliance_withdrawal_request_amount: Number(amount),
           alliance_withdrawal_request_type: bank,
           alliance_withdrawal_request_account: accountNumber,
-          alliance_withdrawal_request_status: "PENDING",
+          alliance_withdrawal_request_status: WITHDRAWAL_STATUS.PENDING,
           alliance_withdrawal_request_member_id: teamMemberId,
           alliance_withdrawal_request_withdraw_type: earnings,
         },

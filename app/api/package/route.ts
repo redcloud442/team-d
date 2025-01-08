@@ -1,3 +1,4 @@
+import { BONUS_TYPE, DIRECTYPE } from "@/utils/constant";
 import { applyRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
@@ -100,7 +101,7 @@ export async function POST(request: Request) {
             package_member_package_id: packageId,
             package_member_amount: amount,
             package_amount_earnings: packageAmountEarnings,
-            package_member_status: "ACTIVE",
+            package_member_status: DIRECTYPE.DIRECT,
           },
         });
 
@@ -117,7 +118,8 @@ export async function POST(request: Request) {
             .mul(ref.percentage)
             .div(100)
             .toNumber(),
-          package_ally_bounty_type: ref.level === 1 ? "DIRECT" : "INDIRECT",
+          package_ally_bounty_type:
+            ref.level === 1 ? DIRECTYPE.DIRECT : DIRECTYPE.INDIRECT,
           package_ally_bounty_connection_id:
             connectionData.package_member_connection_id,
           package_ally_bounty_from: teamMemberId,
@@ -130,9 +132,7 @@ export async function POST(request: Request) {
             prisma.alliance_earnings_table.updateMany({
               where: { alliance_earnings_member_id: ref.referrerId },
               data: {
-                [ref.level === 1
-                  ? "alliance_ally_bounty"
-                  : "alliance_legion_bounty"]: {
+                [ref.level === 1 ? BONUS_TYPE.DIRECT : BONUS_TYPE.INDIRECT]: {
                   increment: decimalAmount
                     .mul(ref.percentage)
                     .div(100)

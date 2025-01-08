@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { createTriggerUser } from "@/services/auth/auth";
 import { logError } from "@/services/Error/ErrorLogs";
+import { BASE_URL } from "@/utils/constant";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,9 +56,8 @@ type RegisterFormData = z.infer<typeof RegisterSchema>;
 
 type Props = {
   referralLink: string;
-  userName: string;
 };
-const RegisterPage = ({ referralLink, userName }: Props) => {
+const RegisterPage = ({ referralLink }: Props) => {
   const {
     register,
     handleSubmit,
@@ -72,7 +72,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
 
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const url = `${process.env.NEXT_PUBLIC_BASE_URL}${pathName}`;
+  const url = `${BASE_URL}${pathName}`;
 
   const handleRegistrationSubmit = async (data: RegisterFormData) => {
     const sanitizedData = escapeFormData(data);

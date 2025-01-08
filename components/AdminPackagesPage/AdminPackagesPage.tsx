@@ -57,22 +57,46 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
         {packages.map((pkg) => (
           <Card
             key={pkg.package_id}
-            className="bg-white border border-gray-200 rounded-lg shadow-md p-6 flex flex-col items-center space-y-4"
+            className={`bg-white border rounded-lg shadow-md p-6 flex flex-col items-center space-y-4 ${
+              pkg.package_is_disabled
+                ? "bg-gray-200 border-gray-400 opacity-50"
+                : "border-gray-200"
+            }`}
           >
-            <h2 className="text-xl font-bold">{pkg.package_name}</h2>
-            <p className="text-gray-600 dark:text-white text-center">
+            <h2
+              className={`text-xl font-bold ${pkg.package_is_disabled ? "text-gray-500" : "text-black"}`}
+            >
+              {pkg.package_name}
+            </h2>
+            <p
+              className={`text-center ${pkg.package_is_disabled ? "text-gray-500" : "text-gray-600 dark:text-white"}`}
+            >
               {pkg.package_description}
             </p>
-            <p className="text-2xl text-center font-extrabold text-gray-800 dark:text-white">
+            <p
+              className={`text-2xl text-center font-extrabold ${
+                pkg.package_is_disabled
+                  ? "text-gray-500"
+                  : "text-gray-800 dark:text-white"
+              }`}
+            >
               {pkg.package_percentage} Earnings in {pkg.packages_days} Days
             </p>
 
-            <EditPackagesModal
-              teamMemberProfile={teamMemberProfile}
-              selectedPackage={selectedPackage}
-              handleSelectPackage={() => handleSelectPackage(pkg)}
-              fetchPackages={fetchPackages}
-            />
+            {!pkg.package_is_disabled && (
+              <EditPackagesModal
+                teamMemberProfile={teamMemberProfile}
+                selectedPackage={selectedPackage}
+                handleSelectPackage={() => handleSelectPackage(pkg)}
+                fetchPackages={fetchPackages}
+              />
+            )}
+
+            {pkg.package_is_disabled && (
+              <div className="text-sm text-gray-500 italic">
+                This package is currently disabled
+              </div>
+            )}
           </Card>
         ))}
       </div>

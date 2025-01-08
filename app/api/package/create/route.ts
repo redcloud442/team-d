@@ -21,13 +21,6 @@ export async function POST(request: Request) {
 
     const { packageName, packageDescription, packagePercentage, packageDays } =
       body;
-    console.log(
-      "Received Data:",
-      packageName,
-      packageDescription,
-      packagePercentage,
-      packageDays
-    );
 
     if (
       !packageName ||
@@ -39,7 +32,6 @@ export async function POST(request: Request) {
     }
 
     const { teamMemberProfile } = await protectionAdminUser(ip);
-    console.log("Team Member Profile:", teamMemberProfile);
 
     if (!teamMemberProfile) {
       return NextResponse.json(

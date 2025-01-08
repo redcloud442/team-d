@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import PackageCard from "@/components/ui/packageCard";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getPackageModalData } from "@/services/Package/Member";
 import { createClientSide } from "@/utils/supabase/client";
@@ -90,46 +91,50 @@ const DashboardDepositModalPackages = ({
           Packages
         </Button>
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Buy Packages</DialogTitle>
-          <DialogDescription></DialogDescription>
-        </DialogHeader>
+        <ScrollArea className="h-[500px]">
+          <DialogHeader>
+            <DialogTitle>Buy Packages</DialogTitle>
+            <DialogDescription></DialogDescription>
+          </DialogHeader>
 
-        {selectedPackage ? (
-          <AvailPackagePage
-            setOpen={setOpen}
-            setSelectedPackage={setSelectedPackage}
-            earnings={earnings}
-            pkg={selectedPackage}
-            teamMemberProfile={teamMemberProfile}
-            setEarnings={setEarnings}
-            setChartData={setChartData}
-          />
-        ) : (
-          packages.map((pkg) => (
-            <PackageCard
-              key={pkg.package_id}
-              packageName={pkg.package_name}
-              packageDescription={pkg.package_description}
-              packagePercentage={`${pkg.package_percentage} %`}
-              packageDays={String(pkg.packages_days)}
-              onClick={() => handlePackageSelect(pkg)}
+          {selectedPackage ? (
+            <AvailPackagePage
+              setOpen={setOpen}
+              setSelectedPackage={setSelectedPackage}
+              earnings={earnings}
+              pkg={selectedPackage}
+              teamMemberProfile={teamMemberProfile}
+              setEarnings={setEarnings}
+              setChartData={setChartData}
             />
-          ))
-        )}
-
-        <DialogFooter>
-          {selectedPackage && (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => setSelectedPackage(null)}
-            >
-              Back to Packages
-            </Button>
+          ) : (
+            packages.map((pkg) => (
+              <div className="flex flex-col gap-4 p-2" key={pkg.package_id}>
+                <PackageCard
+                  packageName={pkg.package_name}
+                  packageDescription={pkg.package_description}
+                  packagePercentage={`${pkg.package_percentage} %`}
+                  packageDays={String(pkg.packages_days)}
+                  onClick={() => handlePackageSelect(pkg)}
+                />
+              </div>
+            ))
           )}
-        </DialogFooter>
+
+          <DialogFooter>
+            {selectedPackage && (
+              <Button
+                variant="outline"
+                className="w-full py-3 mt-4 rounded-lg"
+                onClick={() => setSelectedPackage(null)}
+              >
+                Back to Packages
+              </Button>
+            )}
+          </DialogFooter>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

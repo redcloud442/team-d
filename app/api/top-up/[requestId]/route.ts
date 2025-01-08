@@ -1,3 +1,4 @@
+import { TOP_UP_STATUS } from "@/utils/constant";
 import { applyRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { protectionMerchantUser } from "@/utils/serversideProtection";
@@ -25,7 +26,7 @@ export async function PUT(
     const { status, note }: { status: string; note?: string | null } =
       await request.json();
 
-    if (!status || !["APPROVED", "PENDING", "REJECTED"].includes(status)) {
+    if (!status || !Object.values(TOP_UP_STATUS).includes(status)) {
       return sendErrorResponse("Invalid or missing status.");
     }
 
@@ -76,7 +77,7 @@ export async function PUT(
         },
       });
 
-      if (status === "APPROVED") {
+      if (status === TOP_UP_STATUS.APPROVED) {
         const updatedEarnings = await tx.alliance_earnings_table.update({
           where: {
             alliance_earnings_member_id:
