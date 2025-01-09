@@ -162,7 +162,12 @@ export const AdminUsersColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("user_username")}</div>
+        <div
+          onClick={() => router.push(`/admin/users/${row.getValue("user_id")}`)}
+          className="text-blue-500 text-wrap cursor-pointer hover:underline"
+        >
+          {row.getValue("user_username")}
+        </div>
       ),
     },
     {
