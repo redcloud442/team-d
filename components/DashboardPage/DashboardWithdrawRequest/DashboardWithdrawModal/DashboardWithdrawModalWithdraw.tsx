@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -17,15 +19,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
-import { escapeFormData } from "@/utils/function";
+import {
+  calculateFee,
+  calculateFinalAmount,
+  escapeFormData,
+} from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_earnings_table, alliance_member_table } from "@prisma/client";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
@@ -37,7 +44,12 @@ type Props = {
 
 const withdrawalFormSchema = z.object({
   earnings: z.string(),
-  amount: z.string().min(1, "Amount is required"),
+  amount: z
+    .string()
+    .min(3, "Amount is required atleast 200 pesos")
+    .refine((amount) => parseInt(amount, 10) >= 200, {
+      message: "Amount must be at least 200 pesos",
+    }),
   bank: z.string().min(1, "Please select a bank"),
   accountName: z.string().min(6, "Account name is required"),
   accountNumber: z.string().min(6, "Account number is required"),
@@ -122,10 +134,12 @@ const DashboardWithdrawModalWithdraw = ({
   const handleWithdrawalRequest = async (data: WithdrawalFormValues) => {
     try {
       const sanitizedData = escapeFormData(data);
+
       await createWithdrawalRequest({
         WithdrawFormValues: sanitizedData,
         teamMemberId: teamMemberProfile.alliance_member_id,
       });
+
       switch (selectedEarnings) {
         case "TOTAL":
           setEarnings({
@@ -193,206 +207,261 @@ const DashboardWithdrawModalWithdraw = ({
           Withdraw
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Withdraw Now</DialogTitle>
-          <DialogDescription>
-            Withdraw your earnings to your bank account
-          </DialogDescription>
-        </DialogHeader>
-        <form
-          onSubmit={handleSubmit(handleWithdrawalRequest)}
-          className="space-y-4"
-          onChange={validateAmount} // Validate whenever form changes
-        >
-          {/* Earnings Select */}
-          <div>
-            <Label htmlFor="earnings">Earnings</Label>
-            <Controller
-              name="earnings"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  value={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="SELECT EARNINGS" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="TOTAL">
-                      TOTAL EARNINGS (₱
-                      {earnings.alliance_olympus_earnings.toLocaleString()})
-                    </SelectItem>
-                    <SelectItem value="DIRECT REFERRAL">
-                      DIRECT REFERRAL (₱
-                      {earnings.alliance_ally_bounty.toLocaleString()})
-                    </SelectItem>
-                    <SelectItem value="INDIRECT REFERRAL">
-                      INDIRECT REFERRAL (₱
-                      {earnings.alliance_legion_bounty.toLocaleString()})
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors.earnings && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.earnings.message}
-              </p>
-            )}
-          </div>
 
-          {/* Bank Type Select */}
-          <div>
-            <Label htmlFor="bank">Bank Type</Label>
-            <Controller
-              name="bank"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  value={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="SELECT BANK" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {bankData.map((bank, index) => (
-                      <SelectItem key={index} value={bank}>
-                        {bank}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors.bank && (
-              <p className="text-red-500 text-sm mt-1">{errors.bank.message}</p>
-            )}
-          </div>
+      <DialogContent className="w-full sm:max-w-[400px]">
+        <ScrollArea className="w-full sm:max-w-[400px] max-h-[620px] ">
+          <DialogHeader>
+            <DialogTitle>Withdraw Fee Notice</DialogTitle>
+            <DialogDescription>
+              Withdraw your earnings to your account
+            </DialogDescription>
+          </DialogHeader>
+          {selectedEarnings && (
+            <Alert variant="destructive" className="my-2">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Withdrawal Fee Notice</AlertTitle>
+              <AlertDescription>
+                {selectedEarnings === "TOTAL"
+                  ? "10% withdrawal fee will be deducted from your withdrawal amount"
+                  : "3% withdrawal fee will be deducted from your withdrawal amount"}
+              </AlertDescription>
+            </Alert>
+          )}
 
-          {/* Account Name */}
-          <div>
-            <Label htmlFor="accountName">Account Name</Label>
-            <Controller
-              name="accountName"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  type="text"
-                  id="accountName"
-                  placeholder="Account Name"
-                  {...field}
-                />
-              )}
-            />
-            {errors.accountName && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.accountName.message}
-              </p>
-            )}
-          </div>
-
-          {/* Account Number */}
-          <div>
-            <Label htmlFor="accountNumber">Account Number</Label>
-            <Controller
-              name="accountNumber"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  type="text"
-                  id="accountNumber"
-                  placeholder="Account Number"
-                  {...field}
-                />
-              )}
-            />
-            {errors.accountNumber && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.accountNumber.message}
-              </p>
-            )}
-          </div>
-
-          {/* Amount Input */}
-          <div className="flex flex-col w-full space-y-2">
-            <Label htmlFor="amount">Amount</Label>
-            <div className="flex items-center justify-between w-full">
+          <form
+            onSubmit={handleSubmit(handleWithdrawalRequest)}
+            className="space-y-4"
+            onChange={validateAmount} // Validate whenever form changes
+          >
+            {/* Earnings Select */}
+            <div>
+              <Label htmlFor="earnings">Earnings</Label>
               <Controller
-                name="amount"
+                name="earnings"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    value={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="SELECT EARNINGS" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="TOTAL">
+                        TOTAL EARNINGS (₱
+                        {earnings.alliance_olympus_earnings.toLocaleString()})
+                      </SelectItem>
+                      <SelectItem value="DIRECT REFERRAL">
+                        DIRECT REFERRAL (₱
+                        {earnings.alliance_ally_bounty.toLocaleString()})
+                      </SelectItem>
+                      <SelectItem value="INDIRECT REFERRAL">
+                        INDIRECT REFERRAL (₱
+                        {earnings.alliance_legion_bounty.toLocaleString()})
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.earnings && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.earnings.message}
+                </p>
+              )}
+            </div>
+
+            {/* Bank Type Select */}
+            <div>
+              <Label htmlFor="bank">Bank Type</Label>
+              <Controller
+                name="bank"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    value={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="SELECT BANK" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bankData.map((bank, index) => (
+                        <SelectItem key={index} value={bank}>
+                          {bank}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.bank && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.bank.message}
+                </p>
+              )}
+            </div>
+
+            {/* Account Name */}
+            <div>
+              <Label htmlFor="accountName">Account Name</Label>
+              <Controller
+                name="accountName"
                 control={control}
                 render={({ field }) => (
                   <Input
-                    type="number"
-                    id="amount"
-                    className="w-full flex-grow"
-                    placeholder="Enter amount"
+                    type="text"
+                    id="accountName"
+                    placeholder="Account Name"
                     {...field}
-                    value={field.value}
-                    onChange={(e) => {
-                      let inputValue = e.target.value;
-
-                      if (inputValue.startsWith("0")) {
-                        inputValue = "";
-                      }
-
-                      inputValue = inputValue.replace(/\D/g, "");
-
-                      field.onChange(inputValue);
-
-                      const numericValue = parseFloat(inputValue);
-                      const maxAmount = getMaxAmount();
-
-                      if (numericValue > maxAmount) {
-                        setValue("amount", maxAmount.toString());
-                      }
-                    }}
                   />
                 )}
               />
-
-              <Button
-                type="button"
-                className="ml-2 bg-blue-500 text-white"
-                onClick={() => setValue("amount", getMaxAmount().toString())}
-              >
-                MAX
-              </Button>
+              {errors.accountName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.accountName.message}
+                </p>
+              )}
             </div>
-            {errors.amount && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.amount.message}
-              </p>
+
+            {/* Account Number */}
+            <div>
+              <Label htmlFor="accountNumber">Account Number</Label>
+              <Controller
+                name="accountNumber"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    type="text"
+                    id="accountNumber"
+                    placeholder="Account Number"
+                    {...field}
+                  />
+                )}
+              />
+              {errors.accountNumber && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.accountNumber.message}
+                </p>
+              )}
+            </div>
+
+            {/* Amount Input */}
+            <div className="flex flex-col w-full space-y-2">
+              <Label htmlFor="amount">Amount</Label>
+              <div className="flex items-center justify-between w-full">
+                <Controller
+                  name="amount"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      type="number"
+                      id="amount"
+                      className="w-full flex-grow"
+                      placeholder="Enter amount"
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => {
+                        let inputValue = e.target.value;
+
+                        if (inputValue.startsWith("0")) {
+                          inputValue = "";
+                        }
+
+                        inputValue = inputValue.replace(/\D/g, "");
+
+                        field.onChange(inputValue);
+
+                        const numericValue = parseFloat(inputValue);
+                        const maxAmount = getMaxAmount();
+
+                        if (numericValue > maxAmount) {
+                          setValue("amount", maxAmount.toString());
+                        }
+                      }}
+                    />
+                  )}
+                />
+
+                <Button
+                  type="button"
+                  className="ml-2 bg-blue-500 text-white"
+                  onClick={() => setValue("amount", getMaxAmount().toString())}
+                >
+                  MAX
+                </Button>
+              </div>
+              {errors.amount && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.amount.message}
+                </p>
+              )}
+            </div>
+            {amount && (
+              <div className="flex flex-col w-full space-y-2">
+                <Label htmlFor="amountToWithdraw">Amount Computation</Label>
+                <div className="flex flex-col gap-2 items-end justify-end w-full">
+                  {/* Fee Display */}
+                  <div className="flex items-center justify-between w-full">
+                    <p className="text-md text-gray-200">
+                      {selectedEarnings === "TOTAL" ? "10%" : "3%"} Fee:
+                    </p>
+                    <p className="text-md  text-gray-300">
+                      {"₱ "}
+                      {calculateFee(
+                        Number(amount || 0),
+                        selectedEarnings
+                      ).toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between w-full">
+                    <p className="text-md  text-gray-200">Amount</p>
+                    <p className="text-md  text-gray-300">
+                      {"₱ "}
+                      {amount.toLocaleString()}
+                    </p>
+                  </div>
+
+                  {/* Separator */}
+                  <Separator />
+
+                  {/* Final Amount Display */}
+                  <div className="flex items-center justify-between w-full">
+                    <p className="text-md font-bold">Amount to be Received</p>
+                    <p className="text-md font-bold text-gray-300">
+                      {"₱ "}
+                      {calculateFinalAmount(
+                        Number(amount || 0),
+                        selectedEarnings
+                      ).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
             )}
-          </div>
-          <Button
-            disabled={isSubmitting || getMaxAmount() === 0}
-            type="submit"
-            className="w-full"
-            aria-disabled={
-              isSubmitting ||
-              earnings.alliance_olympus_earnings === 0 ||
-              earnings.alliance_legion_bounty === 0 ||
-              earnings.alliance_ally_bounty === 0
-            }
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              "Submit"
-            )}
-          </Button>
-        </form>
-        <DialogFooter></DialogFooter>
+            <Button
+              disabled={isSubmitting || getMaxAmount() === 0}
+              type="submit"
+              className="w-full pb-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                "Submit"
+              )}
+            </Button>
+          </form>
+
+          <DialogFooter></DialogFooter>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

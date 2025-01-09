@@ -15,9 +15,9 @@ import {
 import { Textarea } from "../ui/textarea";
 
 const statusColorMap: Record<string, string> = {
-  APPROVED: "bg-green-500 dark:bg-green-600",
-  REJECTED: "bg-red-500 dark:bg-red-600",
-  PENDING: "bg-yellow-500 dark:bg-yellow-600",
+  APPROVED: "bg-green-500 dark:bg-green-600 dark:text-white",
+  REJECTED: "bg-red-500 dark:bg-red-600 dark:text-white",
+  PENDING: "bg-yellow-500 dark:bg-yellow-600 dark:text-white",
 };
 
 export const WithdrawalHistoryColumn =

@@ -1,5 +1,10 @@
 import { WITHDRAWAL_STATUS } from "@/utils/constant";
-import { applyRateLimit } from "@/utils/function";
+import {
+  applyRateLimit,
+  calculateFee,
+  calculateFinalAmount,
+  escapeFormData,
+} from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
@@ -20,14 +25,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid input." }, { status: 400 });
     }
 
-    if (amount <= 0) {
-      return NextResponse.json(
-        { error: "Amount must be greater than zero." },
-        { status: 400 }
-      );
+    if (amount <= 0 || amount <= 200) {
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
-    await protectionMemberUser(ip);
+    const { teamMemberProfile } = await protectionMemberUser(ip);
 
     await applyRateLimit(teamMemberId, ip);
 
@@ -35,11 +37,8 @@ export async function POST(request: Request) {
       where: { alliance_earnings_member_id: teamMemberId },
     });
 
-    if (!amountMatch) {
-      return NextResponse.json(
-        { error: "Earnings record not found." },
-        { status: 404 }
-      );
+    if (!amountMatch || !teamMemberProfile?.alliance_member_is_active) {
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
     const maxAmount =
@@ -52,10 +51,7 @@ export async function POST(request: Request) {
             : 0;
 
     if (amount > maxAmount) {
-      return NextResponse.json(
-        { error: "Amount exceeds available earnings." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
     const earningsType = earnings;
     const [allianceData] = await prisma.$transaction([
@@ -64,6 +60,14 @@ export async function POST(request: Request) {
           alliance_withdrawal_request_amount: Number(amount),
           alliance_withdrawal_request_type: bank,
           alliance_withdrawal_request_account: accountNumber,
+          alliance_withdrawal_request_fee: calculateFee(
+            Number(amount),
+            earningsType
+          ),
+          alliance_withdrawal_request_withdraw_amount: calculateFinalAmount(
+            Number(amount),
+            earningsType
+          ),
           alliance_withdrawal_request_status: WITHDRAWAL_STATUS.PENDING,
           alliance_withdrawal_request_member_id: teamMemberId,
           alliance_withdrawal_request_withdraw_type: earnings,
@@ -120,6 +124,10 @@ export async function GET(request: Request) {
     const columnAccessor = url.searchParams.get("columnAccessor") || "";
     const isAscendingSort = url.searchParams.get("isAscendingSort") || "false";
 
+    if (limit !== "10") {
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    }
+
     const params = {
       teamMemberId: teamMemberProfile?.alliance_member_id || "",
       page: parseInt(page),
@@ -129,17 +137,17 @@ export async function GET(request: Request) {
       isAscendingSort: isAscendingSort === "true",
       teamId: teamMemberProfile?.alliance_member_alliance_id || "",
     };
-
+    const escapedParams = escapeFormData(params);
     const { data, error } = await supabaseClient.rpc(
       "get_member_withdrawal_history",
       {
-        input_data: params,
+        input_data: escapedParams,
       }
     );
 
     if (error) throw error;
-
-    return NextResponse.json({ success: true, data: data });
+    const { data: withdrawals, totalCount } = data;
+    return NextResponse.json({ success: true, data: withdrawals, totalCount });
   } catch (error) {
     return NextResponse.json(
       { error: "Internal server error" },

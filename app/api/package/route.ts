@@ -102,7 +102,7 @@ export async function POST(request: Request) {
             package_member_package_id: packageId,
             package_member_amount: amount,
             package_amount_earnings: packageAmountEarnings,
-            package_member_status: DIRECTYPE.DIRECT,
+            package_member_status: "ACTIVE",
           },
         });
 

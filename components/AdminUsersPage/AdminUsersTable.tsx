@@ -225,6 +225,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
                     <SelectContent>
                       <SelectItem value="MEMBER">Member</SelectItem>
                       <SelectItem value="MERCHANT">Merchant</SelectItem>
+                      <SelectItem value="ACCOUNTING">Accounting</SelectItem>
                       <SelectItem value="ADMIN">Admin</SelectItem>
                     </SelectContent>
                   </Select>

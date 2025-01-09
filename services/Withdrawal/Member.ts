@@ -32,18 +32,15 @@ export const createWithdrawalRequest = async (params: {
   return result;
 };
 
-export const getMemberWithdrawalRequest = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    page: number;
-    limit: number;
-    search?: string;
-    teamMemberId: string;
-    teamId: string;
-    columnAccessor: string;
-    isAscendingSort: boolean;
-  }
-) => {
+export const getMemberWithdrawalRequest = async (params: {
+  page: number;
+  limit: number;
+  search?: string;
+  teamMemberId: string;
+  teamId: string;
+  columnAccessor: string;
+  isAscendingSort: boolean;
+}) => {
   const urlParams = {
     page: params.page.toString(),
     limit: params.limit.toString(),
@@ -51,6 +48,7 @@ export const getMemberWithdrawalRequest = async (
     columnAccessor: params.columnAccessor,
     isAscendingSort: params.isAscendingSort ? "true" : "false",
   };
+
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/withdraw?${new URLSearchParams(urlParams)}`,
     {
@@ -66,9 +64,7 @@ export const getMemberWithdrawalRequest = async (
     );
   }
 
-  const { data } = await response.json();
-
-  return data as {
+  return result as {
     data: WithdrawalRequestData[];
     totalCount: 0;
   };

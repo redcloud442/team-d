@@ -1,4 +1,4 @@
-import { applyRateLimit } from "@/utils/function";
+import { applyRateLimit, escapeFormData } from "@/utils/function";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
@@ -24,6 +24,10 @@ export const GET = async (request: NextRequest) => {
 
     const supabaseClient = await createClientServerSide();
 
+    if (limit !== "10") {
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    }
+
     const params = {
       page: Number(page),
       limit: Number(limit),
@@ -34,8 +38,10 @@ export const GET = async (request: NextRequest) => {
       teamId: teamMemberProfile?.alliance_member_alliance_id || "",
     };
 
+    const paramsEscaped = escapeFormData(params);
+
     const { data, error } = await supabaseClient.rpc("get_ally_bounty", {
-      input_data: params,
+      input_data: paramsEscaped,
     });
 
     if (error) throw error;

@@ -227,7 +227,7 @@ const AvailPackagePage = ({
                 </div>
               </div>
             ) : (
-              <Alert>
+              <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>No Balance</AlertTitle>
                 <AlertDescription>

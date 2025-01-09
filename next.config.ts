@@ -16,19 +16,7 @@ const nextConfig = {
             key: "Access-Control-Allow-Origin",
             value: "*",
           },
-          {
-            key: "Content-Security-Policy",
-            value:
-              "default-src 'self' https://* " +
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*; " +
-              "style-src 'self' 'unsafe-inline'; " +
-              "connect-src *; " +
-              "frame-src 'self' https://*; " +
-              "object-src 'none'; " +
-              "img-src 'self'; " +
-              "media-src 'self'; " +
-              "font-src 'self';",
-          },
+
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload", // Enforce HTTPS for 2 years

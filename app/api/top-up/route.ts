@@ -1,4 +1,4 @@
-import { applyRateLimit } from "@/utils/function";
+import { applyRateLimit, escapeFormData } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
@@ -46,10 +46,11 @@ export async function POST(request: Request) {
     }
 
     if (amount.length > 7 || amount.length < 3) {
-      return NextResponse.json(
-        { error: "Amount must be between 3 and 7 digits." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid Request." }, { status: 400 });
+    }
+
+    if (parseInt(amount, 10) < 200) {
+      return NextResponse.json({ error: "Invalid Request." }, { status: 400 });
     }
 
     await protectionMemberUser(ip);
@@ -64,10 +65,7 @@ export async function POST(request: Request) {
     });
 
     if (!merchantData) {
-      return NextResponse.json(
-        { error: "Merchant not found." },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Invalid Request." }, { status: 404 });
     }
 
     const filePath = `uploads/${Date.now()}_${file.name}`;
@@ -105,13 +103,13 @@ export async function POST(request: Request) {
     } catch (dbError) {
       await supabase.storage.from("REQUEST_ATTACHMENTS").remove([filePath]);
       return NextResponse.json(
-        { error: "Database operation failed. File upload rolled back." },
+        { error: "Internal Server Error." },
         { status: 500 }
       );
     }
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "An unexpected error occurred.";
+      error instanceof Error ? error.message : "Internal Server Error.";
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
@@ -148,10 +146,16 @@ export async function GET(request: Request) {
       teamMemberId: teamMemberProfile?.alliance_member_id || "",
     };
 
+    const escapedParams = escapeFormData(params);
+
+    if (limit !== "10") {
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    }
+
     const { data, error } = await supabaseClient.rpc(
       "get_member_top_up_history",
       {
-        input_data: params,
+        input_data: escapedParams,
       }
     );
 

@@ -1,4 +1,4 @@
-import { applyRateLimit } from "@/utils/function";
+import { applyRateLimit, escapeFormData } from "@/utils/function";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
@@ -23,6 +23,9 @@ export const GET = async (request: NextRequest) => {
     const isAscendingSort = url.searchParams.get("isAscendingSort");
 
     const supabaseClient = await createClientServerSide();
+    if (limit !== "10") {
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    }
 
     const params = {
       page: Number(page),
@@ -34,8 +37,10 @@ export const GET = async (request: NextRequest) => {
       teamId: teamMemberProfile?.alliance_member_alliance_id || "",
     };
 
-    const { data, error } = await supabaseClient.rpc("get_indirect_bounty", {
-      input_data: params,
+    const paramsEscaped = escapeFormData(params);
+
+    const { data, error } = await supabaseClient.rpc("get_legion_bounty", {
+      input_data: paramsEscaped,
     });
 
     if (error) throw error;

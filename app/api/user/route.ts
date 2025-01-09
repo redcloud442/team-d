@@ -47,10 +47,7 @@ export async function PUT(request: Request) {
     });
 
     if (!teamMemberProfile) {
-      return NextResponse.json(
-        { error: "User profile not found or incomplete." },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Invalid request." }, { status: 403 });
     }
 
     if (
@@ -58,7 +55,7 @@ export async function PUT(request: Request) {
       !teamMemberProfile.alliance_member_alliance_id
     ) {
       return NextResponse.json(
-        { success: false, error: "Access restricted or incomplete profile." },
+        { success: false, error: "Access restricted" },
         { status: 403 }
       );
     }

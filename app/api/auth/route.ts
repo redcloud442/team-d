@@ -1,3 +1,4 @@
+import { ROLE } from "@/utils/constant";
 import { decryptData, loginRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { user_table } from "@prisma/client";
@@ -66,11 +67,11 @@ export async function POST(request: Request) {
       user.user_password,
       user.user_iv ?? ""
     );
-    if (role === "MEMBER" && decryptedPassword !== password) {
+    if (role === ROLE.MEMBER && decryptedPassword !== password) {
       return sendErrorResponse("Password Incorrect", 401);
     }
 
-    if (role === "ADMIN") {
+    if (role === ROLE.ADMIN) {
       const decryptedInputPassword = await decryptData(
         password,
         user.user_iv ?? ""

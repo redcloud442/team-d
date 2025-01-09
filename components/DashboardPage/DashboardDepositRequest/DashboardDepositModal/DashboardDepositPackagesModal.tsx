@@ -91,7 +91,7 @@ const DashboardDepositModalPackages = ({
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">
-        <ScrollArea className="h-[500px]">
+        <ScrollArea className="h-auto max-h-[500px]">
           <DialogHeader>
             <DialogTitle>Buy Packages</DialogTitle>
             <DialogDescription></DialogDescription>

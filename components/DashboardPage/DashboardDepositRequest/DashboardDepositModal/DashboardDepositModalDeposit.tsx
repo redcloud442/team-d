@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,7 +27,7 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, merchant_table } from "@prisma/client";
-import { CheckCircle, Loader2 } from "lucide-react";
+import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -38,9 +39,12 @@ type Props = {
 const topUpFormSchema = z.object({
   amount: z
     .string()
-    .min(3, "Amount is required atleast 100 pesos")
+    .min(3, "Amount is required and must be at least 200 pesos")
     .max(6, "Amount must be less than 6 digits")
-    .regex(/^\d+$/, "Amount must be a number"),
+    .regex(/^\d+$/, "Amount must be a number")
+    .refine((amount) => parseInt(amount, 10) >= 200, {
+      message: "Amount must be at least 200 pesos",
+    }),
   topUpMode: z.string().min(1, "Top up mode is required"),
   accountName: z.string().min(1, "Field is required"),
   accountNumber: z.string().min(1, "Field is required"),
@@ -164,11 +168,18 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Top Up Now</DialogTitle>
+          <DialogTitle>Deposit</DialogTitle>
           <DialogDescription>
             Add an amount to add a amount to your wallet
           </DialogDescription>
         </DialogHeader>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Minimum Deposit Amount</AlertTitle>
+          <AlertDescription>
+            The minimum deposit amount is 200 pesos.
+          </AlertDescription>
+        </Alert>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Amount Field */}
           <div>
@@ -211,7 +222,7 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
 
           {/* Top-Up Mode */}
           <div>
-            <Label htmlFor="topUpMode">Select Top Up Mode</Label>
+            <Label htmlFor="topUpMode">Select Deposit Mode</Label>
             <Controller
               name="topUpMode"
               control={control}
@@ -294,8 +305,15 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
           {uploadedFile ? (
             <div className="flex flex-col justify-center items-center animate-pulse">
               <CheckCircle className="animate-pulse text-green-600" size={50} />
-
-              <p className="text-green-600 text-xl font-bold">File Uploaded</p>
+              {errors.file ? (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.file?.message}
+                </p>
+              ) : (
+                <p className="text-green-600 text-xl font-bold">
+                  File Uploaded
+                </p>
+              )}
             </div>
           ) : (
             <div>
