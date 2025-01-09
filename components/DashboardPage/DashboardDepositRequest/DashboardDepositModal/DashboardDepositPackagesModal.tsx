@@ -23,6 +23,7 @@ import {
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 type Props = {
+  className: string;
   teamMemberProfile: alliance_member_table;
   packages: package_table[];
   earnings: alliance_earnings_table;
@@ -32,6 +33,7 @@ type Props = {
 };
 
 const DashboardDepositModalPackages = ({
+  className,
   packages: initialPackage,
   teamMemberProfile,
   earnings,
@@ -84,7 +86,7 @@ const DashboardDepositModalPackages = ({
         }
       }}
     >
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className={className}>
         <Button variant="outline" onClick={() => setOpen(true)}>
           Packages
         </Button>

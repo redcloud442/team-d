@@ -74,11 +74,9 @@ const LoginPage = () => {
             "components/AdminTopUpApprovalPage/AdminTopUpApprovalColumn.tsx",
         });
       }
-      const errorMessage =
-        e instanceof Error ? e.message : "An unexpected error occurred.";
       toast({
-        title: "Error",
-        description: errorMessage,
+        title: "Check user credentials",
+        description: "Invalid username or password",
         variant: "destructive",
       });
 

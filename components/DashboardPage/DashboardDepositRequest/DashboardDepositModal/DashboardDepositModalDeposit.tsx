@@ -28,12 +28,15 @@ import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, merchant_table } from "@prisma/client";
 import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
+  className: string;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  open: boolean;
 };
 
 const topUpFormSchema = z.object({
@@ -61,9 +64,13 @@ const topUpFormSchema = z.object({
 
 export type TopUpFormValues = z.infer<typeof topUpFormSchema>;
 
-const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
+const DashboardDepositModalDeposit = ({
+  teamMemberProfile,
+  className,
+  setOpen,
+  open,
+}: Props) => {
   const supabaseClient = createClientSide();
-  const [open, setOpen] = useState(false);
   const [topUpOptions, setTopUpOptions] = useState<merchant_table[]>([]);
   const { toast } = useToast();
   const {
@@ -161,7 +168,7 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
         }
       }}
     >
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className={className}>
         <Button variant="outline" onClick={() => setOpen(true)}>
           Deposit
         </Button>

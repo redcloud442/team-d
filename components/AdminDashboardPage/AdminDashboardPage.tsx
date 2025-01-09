@@ -35,7 +35,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import TableLoading from "../ui/tableLoading";
 import AdminDashboardCard from "./AdminDashboardCard";
 import AdminDashboardChart from "./AdminDashboardChart";
-import AdminDashboardTable from "./AdminDashboardTable";
 type Props = {
   teamMemberProfile: alliance_member_table;
   referral: alliance_referral_link_table;
@@ -305,9 +304,9 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
             descriptionClassName="text-sm text-gray-500"
           />
         </div>
-        <div>
+        {/* <div>
           <AdminDashboardTable teamMemberProfile={teamMemberProfile} />
-        </div>
+        </div> */}
       </div>
     </div>
   );
