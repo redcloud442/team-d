@@ -99,11 +99,7 @@ export const WithdrawalHistoryColumn =
       {
         accessorKey: "alliance_withdrawal_request_type",
 
-        header: () => (
-          <Button variant="ghost">
-            Bank Name <ArrowUpDown />
-          </Button>
-        ),
+        header: () => <Button variant="ghost">Bank Name</Button>,
         cell: ({ row }) => (
           <div className="text-center">
             {row.getValue("alliance_withdrawal_request_type")}

@@ -99,11 +99,7 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
     },
     {
       accessorKey: "alliance_top_up_request_name",
-      header: () => (
-        <Button variant="ghost">
-          Bank Name <ArrowUpDown />
-        </Button>
-      ),
+      header: () => <Button variant="ghost">Bank Name</Button>,
       cell: ({ row }) => (
         <div className="text-center">
           {row.getValue("alliance_top_up_request_name")}
