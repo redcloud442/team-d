@@ -154,7 +154,10 @@ const DashboardPage = ({
             }
             description={
               <>
-                <Button size={"sm"} onClick={() => router.push("/direct-loot")}>
+                <Button
+                  size={"sm"}
+                  onClick={() => router.push("/direct-referral")}
+                >
                   Direct Referral
                 </Button>
               </>
@@ -172,7 +175,7 @@ const DashboardPage = ({
               <>
                 <Button
                   size={"sm"}
-                  onClick={() => router.push("/indirect-loot")}
+                  onClick={() => router.push("/indirect-referral")}
                 >
                   Indirect Referral
                 </Button>

@@ -268,10 +268,10 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
                 className="flex-0 md:flex-2 lg:flex-1"
               />
               <Button onClick={handleCopyLink}>Copy Link</Button>
-              <Button onClick={() => router.push("/direct-loot")}>
+              <Button onClick={() => router.push("/direct-referral")}>
                 Direct Referral
               </Button>
-              <Button onClick={() => router.push("/indirect-loot")}>
+              <Button onClick={() => router.push("/indirect-referral")}>
                 Indirect Referral
               </Button>
             </div>

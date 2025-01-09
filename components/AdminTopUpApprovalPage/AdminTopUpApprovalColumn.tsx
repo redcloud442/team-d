@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -243,6 +244,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
               <Button variant="outline">View Attachment</Button>
             </DialogTrigger>
             <DialogContent type="table">
+              <DialogDescription></DialogDescription>
               <DialogHeader>
                 <DialogTitle>Attachment</DialogTitle>
               </DialogHeader>
