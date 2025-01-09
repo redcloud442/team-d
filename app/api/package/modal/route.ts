@@ -21,6 +21,7 @@ export async function GET(request: Request) {
           package_name: true,
           package_percentage: true,
           package_description: true,
+          packages_days: true,
         },
       });
       return data;

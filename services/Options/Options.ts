@@ -60,7 +60,6 @@ export const getMerchantOptions = async () => {
   }
 
   const result = await response.json();
-  console.log(result);
 
   const { data } = result;
 
