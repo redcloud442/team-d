@@ -19,11 +19,11 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              "default-src 'self' https://mromobfjpmxcrgyrjpbn.supabase.co; " +
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com; " +
+              "default-src 'self' https://* " +
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*; " +
               "style-src 'self' 'unsafe-inline'; " +
               "connect-src *; " +
-              "frame-src 'self' https://mromobfjpmxcrgyrjpbn.supabase.co; " +
+              "frame-src 'self' https://*; " +
               "object-src 'none'; " +
               "img-src 'self'; " +
               "media-src 'self'; " +
