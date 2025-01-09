@@ -151,11 +151,15 @@ export async function GET(request: Request) {
       );
 
     const { teamMemberProfile } = await protectionAllUser(ip);
+
     loginRateLimit(ip);
+
     const supabaseClient = createClientSide();
+
     const params = {
       teamMemberId: teamMemberProfile?.alliance_member_id || "",
     };
+
     const { data, error } = await supabaseClient.rpc("get_merchant_option", {
       input_data: params,
     });
