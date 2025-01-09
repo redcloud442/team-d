@@ -44,14 +44,29 @@ export const getMemberWithdrawalRequest = async (
     isAscendingSort: boolean;
   }
 ) => {
-  const { data, error } = await supabaseClient.rpc(
-    "get_member_withdrawal_history",
+  const urlParams = {
+    page: params.page.toString(),
+    limit: params.limit.toString(),
+    search: params.search || "",
+    columnAccessor: params.columnAccessor,
+    isAscendingSort: params.isAscendingSort ? "true" : "false",
+  };
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/withdraw?${new URLSearchParams(urlParams)}`,
     {
-      input_data: params,
+      method: "GET",
     }
   );
 
-  if (error) throw error;
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while fetching the withdrawal history."
+    );
+  }
+
+  const { data } = await response.json();
 
   return data as {
     data: WithdrawalRequestData[];

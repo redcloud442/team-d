@@ -84,9 +84,7 @@ const DashboardDepositModalDeposit = ({ teamMemberProfile }: Props) => {
     const getOptions = async () => {
       try {
         if (!open) return;
-        const options = await getMerchantOptions(supabaseClient, {
-          teamMemberId: teamMemberProfile.alliance_member_id,
-        });
+        const options = await getMerchantOptions();
         setTopUpOptions(options);
       } catch (e) {
         if (e instanceof Error) {

@@ -64,6 +64,9 @@ export const loginValidation = async (
   const formattedUserName = userName + "@gmail.com";
   const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth`, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(params),
   });
 

@@ -105,7 +105,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, redirect });
   } catch (error) {
-    console.error("Error in POST request:", error);
     return sendErrorResponse(
       error instanceof Error ? error.message : "Unknown error.",
       500

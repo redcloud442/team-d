@@ -82,9 +82,7 @@ const DashboardWithdrawModalWithdraw = ({
   const fetchEarnings = async () => {
     try {
       if (!open) return;
-      const earnings = await getEarnings(supabase, {
-        teamMemberId: teamMemberProfile.alliance_member_id,
-      });
+      const earnings = await getEarnings();
       setEarnings(earnings);
     } catch (e) {
       const errorMessage =

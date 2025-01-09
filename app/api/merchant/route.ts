@@ -2,8 +2,10 @@ import { loginRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import {
   protectionAdminUser,
+  protectionAllUser,
   protectionMerchantUser,
 } from "@/utils/serversideProtection";
+import { createClientSide } from "@/utils/supabase/client";
 import { NextResponse } from "next/server";
 
 function sendErrorResponse(message: string, status: number = 400) {
@@ -129,6 +131,41 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error("Error in DELETE request:", error);
+    return sendErrorResponse(
+      error instanceof Error ? error.message : "Unknown error.",
+      500
+    );
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+      request.headers.get("cf-connecting-ip") ||
+      "unknown";
+
+    if (ip === "unknown")
+      return sendErrorResponse(
+        "Unable to determine IP address for rate limiting."
+      );
+
+    const { teamMemberProfile } = await protectionAllUser(ip);
+    loginRateLimit(ip);
+    const supabaseClient = createClientSide();
+    const params = {
+      teamMemberId: teamMemberProfile?.alliance_member_id || "",
+    };
+    const { data, error } = await supabaseClient.rpc("get_merchant_option", {
+      input_data: params,
+    });
+
+    if (error) {
+      throw error;
+    }
+    return NextResponse.json({ success: true, data: data });
+  } catch (error) {
+    console.error("Error in GET request:", error);
     return sendErrorResponse(
       error instanceof Error ? error.message : "Unknown error.",
       500

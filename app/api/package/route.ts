@@ -2,6 +2,7 @@ import { BONUS_TYPE, DIRECTYPE } from "@/utils/constant";
 import { applyRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
+import { createClientServerSide } from "@/utils/supabase/server";
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
@@ -167,6 +168,53 @@ export async function POST(request: Request) {
   }
 }
 
+export async function GET(request: Request) {
+  try {
+    const ip =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("cf-connecting-ip") ||
+      "unknown";
+
+    const { teamMemberProfile } = await protectionMemberUser(ip);
+
+    await applyRateLimit(teamMemberProfile?.alliance_member_id || "", ip);
+
+    const supabaseClient = await createClientServerSide();
+
+    const url = new URL(request.url);
+    const search = url.searchParams.get("search") || "";
+    const page = url.searchParams.get("page") || 1;
+    const limit = url.searchParams.get("limit") || 10;
+    const sortBy = url.searchParams.get("sortBy") || true;
+    const columnAccessor = url.searchParams.get("columnAccessor") || "";
+    const teamMemberId = url.searchParams.get("teamMemberId") || "";
+
+    const { data, error } = await supabaseClient.rpc(
+      "get_member_package_history",
+      {
+        input_data: {
+          search,
+          page,
+          limit,
+          sortBy,
+          columnAccessor,
+          teamMemberId,
+        },
+      }
+    );
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, data: data });
+  } catch (error) {
+    console.error("Error in GET request:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unknown error." },
+      { status: 500 }
+    );
+  }
+}
+
 function generateReferralChain(hierarchy: string | null, teamMemberId: string) {
   if (!hierarchy) return [];
 
@@ -191,16 +239,15 @@ function generateReferralChain(hierarchy: string | null, teamMemberId: string) {
 function getBonusPercentage(level: number): number {
   const bonusMap: Record<number, number> = {
     1: 10,
-    2: 5,
-    3: 5,
-    4: 3,
-    5: 3,
-    6: 2,
-    7: 2,
-    8: 2,
+    2: 3,
+    3: 2,
+    4: 1,
+    5: 1,
+    6: 1,
+    7: 1,
+    8: 1,
     9: 1,
     10: 1,
-    11: 1,
   };
 
   return bonusMap[level] || 0;

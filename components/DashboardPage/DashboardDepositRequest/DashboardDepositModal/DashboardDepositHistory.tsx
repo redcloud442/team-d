@@ -23,7 +23,7 @@ const DashboardDepositModalHistory = ({ teamMemberProfile }: Props) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" onClick={() => setOpen(true)}>
-          Top Up History
+          History
         </Button>
       </DialogTrigger>
       <DialogContent type="table" className="overflow-x-auto">

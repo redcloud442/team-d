@@ -2,6 +2,7 @@ import { WITHDRAWAL_STATUS } from "@/utils/constant";
 import { applyRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
+import { createClientServerSide } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -96,5 +97,53 @@ export async function POST(request: Request) {
     const message =
       error instanceof Error ? error.message : "An unexpected error occurred.";
     return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const ip =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("cf-connecting-ip") ||
+      "unknown";
+
+    const { teamMemberProfile } = await protectionMemberUser();
+
+    await applyRateLimit(teamMemberProfile?.alliance_member_id || "", ip);
+
+    const supabaseClient = await createClientServerSide();
+
+    const url = new URL(request.url);
+    const page = url.searchParams.get("page") || "1";
+    const limit = url.searchParams.get("limit") || "10";
+    const search = url.searchParams.get("search") || "";
+    const columnAccessor = url.searchParams.get("columnAccessor") || "";
+    const isAscendingSort = url.searchParams.get("isAscendingSort") || "false";
+
+    const params = {
+      teamMemberId: teamMemberProfile?.alliance_member_id || "",
+      page: parseInt(page),
+      limit: parseInt(limit),
+      search,
+      columnAccessor,
+      isAscendingSort: isAscendingSort === "true",
+      teamId: teamMemberProfile?.alliance_member_alliance_id || "",
+    };
+
+    const { data, error } = await supabaseClient.rpc(
+      "get_member_withdrawal_history",
+      {
+        input_data: params,
+      }
+    );
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, data: data });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

@@ -53,9 +53,7 @@ const DashboardDepositModalPackages = ({
     const packagesData = async () => {
       try {
         if (!open) return;
-        const data = await getPackageModalData(supabaseClient, {
-          teamMemberId: teamMemberProfile.alliance_member_id,
-        });
+        const data = await getPackageModalData();
 
         setPackages(data);
         if (!teamMemberProfile.alliance_member_is_active) {
