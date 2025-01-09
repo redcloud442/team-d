@@ -5,7 +5,6 @@ import {
   protectionAllUser,
   protectionMerchantUser,
 } from "@/utils/serversideProtection";
-import { createClientSide } from "@/utils/supabase/client";
 import { NextResponse } from "next/server";
 
 function sendErrorResponse(message: string, status: number = 400) {
@@ -48,7 +47,6 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error in PATCH request:", error);
     return sendErrorResponse(
       error instanceof Error ? error.message : "Unknown error.",
       500
@@ -91,7 +89,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error in POST request:", error);
     return sendErrorResponse(
       error instanceof Error ? error.message : "Unknown error.",
       500
@@ -130,7 +127,6 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error in DELETE request:", error);
     return sendErrorResponse(
       error instanceof Error ? error.message : "Unknown error.",
       500
@@ -150,26 +146,25 @@ export async function GET(request: Request) {
         "Unable to determine IP address for rate limiting."
       );
 
-    const { teamMemberProfile } = await protectionAllUser(ip);
+    await protectionAllUser(ip);
 
     loginRateLimit(ip);
 
-    const supabaseClient = createClientSide();
+    const merchant = await prisma.$transaction(async (tx) => {
+      const merchant = await tx.merchant_table.findMany({
+        select: {
+          merchant_id: true,
+          merchant_account_number: true,
+          merchant_account_type: true,
+          merchant_account_name: true,
+        },
+      });
 
-    const params = {
-      teamMemberId: teamMemberProfile?.alliance_member_id || "",
-    };
-
-    const { data, error } = await supabaseClient.rpc("get_merchant_option", {
-      input_data: params,
+      return merchant;
     });
 
-    if (error) {
-      throw error;
-    }
-    return NextResponse.json({ success: true, data: data });
+    return NextResponse.json({ success: true, data: merchant });
   } catch (error) {
-    console.error("Error in GET request:", error);
     return sendErrorResponse(
       error instanceof Error ? error.message : "Unknown error.",
       500

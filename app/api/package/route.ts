@@ -160,7 +160,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, transaction });
   } catch (error) {
-    console.error("Error processing request:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error." },
       { status: 500 }
@@ -207,7 +206,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ success: true, data: data });
   } catch (error) {
-    console.error("Error in GET request:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error." },
       { status: 500 }

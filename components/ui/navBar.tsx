@@ -43,7 +43,7 @@ const NavBar = () => {
           className="text-xl font-bold cursor-pointer"
           onClick={() => handleNavigation("/")}
         >
-          Logo Here
+          PR1MEPH
         </Button>
 
         {/* Navigation Links */}

@@ -1,6 +1,6 @@
 import { applyRateLimit } from "@/utils/function";
+import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
-import { createClientServerSide } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -14,15 +14,19 @@ export async function GET(request: Request) {
 
     await applyRateLimit(teamMemberProfile?.alliance_member_id || "", ip);
 
-    const supabaseClient = await createClientServerSide();
-
-    const { data, error } = await supabaseClient.rpc("get_package_modal_data", {
-      input_data: { teamMemberId: teamMemberProfile?.alliance_member_id || "" },
+    const result = await prisma.$transaction(async (tx) => {
+      const data = await tx.package_table.findMany({
+        select: {
+          package_id: true,
+          package_name: true,
+          package_percentage: true,
+          package_description: true,
+        },
+      });
+      return data;
     });
 
-    if (error) throw error;
-
-    return NextResponse.json({ success: true, data: data });
+    return NextResponse.json({ success: true, data: result });
   } catch (error) {
     return NextResponse.json(
       { error: "internal server error" },

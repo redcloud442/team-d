@@ -114,7 +114,6 @@ export async function PUT(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error in PUT request:", error);
     return NextResponse.json(
       {
         error:

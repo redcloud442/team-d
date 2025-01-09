@@ -72,7 +72,6 @@ export async function PUT(
 
     return successResponse({ data: updatedPackage });
   } catch (error) {
-    console.error("Error in PUT request:", error);
     return errorResponse(
       error instanceof Error ? error.message : "Unexpected error occurred.",
       500
