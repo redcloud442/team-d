@@ -64,9 +64,9 @@ const NavBar = () => {
             <>
               <Button
                 variant="ghost"
-                onClick={() => handleNavigation("/top-up")}
+                onClick={() => handleNavigation("/deposit")}
               >
-                Top Up
+                Deposit
               </Button>
               <Button
                 variant="ghost"

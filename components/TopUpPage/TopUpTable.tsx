@@ -7,6 +7,7 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { TopUpRequestData } from "@/utils/types";
 import { alliance_member_table, user_table } from "@prisma/client";
+import { DialogDescription } from "@radix-ui/react-dialog";
 import {
   ColumnFiltersState,
   getCoreRowModel,
@@ -264,9 +265,14 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
               open={isOpenModal.open}
               onOpenChange={(open) => setIsOpenModal({ ...isOpenModal, open })}
             >
+              <DialogDescription></DialogDescription>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{isOpenModal.status} Request</DialogTitle>
+                  <DialogTitle>
+                    {isOpenModal.status.charAt(0).toUpperCase() +
+                      isOpenModal.status.slice(1).toLocaleLowerCase()}{" "}
+                    This Request
+                  </DialogTitle>
                 </DialogHeader>
                 {isOpenModal.status === "REJECTED" && (
                   <Controller
@@ -303,11 +309,15 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
                     }
                   >
                     {isLoading ? (
-                      <Loader2 className="animate-spin" />
+                      <>
+                        {isOpenModal.status.charAt(0).toUpperCase() +
+                          isOpenModal.status.slice(1).toLocaleLowerCase()}{" "}
+                        <Loader2 className="animate-spin" />
+                      </>
                     ) : isOpenModal.status === "REJECTED" ? (
-                      "Confirm Rejection"
+                      "Confirm Reject"
                     ) : (
-                      "Confirm Approval"
+                      "Confirm Approve"
                     )}
                   </Button>
                 </div>
@@ -317,7 +327,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
           <div className="flex flex-wrap gap-2 items-center w-full">
             <Input
               {...register("referenceId")}
-              placeholder="Filter reference id..."
+              placeholder="Filter requestor username..."
               className="max-w-sm p-2 border rounded"
             />
             <Button

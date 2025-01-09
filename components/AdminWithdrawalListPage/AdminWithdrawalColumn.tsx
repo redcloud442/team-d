@@ -266,7 +266,7 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
             {data.alliance_withdrawal_request_status === "PENDING" && (
               <div className="flex gap-2">
                 <Button
-                  className="bg-green-500 hover:bg-green-600 dark:bg-green-500 dark:text-white text-white"
+                  className="bg-green-500 hover:bg-green-600 dark:bg-green-500 dark:text-white "
                   onClick={() =>
                     setIsOpenModal({
                       open: true,

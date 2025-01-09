@@ -310,7 +310,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
           <div className="flex flex-wrap gap-2 items-center w-full">
             <Input
               {...register("referenceId")}
-              placeholder="Filter reference id..."
+              placeholder="Filter requestor username..."
               className="max-w-sm p-2 border rounded"
             />
             <Button

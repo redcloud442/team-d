@@ -18,6 +18,7 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { TopUpRequestData } from "@/utils/types";
 import { alliance_member_table, user_table } from "@prisma/client";
+import { DialogDescription } from "@radix-ui/react-dialog";
 import {
   ColumnFiltersState,
   flexRender,
@@ -291,9 +292,14 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
               open={isOpenModal.open}
               onOpenChange={(open) => setIsOpenModal({ ...isOpenModal, open })}
             >
+              <DialogDescription></DialogDescription>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{isOpenModal.status} Request</DialogTitle>
+                  <DialogTitle>
+                    {isOpenModal.status.charAt(0).toUpperCase() +
+                      isOpenModal.status.slice(1).toLocaleLowerCase()}{" "}
+                    This Request
+                  </DialogTitle>
                 </DialogHeader>
                 {isOpenModal.status === "REJECTED" && (
                   <Controller
@@ -330,11 +336,15 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
                     }
                   >
                     {isLoading ? (
-                      <Loader2 className="animate-spin" />
+                      <>
+                        {isOpenModal.status.charAt(0).toUpperCase() +
+                          isOpenModal.status.slice(1).toLocaleLowerCase()}{" "}
+                        <Loader2 className="animate-spin" />
+                      </>
                     ) : isOpenModal.status === "REJECTED" ? (
-                      "Confirm Rejection"
+                      "Confirm Reject"
                     ) : (
-                      "Confirm Approval"
+                      "Confirm Approve"
                     )}
                   </Button>
                 </div>

@@ -256,7 +256,11 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
             >
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{isOpenModal.status} Request</DialogTitle>
+                  <DialogTitle>
+                    {isOpenModal.status.charAt(0).toUpperCase() +
+                      isOpenModal.status.slice(1).toLocaleLowerCase()}{" "}
+                    This Request
+                  </DialogTitle>
                 </DialogHeader>
                 {isOpenModal.status === "REJECTED" && (
                   <Controller
@@ -293,11 +297,15 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
                     }
                   >
                     {isLoading ? (
-                      <Loader2 className="animate-spin" />
+                      <>
+                        {isOpenModal.status.charAt(0).toUpperCase() +
+                          isOpenModal.status.slice(1).toLocaleLowerCase()}{" "}
+                        <Loader2 className="animate-spin" />
+                      </>
                     ) : isOpenModal.status === "REJECTED" ? (
-                      "Confirm Rejection"
+                      "Confirm Reject"
                     ) : (
-                      "Confirm Approval"
+                      "Confirm Approve"
                     )}
                   </Button>
                 </div>

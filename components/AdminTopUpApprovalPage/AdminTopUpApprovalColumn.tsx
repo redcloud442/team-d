@@ -312,7 +312,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
             {data.alliance_top_up_request_status === "PENDING" && (
               <div className="flex gap-2">
                 <Button
-                  className="bg-green-500 hover:bg-green-600 dark:bg-green-500 text-white"
+                  className="bg-green-500 hover:bg-green-600 dark:bg-green-500 dark:text-white"
                   onClick={() =>
                     setIsOpenModal({
                       open: true,

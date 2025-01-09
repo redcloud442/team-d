@@ -167,6 +167,10 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
     }
   };
 
+  if (isFetchingList) {
+    return <TableLoading />;
+  }
+
   return (
     <Card className="w-full rounded-sm p-4">
       <div className="flex flex-wrap items-start py-4">
