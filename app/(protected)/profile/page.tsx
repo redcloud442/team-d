@@ -1,4 +1,5 @@
 import UserProfilePage from "@/components/UserProfilePage/UserProfilePage";
+import { getUserSponsor } from "@/services/User/User";
 import prisma from "@/utils/prisma";
 import { protectionAllUser } from "@/utils/serversideProtection";
 import { UserRequestdata } from "@/utils/types";
@@ -13,7 +14,11 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const { profile, redirect: redirectTo } = await protectionAllUser();
+  const {
+    profile,
+    redirect: redirectTo,
+    teamMemberProfile,
+  } = await protectionAllUser();
 
   if (redirectTo) {
     redirect(redirectTo);
@@ -30,6 +35,9 @@ const Page = async () => {
       },
     }),
   ]);
+  const userSponsor = await getUserSponsor({
+    teamMemberId: teamMemberProfile?.alliance_member_id || "",
+  });
 
   const combinedData = {
     ...userData,

@@ -23,9 +23,9 @@ import { AspectRatio } from "../ui/aspect-ratio";
 import TableLoading from "../ui/tableLoading";
 import { Textarea } from "../ui/textarea";
 const statusColorMap: Record<string, string> = {
-  APPROVED: "bg-green-500 dark:bg-green-600",
-  PENDING: "bg-yellow-600 dark:bg-yellow-700",
-  REJECTED: "bg-red-600 dark:bg-red-700",
+  APPROVED: "bg-green-500 dark:bg-green-600 dark:text-white",
+  PENDING: "bg-yellow-600 dark:bg-yellow-700 dark:text-white",
+  REJECTED: "bg-red-600 dark:bg-red-700 dark:text-white",
 };
 
 export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
@@ -124,7 +124,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
       ),
       cell: ({ row }) => (
         <div
-          onClick={() => router.push(`/admin/users/${row.getValue("user_id")}`)}
+          onClick={() => router.push(`/admin/users/${row.original.user_id}`)}
           className="text-wrap cursor-pointer hover:underline text-blue-500"
         >
           {row.getValue("user_username")}

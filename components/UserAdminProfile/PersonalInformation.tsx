@@ -14,8 +14,15 @@ import TableLoading from "../ui/tableLoading";
 type Props = {
   userProfile: UserRequestdata;
   type?: "ADMIN" | "MEMBER";
+  userSponsor?: {
+    user_username: string;
+  } | null;
 };
-const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
+const PersonalInformation = ({
+  userProfile,
+  type = "ADMIN",
+  userSponsor,
+}: Props) => {
   const supabaseClient = createClientSide();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +55,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
       <CardHeader className=" border-b pb-4">
         <div className="flex flex-wrap justify-between">
           <CardTitle className="text-lg font-semibold ">
-            Personal Information
+            Personal Information ({userSponsor?.user_username})
           </CardTitle>
           {type === "ADMIN" && (
             <Button

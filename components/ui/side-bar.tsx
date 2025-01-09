@@ -26,6 +26,7 @@ import {
   HistoryIcon,
   Home,
   Inbox,
+  MonitorCheck,
   Package,
   PiggyBankIcon,
   Settings,
@@ -112,8 +113,13 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
     { title: "Leaderboards", url: "/admin/leaderboards", icon: Trophy },
     { title: "Packages", url: "/admin/packages", icon: Package },
     { title: "Manage Users", url: "/admin/users", icon: User2 },
-    { title: "Top Up History", url: "/admin/top-up", icon: HistoryIcon },
+    { title: "Deposit History", url: "/admin/deposit", icon: HistoryIcon },
     { title: "Withdrawal History", url: "/admin/withdrawal", icon: BeakerIcon },
+    {
+      title: "User Monitoring",
+      url: "/admin/monitoring",
+      icon: MonitorCheck,
+    },
   ];
 
   useEffect(() => {

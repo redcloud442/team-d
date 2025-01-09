@@ -6,9 +6,12 @@ import PersonalInformation from "../UserAdminProfile/PersonalInformation";
 
 type Props = {
   userProfile: UserRequestdata;
+  userSponsor?: {
+    user_username: string;
+  } | null;
 };
 
-const UserProfilePage = ({ userProfile }: Props) => {
+const UserProfilePage = ({ userProfile, userSponsor }: Props) => {
   return (
     <div className="mx-auto py-8">
       <div className="w-full flex flex-col gap-6">
@@ -16,11 +19,15 @@ const UserProfilePage = ({ userProfile }: Props) => {
         <header>
           <h1 className="Title">User Profile</h1>
           <p className="text-gray-600 dark:text-white">
-            View all the withdrawal history that are currently in the system.
+            View your personal information and change your password.
           </p>
         </header>
 
-        <PersonalInformation type="MEMBER" userProfile={userProfile} />
+        <PersonalInformation
+          type="MEMBER"
+          userProfile={userProfile}
+          userSponsor={userSponsor}
+        />
 
         <ChangePassword userProfile={userProfile} />
       </div>

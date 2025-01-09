@@ -211,7 +211,7 @@ const DashboardWithdrawModalWithdraw = ({
       <DialogContent className="w-full sm:max-w-[400px]">
         <ScrollArea className="w-full sm:max-w-[400px] max-h-[620px] ">
           <DialogHeader>
-            <DialogTitle>Withdraw Fee Notice</DialogTitle>
+            <DialogTitle>Withdraw Request</DialogTitle>
             <DialogDescription>
               Withdraw your earnings to your account
             </DialogDescription>
@@ -222,8 +222,8 @@ const DashboardWithdrawModalWithdraw = ({
               <AlertTitle>Withdrawal Fee Notice</AlertTitle>
               <AlertDescription>
                 {selectedEarnings === "TOTAL"
-                  ? "10% withdrawal fee will be deducted from your withdrawal amount"
-                  : "3% withdrawal fee will be deducted from your withdrawal amount"}
+                  ? "3% withdrawal fee will be deducted from your withdrawal amount"
+                  : "10% withdrawal fee will be deducted from your withdrawal amount"}
               </AlertDescription>
             </Alert>
           )}
@@ -426,7 +426,7 @@ const DashboardWithdrawModalWithdraw = ({
                   {/* Fee Display */}
                   <div className="flex items-center justify-between w-full">
                     <p className="text-md darktext-gray-200">
-                      {selectedEarnings === "TOTAL" ? "10%" : "3%"} Fee:
+                      {selectedEarnings === "TOTAL" ? "3%" : "10%"} Fee:
                     </p>
                     <p className="text-md  dark:text-gray-300">
                       {"₱ "}

@@ -1,22 +1,17 @@
-import { Package, PhilippinePeso } from "lucide-react";
+import { AdminDashboardDataByDate } from "@/utils/types";
+import {
+  CreditCard,
+  Package,
+  PhilippinePeso,
+  UserCheck2Icon,
+} from "lucide-react";
 import CardAmountAdmin from "../ui/CardAmountAdmin";
 
 type Props = {
-  totalEarnings: number;
-  totalWithdraw: number;
-  directLoot: number;
-  indirectLoot: number;
-  activePackageWithinTheDay: number;
-  numberOfRegisteredUser: number;
+  adminDashboardDataByDate: AdminDashboardDataByDate;
 };
 
-const AdminDashboardCard = ({
-  totalEarnings,
-  totalWithdraw,
-  directLoot,
-  indirectLoot,
-  activePackageWithinTheDay,
-}: Props) => {
+const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
       <CardAmountAdmin
@@ -24,67 +19,97 @@ const AdminDashboardCard = ({
         value={
           <>
             <PhilippinePeso />{" "}
-            {Number(totalEarnings).toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            {Number(adminDashboardDataByDate?.totalEarnings).toLocaleString(
+              "en-US",
+              {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }
+            )}
           </>
         }
         description=""
         descriptionClassName="text-sm text-green-600"
       />
-
       <CardAmountAdmin
         title="Total Withdraw"
         value={
           <>
             <PhilippinePeso />{" "}
-            {Number(totalWithdraw).toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            {Number(adminDashboardDataByDate?.totalWithdraw).toLocaleString(
+              "en-US",
+              {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }
+            )}
           </>
         }
         description=""
         descriptionClassName="text-sm text-gray-500"
       />
-
       <CardAmountAdmin
         title="Direct Referral"
         value={
           <>
             <PhilippinePeso />{" "}
-            {Number(directLoot).toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            {Number(adminDashboardDataByDate?.directLoot).toLocaleString(
+              "en-US",
+              {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }
+            )}
           </>
         }
         description=""
         descriptionClassName="text-sm text-gray-500"
       />
-
       <CardAmountAdmin
         title="Indirect Referral"
         value={
           <>
             <PhilippinePeso />{" "}
-            {Number(indirectLoot).toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            {Number(adminDashboardDataByDate?.indirectLoot).toLocaleString(
+              "en-US",
+              {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }
+            )}
           </>
         }
         description=""
         descriptionClassName="text-sm text-gray-500"
       />
-
       <CardAmountAdmin
         title="Active Package"
         value={
           <>
             <Package />
-            {activePackageWithinTheDay as unknown as number}
+            {adminDashboardDataByDate?.activePackageWithinTheDay}
+          </>
+        }
+        description=""
+        descriptionClassName="text-sm text-gray-500"
+      />
+      <CardAmountAdmin
+        title="Active Users"
+        value={
+          <>
+            <UserCheck2Icon />
+            {adminDashboardDataByDate?.activePackageWithinTheDay}
+          </>
+        }
+        description=""
+        descriptionClassName="text-sm text-gray-500"
+      />{" "}
+      <CardAmountAdmin
+        title="Approved Withdrawal"
+        value={
+          <>
+            <CreditCard />
+            {adminDashboardDataByDate?.totalApprovedWithdrawal}
           </>
         }
         description=""

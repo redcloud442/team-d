@@ -14,29 +14,29 @@ export const leaderBoardColumn = (
       id: "Rank",
       header: () => <Button variant="ghost">Rank</Button>,
       cell: ({ row }) => {
-        const rank = row.index + 1 + pageIndex * pageSize;
+        const rank = row.index + 1 + (pageIndex - 1) * pageSize;
 
         switch (rank) {
           case 1:
             return (
-              <Badge className="bg-green-500 dark:bg-green-600 text-white">
+              <Badge className="bg-green-500 dark:bg-green-600 text-white dark:text-white">
                 Top 1
               </Badge>
             );
           case 2:
             return (
-              <Badge className="bg-green-500 dark:bg-green-600 text-white">
+              <Badge className="bg-green-500 dark:bg-green-600 text-white dark:text-white">
                 Top 2
               </Badge>
             );
           case 3:
             return (
-              <Badge className="bg-green-500 dark:bg-green-600 text-white">
+              <Badge className="bg-green-500 dark:bg-green-600 text-white dark:text-white">
                 Top 3
               </Badge>
             );
           default:
-            return <Badge className="bg-gray-500">Top {rank}</Badge>;
+            return <Badge className="bg-gray-500">Rank {rank}</Badge>;
         }
       },
     },
