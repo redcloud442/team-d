@@ -21,7 +21,6 @@ import {
   BanknoteIcon,
   BeakerIcon,
   Calendar,
-  ChevronDown,
   ChevronUp,
   Group,
   HistoryIcon,
@@ -173,10 +172,7 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton>
-                ALLIANCE 1
-                <ChevronDown className="ml-auto" />
-              </SidebarMenuButton>
+              <SidebarMenuButton>PR1MEPH</SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
