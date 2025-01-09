@@ -2,7 +2,10 @@ import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "../ui/badge";
 
-export const leaderBoardColumn = (): ColumnDef<{
+export const leaderBoardColumn = (
+  pageIndex: number,
+  pageSize: number
+): ColumnDef<{
   username: string;
   totalAmount: number;
 }>[] => {
@@ -11,7 +14,7 @@ export const leaderBoardColumn = (): ColumnDef<{
       id: "Rank",
       header: () => <Button variant="ghost">Rank</Button>,
       cell: ({ row }) => {
-        const rank = row.index + 1;
+        const rank = row.index + 1 + pageIndex * pageSize;
 
         switch (rank) {
           case 1:
@@ -56,7 +59,7 @@ export const leaderBoardColumn = (): ColumnDef<{
           style: "currency",
           currency: "PHP",
         }).format(amount);
-        return <div className="font-medium">{formatted}</div>;
+        return <div>{formatted}</div>;
       },
     },
   ];
