@@ -17,6 +17,7 @@ import { TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Copy } from "lucide-react";
 import { useCallback, useState } from "react";
+import { AspectRatio } from "../ui/aspect-ratio";
 import TableLoading from "../ui/tableLoading";
 import { Textarea } from "../ui/textarea";
 const statusColorMap: Record<string, string> = {
@@ -245,12 +246,14 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
               <DialogHeader>
                 <DialogTitle>Attachment</DialogTitle>
               </DialogHeader>
-              <div className="flex justify-center items-center">
-                <iframe
-                  src={attachmentUrl || ""}
-                  className="w-full h-96"
-                  title="Attachment Preview"
-                />
+              <div className="flex justify-center items-center border-2">
+                <AspectRatio ratio={16 / 9} className="w-full">
+                  <img
+                    src={attachmentUrl || ""}
+                    alt="Attachment Preview"
+                    className="object-contain w-full h-full"
+                  />
+                </AspectRatio>
               </div>
               <DialogClose asChild>
                 <Button variant="secondary">Close</Button>
