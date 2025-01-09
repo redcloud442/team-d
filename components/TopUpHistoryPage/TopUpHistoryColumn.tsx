@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { formatDateToYYYYMMDD } from "@/utils/function";
 import { TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Copy } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { Badge } from "../ui/badge";
 import {
   Dialog,
@@ -22,46 +22,46 @@ const statusColorMap: Record<string, string> = {
 
 export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
   return [
-    {
-      accessorKey: "alliance_top_up_request_id",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Reference ID <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => {
-        const requestId = row.getValue("alliance_top_up_request_id") as string;
+    // {
+    //   accessorKey: "alliance_top_up_request_id",
+    //   header: ({ column }) => (
+    //     <Button
+    //       variant="ghost"
+    //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //     >
+    //       Reference ID <ArrowUpDown />
+    //     </Button>
+    //   ),
+    //   cell: ({ row }) => {
+    //     const requestId = row.getValue("alliance_top_up_request_id") as string;
 
-        const maxLength = 15;
+    //     const maxLength = 15;
 
-        const handleCopy = async () => {
-          if (requestId) {
-            await navigator.clipboard.writeText(requestId);
-          }
-        };
+    //     const handleCopy = async () => {
+    //       if (requestId) {
+    //         await navigator.clipboard.writeText(requestId);
+    //       }
+    //     };
 
-        return (
-          <div className="flex items-center space-x-2">
-            <div
-              className="truncate"
-              title={requestId.length > maxLength ? requestId : undefined}
-            >
-              {requestId.length > maxLength
-                ? `${requestId.slice(0, maxLength)}...`
-                : requestId}
-            </div>
-            {requestId && (
-              <Button variant="ghost" size="sm" onClick={handleCopy}>
-                <Copy />
-              </Button>
-            )}
-          </div>
-        );
-      },
-    },
+    //     return (
+    //       <div className="flex items-center space-x-2">
+    //         <div
+    //           className="truncate"
+    //           title={requestId.length > maxLength ? requestId : undefined}
+    //         >
+    //           {requestId.length > maxLength
+    //             ? `${requestId.slice(0, maxLength)}...`
+    //             : requestId}
+    //         </div>
+    //         {requestId && (
+    //           <Button variant="ghost" size="sm" onClick={handleCopy}>
+    //             <Copy />
+    //           </Button>
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       accessorKey: "alliance_top_up_request_status",
       header: ({ column }) => (
