@@ -1,7 +1,7 @@
-import { ChartData } from "@/utils/types";
+import { AdminDashboardData, AdminDashboardDataByDate } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
-export const getAdminDashboard = async (
+export const getAdminDashboardByDate = async (
   supabaseClient: SupabaseClient,
   params: {
     dateFilter?: {
@@ -11,22 +11,31 @@ export const getAdminDashboard = async (
     teamMemberId: string;
   }
 ) => {
+  const { data, error } = await supabaseClient.rpc(
+    "get_admin_dashboard_data_by_date",
+    {
+      input_data: params,
+    }
+  );
+
+  if (error) throw error;
+
+  return data as AdminDashboardDataByDate;
+};
+
+export const getAdminDashboard = async (
+  supabaseClient: SupabaseClient,
+  params: {
+    teamMemberId: string;
+  }
+) => {
   const { data, error } = await supabaseClient.rpc("get_admin_dashboard_data", {
     input_data: params,
   });
 
   if (error) throw error;
 
-  return data as {
-    totalEarnings: 0;
-    totalWithdraw: 0;
-    directLoot: 0;
-    indirectLoot: 0;
-    activePackageWithinTheDay: 0;
-    numberOfRegisteredUser: 0;
-    totalActivatedPackage: 0;
-    chartData: ChartData[];
-  };
+  return data as AdminDashboardData;
 };
 
 export const getLeaderBoardData = async (

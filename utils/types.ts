@@ -18,6 +18,7 @@ export type TopUpRequestData = alliance_top_up_request_table & {
   user_first_name: string;
   user_last_name: string;
   user_email: string;
+  user_id: string;
   approver_username: string;
   alliance_member_id: string;
 };
@@ -34,6 +35,7 @@ export type PackageHistoryData = {
 export type WithdrawalRequestData = alliance_withdrawal_request_table & {
   user_first_name: string;
   user_last_name: string;
+  user_id: string;
   user_email: string;
   alliance_member_id: string;
   approver_username?: string;
@@ -66,4 +68,20 @@ export type DashboardEarnings = {
   indirectReferralAmount: number;
   totalEarnings: number;
   withdrawalAmount: number;
+};
+
+export type AdminDashboardDataByDate = {
+  activePackageWithinTheDay: number;
+  totalEarnings: number;
+  totalWithdraw: number;
+  directLoot: number;
+  indirectLoot: number;
+  totalApprovedWithdrawal: number;
+  chartData: ChartData[];
+};
+
+export type AdminDashboardData = {
+  numberOfRegisteredUser: number;
+  totalActivatedPackage: number;
+  totalActivatedUser: number;
 };
