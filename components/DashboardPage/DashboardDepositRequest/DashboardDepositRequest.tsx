@@ -37,7 +37,7 @@ const DashboardDepositRequest = ({
     <Card className="w-full mx-auto">
       <CardHeader>
         <CardTitle>Deposit Request</CardTitle>
-        <CardDescription>Completion status for packages</CardDescription>
+        <CardDescription>Inveest in your future with us </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex justify-between gap-4">

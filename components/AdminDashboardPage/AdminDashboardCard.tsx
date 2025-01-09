@@ -24,7 +24,10 @@ const AdminDashboardCard = ({
         value={
           <>
             <PhilippinePeso />{" "}
-            {Number(totalEarnings).toLocaleString() as unknown as number}
+            {Number(totalEarnings).toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </>
         }
         description=""
@@ -36,7 +39,10 @@ const AdminDashboardCard = ({
         value={
           <>
             <PhilippinePeso />{" "}
-            {Number(totalWithdraw).toLocaleString() as unknown as number}
+            {Number(totalWithdraw).toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </>
         }
         description=""
@@ -48,7 +54,10 @@ const AdminDashboardCard = ({
         value={
           <>
             <PhilippinePeso />{" "}
-            {Number(directLoot).toLocaleString() as unknown as number}
+            {Number(directLoot).toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </>
         }
         description=""
@@ -60,7 +69,10 @@ const AdminDashboardCard = ({
         value={
           <>
             <PhilippinePeso />{" "}
-            {Number(indirectLoot).toLocaleString() as unknown as number}
+            {Number(indirectLoot).toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </>
         }
         description=""

@@ -65,7 +65,14 @@ export const AllyBountyColumn = (): ColumnDef<
       ),
       cell: ({ row }) => (
         <div className="text-wrap">
-          ₱ {Number(row.getValue("total_bounty_earnings")).toLocaleString()}
+          ₱{" "}
+          {Number(row.getValue("total_bounty_earnings")).toLocaleString(
+            "en-US",
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }
+          )}
         </div>
       ),
     },

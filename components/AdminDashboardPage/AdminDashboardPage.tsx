@@ -256,7 +256,10 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
             <CardTitle> Total Referral</CardTitle>
             <CardDescription className="flex gap-x-2 text-xl font-bold">
               <PhilippinePeso />
-              {totalReferral.toLocaleString()}
+              {totalReferral.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </CardDescription>
           </CardHeader>
           <CardContent>

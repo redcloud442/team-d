@@ -46,7 +46,7 @@ const withdrawalFormSchema = z.object({
   earnings: z.string(),
   amount: z
     .string()
-    .min(3, "Amount is required atleast 200 pesos")
+    .min(3, "Minimum amount is required atleast 200 pesos")
     .refine((amount) => parseInt(amount, 10) >= 200, {
       message: "Amount must be at least 200 pesos",
     }),
@@ -252,15 +252,33 @@ const DashboardWithdrawModalWithdraw = ({
                     <SelectContent>
                       <SelectItem value="TOTAL">
                         TOTAL EARNINGS (₱
-                        {earnings.alliance_olympus_earnings.toLocaleString()})
+                        {earnings.alliance_olympus_earnings.toLocaleString(
+                          "en-US",
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }
+                        )}
+                        )
                       </SelectItem>
                       <SelectItem value="DIRECT REFERRAL">
                         DIRECT REFERRAL (₱
-                        {earnings.alliance_ally_bounty.toLocaleString()})
+                        {earnings.alliance_ally_bounty.toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                        )
                       </SelectItem>
                       <SelectItem value="INDIRECT REFERRAL">
                         INDIRECT REFERRAL (₱
-                        {earnings.alliance_legion_bounty.toLocaleString()})
+                        {earnings.alliance_legion_bounty.toLocaleString(
+                          "en-US",
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }
+                        )}
+                        )
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -407,23 +425,29 @@ const DashboardWithdrawModalWithdraw = ({
                 <div className="flex flex-col gap-2 items-end justify-end w-full">
                   {/* Fee Display */}
                   <div className="flex items-center justify-between w-full">
-                    <p className="text-md text-gray-200">
+                    <p className="text-md darktext-gray-200">
                       {selectedEarnings === "TOTAL" ? "10%" : "3%"} Fee:
                     </p>
-                    <p className="text-md  text-gray-300">
+                    <p className="text-md  dark:text-gray-300">
                       {"₱ "}
                       {calculateFee(
                         Number(amount || 0),
                         selectedEarnings
-                      ).toLocaleString()}
+                      ).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </p>
                   </div>
 
                   <div className="flex items-center justify-between w-full">
-                    <p className="text-md  text-gray-200">Amount</p>
-                    <p className="text-md  text-gray-300">
+                    <p className="text-md  dark:text-gray-200">Amount</p>
+                    <p className="text-md  dark:text-gray-300">
                       {"₱ "}
-                      {amount.toLocaleString()}
+                      {Number(amount || 0).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </p>
                   </div>
 
@@ -433,12 +457,15 @@ const DashboardWithdrawModalWithdraw = ({
                   {/* Final Amount Display */}
                   <div className="flex items-center justify-between w-full">
                     <p className="text-md font-bold">Amount to be Received</p>
-                    <p className="text-md font-bold text-gray-300">
+                    <p className="text-md font-bold dark:text-gray-300">
                       {"₱ "}
                       {calculateFinalAmount(
                         Number(amount || 0),
                         selectedEarnings
-                      ).toLocaleString()}
+                      ).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </p>
                   </div>
                 </div>

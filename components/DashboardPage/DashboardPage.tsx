@@ -112,7 +112,11 @@ const DashboardPage = ({
           <div className="ml-auto text-right">
             <p className="font-medium">Wallet</p>
             <p className="text-lg font-semibold text-green-600">
-              ₱ {earnings.alliance_olympus_wallet.toLocaleString()}
+              ₱{" "}
+              {earnings.alliance_olympus_wallet.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </p>
           </div>
         </Card>
@@ -122,9 +126,10 @@ const DashboardPage = ({
           <CardAmount
             title="Total Earnings"
             value={
-              Number(
-                totalEarnings.totalEarnings
-              ).toLocaleString() as unknown as number
+              Number(totalEarnings.totalEarnings).toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }) as unknown as number
             }
             description={
               <>
@@ -148,9 +153,13 @@ const DashboardPage = ({
           <CardAmount
             title="Direct Referral"
             value={
-              Number(
-                totalEarnings.directReferralAmount
-              ).toLocaleString() as unknown as number
+              Number(totalEarnings.directReferralAmount).toLocaleString(
+                "en-US",
+                {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }
+              ) as unknown as number
             }
             description={
               <>
@@ -167,9 +176,13 @@ const DashboardPage = ({
           <CardAmount
             title="Indirect Referral"
             value={
-              Number(
-                totalEarnings.indirectReferralAmount
-              ).toLocaleString() as unknown as number
+              Number(totalEarnings.indirectReferralAmount).toLocaleString(
+                "en-US",
+                {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }
+              ) as unknown as number
             }
             description={
               <>
