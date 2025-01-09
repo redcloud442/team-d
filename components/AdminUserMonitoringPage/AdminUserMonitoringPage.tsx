@@ -12,9 +12,10 @@ const AdminUserMonitoringPage = ({ teamMemberProfile }: Props) => {
       <div>
         {/* Page Title */}
         <header className="mb-4">
-          <h1 className="Title">User List Page</h1>
+          <h1 className="Title">Users With Wallet Balance Page</h1>
           <p className="text-gray-600 dark:text-white">
-            View all your user that are currently in the system
+            View all your user with wallet balance that are currently in the
+            system
           </p>
         </header>
 
