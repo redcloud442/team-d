@@ -6,12 +6,9 @@ import PersonalInformation from "../UserAdminProfile/PersonalInformation";
 
 type Props = {
   userProfile: UserRequestdata;
-  userSponsor?: {
-    user_username: string;
-  } | null;
 };
 
-const UserProfilePage = ({ userProfile, userSponsor }: Props) => {
+const UserProfilePage = ({ userProfile }: Props) => {
   return (
     <div className="mx-auto py-8">
       <div className="w-full flex flex-col gap-6">
@@ -24,9 +21,14 @@ const UserProfilePage = ({ userProfile, userSponsor }: Props) => {
         </header>
 
         <PersonalInformation
-          type="MEMBER"
+          type={
+            userProfile.alliance_member_role as
+              | "ADMIN"
+              | "MEMBER"
+              | "ACCOUNTING"
+              | "MERCHANT"
+          }
           userProfile={userProfile}
-          userSponsor={userSponsor}
         />
 
         <ChangePassword userProfile={userProfile} />

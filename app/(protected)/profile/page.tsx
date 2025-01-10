@@ -1,5 +1,4 @@
 import UserProfilePage from "@/components/UserProfilePage/UserProfilePage";
-import { getUserSponsor } from "@/services/User/User";
 import prisma from "@/utils/prisma";
 import { protectionAllUser } from "@/utils/serversideProtection";
 import { UserRequestdata } from "@/utils/types";
@@ -28,22 +27,31 @@ const Page = async () => {
       where: {
         user_id: profile?.user_id,
       },
+      select: {
+        user_id: true,
+        user_username: true,
+        user_first_name: true,
+        user_last_name: true,
+        user_email: true,
+        user_iv: true,
+      },
     }),
     prisma.alliance_member_table.findFirst({
       where: {
         alliance_member_user_id: profile?.user_id,
       },
+      select: {
+        alliance_member_id: true,
+        alliance_member_role: true,
+      },
     }),
   ]);
-  const userSponsor = await getUserSponsor({
-    teamMemberId: teamMemberProfile?.alliance_member_id || "",
-  });
 
   const combinedData = {
     ...userData,
     ...allianceData,
   } as UserRequestdata;
-
+  console.log(combinedData);
   return <UserProfilePage userProfile={combinedData} />;
 };
 export default Page;
