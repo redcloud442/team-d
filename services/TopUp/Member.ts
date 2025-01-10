@@ -1,4 +1,4 @@
-import { TopUpRequestData } from "@/utils/types";
+import { MerchantTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const getMemberTopUpRequest = async (params: {
@@ -93,14 +93,5 @@ export const getMerchantTopUpRequest = async (
 
   if (error) throw error;
 
-  return data as {
-    data: TopUpRequestData[];
-    merchantBalance: number;
-    count: {
-      PENDING: number;
-      APPROVED: number;
-      REJECTED: number;
-    };
-    totalCount: 0;
-  };
+  return data as MerchantTopUpRequestData;
 };

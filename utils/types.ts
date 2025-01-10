@@ -95,7 +95,29 @@ export type AdminTopUpRequestData = {
   };
 };
 
+export type MerchantTopUpRequestData = {
+  data: {
+    APPROVED: StatusData;
+    REJECTED: StatusData;
+    PENDING: StatusData;
+  };
+  merchantBalance: number;
+};
+
 export type StatusData = {
   data: TopUpRequestData[];
   count: number;
+};
+
+export type StatusDataWithdraw = {
+  data: WithdrawalRequestData[];
+  count: number;
+};
+
+export type AdminWithdrawaldata = {
+  data: {
+    APPROVED: StatusDataWithdraw;
+    REJECTED: StatusDataWithdraw;
+    PENDING: StatusDataWithdraw;
+  };
 };

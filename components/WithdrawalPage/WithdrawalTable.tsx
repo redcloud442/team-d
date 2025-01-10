@@ -5,7 +5,7 @@ import { getUserOptions } from "@/services/Options/Options";
 import { getWithdrawalRequestAccountant } from "@/services/Withdrawal/Member";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { WithdrawalRequestData } from "@/utils/types";
+import { AdminWithdrawaldata } from "@/utils/types";
 import { alliance_member_table, user_table } from "@prisma/client";
 import {
   ColumnFiltersState,
@@ -73,17 +73,14 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [requestData, setRequestData] = useState<WithdrawalRequestData[]>([]);
+  const [requestData, setRequestData] = useState<AdminWithdrawaldata | null>(
+    null
+  );
   const [requestCount, setRequestCount] = useState(0);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  const [count, setCount] = useState({
-    REJECTED: 0,
-    APPROVED: 0,
-    PENDING: 0,
-  });
   const columnAccessor = sorting?.[0]?.id || "alliance_withdrawal_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
@@ -102,34 +99,67 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
         ? new Date(dateFilter.start)
         : undefined;
       const endDate = startDate ? new Date(startDate) : undefined;
-      const { data, totalCount, count } = await getWithdrawalRequestAccountant(
-        supabaseClient,
-        {
-          teamId: teamMemberProfile.alliance_member_alliance_id,
-          teamMemberId: teamMemberProfile.alliance_member_id,
-          page: activePage,
-          limit: 10,
-          columnAccessor: columnAccessor,
-          isAscendingSort: isAscendingSort,
-          search: referenceId,
-          userFilter,
-          statusFilter: statusFilter,
-          dateFilter: {
-            start:
-              startDate && !isNaN(startDate.getTime())
-                ? startDate.toISOString()
-                : undefined,
-            end:
-              endDate && !isNaN(endDate.getTime())
-                ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
-                : undefined,
-          },
-        }
-      );
+      const requestData = await getWithdrawalRequestAccountant(supabaseClient, {
+        teamId: teamMemberProfile.alliance_member_alliance_id,
+        teamMemberId: teamMemberProfile.alliance_member_id,
+        page: activePage,
+        limit: 10,
+        columnAccessor: columnAccessor,
+        isAscendingSort: isAscendingSort,
+        search: referenceId,
+        userFilter,
+        statusFilter: statusFilter,
+        dateFilter: {
+          start:
+            startDate && !isNaN(startDate.getTime())
+              ? startDate.toISOString()
+              : undefined,
+          end:
+            endDate && !isNaN(endDate.getTime())
+              ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
+              : undefined,
+        },
+      });
 
-      setRequestData(data || []);
-      setRequestCount(totalCount || 0);
-      setCount(count || 0);
+      setRequestData((prev: AdminWithdrawaldata | null) => {
+        if (!prev) {
+          return {
+            data: {
+              APPROVED: {
+                data: [],
+                count: requestData?.data?.APPROVED?.count || 0,
+              },
+              REJECTED: {
+                data: [],
+                count: requestData?.data?.REJECTED?.count || 0,
+              },
+              PENDING: {
+                data: [],
+                count: requestData?.data?.PENDING?.count || 0,
+              },
+              [statusFilter as "PENDING" | "APPROVED" | "REJECTED"]: requestData
+                ?.data?.[
+                statusFilter as "PENDING" | "APPROVED" | "REJECTED"
+              ] || {
+                data: [],
+                count: 0,
+              },
+            },
+          };
+        }
+
+        return {
+          ...prev,
+          data: {
+            ...prev.data,
+            [statusFilter as "PENDING" | "APPROVED" | "REJECTED"]: requestData
+              ?.data?.[statusFilter as "PENDING" | "APPROVED" | "REJECTED"] || {
+              data: [],
+              count: 0,
+            },
+          },
+        };
+      });
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
@@ -157,8 +187,24 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
     handleUpdateStatus,
   } = WithdrawalColumn(fetchRequest);
 
+  const { register, handleSubmit, watch, getValues, control, reset, setValue } =
+    useForm<FilterFormValues>({
+      defaultValues: {
+        referenceId: "",
+        userFilter: "",
+        statusFilter: "PENDING",
+        dateFilter: {
+          start: undefined,
+          end: undefined,
+        },
+        rejectNote: "",
+      },
+    });
+
+  const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
+
   const table = useReactTable({
-    data: requestData,
+    data: requestData?.data?.[status]?.data || [],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -174,20 +220,6 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
       rowSelection,
     },
   });
-
-  const { register, handleSubmit, watch, getValues, control, reset, setValue } =
-    useForm<FilterFormValues>({
-      defaultValues: {
-        referenceId: "",
-        userFilter: "",
-        statusFilter: "PENDING",
-        dateFilter: {
-          start: undefined,
-          end: undefined,
-        },
-        rejectNote: "",
-      },
-    });
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -239,9 +271,88 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
     }
   };
 
-  const handleTabChange = (type?: string) => {
+  const handleTabChange = async (type?: string) => {
     setValue("statusFilter", type as "PENDING" | "APPROVED" | "REJECTED");
-    fetchRequest();
+    if (
+      requestData?.data?.[type as "PENDING" | "APPROVED" | "REJECTED"]?.data
+        ?.length
+    ) {
+      return;
+    }
+
+    await fetchRequest();
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setIsFetchingList(true);
+
+      const statuses: Array<"PENDING" | "APPROVED" | "REJECTED"> = [
+        "PENDING",
+        "APPROVED",
+        "REJECTED",
+      ];
+
+      const updatedData: AdminWithdrawaldata = {
+        data: {
+          APPROVED: { data: [], count: 0 },
+          REJECTED: { data: [], count: 0 },
+          PENDING: { data: [], count: 0 },
+        },
+      };
+      const sanitizedData = escapeFormData(getValues());
+
+      const { referenceId, userFilter, statusFilter, dateFilter } =
+        sanitizedData;
+      const startDate = dateFilter.start
+        ? new Date(dateFilter.start)
+        : undefined;
+      const endDate = startDate ? new Date(startDate) : undefined;
+
+      for (const status of statuses) {
+        const requestData = await getWithdrawalRequestAccountant(
+          supabaseClient,
+          {
+            teamId: teamMemberProfile.alliance_member_alliance_id,
+            teamMemberId: teamMemberProfile.alliance_member_id,
+            page: activePage,
+            limit: 10,
+            columnAccessor: columnAccessor,
+            isAscendingSort: isAscendingSort,
+            search: referenceId,
+            userFilter,
+            statusFilter: statusFilter,
+            dateFilter: {
+              start:
+                startDate && !isNaN(startDate.getTime())
+                  ? startDate.toISOString()
+                  : undefined,
+              end:
+                endDate && !isNaN(endDate.getTime())
+                  ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
+                  : undefined,
+            },
+          }
+        );
+
+        updatedData.data[status] = requestData?.data?.[status] || {
+          data: [],
+          count: 0,
+        };
+      }
+
+      setRequestData(updatedData);
+    } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/TopUpPage/TopUpTable.tsx",
+        });
+      }
+    } finally {
+      setIsFetchingList(false); // Reset loading state
+    }
   };
 
   const rejectNote = watch("rejectNote");
@@ -321,7 +432,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
             >
               <Search />
             </Button>
-            <Button onClick={fetchRequest} disabled={isFetchingList} size="sm">
+            <Button onClick={handleRefresh} disabled={isFetchingList} size="sm">
               <RefreshCw />
               Refresh
             </Button>
@@ -403,12 +514,14 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
 
         <Tabs defaultValue="PENDING" onValueChange={handleTabChange}>
           <TabsList className="mb-4">
-            <TabsTrigger value="PENDING">Pending ({count.PENDING})</TabsTrigger>
+            <TabsTrigger value="PENDING">
+              Pending ({requestData?.data?.PENDING?.count})
+            </TabsTrigger>
             <TabsTrigger value="APPROVED">
-              Approved ({count.APPROVED})
+              Approved ({requestData?.data?.APPROVED?.count})
             </TabsTrigger>
             <TabsTrigger value="REJECTED">
-              Rejected ({count.REJECTED})
+              Rejected ({requestData?.data?.REJECTED?.count})
             </TabsTrigger>
           </TabsList>
 
@@ -417,7 +530,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
               table={table}
               columns={columns}
               activePage={activePage}
-              totalCount={requestCount}
+              totalCount={requestData?.data?.PENDING?.count || 0}
             />
           </TabsContent>
 
@@ -426,7 +539,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
               table={table}
               columns={columns}
               activePage={activePage}
-              totalCount={requestCount}
+              totalCount={requestData?.data?.APPROVED?.count || 0}
             />
           </TabsContent>
 
@@ -435,7 +548,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
               table={table}
               columns={columns}
               activePage={activePage}
-              totalCount={requestCount}
+              totalCount={requestData?.data?.REJECTED?.count || 0}
             />
           </TabsContent>
         </Tabs>

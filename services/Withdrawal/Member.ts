@@ -1,5 +1,5 @@
 import { WithdrawalFormValues } from "@/components/DashboardPage/DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
-import { WithdrawalRequestData } from "@/utils/types";
+import { AdminWithdrawaldata, WithdrawalRequestData } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const createWithdrawalRequest = async (params: {
@@ -97,13 +97,5 @@ export const getWithdrawalRequestAccountant = async (
 
   if (error) throw error;
 
-  return data as {
-    data: WithdrawalRequestData[];
-    totalCount: 0;
-    count: {
-      REJECTED: number;
-      APPROVED: number;
-      PENDING: number;
-    };
-  };
+  return data as AdminWithdrawaldata;
 };

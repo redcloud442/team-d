@@ -1,4 +1,4 @@
-import { WithdrawalRequestData } from "@/utils/types";
+import { AdminWithdrawaldata } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const getAdminWithdrawalRequest = async (
@@ -28,10 +28,7 @@ export const getAdminWithdrawalRequest = async (
 
   if (error) throw error;
 
-  return data as {
-    data: WithdrawalRequestData[];
-    totalCount: 0;
-  };
+  return data as AdminWithdrawaldata;
 };
 
 export const updateWithdrawalStatus = async (params: {

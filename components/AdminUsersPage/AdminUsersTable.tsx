@@ -181,7 +181,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
           <div className="flex flex-wrap gap-2 items-center">
             <Input
               {...register("usernameFilter")}
-              placeholder="Filter username..."
+              placeholder="Filter by username..."
               className="w-full sm:max-w-sm p-2 border rounded"
             />
             <Button
