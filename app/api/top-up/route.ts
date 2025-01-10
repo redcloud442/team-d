@@ -134,6 +134,7 @@ export async function GET(request: Request) {
     const sortBy = url.searchParams.get("sortBy") || true;
     const columnAccessor = url.searchParams.get("columnAccessor") || "";
     const isAscendingSort = url.searchParams.get("isAscendingSort") || true;
+    const teamMemberId = url.searchParams.get("teamMemberId") || "";
 
     const params = {
       search,
@@ -143,7 +144,9 @@ export async function GET(request: Request) {
       columnAccessor,
       isAscendingSort: isAscendingSort,
       teamId: teamMemberProfile?.alliance_member_alliance_id || "",
-      teamMemberId: teamMemberProfile?.alliance_member_id || "",
+      teamMemberId: teamMemberId
+        ? teamMemberId
+        : teamMemberProfile?.alliance_member_id,
     };
 
     const escapedParams = escapeFormData(params);

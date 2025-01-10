@@ -17,6 +17,7 @@ import { createClientSide } from "@/utils/supabase/client";
 import { TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { AspectRatio } from "../ui/aspect-ratio";
@@ -258,7 +259,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
               </DialogHeader>
               <div className="flex justify-center items-center border-2">
                 <AspectRatio ratio={16 / 9} className="w-full">
-                  <img
+                  <Image
                     src={attachmentUrl || ""}
                     alt="Attachment Preview"
                     className="object-contain w-full h-full"

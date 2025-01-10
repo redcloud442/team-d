@@ -43,23 +43,43 @@ export const leaderBoardColumn = (
     {
       accessorKey: "username",
 
-      header: () => <Button variant="ghost">Username</Button>,
+      header: () => (
+        <Button className="w-full " variant="ghost">
+          Username
+        </Button>
+      ),
       cell: ({ row }) => {
         const username = row.getValue("username") as string;
-        return <div className="font-medium ">{username}</div>;
+        return <div className="font-medium text-center">{username}</div>;
       },
     },
     {
       accessorKey: "totalAmount",
 
-      header: () => <Button variant="ghost">Amount</Button>,
+      header: () => (
+        <Button className="w-full " variant="ghost">
+          Amount
+        </Button>
+      ),
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue("totalAmount"));
         const formatted = new Intl.NumberFormat("en-PH", {
           style: "currency",
           currency: "PHP",
         }).format(amount);
-        return <div>{formatted}</div>;
+        return <div className="text-center">{formatted}</div>;
+      },
+    },
+    {
+      accessorKey: "totalReferral",
+      header: () => (
+        <Button className="w-full " variant="ghost">
+          Referral Count
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const count = row.getValue("totalReferral");
+        return <div className="text-center">{Number(count)}</div>;
       },
     },
   ];

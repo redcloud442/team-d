@@ -33,6 +33,7 @@ export const AdminUserMonitoringColumn = (): ColumnDef<user_table>[] => {
       accessorKey: "user_first_name",
       header: ({ column }) => (
         <Button
+          className="w-full"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -40,13 +41,14 @@ export const AdminUserMonitoringColumn = (): ColumnDef<user_table>[] => {
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("user_first_name")}</div>
+        <div className="text-center">{row.getValue("user_first_name")}</div>
       ),
     },
     {
       accessorKey: "user_last_name",
       header: ({ column }) => (
         <Button
+          className="w-full"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -54,7 +56,7 @@ export const AdminUserMonitoringColumn = (): ColumnDef<user_table>[] => {
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("user_last_name")}</div>
+        <div className="text-center">{row.getValue("user_last_name")}</div>
       ),
     },
   ];

@@ -1,4 +1,5 @@
 import { decryptData, hashData } from "@/utils/function";
+import { UserRequestdata } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const createTriggerUser = async (
@@ -57,6 +58,7 @@ export const loginValidation = async (
     password: string;
     role?: string;
     iv?: string;
+    userProfile?: UserRequestdata;
   }
 ) => {
   const { userName, password, role, iv } = params;
@@ -71,9 +73,8 @@ export const loginValidation = async (
   });
 
   if (!response.ok) {
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("text/html")) {
-      throw new Error("Unexpected HTML response from the server.");
+    if (response.status === 403) {
+      throw new Error("Something went wrong.");
     }
 
     try {

@@ -7,6 +7,7 @@ export const getMemberTopUpRequest = async (params: {
   search?: string;
   columnAccessor: string;
   isAscendingSort: boolean;
+  teamMemberId?: string;
 }) => {
   const queryParams = {
     search: params.search || "",
@@ -14,6 +15,7 @@ export const getMemberTopUpRequest = async (params: {
     limit: params.limit.toString(),
     columnAccessor: params.columnAccessor,
     isAscendingSort: params.isAscendingSort.toString(),
+    teamMemberId: params.teamMemberId || "",
   };
 
   const response = await fetch(

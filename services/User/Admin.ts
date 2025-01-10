@@ -16,6 +16,7 @@ export const getAdminUserRequest = async (
     isAscendingSort: boolean;
     userRole?: string;
     dateCreated?: string;
+    bannedUser?: boolean;
   }
 ) => {
   const sanitizedData = escapeFormData(params);
@@ -28,6 +29,7 @@ export const getAdminUserRequest = async (
 
   return data as {
     data: UserRequestdata[];
+
     totalCount: 0;
   };
 };
@@ -91,8 +93,12 @@ export const handleSignInUser = async (
     password: string;
     role: string;
     iv: string;
+    userProfile?: UserRequestdata;
   }
 ) => {
+  if (params.userProfile?.alliance_member_restricted) {
+    throw new Error("User is banned.");
+  }
   const sanitizedData = escapeFormData(params);
 
   const response = await loginValidation(supabaseClient, {
@@ -100,6 +106,7 @@ export const handleSignInUser = async (
     password: sanitizedData.password,
     role: sanitizedData.role,
     iv: sanitizedData.iv,
+    userProfile: sanitizedData.userProfile,
   });
   return response;
 };

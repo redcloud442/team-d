@@ -23,7 +23,12 @@ export async function POST(request: Request) {
 
     loginRateLimit(ip);
 
-    const { userName, password, role = "MEMBER" } = await request.json();
+    const {
+      userName,
+      password,
+      role = "MEMBER",
+      userProfile,
+    } = await request.json();
     if (!userName || !password)
       return sendErrorResponse("Email and password are required.", 400);
 
@@ -43,6 +48,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid email." }, { status: 401 });
     }
 
+    if (userProfile && userProfile.alliance_member_restricted) {
+      return NextResponse.json({ error: "User is banned." }, { status: 403 });
+    }
     // const banned = await prisma.user_history_log.findFirst({
     //   where: {
     //     user_history_user_id: user.user_id,
@@ -62,6 +70,10 @@ export async function POST(request: Request) {
 
     if (!teamMemberProfile)
       return sendErrorResponse("User profile not found or incomplete.", 403);
+
+    if (teamMemberProfile.alliance_member_restricted) {
+      return sendErrorResponse("User is banned.", 403);
+    }
 
     const decryptedPassword = await decryptData(
       user.user_password,

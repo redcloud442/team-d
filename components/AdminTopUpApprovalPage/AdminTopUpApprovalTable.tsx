@@ -1,13 +1,5 @@
 "use client";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { logError } from "@/services/Error/ErrorLogs";
 import {
   getUserOptions,
@@ -16,12 +8,11 @@ import {
 import { getAdminTopUpRequest } from "@/services/TopUp/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { TopUpRequestData } from "@/utils/types";
+import { AdminTopUpRequestData } from "@/utils/types";
 import { alliance_member_table, user_table } from "@prisma/client";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import {
   ColumnFiltersState,
-  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -61,11 +52,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Separator } from "../ui/separator";
 import { Switch } from "../ui/switch";
 import TableLoading from "../ui/tableLoading";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Textarea } from "../ui/textarea";
 import { useAdminTopUpApprovalColumns } from "./AdminTopUpApprovalColumn";
+import AdminTopUpApprovalTabs from "./AdminTopUpTabs";
 
 type DataTableProps = {
   teamMemberProfile: alliance_member_table;
@@ -86,19 +78,20 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [requestData, setRequestData] = useState<TopUpRequestData[]>([]);
-  const [requestCount, setRequestCount] = useState(0);
+  const [requestData, setRequestData] = useState<AdminTopUpRequestData | null>(
+    null
+  );
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [merchantOptions, setMerchantOptions] = useState<user_table[]>([]);
-  const [userOptions, setUserOptions] = useState<user_table[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 
   const columnAccessor = sorting?.[0]?.id || "alliance_top_up_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
+  const [userOptions, setUserOptions] = useState<user_table[]>([]);
 
-  const fetchAdminRequest = async () => {
+  const fetchRequest = async () => {
     try {
       if (!teamMemberProfile) return;
       setIsFetchingList(true);
@@ -112,13 +105,11 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
         statusFilter,
         dateFilter,
       } = sanitizedData;
-
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
       const endDate = startDate ? new Date(startDate) : undefined;
-
-      const { data, totalCount } = await getAdminTopUpRequest(supabaseClient, {
+      const requestData = await getAdminTopUpRequest(supabaseClient, {
         teamId: teamMemberProfile.alliance_member_alliance_id,
         teamMemberId: teamMemberProfile.alliance_member_id,
         page: activePage,
@@ -128,7 +119,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
         search: emailFilter,
         merchantFilter,
         userFilter,
-        statusFilter,
+        statusFilter: statusFilter ?? "PENDING",
         dateFilter: {
           start:
             startDate && !isNaN(startDate.getTime())
@@ -141,15 +132,51 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
         },
       });
 
-      setRequestData(data || []);
-      setRequestCount(totalCount || 0);
+      setRequestData((prev: AdminTopUpRequestData | null) => {
+        if (!prev) {
+          return {
+            data: {
+              APPROVED: {
+                data: [],
+                count: requestData?.data?.APPROVED?.count || 0,
+              },
+              REJECTED: {
+                data: [],
+                count: requestData?.data?.REJECTED?.count || 0,
+              },
+              PENDING: {
+                data: [],
+                count: requestData?.data?.PENDING?.count || 0,
+              },
+              [statusFilter as "PENDING" | "APPROVED" | "REJECTED"]: requestData
+                ?.data?.[
+                statusFilter as "PENDING" | "APPROVED" | "REJECTED"
+              ] || {
+                data: [],
+                count: 0,
+              },
+            },
+          };
+        }
+
+        return {
+          ...prev,
+          data: {
+            ...prev.data,
+            [statusFilter as "PENDING" | "APPROVED" | "REJECTED"]: requestData
+              ?.data?.[statusFilter as "PENDING" | "APPROVED" | "REJECTED"] || {
+              data: [],
+              count: 0,
+            },
+          },
+        };
+      });
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
           errorMessage: e.message,
           stackTrace: e.stack,
-          stackPath:
-            "components/AdminTopUpApprovalPage/AdminTopUpApprovalTable.tsx",
+          stackPath: "components/TopUpPage/TopUpTable.tsx",
         });
       }
     } finally {
@@ -157,16 +184,37 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
     }
   };
 
+  const handleFilter = async () => {
+    try {
+      await fetchRequest();
+    } catch (e) {}
+  };
+
+  const { register, handleSubmit, watch, getValues, control, reset, setValue } =
+    useForm<FilterFormValues>({
+      defaultValues: {
+        emailFilter: "",
+        merchantFilter: "",
+        userFilter: "",
+        statusFilter: "PENDING",
+        dateFilter: {
+          start: undefined,
+          end: undefined,
+        },
+        rejectNote: "",
+      },
+    });
+
   const {
     columns,
     isOpenModal,
+    isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-    isLoading,
-  } = useAdminTopUpApprovalColumns(fetchAdminRequest);
-
+  } = useAdminTopUpApprovalColumns(fetchRequest);
+  const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
   const table = useReactTable({
-    data: requestData,
+    data: requestData?.data?.[status]?.data || [],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -182,26 +230,6 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
       rowSelection,
     },
   });
-  const pageCount = Math.ceil(requestCount / 10);
-
-  const { register, handleSubmit, getValues, control, reset, watch } =
-    useForm<FilterFormValues>({
-      defaultValues: {
-        emailFilter: "",
-        merchantFilter: "",
-        userFilter: "",
-        statusFilter: "",
-        dateFilter: {
-          start: undefined,
-          end: undefined,
-        },
-        rejectNote: "",
-      },
-    });
-
-  useEffect(() => {
-    fetchAdminRequest();
-  }, [supabaseClient, teamMemberProfile, activePage, sorting]);
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -265,6 +293,12 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
     fetchOptions();
   }, [supabaseClient, teamMemberProfile.alliance_member_id]);
 
+  useEffect(() => {
+    fetchRequest();
+  }, [supabaseClient, teamMemberProfile, activePage, sorting]);
+
+  const pageCount = Math.ceil((requestData?.data?.[status]?.count || 0) / 10);
+
   const handleSwitchChange = (checked: boolean) => {
     setShowFilters(checked);
     if (!checked) {
@@ -273,12 +307,95 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
     }
   };
 
-  const handleFilter = async () => {
-    await fetchAdminRequest();
+  const handleTabChange = async (type?: string) => {
+    setValue("statusFilter", type as "PENDING" | "APPROVED" | "REJECTED");
+    if (
+      requestData?.data?.[type as "PENDING" | "APPROVED" | "REJECTED"]?.data
+        ?.length
+    ) {
+      return;
+    }
+
+    await fetchRequest();
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setIsFetchingList(true);
+
+      const statuses: Array<"PENDING" | "APPROVED" | "REJECTED"> = [
+        "PENDING",
+        "APPROVED",
+        "REJECTED",
+      ];
+
+      const updatedData: AdminTopUpRequestData = {
+        data: {
+          APPROVED: { data: [], count: 0 },
+          REJECTED: { data: [], count: 0 },
+          PENDING: { data: [], count: 0 },
+        },
+      };
+
+      const sanitizedData = escapeFormData(getValues());
+
+      const {
+        emailFilter,
+        merchantFilter,
+        userFilter,
+        statusFilter,
+        dateFilter,
+      } = sanitizedData;
+      const startDate = dateFilter.start
+        ? new Date(dateFilter.start)
+        : undefined;
+      const endDate = startDate ? new Date(startDate) : undefined;
+
+      for (const status of statuses) {
+        const requestData = await getAdminTopUpRequest(supabaseClient, {
+          teamId: teamMemberProfile.alliance_member_alliance_id,
+          teamMemberId: teamMemberProfile.alliance_member_id,
+          page: 1,
+          limit: 10,
+          columnAccessor,
+          isAscendingSort,
+          search: emailFilter,
+          merchantFilter,
+          userFilter,
+          statusFilter: statusFilter ?? "PENDING",
+          dateFilter: {
+            start:
+              startDate && !isNaN(startDate.getTime())
+                ? startDate.toISOString()
+                : undefined,
+            end:
+              endDate && !isNaN(endDate.getTime())
+                ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
+                : undefined,
+          },
+        });
+
+        updatedData.data[status] = requestData?.data?.[status] || {
+          data: [],
+          count: 0,
+        };
+      }
+
+      setRequestData(updatedData);
+    } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/TopUpPage/TopUpTable.tsx",
+        });
+      }
+    } finally {
+      setIsFetchingList(false); // Reset loading state
+    }
   };
 
   const rejectNote = watch("rejectNote");
-
   return (
     <Card className="w-full rounded-sm p-4">
       <div className="flex flex-wrap gap-4 items-start py-4">
@@ -286,7 +403,6 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
           className="flex flex-col gap-6 w-full max-w-4xl rounded-md"
           onSubmit={handleSubmit(handleFilter)}
         >
-          {" "}
           {isOpenModal && (
             <Dialog
               open={isOpenModal.open}
@@ -354,38 +470,33 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
           <div className="flex flex-wrap gap-2 items-center w-full">
             <Input
               {...register("emailFilter")}
-              placeholder="Filter username..."
-              className="w-full sm:max-w-sm p-2 border rounded"
+              placeholder="Filter requestor username..."
+              className="max-w-sm p-2 border rounded"
             />
             <Button
               type="submit"
               disabled={isFetchingList}
               size="sm"
               variant="outline"
-              className="w-full sm:w-auto"
             >
               <Search />
             </Button>
-            <Button
-              onClick={fetchAdminRequest}
-              disabled={isFetchingList}
-              size="sm"
-              className="w-full sm:w-auto"
-            >
-              <RefreshCw className="mr-2" />
+            <Button onClick={handleRefresh} disabled={isFetchingList} size="sm">
+              <RefreshCw />
               Refresh
             </Button>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex items-center space-x-2">
               <Switch
                 id="filter-switch"
                 checked={showFilters}
                 onCheckedChange={handleSwitchChange}
               />
-              <Label htmlFor="filter-switch">Filter</Label>
+              <Label htmlFor="filter">Filter</Label>
             </div>
           </div>
+
           {showFilters && (
-            <div className="flex flex-wrap gap-2 items-center rounded-md">
+            <div className="flex flex-wrap gap-2 items-center rounded-md ">
               <Controller
                 name="merchantFilter"
                 control={control}
@@ -435,28 +546,6 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
               />
 
               <Controller
-                name="statusFilter"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={(value) =>
-                      field.onChange(value === field.value ? "" : value)
-                    }
-                    value={field.value || ""}
-                  >
-                    <SelectTrigger className="w-full sm:w-auto">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="PENDING">Pending</SelectItem>
-                      <SelectItem value="APPROVED">Approved</SelectItem>
-                      <SelectItem value="REJECTED">Rejected</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-
-              <Controller
                 name="dateFilter.start"
                 control={control}
                 render={({ field }) => (
@@ -464,7 +553,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full sm:w-auto font-normal justify-start"
+                        className="font-normal justify-start"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value
@@ -488,76 +577,56 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
                 )}
               />
 
-              <Button onClick={fetchAdminRequest} className="w-full sm:w-auto">
+              <Button type="submit" onClick={fetchRequest}>
                 Submit
               </Button>
             </div>
           )}
         </form>
       </div>
-
       <ScrollArea className="w-full overflow-x-auto ">
         {isFetchingList && <TableLoading />}
-        <Separator />
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
 
-          <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-          <tfoot>
-            <TableRow>
-              <TableCell className="px-0" colSpan={columns.length}>
-                <div className="flex justify-between items-center border-t px-2 pt-2">
-                  <span className="text-sm text-gray-600 dark:text-white">
-                    Showing {Math.min(activePage * 10, requestCount)} out of{" "}
-                    {requestCount} entries
-                  </span>
-                </div>
-              </TableCell>
-            </TableRow>
-          </tfoot>
-        </Table>
+        <Tabs defaultValue="PENDING" onValueChange={handleTabChange}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="PENDING">
+              Pending ({requestData?.data?.["PENDING"]?.count || 0})
+            </TabsTrigger>
+            <TabsTrigger value="APPROVED">
+              Approved ({requestData?.data?.["APPROVED"]?.count || 0})
+            </TabsTrigger>
+            <TabsTrigger value="REJECTED">
+              Rejected ({requestData?.data?.["REJECTED"]?.count || 0})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="PENDING">
+            <AdminTopUpApprovalTabs
+              table={table}
+              columns={columns}
+              activePage={activePage}
+              totalCount={requestData?.data?.["PENDING"]?.count || 0}
+            />
+          </TabsContent>
+
+          <TabsContent value="APPROVED">
+            <AdminTopUpApprovalTabs
+              table={table}
+              columns={columns}
+              activePage={activePage}
+              totalCount={requestData?.data?.["APPROVED"]?.count || 0}
+            />
+          </TabsContent>
+
+          <TabsContent value="REJECTED">
+            <AdminTopUpApprovalTabs
+              table={table}
+              columns={columns}
+              activePage={activePage}
+              totalCount={requestData?.data?.["REJECTED"]?.count || 0}
+            />
+          </TabsContent>
+        </Tabs>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
 
@@ -580,14 +649,11 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
             let displayedPages = [];
 
             if (pageCount <= maxVisiblePages) {
-              // Show all pages if there are 3 or fewer
               displayedPages = pages;
             } else {
               if (activePage <= 2) {
-                // Show the first 3 pages and the last page
                 displayedPages = [1, 2, 3, "...", pageCount];
               } else if (activePage >= pageCount - 1) {
-                // Show the first page and the last 3 pages
                 displayedPages = [
                   1,
                   "...",

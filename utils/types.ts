@@ -21,6 +21,7 @@ export type TopUpRequestData = alliance_top_up_request_table & {
   user_id: string;
   approver_username: string;
   alliance_member_id: string;
+  count: number;
 };
 
 export type PackageHistoryData = {
@@ -84,4 +85,17 @@ export type AdminDashboardData = {
   numberOfRegisteredUser: number;
   totalActivatedPackage: number;
   totalActivatedUser: number;
+};
+
+export type AdminTopUpRequestData = {
+  data: {
+    APPROVED: StatusData;
+    REJECTED: StatusData;
+    PENDING: StatusData;
+  };
+};
+
+export type StatusData = {
+  data: TopUpRequestData[];
+  count: number;
 };

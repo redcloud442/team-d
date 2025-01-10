@@ -73,6 +73,7 @@ const TopUpHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
         columnAccessor: columnAccessor,
         isAscendingSort: isAscendingSort,
         search: referenceId,
+        teamMemberId: teamMemberProfile.alliance_member_id,
       });
 
       setRequestData(data || []);

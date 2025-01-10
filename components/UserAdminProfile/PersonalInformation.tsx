@@ -1,3 +1,4 @@
+import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { handleSignInUser } from "@/services/User/Admin";
 import { useRole } from "@/utils/context/roleContext";
@@ -27,6 +28,7 @@ const PersonalInformation = ({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { setRole } = useRole();
+  const { toast } = useToast();
   const handleSignIn = async () => {
     try {
       setIsLoading(true);
@@ -35,6 +37,7 @@ const PersonalInformation = ({
         password: userProfile.user_password,
         role: "ADMIN",
         iv: userProfile.user_iv ?? "",
+        userProfile: userProfile,
       });
     } catch (e) {
       if (e instanceof Error) {
@@ -62,6 +65,13 @@ const PersonalInformation = ({
               variant="outline"
               onClick={async () => {
                 await handleSignIn();
+                if (userProfile.alliance_member_restricted) {
+                  return toast({
+                    title: "User is banned.",
+                    description: "Cannot sign in as banned user.",
+                    variant: "destructive",
+                  });
+                }
                 setRole({
                   role: userProfile.alliance_member_role,
                   userName: userProfile.user_username ?? "",

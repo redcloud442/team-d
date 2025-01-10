@@ -1,4 +1,4 @@
-import { TopUpRequestData } from "@/utils/types";
+import { AdminTopUpRequestData } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const getAdminTopUpRequest = async (
@@ -26,10 +26,7 @@ export const getAdminTopUpRequest = async (
 
   if (error) throw error;
 
-  return data as {
-    data: TopUpRequestData[];
-    totalCount: 0;
-  };
+  return data as AdminTopUpRequestData;
 };
 
 export const updateTopUpStatus = async (params: {

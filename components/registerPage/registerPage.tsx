@@ -103,10 +103,11 @@ const RegisterPage = ({ referralLink }: Props) => {
           stackPath: "components/registerPage/registerPage.tsx",
         });
       }
-
+      const errorMessage =
+        e instanceof Error ? e.message : "An unexpected error occurred.";
       toast({
-        title: "Check your credentials",
-        description: "Username already exists",
+        title: "Error",
+        description: errorMessage,
         variant: "destructive",
       });
     }

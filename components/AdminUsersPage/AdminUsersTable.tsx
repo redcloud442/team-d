@@ -62,6 +62,7 @@ type FilterFormValues = {
   userRestricted?: string;
   userRole?: string;
   dateCreated?: string;
+  bannedUser?: boolean;
 };
 
 const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
@@ -87,7 +88,8 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const sanitizedData = escapeFormData(getValues());
 
-      const { usernameFilter, userRole, dateCreated } = sanitizedData;
+      const { usernameFilter, userRole, dateCreated, bannedUser } =
+        sanitizedData;
 
       const startDate = dateCreated ? new Date(dateCreated) : undefined;
       const { data, totalCount } = await getAdminUserRequest(supabaseClient, {
@@ -100,6 +102,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
         search: usernameFilter,
         userRole: userRole,
         dateCreated: startDate ? startDate.toISOString() : undefined,
+        bannedUser: bannedUser,
       });
 
       setRequestData(data || []);
@@ -150,6 +153,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
         userRestricted: "",
         userRole: "",
         dateCreated: "",
+        bannedUser: false,
       },
     });
 
@@ -166,10 +170,6 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
       handleSubmit(handleFilter)();
     }
   };
-
-  if (isFetchingList) {
-    return <TableLoading />;
-  }
 
   return (
     <Card className="w-full rounded-sm p-4">
@@ -212,7 +212,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
           </div>
 
           {showFilters && (
-            <div className="flex w-full flex-wrap gap-2  p-2 rounded mb-4">
+            <div className="flex w-full flex-wrap gap-2 items-center p-2 rounded mb-4">
               <Controller
                 name="userRole"
                 control={control}
@@ -267,7 +267,20 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
                   </Popover>
                 )}
               />
-
+              <Controller
+                name="bannedUser"
+                control={control}
+                render={({ field }) => (
+                  <>
+                    <Switch
+                      id="filter-switch"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                    <Label htmlFor="filter-switch">Show Banned User</Label>
+                  </>
+                )}
+              />
               <Button onClick={fetchAdminRequest} className="w-full sm:w-auto">
                 Submit
               </Button>
