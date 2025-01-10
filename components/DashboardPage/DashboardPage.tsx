@@ -200,7 +200,10 @@ const DashboardPage = ({
 
         {chartData.length > 0 && (
           <div className=" gap-6">
-            <DashboardPackages chartData={chartData} />
+            <DashboardPackages
+              chartData={chartData}
+              setChartData={setChartData}
+            />
           </div>
         )}
 

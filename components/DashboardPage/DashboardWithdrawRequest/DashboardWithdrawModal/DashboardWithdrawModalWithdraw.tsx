@@ -221,9 +221,9 @@ const DashboardWithdrawModalWithdraw = ({
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Withdrawal Fee Notice</AlertTitle>
               <AlertDescription>
-                {selectedEarnings === "TOTAL"
-                  ? "3% withdrawal fee will be deducted from your withdrawal amount"
-                  : "10% withdrawal fee will be deducted from your withdrawal amount"}
+                {
+                  "10% withdrawal fee will be deducted from your withdrawal amount"
+                }
               </AlertDescription>
             </Alert>
           )}
@@ -425,9 +425,7 @@ const DashboardWithdrawModalWithdraw = ({
                 <div className="flex flex-col gap-2 items-end justify-end w-full">
                   {/* Fee Display */}
                   <div className="flex items-center justify-between w-full">
-                    <p className="text-md darktext-gray-200">
-                      {selectedEarnings === "TOTAL" ? "3%" : "10%"} Fee:
-                    </p>
+                    <p className="text-md darktext-gray-200">{"10%"} Fee:</p>
                     <p className="text-md  dark:text-gray-300">
                       {"₱ "}
                       {calculateFee(

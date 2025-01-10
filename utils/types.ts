@@ -62,6 +62,8 @@ export type ChartDataMember = {
   completion: number;
   completion_date: string;
   amount: number;
+  is_ready_to_claim: boolean;
+  package_connection_id: string;
 };
 
 export type DashboardEarnings = {

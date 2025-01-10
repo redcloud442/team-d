@@ -255,7 +255,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = TopUpColumn(handleRefresh);
+  } = TopUpColumn(handleRefresh, setRequestData);
 
   const { register, handleSubmit, watch, getValues, control, reset, setValue } =
     useForm<FilterFormValues>({

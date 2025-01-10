@@ -37,6 +37,7 @@ export const decryptData = async (encryptedData: string, ivHex: string) => {
 export const hashData = async (data: string) => {
   const iv = crypto.randomBytes(16);
   const key = process.env.NEXT_PUBLIC_CRYPTO_SECRET_KEY;
+  const allowedKey = process.env.ALLOWED_CRYPTO_KEY;
 
   if (!key) {
     throw new Error("CRYPTO_SECRET_KEY is not defined");
@@ -47,7 +48,18 @@ export const hashData = async (data: string) => {
       "CRYPTO_SECRET_KEY must be a 32-byte (64 characters) hex string"
     );
   }
+  if (!key) {
+    throw new Error("CRYPTO_SECRET_KEY is not defined");
+  }
 
+  if (!allowedKey) {
+    throw new Error("ALLOWED_CRYPTO_KEY is not defined");
+  }
+
+  // Ensure only the allowed key is accepted
+  if (key !== allowedKey) {
+    throw new Error("The provided key does not match the allowed key");
+  }
   const cipher = crypto.createCipheriv(
     "aes-256-cbc",
     Buffer.from(key, "hex"),
@@ -149,6 +161,22 @@ export const applyRateLimit = async (
   rateLimiter.set(rateLimitKey, currentCount + 1);
 };
 
+export const applyRateLimitMember = async (teamMemberId: string) => {
+  if (!teamMemberId) {
+    throw new Error("teamMemberId is required for rate limiting.");
+  }
+
+  const rateLimitKey = `${teamMemberId}`;
+
+  const currentCount = (rateLimiter.get(rateLimitKey) as number) || 0;
+
+  if (currentCount >= 50) {
+    throw new Error("Too many requests. Please try again later.");
+  }
+
+  rateLimiter.set(rateLimitKey, currentCount + 1);
+};
+
 export const loginRateLimit = (ip: string) => {
   const currentCount = (rateLimiter.get(ip) as number) || 0;
 
@@ -178,7 +206,7 @@ export const calculateFinalAmount = (
   selectedEarnings: string
 ): number => {
   if (selectedEarnings === "TOTAL") {
-    const fee = amount * 0.03;
+    const fee = amount * 0.01;
     return amount - fee;
   } else if (
     ["DIRECT REFERRAL", "INDIRECT REFERRAL"].includes(selectedEarnings)
@@ -194,7 +222,7 @@ export const calculateFee = (
   selectedEarnings: string
 ): number => {
   if (selectedEarnings === "TOTAL") {
-    const fee = amount * 0.03;
+    const fee = amount * 0.01;
     return fee;
   } else if (
     ["DIRECT REFERRAL", "INDIRECT REFERRAL"].includes(selectedEarnings)

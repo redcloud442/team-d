@@ -113,6 +113,8 @@ const AvailPackagePage = ({
           completion: 0,
           completion_date: completionDate.toISOString(),
           amount: sumOfTotal,
+          is_ready_to_claim: false,
+          package_connection_id: "",
         },
         ...prev,
       ]);

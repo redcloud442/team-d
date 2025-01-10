@@ -6,12 +6,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
-import {
-  handleUpdateRole,
-  handleUpdateUserRestriction,
-} from "@/services/User/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
@@ -21,23 +16,31 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import TableLoading from "../ui/tableLoading";
 
-export const AdminUsersColumn = (
-  handleFetch: () => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): ColumnDef<UserRequestdata, any>[] => {
+export const AdminUsersColumn = () => {
   const supabaseClient = createClientSide();
   const router = useRouter();
-  const { toast } = useToast();
+
   const [isLoading, setIsLoading] = useState(false);
+  const [isOpenModal, setIsOpenModal] = useState({
+    open: false,
+    role: "",
+    memberId: "",
+    type: "",
+  });
 
   const handlePromoteToMerchant = async (
     alliance_member_alliance_id: string,
     role: string
   ) => {
     try {
-      setIsLoading(true);
+      setIsOpenModal({
+        open: true,
+        role: role,
+        memberId: alliance_member_alliance_id,
+        type: "PROMOTE",
+      });
 
-      await handleUpdateRole({ userId: alliance_member_alliance_id, role });
+      // await handleUpdateRole({ userId: alliance_member_alliance_id, role });
 
       // if (role === "ADMIN") {
       //   const supabase = createServiceRoleClient();
@@ -48,12 +51,11 @@ export const AdminUsersColumn = (
       //     }
       //   );
       // }
-      handleFetch();
-      toast({
-        title: `Role Updated`,
-        description: `Role Updated Sucessfully`,
-        variant: "success",
-      });
+      // toast({
+      //   title: `Role Updated`,
+      //   description: `Role Updated Sucessfully`,
+      //   variant: "success",
+      // });
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
@@ -62,11 +64,6 @@ export const AdminUsersColumn = (
           stackPath: "components/AdminUsersPage/AdminUsersColumn.tsx",
         });
       }
-      toast({
-        title: `Role Update Failed`,
-        description: `Something went wrong`,
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }
@@ -74,39 +71,32 @@ export const AdminUsersColumn = (
 
   const handleBanUser = async (alliance_member_alliance_id: string) => {
     try {
-      setIsLoading(true);
-      await handleUpdateUserRestriction({
-        userId: alliance_member_alliance_id,
+      setIsOpenModal({
+        open: true,
+        role: "",
+        memberId: alliance_member_alliance_id,
+        type: "BAN",
       });
-      handleFetch();
-      toast({
-        title: `User Banned`,
-        description: `User Banned Sucessfully`,
-        variant: "success",
-      });
+
+      // await handleUpdateUserRestriction({
+      //   userId: alliance_member_alliance_id,
+      // });
+      // handleFetch();
+      // toast({
+      //   title: `User Banned`,
+      //   description: `User Banned Sucessfully`,
+      //   variant: "success",
+      // });
     } catch (e) {
-      if (e instanceof Error) {
-        await logError(supabaseClient, {
-          errorMessage: e.message,
-          stackTrace: e.stack,
-          stackPath: "components/AdminUsersPage/AdminUsersColumn.tsx",
-        });
-      }
-      toast({
-        title: `User Ban Failed`,
-        description: `Something went wrong`,
-        variant: "destructive",
-      });
     } finally {
-      setIsLoading(false);
     }
   };
 
   if (isLoading) {
     <TableLoading />;
   }
-
-  return [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const columns: ColumnDef<UserRequestdata, any>[] = [
     {
       accessorKey: "user_username",
 
@@ -127,6 +117,21 @@ export const AdminUsersColumn = (
         >
           {row.getValue("user_username")}
         </div>
+      ),
+    },
+    {
+      accessorKey: "alliance_member_role",
+
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Role <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-wrap">{row.getValue("alliance_member_role")}</div>
       ),
     },
     {
@@ -229,13 +234,6 @@ export const AdminUsersColumn = (
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() =>
-                  router.push(`/admin/users/${data.alliance_member_user_id}`)
-                }
-              >
-                View Profile
-              </DropdownMenuItem>
               {data.alliance_member_role !== "MERCHANT" && (
                 <DropdownMenuItem
                   onClick={() =>
@@ -266,6 +264,16 @@ export const AdminUsersColumn = (
                   Promote as Accountant
                 </DropdownMenuItem>
               )}
+
+              {data.alliance_member_role !== "MEMBER" && (
+                <DropdownMenuItem
+                  onClick={() =>
+                    handlePromoteToMerchant(data.alliance_member_id, "MEMBER")
+                  }
+                >
+                  Promote as Member
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 onClick={() => handleBanUser(data.alliance_member_id)}
               >
@@ -277,4 +285,5 @@ export const AdminUsersColumn = (
       },
     },
   ];
+  return { columns, isOpenModal, setIsOpenModal, setIsLoading, isLoading };
 };
