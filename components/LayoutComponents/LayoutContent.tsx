@@ -47,7 +47,7 @@ export default function LayoutContent({
           </div>
         )}
 
-        <div className="p-4 pb-10 md:pb-0">{children}</div>
+        <div className="p-4 pb-10 md:pb-0 bg-pageColor">{children}</div>
         <ModeToggle />
 
         {role !== ROLE.ADMIN && <MobileNavBar />}

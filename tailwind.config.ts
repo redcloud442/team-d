@@ -10,6 +10,10 @@ export default {
   theme: {
     extend: {
       colors: {
+        pageColor: "#383838",
+        cardColor: "#D9D9D9",
+        inputColor: "#1E1E1E",
+        primaryRed: "#:A30000",
         background: "var(--background)",
         foreground: "var(--foreground)",
         sidebar: {
