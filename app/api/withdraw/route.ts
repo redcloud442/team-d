@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid input." }, { status: 400 });
     }
 
-    if (amount <= 0 || amount <= 200) {
+    if (amount <= 0 || amount <= 30) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 

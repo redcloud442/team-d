@@ -45,7 +45,7 @@ const topUpFormSchema = z.object({
     .min(3, "Amount is required and must be at least 200 pesos")
     .max(6, "Amount must be less than 6 digits")
     .regex(/^\d+$/, "Amount must be a number")
-    .refine((amount) => parseInt(amount, 10) >= 200, {
+    .refine((amount) => parseInt(amount, 10) >= 300, {
       message: "Amount must be at least 200 pesos",
     }),
   topUpMode: z.string().min(1, "Top up mode is required"),
@@ -170,7 +170,7 @@ const DashboardDepositModalDeposit = ({
     >
       <DialogTrigger asChild className={className}>
         <Button variant="outline" onClick={() => setOpen(true)}>
-          Deposit
+          Deposit (Minimum 300)
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -184,7 +184,7 @@ const DashboardDepositModalDeposit = ({
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Minimum Deposit Amount</AlertTitle>
           <AlertDescription>
-            The minimum deposit amount is 200 pesos.
+            The minimum deposit amount is 300 pesos.
           </AlertDescription>
         </Alert>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

@@ -237,9 +237,9 @@ function generateReferralChain(hierarchy: string | null, teamMemberId: string) {
 function getBonusPercentage(level: number): number {
   const bonusMap: Record<number, number> = {
     1: 10,
-    2: 3,
-    3: 2,
-    4: 1,
+    2: 1.5,
+    3: 1.5,
+    4: 1.5,
     5: 1,
     6: 1,
     7: 1,

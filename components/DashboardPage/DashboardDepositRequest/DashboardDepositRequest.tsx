@@ -13,11 +13,9 @@ import {
 } from "@prisma/client";
 import { Dispatch, SetStateAction, useState } from "react";
 
-import dynamic from "next/dynamic";
 import DashboardDepositModalHistory from "./DashboardDepositModal/DashboardDepositHistory";
 import DashboardDepositModalDeposit from "./DashboardDepositModal/DashboardDepositModalDeposit";
 import DashboardDepositModalPackages from "./DashboardDepositModal/DashboardDepositPackagesModal";
-const ReactJoyride = dynamic(() => import("react-joyride"), { ssr: false });
 
 type Props = {
   teamMemberProfile: alliance_member_table;

@@ -47,7 +47,7 @@ const withdrawalFormSchema = z.object({
   amount: z
     .string()
     .min(3, "Minimum amount is required atleast 200 pesos")
-    .refine((amount) => parseInt(amount, 10) >= 200, {
+    .refine((amount) => parseInt(amount, 10) >= 30, {
       message: "Amount must be at least 200 pesos",
     }),
   bank: z.string().min(1, "Please select a bank"),
@@ -204,7 +204,7 @@ const DashboardWithdrawModalWithdraw = ({
     >
       <DialogTrigger asChild>
         <Button variant="outline" onClick={() => setOpen(true)}>
-          Withdraw
+          Withdraw (30 pesos Minimum)
         </Button>
       </DialogTrigger>
 

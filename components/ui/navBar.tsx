@@ -43,7 +43,7 @@ const NavBar = () => {
           className="text-xl font-bold cursor-pointer"
           onClick={() => handleNavigation("/")}
         >
-          PR1MEPH
+          ELEVATE
         </Button>
 
         {/* Navigation Links */}

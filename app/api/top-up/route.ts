@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid Request." }, { status: 400 });
     }
 
-    if (parseInt(amount, 10) < 200) {
+    if (parseInt(amount, 10) < 300) {
       return NextResponse.json({ error: "Invalid Request." }, { status: 400 });
     }
 

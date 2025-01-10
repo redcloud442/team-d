@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
-      return NextResponse.json({ error: "Invalid email." }, { status: 401 });
+      return NextResponse.json({ error: "Invalid request." }, { status: 401 });
     }
 
     if (userProfile && userProfile.alliance_member_restricted) {
