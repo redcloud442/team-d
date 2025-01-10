@@ -25,4 +25,4 @@ export const ROLE = {
   ADMIN: "ADMIN",
 };
 
-export const BASE_URL = "https://pr1meph.vercel.app";
+export const BASE_URL = "https://elevate-sigma.vercel.app";
