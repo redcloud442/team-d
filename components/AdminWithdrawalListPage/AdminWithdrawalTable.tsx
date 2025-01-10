@@ -260,7 +260,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
       defaultValues: {
         referenceId: "",
         userFilter: "",
-        statusFilter: "",
+        statusFilter: "PENDING",
         dateFilter: {
           start: undefined,
           end: undefined,

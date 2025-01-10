@@ -1357,14 +1357,21 @@ plv8.subtransaction(function() {
     const elapsedTimeMs = Math.max(currentTimestamp - startDate, 0);
     const totalTimeMs = Math.max(completionDate - startDate, 0);
 
-    const percentage = totalTimeMs > 0
+    let percentage = totalTimeMs > 0
       ? parseFloat(((elapsedTimeMs / totalTimeMs) * 100).toFixed(2))
       : 100.0;
 
-    if (percentage >= 100) {
-      const earnings = row.amount;
-      totalCompletedAmount += earnings; // Add completed package amount to the total
+    // Cap percentage at 100%
+    percentage = Math.min(percentage, 100);
 
+    // Check if the package is ready to claim
+    const isReadyToClaim = percentage === 100;
+
+    if (isReadyToClaim) {
+      const earnings = row.amount;
+      totalCompletedAmount += earnings; 
+
+      // Update earnings and package status
       plv8.execute(
         `UPDATE alliance_schema.alliance_earnings_table
          SET alliance_olympus_earnings = alliance_olympus_earnings + $1
@@ -1400,23 +1407,28 @@ plv8.subtransaction(function() {
           row.package_amount_earnings
         ]
       );
-      return acc;
+
+      return acc; // Skip adding this package to the return data
     }
 
     acc.push({
       package: row.package,
+      packageId:row.package_id,
+      package_connection_id:row.package_member_connection_id,
       completion_date: completionDate.toISOString(),
       amount: parseFloat(row.amount),
       completion: percentage,
+      is_ready_to_claim: true,
     });
 
     return acc;
   }, []);
+
   returnData = {
-  success: true,
-  data: returnData,
-  totalCompletedAmount: totalCompletedAmount,
-};
+    success: true,
+    data: returnData,
+    totalCompletedAmount: totalCompletedAmount,
+  };
 });
 return returnData;
 $$ LANGUAGE plv8;
