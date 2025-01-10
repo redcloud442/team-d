@@ -1,6 +1,5 @@
 import { PackageHistoryData } from "@/utils/types";
 import { package_table } from "@prisma/client";
-import { SupabaseClient } from "@supabase/supabase-js";
 
 export const createPackageConnection = async (params: {
   packageData: { amount: number; packageId: string };
@@ -32,39 +31,60 @@ export const createPackageConnection = async (params: {
   return response;
 };
 
-export const getPackageModalData = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    teamMemberId: string;
-  }
-) => {
-  const { data, error } = await supabaseClient.rpc("get_package_modal_data", {
-    input_data: params,
-  });
+export const getPackageModalData = async () => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/package/modal`,
+    {
+      method: "GET",
+    }
+  );
 
-  if (error) throw error;
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while fetching the package modal data."
+    );
+  }
+
+  const { data } = result;
 
   return data as package_table[];
 };
 
-export const getPackageHistory = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    search: string;
-    page: number;
-    limit: number;
-    sortBy: boolean;
-    columnAccessor: string;
-    teamMemberId: string;
-  }
-) => {
-  const { data, error } = await supabaseClient.rpc(
-    "get_member_package_history",
+export const getPackageHistory = async (params: {
+  search: string;
+  page: number;
+  limit: number;
+  sortBy: boolean;
+  columnAccessor: string;
+  teamMemberId: string;
+}) => {
+  const queryParams = {
+    search: params.search,
+    page: params.page.toString(),
+    limit: params.limit.toString(),
+    sortBy: params.sortBy.toString(),
+    columnAccessor: params.columnAccessor,
+    teamMemberId: params.teamMemberId,
+  };
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/package?${new URLSearchParams(queryParams)}`,
     {
-      input_data: params,
+      method: "GET",
     }
   );
-  if (error) throw error;
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while fetching the package history."
+    );
+  }
+
+  const { data } = result;
 
   return data as {
     data: PackageHistoryData[];

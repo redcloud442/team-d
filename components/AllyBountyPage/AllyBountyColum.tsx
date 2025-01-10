@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Prisma, user_table } from "@prisma/client";
+import { user_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 
@@ -66,9 +66,13 @@ export const AllyBountyColumn = (): ColumnDef<
       cell: ({ row }) => (
         <div className="text-wrap">
           ₱{" "}
-          {new Prisma.Decimal(
-            row.getValue("total_bounty_earnings")
-          ).toLocaleString()}
+          {Number(row.getValue("total_bounty_earnings")).toLocaleString(
+            "en-US",
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }
+          )}
         </div>
       ),
     },

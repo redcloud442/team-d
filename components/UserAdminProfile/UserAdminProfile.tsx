@@ -27,6 +27,7 @@ const UserAdminProfile = ({ userProfile }: Props) => {
         {userProfile.alliance_member_role === "MERCHANT" && (
           <MerchantBalance userProfile={userProfile} />
         )}
+
         <ChangePassword userProfile={userProfile} />
 
         <TopUpHistoryTable teamMemberProfile={userProfile} />

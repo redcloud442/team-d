@@ -1563,8 +1563,14 @@ CREATE OR REPLACE FUNCTION get_dashboard_data(
   input_data JSON
 )
 RETURNS JSON
+SET search_path TO ''
 AS $$
 let returnData = [];
+plv8.subtransaction(function() {
+ 
+let returnData = [];
+let totalCompletedAmount = 0; // Variable to track the total amount of 100% packages
+
 plv8.subtransaction(function() {
   const { teamMemberId } = input_data;
 
@@ -1628,6 +1634,7 @@ plv8.subtransaction(function() {
 
     if (percentage >= 100) {
       const earnings = row.amount;
+      totalCompletedAmount += earnings; // Add completed package amount to the total
 
       plv8.execute(
         `UPDATE alliance_schema.alliance_earnings_table
@@ -1666,6 +1673,7 @@ plv8.subtransaction(function() {
       );
       return acc;
     }
+
     acc.push({
       package: row.package,
       completion_date: completionDate.toISOString(),
@@ -1675,6 +1683,16 @@ plv8.subtransaction(function() {
 
     return acc;
   }, []);
+});
+
+// Add the totalCompletedAmount to returnData
+returnData = {
+  success: true,
+  data: returnData,
+  totalCompletedAmount,
+};
+
+return returnData;
 });
 return returnData;
 $$ LANGUAGE plv8;
@@ -1957,6 +1975,43 @@ plv8.subtransaction(function() {
 return returnData;
 $$ LANGUAGE plv8;
 
+CREATE OR REPLACE FUNCTION get_merchant_option(
+  input_data JSON
+)
+SET search_path TO ''
+RETURNS JSON
+AS $$
+let returnData = [];
+plv8.subtransaction(function() {
+    const {teamMemberId} = input_data;
+    const member = plv8.execute(
+    `
+    SELECT alliance_member_role
+    FROM alliance_schema.alliance_member_table
+    WHERE alliance_member_id = $1
+    `,
+    [teamMemberId]
+  );
+
+  if (!member.length || !["MEMBER", "MERCHANT", "ACCOUNTING"].includes(member[0].alliance_member_role)) {
+    returnData = { success: false, message: 'Unauthorized access' };
+    return;
+  }
+
+
+  const merchant = plv8.execute(
+    `
+    SELECT *
+    FROM merchant_schema.merchant_table
+    `
+  );
+
+  returnData = merchant
+});
+return returnData;
+$$ LANGUAGE plv8;
+
+
 CREATE OR REPLACE FUNCTION get_merchant_data(
   input_data JSON
 )
@@ -2131,6 +2186,7 @@ $$ LANGUAGE plv8;
 CREATE OR REPLACE FUNCTION get_merchant_option(
   input_data JSON
 )
+SET search_path TO ''
 RETURNS JSON
 AS $$
 let returnData = [];

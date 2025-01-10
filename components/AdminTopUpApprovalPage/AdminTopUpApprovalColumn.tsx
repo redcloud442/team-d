@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -15,18 +16,22 @@ import { formatDateToYYYYMMDD } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Copy } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
+import { AspectRatio } from "../ui/aspect-ratio";
 import TableLoading from "../ui/tableLoading";
 import { Textarea } from "../ui/textarea";
 const statusColorMap: Record<string, string> = {
-  APPROVED: "bg-green-500 dark:bg-green-600",
-  PENDING: "bg-yellow-600 dark:bg-yellow-700",
-  REJECTED: "bg-red-600 dark:bg-red-700",
+  APPROVED: "bg-green-500 dark:bg-green-600 dark:text-white",
+  PENDING: "bg-yellow-600 dark:bg-yellow-700 dark:text-white",
+  REJECTED: "bg-red-600 dark:bg-red-700 dark:text-white",
 };
 
 export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
   const { toast } = useToast();
+  const router = useRouter();
   const supabaseClient = createClientSide();
   const [isLoading, setIsLoading] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState({
@@ -69,43 +74,63 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
   );
 
   const columns: ColumnDef<TopUpRequestData>[] = [
+    // {
+    //   accessorKey: "alliance_top_up_request_id",
+
+    //   header: ({ column }) => (
+    //     <Button
+    //       variant="ghost"
+    //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //     >
+    //       Reference ID <ArrowUpDown />
+    //     </Button>
+    //   ),
+    //   cell: ({ row }) => {
+    //     const id = row.getValue("alliance_top_up_request_id") as string;
+    //     const maxLength = 15;
+
+    //     const handleCopy = async () => {
+    //       if (id) {
+    //         await navigator.clipboard.writeText(id);
+    //       }
+    //     };
+
+    //     return (
+    //       <div className="flex items-center space-x-2">
+    //         <div
+    //           className="truncate"
+    //           title={id.length > maxLength ? id : undefined}
+    //         >
+    //           {id.length > maxLength ? `${id.slice(0, maxLength)}...` : id}
+    //         </div>
+    //         {id && (
+    //           <Button variant="ghost" size="sm" onClick={handleCopy}>
+    //             <Copy />
+    //           </Button>
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    // },
     {
-      accessorKey: "alliance_top_up_request_id",
+      accessorKey: "user_username",
 
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Reference ID <ArrowUpDown />
+          Requestor Username <ArrowUpDown />
         </Button>
       ),
-      cell: ({ row }) => {
-        const id = row.getValue("alliance_top_up_request_id") as string;
-        const maxLength = 15;
-
-        const handleCopy = async () => {
-          if (id) {
-            await navigator.clipboard.writeText(id);
-          }
-        };
-
-        return (
-          <div className="flex items-center space-x-2">
-            <div
-              className="truncate"
-              title={id.length > maxLength ? id : undefined}
-            >
-              {id.length > maxLength ? `${id.slice(0, maxLength)}...` : id}
-            </div>
-            {id && (
-              <Button variant="ghost" size="sm" onClick={handleCopy}>
-                <Copy />
-              </Button>
-            )}
-          </div>
-        );
-      },
+      cell: ({ row }) => (
+        <div
+          onClick={() => router.push(`/admin/users/${row.original.user_id}`)}
+          className="text-wrap cursor-pointer hover:underline text-blue-500"
+        >
+          {row.getValue("user_username")}
+        </div>
+      ),
     },
     {
       accessorKey: "alliance_top_up_request_status",
@@ -124,21 +149,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
         return <Badge className={`${color} text-white`}>{status}</Badge>;
       },
     },
-    {
-      accessorKey: "user_username",
 
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Requestor Username <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("user_username")}</div>
-      ),
-    },
     {
       accessorKey: "alliance_top_up_request_amount",
 
@@ -242,15 +253,18 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
               <Button variant="outline">View Attachment</Button>
             </DialogTrigger>
             <DialogContent type="table">
+              <DialogDescription></DialogDescription>
               <DialogHeader>
                 <DialogTitle>Attachment</DialogTitle>
               </DialogHeader>
-              <div className="flex justify-center items-center">
-                <iframe
-                  src={attachmentUrl || ""}
-                  className="w-full h-96"
-                  title="Attachment Preview"
-                />
+              <div className="flex justify-center items-center border-2">
+                <AspectRatio ratio={16 / 9} className="w-full">
+                  <Image
+                    src={attachmentUrl || ""}
+                    alt="Attachment Preview"
+                    className="object-contain w-full h-full"
+                  />
+                </AspectRatio>
               </div>
               <DialogClose asChild>
                 <Button variant="secondary">Close</Button>
@@ -299,7 +313,7 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
             {data.alliance_top_up_request_status === "PENDING" && (
               <div className="flex gap-2">
                 <Button
-                  className="bg-green-500 hover:bg-green-600 dark:bg-green-500 text-white"
+                  className="bg-green-500 hover:bg-green-600 dark:bg-green-500 dark:text-white"
                   onClick={() =>
                     setIsOpenModal({
                       open: true,

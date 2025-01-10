@@ -68,8 +68,7 @@ const AllyBountyTable = ({ teamMemberProfile, sponsor }: DataTableProps) => {
 
       const { emailFilter } = sanitizedData;
 
-      const { data, totalCount } = await getAllyBounty(supabaseClient, {
-        teamMemberId: teamMemberProfile.alliance_member_id,
+      const { data, totalCount } = await getAllyBounty({
         page: activePage,
         limit: 10,
         columnAccessor: columnAccessor,

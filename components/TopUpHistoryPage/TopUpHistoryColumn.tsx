@@ -75,7 +75,11 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
       cell: ({ row }) => {
         const status = row.getValue("alliance_top_up_request_status") as string;
         const color = statusColorMap[status.toUpperCase()] || "gray"; // Default to gray if status is undefined
-        return <Badge className={`${color} text-white`}>{status}</Badge>;
+        return (
+          <Badge className={`${color} text-white dark:text-white`}>
+            {status}
+          </Badge>
+        );
       },
     },
 
@@ -95,11 +99,7 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
     },
     {
       accessorKey: "alliance_top_up_request_name",
-      header: () => (
-        <Button variant="ghost">
-          Bank Name <ArrowUpDown />
-        </Button>
-      ),
+      header: () => <Button variant="ghost">Bank Name</Button>,
       cell: ({ row }) => (
         <div className="text-center">
           {row.getValue("alliance_top_up_request_name")}

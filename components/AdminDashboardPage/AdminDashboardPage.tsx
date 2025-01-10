@@ -2,10 +2,13 @@
 
 import { useToast } from "@/hooks/use-toast";
 import { getTotalReferral } from "@/services/Bounty/Admin";
-import { getAdminDashboard } from "@/services/Dasboard/Admin";
+import {
+  getAdminDashboard,
+  getAdminDashboardByDate,
+} from "@/services/Dasboard/Admin";
 import { logError } from "@/services/Error/ErrorLogs";
 import { createClientSide } from "@/utils/supabase/client";
-import { ChartData } from "@/utils/types";
+import { AdminDashboardData, AdminDashboardDataByDate } from "@/utils/types";
 import {
   alliance_member_table,
   alliance_referral_link_table,
@@ -14,6 +17,7 @@ import { format } from "date-fns";
 import {
   CalendarIcon,
   Package2Icon,
+  PersonStandingIcon,
   PhilippinePeso,
   User2,
 } from "lucide-react";
@@ -35,7 +39,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import TableLoading from "../ui/tableLoading";
 import AdminDashboardCard from "./AdminDashboardCard";
 import AdminDashboardChart from "./AdminDashboardChart";
-import AdminDashboardTable from "./AdminDashboardTable";
 type Props = {
   teamMemberProfile: alliance_member_table;
   referral: alliance_referral_link_table;
@@ -52,14 +55,9 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
   const supabaseClient = createClientSide();
   const router = useRouter();
   const { toast } = useToast();
-  const [totalEarnings, setTotalEarnings] = useState(0);
-  const [totalWithdraw, setTotalWithdraw] = useState(0);
-  const [directLoot, setDirectLoot] = useState(0);
-  const [indirectLoot, setIndirectLoot] = useState(0);
-  const [activePackageWithinTheDay, setActivePackageWithinTheDay] = useState(0);
-  const [numberOfRegisteredUser, setNumberOfRegisteredUser] = useState(0);
-  const [totalActivatedPackage, setTotalActivatedPackage] = useState(0);
-  const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [adminDashboardByDate, setAdminDashboardByDate] =
+    useState<AdminDashboardDataByDate>();
+  const [adminDashboard, setAdminDashboard] = useState<AdminDashboardData>();
   const [isLoading, setIsLoading] = useState(false);
   const [totalReferral, setTotalReferral] = useState(0);
   const filterMethods = useForm<FormContextType>({
@@ -96,16 +94,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
         ? formatDateToLocal(new Date(endDate.setHours(23, 59, 59, 999)))
         : "";
 
-      const {
-        totalEarnings,
-        totalWithdraw,
-        directLoot,
-        indirectLoot,
-        activePackageWithinTheDay,
-        numberOfRegisteredUser,
-        totalActivatedPackage,
-        chartData,
-      } = await getAdminDashboard(supabaseClient, {
+      const data = await getAdminDashboardByDate(supabaseClient, {
         teamMemberId: teamMemberProfile.alliance_member_id,
         dateFilter: {
           start: formattedStartDate,
@@ -113,14 +102,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
         },
       });
 
-      setDirectLoot(directLoot);
-      setIndirectLoot(indirectLoot);
-      setTotalEarnings(totalEarnings);
-      setTotalWithdraw(totalWithdraw);
-      setChartData(chartData);
-      setActivePackageWithinTheDay(activePackageWithinTheDay);
-      setNumberOfRegisteredUser(numberOfRegisteredUser);
-      setTotalActivatedPackage(totalActivatedPackage);
+      setAdminDashboardByDate(data);
 
       const totalReferral = await getTotalReferral(supabaseClient, {
         teamMemberId: teamMemberProfile.alliance_member_id,
@@ -141,6 +123,18 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
   };
 
   useEffect(() => {
+    fetchAdminDashboardData();
+  }, [teamMemberProfile]);
+
+  useEffect(() => {
+    const fetchAdminDashboardData = async () => {
+      if (!teamMemberProfile) return;
+      const data = await getAdminDashboard(supabaseClient, {
+        teamMemberId: teamMemberProfile.alliance_member_id,
+      });
+
+      setAdminDashboard(data);
+    };
     fetchAdminDashboardData();
   }, [teamMemberProfile]);
 
@@ -240,23 +234,24 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
       <div className="flex flex-col gap-6">
         <div>
           <AdminDashboardCard
-            totalEarnings={totalEarnings}
-            totalWithdraw={totalWithdraw}
-            directLoot={directLoot}
-            indirectLoot={indirectLoot}
-            activePackageWithinTheDay={activePackageWithinTheDay}
-            numberOfRegisteredUser={numberOfRegisteredUser}
+            adminDashboardDataByDate={adminDashboardByDate!}
           />
         </div>
         <div>
-          <AdminDashboardChart chartData={chartData} />
+          <AdminDashboardChart
+            chartData={adminDashboardByDate?.chartData ?? []}
+          />
         </div>
+
         <Card className="w-full md:min-w-md">
           <CardHeader>
             <CardTitle> Total Referral</CardTitle>
             <CardDescription className="flex gap-x-2 text-xl font-bold">
               <PhilippinePeso />
-              {totalReferral.toLocaleString()}
+              {totalReferral.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -268,22 +263,22 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
                 className="flex-0 md:flex-2 lg:flex-1"
               />
               <Button onClick={handleCopyLink}>Copy Link</Button>
-              <Button onClick={() => router.push("/direct-loot")}>
+              <Button onClick={() => router.push("/direct-referral")}>
                 Direct Referral
               </Button>
-              <Button onClick={() => router.push("/indirect-loot")}>
+              <Button onClick={() => router.push("/indirect-referral")}>
                 Indirect Referral
               </Button>
             </div>
           </CardContent>
         </Card>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <CardAmountAdmin
             title="Total Registered User"
             value={
               <>
                 <User2 />
-                {numberOfRegisteredUser}
+                {adminDashboard?.numberOfRegisteredUser}
               </>
             }
             description=""
@@ -295,15 +290,23 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
             value={
               <>
                 <Package2Icon />
-                {totalActivatedPackage}
+                {adminDashboard?.totalActivatedPackage}
               </>
             }
             description=""
             descriptionClassName="text-sm text-gray-500"
           />
-        </div>
-        <div>
-          <AdminDashboardTable teamMemberProfile={teamMemberProfile} />
+          <CardAmountAdmin
+            title="Total Activated User"
+            value={
+              <>
+                <PersonStandingIcon />
+                {adminDashboard?.totalActivatedUser}
+              </>
+            }
+            description=""
+            descriptionClassName="text-sm text-gray-500"
+          />
         </div>
       </div>
     </div>

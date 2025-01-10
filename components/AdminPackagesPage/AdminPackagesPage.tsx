@@ -64,7 +64,7 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
             }`}
           >
             <h2
-              className={`text-xl font-bold ${pkg.package_is_disabled ? "text-gray-500" : "text-black"}`}
+              className={`text-xl font-bold ${pkg.package_is_disabled ? "text-gray-500" : ""}`}
             >
               {pkg.package_name}
             </h2>
@@ -80,7 +80,7 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
                   : "text-gray-800 dark:text-white"
               }`}
             >
-              {pkg.package_percentage} Earnings in {pkg.packages_days} Days
+              {pkg.package_percentage}% Earnings in {pkg.packages_days} Days
             </p>
 
             {!pkg.package_is_disabled && (

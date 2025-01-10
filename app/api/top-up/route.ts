@@ -1,4 +1,4 @@
-import { applyRateLimit } from "@/utils/function";
+import { applyRateLimit, escapeFormData } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
@@ -46,10 +46,11 @@ export async function POST(request: Request) {
     }
 
     if (amount.length > 7 || amount.length < 3) {
-      return NextResponse.json(
-        { error: "Amount must be between 3 and 7 digits." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid Request." }, { status: 400 });
+    }
+
+    if (parseInt(amount, 10) < 200) {
+      return NextResponse.json({ error: "Invalid Request." }, { status: 400 });
     }
 
     await protectionMemberUser(ip);
@@ -64,10 +65,7 @@ export async function POST(request: Request) {
     });
 
     if (!merchantData) {
-      return NextResponse.json(
-        { error: "Merchant not found." },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Invalid Request." }, { status: 404 });
     }
 
     const filePath = `uploads/${Date.now()}_${file.name}`;
@@ -105,13 +103,72 @@ export async function POST(request: Request) {
     } catch (dbError) {
       await supabase.storage.from("REQUEST_ATTACHMENTS").remove([filePath]);
       return NextResponse.json(
-        { error: "Database operation failed. File upload rolled back." },
+        { error: "Internal Server Error." },
         { status: 500 }
       );
     }
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "An unexpected error occurred.";
+      error instanceof Error ? error.message : "Internal Server Error.";
     return NextResponse.json({ error: errorMessage }, { status: 500 });
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const ip =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("cf-connecting-ip") ||
+      "unknown";
+
+    const { teamMemberProfile } = await protectionMemberUser(ip);
+
+    await applyRateLimit(teamMemberProfile?.alliance_member_id || "", ip);
+
+    const supabaseClient = await createClientServerSide();
+
+    const url = new URL(request.url);
+    const search = url.searchParams.get("search") || "";
+    const page = url.searchParams.get("page") || 1;
+    const limit = url.searchParams.get("limit") || 10;
+    const sortBy = url.searchParams.get("sortBy") || true;
+    const columnAccessor = url.searchParams.get("columnAccessor") || "";
+    const isAscendingSort = url.searchParams.get("isAscendingSort") || true;
+    const teamMemberId = url.searchParams.get("teamMemberId") || "";
+
+    const params = {
+      search,
+      page,
+      limit,
+      sortBy,
+      columnAccessor,
+      isAscendingSort: isAscendingSort,
+      teamId: teamMemberProfile?.alliance_member_alliance_id || "",
+      teamMemberId: teamMemberId
+        ? teamMemberId
+        : teamMemberProfile?.alliance_member_id,
+    };
+
+    const escapedParams = escapeFormData(params);
+
+    if (limit !== "10") {
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    }
+
+    const { data, error } = await supabaseClient.rpc(
+      "get_member_top_up_history",
+      {
+        input_data: escapedParams,
+      }
+    );
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, data: data });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "internal server error" },
+      { status: 500 }
+    );
   }
 }

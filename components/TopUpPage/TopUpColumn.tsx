@@ -6,7 +6,7 @@ import { formatDateToYYYYMMDD } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Copy } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Badge } from "../ui/badge";
 import {
@@ -20,9 +20,9 @@ import {
 import { Textarea } from "../ui/textarea";
 
 const statusColorMap: Record<string, string> = {
-  APPROVED: "bg-green-500 dark:bg-green-500",
-  PENDING: "bg-yellow-600 dark:bg-yellow-600",
-  REJECTED: "bg-red-600 dark:bg-red-600",
+  APPROVED: "bg-green-500 dark:bg-green-500 dark:text-white",
+  PENDING: "bg-yellow-600 dark:bg-yellow-600 dark:text-white",
+  REJECTED: "bg-red-600 dark:bg-red-600 dark:text-white",
 };
 
 export const TopUpColumn = (handleFetch: () => void) => {
@@ -59,12 +59,12 @@ export const TopUpColumn = (handleFetch: () => void) => {
             stackPath:
               "components/AdminTopUpApprovalPage/AdminTopUpApprovalColumn.tsx",
           });
+          toast({
+            title: `Invalid Request`,
+            description: `${e.message}`,
+            variant: "destructive",
+          });
         }
-        toast({
-          title: `Status Failed`,
-          description: `Something went wrong`,
-          variant: "destructive",
-        });
       } finally {
         setIsLoading(false);
       }
@@ -74,41 +74,19 @@ export const TopUpColumn = (handleFetch: () => void) => {
 
   const columns: ColumnDef<TopUpRequestData>[] = [
     {
-      accessorKey: "alliance_top_up_request_id",
+      accessorKey: "user_username",
+
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Reference ID <ArrowUpDown />
+          Requestor Username <ArrowUpDown />
         </Button>
       ),
-      cell: ({ row }) => {
-        const id = row.getValue("alliance_top_up_request_id") as string;
-        const maxLength = 15;
-
-        const handleCopy = async () => {
-          if (id) {
-            await navigator.clipboard.writeText(id);
-          }
-        };
-
-        return (
-          <div className="flex items-center space-x-2">
-            <div
-              className="truncate"
-              title={id.length > maxLength ? id : undefined}
-            >
-              {id.length > maxLength ? `${id.slice(0, maxLength)}...` : id}
-            </div>
-            {id && (
-              <Button variant="ghost" size="sm" onClick={handleCopy}>
-                <Copy />
-              </Button>
-            )}
-          </div>
-        );
-      },
+      cell: ({ row }) => (
+        <div className="text-wrap">{row.getValue("user_username")}</div>
+      ),
     },
     {
       accessorKey: "alliance_top_up_request_status",
@@ -124,9 +102,10 @@ export const TopUpColumn = (handleFetch: () => void) => {
       cell: ({ row }) => {
         const status = row.getValue("alliance_top_up_request_status") as string;
         const color = statusColorMap[status.toUpperCase()] || "gray"; // Default to gray if status is undefined
-        return <Badge className={`${color} text-white`}>{status}</Badge>;
+        return <Badge className={`${color}`}>{status}</Badge>;
       },
     },
+
     {
       accessorKey: "alliance_top_up_request_amount",
 
@@ -289,7 +268,7 @@ export const TopUpColumn = (handleFetch: () => void) => {
             {data.alliance_top_up_request_status === "PENDING" && (
               <div className="flex gap-2">
                 <Button
-                  className="bg-green-500 hover:bg-green-600 dark:bg-green-500 text-white"
+                  className="bg-green-500 hover:bg-green-600 dark:bg-green-500 dark:text-white"
                   onClick={() =>
                     setIsOpenModal({
                       open: true,

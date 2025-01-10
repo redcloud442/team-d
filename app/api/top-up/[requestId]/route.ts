@@ -21,13 +21,13 @@ export async function PUT(
 
     const { requestId } = await context.params;
 
-    if (!requestId) return sendErrorResponse("Request ID is required.");
+    if (!requestId) return sendErrorResponse("Invalid request.");
 
     const { status, note }: { status: string; note?: string | null } =
       await request.json();
 
     if (!status || !Object.values(TOP_UP_STATUS).includes(status)) {
-      return sendErrorResponse("Invalid or missing status.");
+      return sendErrorResponse("Invalid request.");
     }
 
     const { teamMemberProfile } = await protectionMerchantUser(ip);
@@ -53,12 +53,14 @@ export async function PUT(
     if (!merchant && teamMemberProfile.alliance_member_role === "MERCHANT")
       return sendErrorResponse("Merchant not found.", 404);
 
-    if (existingRequest.alliance_top_up_request_status !== "PENDING") {
-      return sendErrorResponse("Request has already been processed.");
+    if (
+      existingRequest.alliance_top_up_request_status !== TOP_UP_STATUS.PENDING
+    ) {
+      return sendErrorResponse("Invalid request.");
     }
 
     if (
-      status === "APPROVED" &&
+      status === TOP_UP_STATUS.APPROVED &&
       teamMemberProfile.alliance_member_role === "MERCHANT" &&
       existingRequest.alliance_top_up_request_amount >
         (merchant?.merchant_member_balance ?? 0)
@@ -112,7 +114,6 @@ export async function PUT(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error in PUT request:", error);
     return NextResponse.json(
       {
         error:

@@ -2,6 +2,7 @@ import { loginRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import {
   protectionAdminUser,
+  protectionAllUser,
   protectionMerchantUser,
 } from "@/utils/serversideProtection";
 import { NextResponse } from "next/server";
@@ -46,7 +47,6 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error in PATCH request:", error);
     return sendErrorResponse(
       error instanceof Error ? error.message : "Unknown error.",
       500
@@ -89,7 +89,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error in POST request:", error);
     return sendErrorResponse(
       error instanceof Error ? error.message : "Unknown error.",
       500
@@ -128,7 +127,44 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    console.error("Error in DELETE request:", error);
+    return sendErrorResponse(
+      error instanceof Error ? error.message : "Unknown error.",
+      500
+    );
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+      request.headers.get("cf-connecting-ip") ||
+      "unknown";
+
+    if (ip === "unknown")
+      return sendErrorResponse(
+        "Unable to determine IP address for rate limiting."
+      );
+
+    await protectionAllUser(ip);
+
+    loginRateLimit(ip);
+
+    const merchant = await prisma.$transaction(async (tx) => {
+      const merchant = await tx.merchant_table.findMany({
+        select: {
+          merchant_id: true,
+          merchant_account_number: true,
+          merchant_account_type: true,
+          merchant_account_name: true,
+        },
+      });
+
+      return merchant;
+    });
+
+    return NextResponse.json({ success: true, data: merchant });
+  } catch (error) {
     return sendErrorResponse(
       error instanceof Error ? error.message : "Unknown error.",
       500

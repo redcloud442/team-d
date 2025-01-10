@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Packages",
   description: "List of Packages",
   openGraph: {
-    url: "/admin/packages",
+    url: "/admin/leaderboards",
   },
 };
 

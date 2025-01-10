@@ -16,11 +16,20 @@ const UserProfilePage = ({ userProfile }: Props) => {
         <header>
           <h1 className="Title">User Profile</h1>
           <p className="text-gray-600 dark:text-white">
-            View all the withdrawal history that are currently in the system.
+            View your personal information and change your password.
           </p>
         </header>
 
-        <PersonalInformation type="MEMBER" userProfile={userProfile} />
+        <PersonalInformation
+          type={
+            userProfile.alliance_member_role as
+              | "ADMIN"
+              | "MEMBER"
+              | "ACCOUNTING"
+              | "MERCHANT"
+          }
+          userProfile={userProfile}
+        />
 
         <ChangePassword userProfile={userProfile} />
       </div>

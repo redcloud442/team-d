@@ -43,7 +43,7 @@ const NavBar = () => {
           className="text-xl font-bold cursor-pointer"
           onClick={() => handleNavigation("/")}
         >
-          Logo Here
+          PR1MEPH
         </Button>
 
         {/* Navigation Links */}
@@ -64,9 +64,9 @@ const NavBar = () => {
             <>
               <Button
                 variant="ghost"
-                onClick={() => handleNavigation("/top-up")}
+                onClick={() => handleNavigation("/deposit")}
               >
-                Top Up
+                Deposit
               </Button>
               <Button
                 variant="ghost"

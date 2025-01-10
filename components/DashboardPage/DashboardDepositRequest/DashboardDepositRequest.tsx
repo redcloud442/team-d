@@ -11,10 +11,13 @@ import {
   alliance_member_table,
   package_table,
 } from "@prisma/client";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
+
+import dynamic from "next/dynamic";
 import DashboardDepositModalHistory from "./DashboardDepositModal/DashboardDepositHistory";
 import DashboardDepositModalDeposit from "./DashboardDepositModal/DashboardDepositModalDeposit";
 import DashboardDepositModalPackages from "./DashboardDepositModal/DashboardDepositPackagesModal";
+const ReactJoyride = dynamic(() => import("react-joyride"), { ssr: false });
 
 type Props = {
   teamMemberProfile: alliance_member_table;
@@ -33,36 +36,83 @@ const DashboardDepositRequest = ({
   setEarnings,
   setIsActive,
 }: Props) => {
+  // const [runTour, setRunTour] = useState(false); // Manage tour state
+  const [open, setOpen] = useState(false);
+
+  // const steps = [
+  //   {
+  //     target: ".deposit-button", // Add this class to the Deposit Now button
+  //     content: "Click here to start your deposit request.",
+  //   },
+  //   {
+  //     target: ".package-selection", // Add this class to the package selection modal button
+  //     content: "Select from the available packages to invest in your future.",
+  //   },
+  // ];
+
+  // const handleJoyrideCallback = (data: { status: string }) => {
+  //   const { status } = data;
+  //   if (["finished", "skipped"].includes(status)) {
+  //     setRunTour(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (teamMemberProfile.alliance_member_is_active) {
+  //     setTimeout(
+  //       () => setRunTour(!teamMemberProfile.alliance_member_is_active),
+  //       1000
+  //     );
+  //   }
+  // }, [teamMemberProfile]);
+
   return (
-    <Card className="w-full mx-auto">
-      <CardHeader>
-        <CardTitle>Deposit Request</CardTitle>
-        <CardDescription>Completion status for packages</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex justify-between gap-4">
-          <h1 className="text-xl font-bold">Deposit Now</h1>
-          <div className="flex flex-col w-full max-w-lg gap-2">
-            <DashboardDepositModalDeposit
-              teamMemberProfile={teamMemberProfile}
-            />
+    <>
+      <Card className="w-full mx-auto">
+        <CardHeader>
+          <CardTitle>Deposit Request</CardTitle>
+          <CardDescription>Inveest in your future with us </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-between gap-4">
+            <h1 className="text-xl font-bold">Deposit Now</h1>
+            <div className="flex flex-col w-full  gap-2">
+              <DashboardDepositModalDeposit
+                teamMemberProfile={teamMemberProfile}
+                className="deposit-button"
+                setOpen={setOpen}
+                open={open}
+              />
 
-            <DashboardDepositModalPackages
-              packages={packages}
-              earnings={earnings}
-              teamMemberProfile={teamMemberProfile}
-              setEarnings={setEarnings}
-              setChartData={setChartData}
-              setIsActive={setIsActive}
-            />
+              <DashboardDepositModalPackages
+                className="package-selection"
+                packages={packages}
+                earnings={earnings}
+                teamMemberProfile={teamMemberProfile}
+                setEarnings={setEarnings}
+                setChartData={setChartData}
+                setIsActive={setIsActive}
+              />
 
-            <DashboardDepositModalHistory
-              teamMemberProfile={teamMemberProfile}
-            />
+              <DashboardDepositModalHistory
+                teamMemberProfile={teamMemberProfile}
+              />
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+      {/* <ReactJoyride
+        steps={steps}
+        run={runTour}
+        continuous
+        callback={handleJoyrideCallback}
+        styles={{
+          options: {
+            zIndex: 10000,
+          },
+        }}
+      /> */}
+    </>
   );
 };
 

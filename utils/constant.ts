@@ -20,4 +20,9 @@ export const WITHDRAWAL_STATUS = {
   REJECTED: "REJECTED",
 };
 
-export const BASE_URL = "https://redful.xyz";
+export const ROLE = {
+  MEMBER: "MEMBER",
+  ADMIN: "ADMIN",
+};
+
+export const BASE_URL = "https://pr1meph.vercel.app";

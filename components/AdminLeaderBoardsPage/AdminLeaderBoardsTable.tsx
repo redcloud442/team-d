@@ -88,7 +88,7 @@ const AdminLeaderBoardsPage = ({ teamMemberProfile }: Props) => {
     getLeaderboards();
   }, [leaderBoardType, activePage]);
 
-  const columns = leaderBoardColumn();
+  const columns = leaderBoardColumn(activePage, 10);
 
   const table = useReactTable({
     data: leaderboards,

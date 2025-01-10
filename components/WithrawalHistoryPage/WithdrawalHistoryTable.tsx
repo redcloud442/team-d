@@ -67,18 +67,15 @@ const WithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const { referenceId } = sanitizedData;
 
-      const { data, totalCount } = await getMemberWithdrawalRequest(
-        supabaseClient,
-        {
-          teamId: teamMemberProfile.alliance_member_alliance_id,
-          teamMemberId: teamMemberProfile.alliance_member_id,
-          page: activePage,
-          limit: 10,
-          columnAccessor: columnAccessor,
-          isAscendingSort: isAscendingSort,
-          search: referenceId,
-        }
-      );
+      const { data, totalCount } = await getMemberWithdrawalRequest({
+        teamId: teamMemberProfile.alliance_member_alliance_id,
+        teamMemberId: teamMemberProfile.alliance_member_id,
+        page: activePage,
+        limit: 10,
+        columnAccessor: columnAccessor,
+        isAscendingSort: isAscendingSort,
+        search: referenceId,
+      });
 
       setRequestData(data || []);
       setRequestCount(totalCount || 0);
@@ -135,30 +132,31 @@ const WithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   const pageCount = Math.ceil(requestCount / 10);
 
   return (
-    <Card className="w-full rounded-sm p-4">
-      <h1>Withdrawal History List</h1>
-      <div className="flex items-center py-4">
-        <form className="flex gap-2" onSubmit={handleSubmit(handleFilter)}>
-          <Input
-            {...register("referenceId")}
-            placeholder="Filter reference id..."
-            className="max-w-sm p-2 border rounded"
-          />
-          <Button
-            type="submit"
-            disabled={isFetchingList}
-            size="sm"
-            variant="outline"
-          >
-            <Search />
-          </Button>
-          <Button onClick={fetchRequest} disabled={isFetchingList} size="sm">
-            <RefreshCw />
-            Refresh
-          </Button>
-        </form>
-      </div>
-      <ScrollArea className="w-full overflow-x-auto ">
+    <ScrollArea className="w-full overflow-x-auto ">
+      <Card className="w-full rounded-sm p-4">
+        <h1>Withdrawal History</h1>
+        <div className="flex items-center py-4">
+          <form className="flex gap-2" onSubmit={handleSubmit(handleFilter)}>
+            <Input
+              {...register("referenceId")}
+              placeholder="Filter reference id..."
+              className="max-w-sm p-2 border rounded"
+            />
+            <Button
+              type="submit"
+              disabled={isFetchingList}
+              size="sm"
+              variant="outline"
+            >
+              <Search />
+            </Button>
+            <Button onClick={fetchRequest} disabled={isFetchingList} size="sm">
+              <RefreshCw />
+              Refresh
+            </Button>
+          </form>
+        </div>
+
         {isFetchingList && <TableLoading />}
         <Table>
           <TableHeader>
@@ -220,85 +218,86 @@ const WithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
           </tfoot>
         </Table>
         <ScrollBar orientation="horizontal" />
-      </ScrollArea>
-      <Separator />
-      <div className="flex items-center justify-end gap-x-4 py-4">
-        {activePage > 1 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
-            disabled={activePage <= 1}
-          >
-            <ChevronLeft />
-          </Button>
-        )}
 
-        <div className="flex space-x-2">
-          {(() => {
-            const maxVisiblePages = 3;
-            const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
-            let displayedPages = [];
+        <Separator />
+        <div className="flex items-center justify-end gap-x-4 py-4">
+          {activePage > 1 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
+              disabled={activePage <= 1}
+            >
+              <ChevronLeft />
+            </Button>
+          )}
 
-            if (pageCount <= maxVisiblePages) {
-              // Show all pages if there are 3 or fewer
-              displayedPages = pages;
-            } else {
-              if (activePage <= 2) {
-                // Show the first 3 pages and the last page
-                displayedPages = [1, 2, 3, "...", pageCount];
-              } else if (activePage >= pageCount - 1) {
-                // Show the first page and the last 3 pages
-                displayedPages = [
-                  1,
-                  "...",
-                  pageCount - 2,
-                  pageCount - 1,
-                  pageCount,
-                ];
+          <div className="flex space-x-2">
+            {(() => {
+              const maxVisiblePages = 3;
+              const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
+              let displayedPages = [];
+
+              if (pageCount <= maxVisiblePages) {
+                // Show all pages if there are 3 or fewer
+                displayedPages = pages;
               } else {
-                displayedPages = [
-                  activePage - 1,
-                  activePage,
-                  activePage + 1,
-                  "...",
-                  pageCount,
-                ];
+                if (activePage <= 2) {
+                  // Show the first 3 pages and the last page
+                  displayedPages = [1, 2, 3, "...", pageCount];
+                } else if (activePage >= pageCount - 1) {
+                  // Show the first page and the last 3 pages
+                  displayedPages = [
+                    1,
+                    "...",
+                    pageCount - 2,
+                    pageCount - 1,
+                    pageCount,
+                  ];
+                } else {
+                  displayedPages = [
+                    activePage - 1,
+                    activePage,
+                    activePage + 1,
+                    "...",
+                    pageCount,
+                  ];
+                }
               }
-            }
 
-            return displayedPages.map((page, index) =>
-              typeof page === "number" ? (
-                <Button
-                  key={page}
-                  variant={activePage === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setActivePage(page)}
-                >
-                  {page}
-                </Button>
-              ) : (
-                <span key={`ellipsis-${index}`} className="px-2 py-1">
-                  {page}
-                </span>
-              )
-            );
-          })()}
+              return displayedPages.map((page, index) =>
+                typeof page === "number" ? (
+                  <Button
+                    key={page}
+                    variant={activePage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setActivePage(page)}
+                  >
+                    {page}
+                  </Button>
+                ) : (
+                  <span key={`ellipsis-${index}`} className="px-2 py-1">
+                    {page}
+                  </span>
+                )
+              );
+            })()}
+          </div>
+          {activePage < pageCount && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setActivePage((prev) => Math.min(prev + 1, pageCount))
+              }
+              disabled={activePage >= pageCount}
+            >
+              <ChevronRight />
+            </Button>
+          )}
         </div>
-        {activePage < pageCount && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              setActivePage((prev) => Math.min(prev + 1, pageCount))
-            }
-            disabled={activePage >= pageCount}
-          >
-            <ChevronRight />
-          </Button>
-        )}
-      </div>
-    </Card>
+      </Card>
+    </ScrollArea>
   );
 };
 

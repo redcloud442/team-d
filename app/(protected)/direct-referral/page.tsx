@@ -4,10 +4,10 @@ import { createClientServerSide } from "@/utils/supabase/server";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 export const metadata: Metadata = {
-  title: "Legion Bounty",
-  description: "Legion Bounty Page",
+  title: "Direct Referral",
+  description: "Direct Referral Page",
   openGraph: {
-    url: "/direct-loot",
+    url: "/direct-referral",
   },
 };
 

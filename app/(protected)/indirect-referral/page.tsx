@@ -4,10 +4,10 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Legion Bounty",
-  description: "Legion Bounty Page",
+  title: "Indirect Referral",
+  description: "Indirect Referral Page",
   openGraph: {
-    url: "/indirect-loot",
+    url: "/indirect-referral",
   },
 };
 

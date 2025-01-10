@@ -93,7 +93,10 @@ const MerchantBalance = ({ userProfile }: Props) => {
           </CardTitle>
           <span className="text-lg font-medium flex items-center gap-2">
             Current Balance: <PhilippinePeso size={16} />
-            {merchantData.merchant_member_balance?.toLocaleString() || "0.00"}
+            {merchantData.merchant_member_balance?.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }) || "0.00"}
           </span>
         </div>
       </CardHeader>

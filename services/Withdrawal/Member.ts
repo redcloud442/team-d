@@ -1,5 +1,5 @@
 import { WithdrawalFormValues } from "@/components/DashboardPage/DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
-import { WithdrawalRequestData } from "@/utils/types";
+import { AdminWithdrawaldata, WithdrawalRequestData } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const createWithdrawalRequest = async (params: {
@@ -32,28 +32,39 @@ export const createWithdrawalRequest = async (params: {
   return result;
 };
 
-export const getMemberWithdrawalRequest = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    page: number;
-    limit: number;
-    search?: string;
-    teamMemberId: string;
-    teamId: string;
-    columnAccessor: string;
-    isAscendingSort: boolean;
-  }
-) => {
-  const { data, error } = await supabaseClient.rpc(
-    "get_member_withdrawal_history",
+export const getMemberWithdrawalRequest = async (params: {
+  page: number;
+  limit: number;
+  search?: string;
+  teamMemberId: string;
+  teamId: string;
+  columnAccessor: string;
+  isAscendingSort: boolean;
+}) => {
+  const urlParams = {
+    page: params.page.toString(),
+    limit: params.limit.toString(),
+    search: params.search || "",
+    columnAccessor: params.columnAccessor,
+    isAscendingSort: params.isAscendingSort ? "true" : "false",
+  };
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/withdraw?${new URLSearchParams(urlParams)}`,
     {
-      input_data: params,
+      method: "GET",
     }
   );
 
-  if (error) throw error;
+  const result = await response.json();
 
-  return data as {
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while fetching the withdrawal history."
+    );
+  }
+
+  return result as {
     data: WithdrawalRequestData[];
     totalCount: 0;
   };
@@ -86,13 +97,5 @@ export const getWithdrawalRequestAccountant = async (
 
   if (error) throw error;
 
-  return data as {
-    data: WithdrawalRequestData[];
-    totalCount: 0;
-    count: {
-      REJECTED: number;
-      APPROVED: number;
-      PENDING: number;
-    };
-  };
+  return data as AdminWithdrawaldata;
 };

@@ -1,13 +1,13 @@
-import AdminTopUpApprovalPage from "@/components/AdminTopUpApprovalPage/AdminTopUpApprovalPage";
+import AdminUserMonitoringPage from "@/components/AdminUserMonitoringPage/AdminUserMonitoringPage";
 import { protectionAdminUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Top Up Records",
-  description: "List of Top Up Records",
+  title: "Monitoring",
+  description: "Monitoring",
   openGraph: {
-    url: "/admin/top-up",
+    url: "/admin/monitoring",
   },
 };
 
@@ -16,7 +16,7 @@ const Page = async () => {
 
   if (!teamMemberProfile) return redirect("/500");
 
-  return <AdminTopUpApprovalPage teamMemberProfile={teamMemberProfile} />;
+  return <AdminUserMonitoringPage teamMemberProfile={teamMemberProfile} />;
 };
 
 export default Page;

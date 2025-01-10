@@ -346,14 +346,6 @@ export const protectionAllUser = async (ip?: string) => {
 
     const userId = authData.user.id;
 
-    if (ip) {
-      const banned = await prisma.user_history_log.findFirst({
-        where: { user_history_user_id: userId, user_ip_address: ip },
-      });
-      if (banned) {
-        return { redirect: "/500" };
-      }
-    }
     const [profile, teamMember] = await Promise.all([
       prisma.user_table.findUnique({ where: { user_id: userId } }),
       prisma.alliance_member_table.findFirst({

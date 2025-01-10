@@ -155,7 +155,11 @@ const AvailPackagePage = ({
                       <span className="font-medium">Investment: </span>
                       <span className="mt-1">
                         {" "}
-                        ₱ {Number(amount).toLocaleString()}
+                        ₱{" "}
+                        {Number(amount).toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                       </span>
                     </div>
                     <div>
@@ -170,7 +174,12 @@ const AvailPackagePage = ({
                 <div>
                   <span className="font-medium">Total: </span>
                   <span>
-                    ₱ {sumOfTotal.toLocaleString()} in {pkg.packages_days}{" "}
+                    ₱{" "}
+                    {sumOfTotal.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    in {pkg.packages_days}{" "}
                     {pkg.packages_days === 1 ? "day" : "days"}
                   </span>
                 </div>
@@ -227,7 +236,7 @@ const AvailPackagePage = ({
                 </div>
               </div>
             ) : (
-              <Alert>
+              <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>No Balance</AlertTitle>
                 <AlertDescription>

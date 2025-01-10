@@ -23,6 +23,7 @@ import {
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 type Props = {
+  className: string;
   teamMemberProfile: alliance_member_table;
   packages: package_table[];
   earnings: alliance_earnings_table;
@@ -32,6 +33,7 @@ type Props = {
 };
 
 const DashboardDepositModalPackages = ({
+  className,
   packages: initialPackage,
   teamMemberProfile,
   earnings,
@@ -53,9 +55,7 @@ const DashboardDepositModalPackages = ({
     const packagesData = async () => {
       try {
         if (!open) return;
-        const data = await getPackageModalData(supabaseClient, {
-          teamMemberId: teamMemberProfile.alliance_member_id,
-        });
+        const data = await getPackageModalData();
 
         setPackages(data);
         if (!teamMemberProfile.alliance_member_is_active) {
@@ -86,14 +86,14 @@ const DashboardDepositModalPackages = ({
         }
       }}
     >
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className={className}>
         <Button variant="outline" onClick={() => setOpen(true)}>
           Packages
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">
-        <ScrollArea className="h-[500px]">
+        <ScrollArea className="h-auto max-h-[500px]">
           <DialogHeader>
             <DialogTitle>Buy Packages</DialogTitle>
             <DialogDescription></DialogDescription>

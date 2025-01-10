@@ -4,6 +4,7 @@
 import MobileNavBar from "@/components/ui/MobileNavBar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/ui/toggleDarkmode";
+import { ROLE } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
 import { alliance_member_table, user_table } from "@prisma/client";
 import NavBar from "../ui/navBar";
@@ -24,7 +25,7 @@ export default function LayoutContent({
 
   return (
     <div className="flex min-h-screen h-full w-full overflow-auto">
-      {role === "ADMIN" && (
+      {role === ROLE.ADMIN && (
         <div>
           <AppSidebar
             userData={profile}
@@ -34,13 +35,13 @@ export default function LayoutContent({
       )}
 
       <div className="flex-1 flex flex-col overflow-x-auto">
-        {role === "ADMIN" && (
+        {role === ROLE.ADMIN && (
           <div className="p-4 md:hidden">
             <SidebarTrigger />
           </div>
         )}
 
-        {role !== "ADMIN" && (
+        {role !== ROLE.ADMIN && (
           <div className="hidden md:block">
             <NavBar />
           </div>
@@ -49,7 +50,7 @@ export default function LayoutContent({
         <div className="p-4 pb-10 md:pb-0">{children}</div>
         <ModeToggle />
 
-        {role !== "ADMIN" && <MobileNavBar />}
+        {role !== ROLE.ADMIN && <MobileNavBar />}
       </div>
     </div>
   );

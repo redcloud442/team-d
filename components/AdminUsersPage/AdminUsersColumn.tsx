@@ -16,7 +16,7 @@ import { formatDateToYYYYMMDD } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Copy, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import TableLoading from "../ui/tableLoading";
@@ -108,49 +108,6 @@ export const AdminUsersColumn = (
 
   return [
     {
-      accessorKey: "user_id",
-
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          User ID <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => {
-        const id = row.getValue("user_id") as string;
-        const maxLength = 15;
-
-        const handleCopy = async () => {
-          if (id) {
-            await navigator.clipboard.writeText(id);
-            toast({
-              title: "Copied",
-              description: "User ID copied to clipboard",
-              variant: "success",
-            });
-          }
-        };
-
-        return (
-          <div className="flex items-center space-x-2">
-            <div
-              className="truncate"
-              title={id.length > maxLength ? id : undefined}
-            >
-              {id.length > maxLength ? `${id.slice(0, maxLength)}...` : id}
-            </div>
-            {id && (
-              <Button variant="ghost" size="sm" onClick={handleCopy}>
-                <Copy className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
-        );
-      },
-    },
-    {
       accessorKey: "user_username",
 
       header: ({ column }) => (
@@ -162,7 +119,14 @@ export const AdminUsersColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("user_username")}</div>
+        <div
+          onClick={() =>
+            router.push(`/admin/users/${row.original.alliance_member_user_id}`)
+          }
+          className="text-blue-500 text-wrap cursor-pointer hover:underline"
+        >
+          {row.getValue("user_username")}
+        </div>
       ),
     },
     {

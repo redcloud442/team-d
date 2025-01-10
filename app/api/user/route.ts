@@ -1,6 +1,7 @@
-import { loginRateLimit } from "@/utils/function";
+import { applyRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
+import { createClientServerSide } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function PUT(request: Request) {
@@ -18,9 +19,9 @@ export async function PUT(request: Request) {
       );
     }
 
-    await protectionMemberUser();
+    const { teamMemberProfile: profile } = await protectionMemberUser();
 
-    loginRateLimit(ip);
+    applyRateLimit(profile?.alliance_member_id || "", ip);
 
     const { email, password, userId } = await request.json();
 
@@ -46,10 +47,7 @@ export async function PUT(request: Request) {
     });
 
     if (!teamMemberProfile) {
-      return NextResponse.json(
-        { error: "User profile not found or incomplete." },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Invalid request." }, { status: 403 });
     }
 
     if (
@@ -57,7 +55,7 @@ export async function PUT(request: Request) {
       !teamMemberProfile.alliance_member_alliance_id
     ) {
       return NextResponse.json(
-        { success: false, error: "Access restricted or incomplete profile." },
+        { success: false, error: "Access restricted" },
         { status: 403 }
       );
     }
@@ -72,6 +70,42 @@ export async function PUT(request: Request) {
     });
 
     return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unknown error." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+      request.headers.get("cf-connecting-ip") ||
+      "unknown";
+
+    if (ip === "unknown") {
+      return NextResponse.json(
+        { error: "Unable to determine IP address for rate limiting." },
+        { status: 400 }
+      );
+    }
+
+    const { teamMemberProfile } = await protectionMemberUser();
+
+    const supabase = await createClientServerSide();
+
+    applyRateLimit(teamMemberProfile?.alliance_member_id || "", ip);
+
+    const { data, error } = await supabase.rpc("get_earnings_modal_data", {
+      input_data: {
+        teamMemberId: teamMemberProfile?.alliance_member_id || "",
+      },
+    });
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, data: data });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error." },

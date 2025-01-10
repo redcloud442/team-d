@@ -1,4 +1,6 @@
+import { escapeFormData } from "@/utils/function";
 import { UserLog, UserRequestdata } from "@/utils/types";
+import { user_table } from "@prisma/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { loginValidation } from "../auth/auth";
 
@@ -14,16 +16,48 @@ export const getAdminUserRequest = async (
     isAscendingSort: boolean;
     userRole?: string;
     dateCreated?: string;
+    bannedUser?: boolean;
   }
 ) => {
+  const sanitizedData = escapeFormData(params);
+
   const { data, error } = await supabaseClient.rpc("get_admin_user_data", {
-    input_data: params,
+    input_data: sanitizedData,
   });
 
   if (error) throw error;
 
   return data as {
     data: UserRequestdata[];
+
+    totalCount: 0;
+  };
+};
+
+export const getUserWithActiveBalance = async (
+  supabaseClient: SupabaseClient,
+  params: {
+    teamMemberId: string;
+    page: number;
+    limit: number;
+    search?: string;
+    columnAccessor: string;
+    isAscendingSort: boolean;
+  }
+) => {
+  const sanitizedData = escapeFormData(params);
+
+  const { data, error } = await supabaseClient.rpc(
+    "get_user_with_active_balance",
+    {
+      input_data: sanitizedData,
+    }
+  );
+
+  if (error) throw error;
+
+  return data as {
+    data: user_table[];
     totalCount: 0;
   };
 };
@@ -38,8 +72,10 @@ export const getHistoryLog = async (
     isAscendingSort: boolean;
   }
 ) => {
+  const sanitizedData = escapeFormData(params);
+
   const { data, error } = await supabaseClient.rpc("get_history_log", {
-    input_data: params,
+    input_data: sanitizedData,
   });
 
   if (error) throw error;
@@ -57,15 +93,20 @@ export const handleSignInUser = async (
     password: string;
     role: string;
     iv: string;
+    userProfile?: UserRequestdata;
   }
 ) => {
-  const { userName, password, role, iv } = params;
+  if (params.userProfile?.alliance_member_restricted) {
+    throw new Error("User is banned.");
+  }
+  const sanitizedData = escapeFormData(params);
 
   const response = await loginValidation(supabaseClient, {
-    userName: userName,
-    password,
-    role,
-    iv,
+    userName: sanitizedData.userName,
+    password: sanitizedData.password,
+    role: sanitizedData.role,
+    iv: sanitizedData.iv,
+    userProfile: sanitizedData.userProfile,
   });
   return response;
 };
@@ -74,13 +115,14 @@ export const handleUpdateRole = async (params: {
   role: string;
   userId: string;
 }) => {
-  const { userId, role } = params;
+  const sanitizedData = escapeFormData(params);
+
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/` + userId,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/` + sanitizedData.userId,
     {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "updateRole", role: role }),
+      body: JSON.stringify({ action: "updateRole", role: sanitizedData.role }),
     }
   );
 

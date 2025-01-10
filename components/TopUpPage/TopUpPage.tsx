@@ -12,9 +12,9 @@ const TopUpPage = ({ teamMemberProfile }: Props) => {
     <div className="mx-auto py-8 md:p-10">
       <div>
         <header className="mb-4">
-          <h1 className="Title">Top Up List Page</h1>
+          <h1 className="Title">Deposit List Page</h1>
           <p className="text-gray-600 dark:text-white">
-            View all the top up records that are currently in the system.
+            View all the deposit records that are currently in the system.
           </p>
         </header>
 

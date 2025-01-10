@@ -48,8 +48,8 @@ const MobileNavBar = () => {
     ...(role === "MERCHANT"
       ? [
           {
-            href: "/top-up",
-            label: "Top Up",
+            href: "/deposit",
+            label: "Deposit",
             icon: <ShoppingBag className="w-8 h-8" />,
           },
           {

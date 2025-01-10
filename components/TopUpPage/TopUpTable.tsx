@@ -5,8 +5,9 @@ import { getUserOptions } from "@/services/Options/Options";
 import { getMerchantTopUpRequest } from "@/services/TopUp/Member";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { TopUpRequestData } from "@/utils/types";
+import { MerchantTopUpRequestData } from "@/utils/types";
 import { alliance_member_table, user_table } from "@prisma/client";
+import { DialogDescription } from "@radix-ui/react-dialog";
 import {
   ColumnFiltersState,
   getCoreRowModel,
@@ -74,17 +75,11 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [requestData, setRequestData] = useState<TopUpRequestData[]>([]);
-  const [requestCount, setRequestCount] = useState(0);
+  const [requestData, setRequestData] =
+    useState<MerchantTopUpRequestData | null>(null);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [statusCount, setStatusCount] = useState({
-    PENDING: 0,
-    APPROVED: 0,
-    REJECTED: 0,
-  });
-  const [merchantBalance, setMerchantBalance] = useState(0);
   const columnAccessor = sorting?.[0]?.id || "alliance_top_up_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
@@ -103,33 +98,68 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
         ? new Date(dateFilter.start)
         : undefined;
       const endDate = startDate ? new Date(startDate) : undefined;
-      const { data, totalCount, merchantBalance, count } =
-        await getMerchantTopUpRequest(supabaseClient, {
-          teamId: teamMemberProfile.alliance_member_alliance_id,
-          teamMemberId: teamMemberProfile.alliance_member_id,
-          page: activePage,
-          limit: 10,
-          columnAccessor: columnAccessor,
-          isAscendingSort: isAscendingSort,
-          search: referenceId,
-          userFilter,
-          statusFilter: statusFilter ?? "PENDING",
-          dateFilter: {
-            start:
-              startDate && !isNaN(startDate.getTime())
-                ? startDate.toISOString()
-                : undefined,
-            end:
-              endDate && !isNaN(endDate.getTime())
-                ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
-                : undefined,
-          },
-        });
+      const requestData = await getMerchantTopUpRequest(supabaseClient, {
+        teamId: teamMemberProfile.alliance_member_alliance_id,
+        teamMemberId: teamMemberProfile.alliance_member_id,
+        page: activePage,
+        limit: 10,
+        columnAccessor: columnAccessor,
+        isAscendingSort: isAscendingSort,
+        search: referenceId,
+        userFilter,
+        statusFilter: statusFilter ?? "PENDING",
+        dateFilter: {
+          start:
+            startDate && !isNaN(startDate.getTime())
+              ? startDate.toISOString()
+              : undefined,
+          end:
+            endDate && !isNaN(endDate.getTime())
+              ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
+              : undefined,
+        },
+      });
 
-      setStatusCount(count);
-      setRequestData(data || []);
-      setRequestCount(totalCount || 0);
-      setMerchantBalance(merchantBalance || 0);
+      setRequestData((prev: MerchantTopUpRequestData | null) => {
+        if (!prev) {
+          return {
+            data: {
+              APPROVED: {
+                data: [],
+                count: requestData?.data?.APPROVED?.count || 0,
+              },
+              REJECTED: {
+                data: [],
+                count: requestData?.data?.REJECTED?.count || 0,
+              },
+              PENDING: {
+                data: [],
+                count: requestData?.data?.PENDING?.count || 0,
+              },
+              [statusFilter as "PENDING" | "APPROVED" | "REJECTED"]: requestData
+                ?.data?.[
+                statusFilter as "PENDING" | "APPROVED" | "REJECTED"
+              ] || {
+                data: [],
+                count: 0,
+              },
+            },
+            merchantBalance: requestData?.merchantBalance || 0,
+          };
+        }
+
+        return {
+          ...prev,
+          data: {
+            ...prev.data,
+            [statusFilter as "PENDING" | "APPROVED" | "REJECTED"]: requestData
+              ?.data?.[statusFilter as "PENDING" | "APPROVED" | "REJECTED"] || {
+              data: [],
+              count: 0,
+            },
+          },
+        };
+      });
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
@@ -157,8 +187,23 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
     handleUpdateStatus,
   } = TopUpColumn(fetchRequest);
 
+  const { register, handleSubmit, watch, getValues, control, reset, setValue } =
+    useForm<FilterFormValues>({
+      defaultValues: {
+        referenceId: "",
+        userFilter: "",
+        statusFilter: "PENDING",
+        dateFilter: {
+          start: undefined,
+          end: undefined,
+        },
+        rejectNote: "",
+      },
+    });
+
+  const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
   const table = useReactTable({
-    data: requestData,
+    data: requestData?.data?.[status]?.data || [],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -174,20 +219,6 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
       rowSelection,
     },
   });
-
-  const { register, handleSubmit, watch, getValues, control, reset, setValue } =
-    useForm<FilterFormValues>({
-      defaultValues: {
-        referenceId: "",
-        userFilter: "",
-        statusFilter: "PENDING",
-        dateFilter: {
-          start: undefined,
-          end: undefined,
-        },
-        rejectNote: "",
-      },
-    });
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -237,7 +268,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
     fetchRequest();
   }, [supabaseClient, teamMemberProfile, activePage, sorting]);
 
-  const pageCount = Math.ceil(requestCount / 10);
+  const pageCount = Math.ceil((requestData?.data?.[status]?.count || 0) / 10);
 
   const handleSwitchChange = (checked: boolean) => {
     setShowFilters(checked);
@@ -246,11 +277,88 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
       handleSubmit(handleFilter)();
     }
   };
-  const handleTabChange = (type?: string) => {
+
+  const handleTabChange = async (type?: string) => {
     setValue("statusFilter", type as "PENDING" | "APPROVED" | "REJECTED");
-    fetchRequest();
+    if (
+      requestData?.data?.[type as "PENDING" | "APPROVED" | "REJECTED"]?.data
+        ?.length
+    ) {
+      return;
+    }
+
+    await fetchRequest();
   };
 
+  const handleRefresh = async () => {
+    try {
+      setIsFetchingList(true);
+
+      const statuses: Array<"PENDING" | "APPROVED" | "REJECTED"> = [
+        "PENDING",
+        "APPROVED",
+        "REJECTED",
+      ];
+
+      const updatedData: MerchantTopUpRequestData = {
+        data: {
+          APPROVED: { data: [], count: 0 },
+          REJECTED: { data: [], count: 0 },
+          PENDING: { data: [], count: 0 },
+        },
+        merchantBalance: 0,
+      };
+
+      const sanitizedData = escapeFormData(getValues());
+
+      const { referenceId, userFilter, statusFilter, dateFilter } =
+        sanitizedData;
+      const startDate = dateFilter.start
+        ? new Date(dateFilter.start)
+        : undefined;
+      const endDate = startDate ? new Date(startDate) : undefined;
+
+      for (const status of statuses) {
+        const requestData = await getMerchantTopUpRequest(supabaseClient, {
+          teamId: teamMemberProfile.alliance_member_alliance_id,
+          teamMemberId: teamMemberProfile.alliance_member_id,
+          page: activePage,
+          limit: 10,
+          columnAccessor: columnAccessor,
+          isAscendingSort: isAscendingSort,
+          search: referenceId,
+          userFilter,
+          statusFilter: statusFilter ?? "PENDING",
+          dateFilter: {
+            start:
+              startDate && !isNaN(startDate.getTime())
+                ? startDate.toISOString()
+                : undefined,
+            end:
+              endDate && !isNaN(endDate.getTime())
+                ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
+                : undefined,
+          },
+        });
+        updatedData.data[status] = requestData?.data?.[status] || {
+          data: [],
+          count: 0,
+        };
+      }
+
+      setRequestData(updatedData);
+    } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/TopUpPage/TopUpTable.tsx",
+        });
+      }
+    } finally {
+      setIsFetchingList(false); // Reset loading state
+    }
+  };
   const rejectNote = watch("rejectNote");
   return (
     <Card className="w-full rounded-sm p-4">
@@ -264,9 +372,14 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
               open={isOpenModal.open}
               onOpenChange={(open) => setIsOpenModal({ ...isOpenModal, open })}
             >
+              <DialogDescription></DialogDescription>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{isOpenModal.status} Request</DialogTitle>
+                  <DialogTitle>
+                    {isOpenModal.status.charAt(0).toUpperCase() +
+                      isOpenModal.status.slice(1).toLocaleLowerCase()}{" "}
+                    This Request
+                  </DialogTitle>
                 </DialogHeader>
                 {isOpenModal.status === "REJECTED" && (
                   <Controller
@@ -303,11 +416,15 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
                     }
                   >
                     {isLoading ? (
-                      <Loader2 className="animate-spin" />
+                      <>
+                        {isOpenModal.status.charAt(0).toUpperCase() +
+                          isOpenModal.status.slice(1).toLocaleLowerCase()}{" "}
+                        <Loader2 className="animate-spin" />
+                      </>
                     ) : isOpenModal.status === "REJECTED" ? (
-                      "Confirm Rejection"
+                      "Confirm Reject"
                     ) : (
-                      "Confirm Approval"
+                      "Confirm Approve"
                     )}
                   </Button>
                 </div>
@@ -317,7 +434,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
           <div className="flex flex-wrap gap-2 items-center w-full">
             <Input
               {...register("referenceId")}
-              placeholder="Filter reference id..."
+              placeholder="Filter requestor username..."
               className="max-w-sm p-2 border rounded"
             />
             <Button
@@ -328,7 +445,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
             >
               <Search />
             </Button>
-            <Button onClick={fetchRequest} disabled={isFetchingList} size="sm">
+            <Button onClick={handleRefresh} disabled={isFetchingList} size="sm">
               <RefreshCw />
               Refresh
             </Button>
@@ -409,7 +526,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
         <div className="flex justify-start gap-2  w-full">
           <div className="flex text-lg font-bold gap-2 items-center">
             Merchant Balance: <PhilippinePeso size={16} />
-            {merchantBalance.toLocaleString()}
+            {requestData?.merchantBalance.toLocaleString()}
           </div>
         </div>
       </div>
@@ -419,13 +536,13 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
         <Tabs defaultValue="PENDING" onValueChange={handleTabChange}>
           <TabsList className="mb-4">
             <TabsTrigger value="PENDING">
-              Pending ({statusCount.PENDING})
+              Pending ({requestData?.data?.[status]?.count || 0})
             </TabsTrigger>
             <TabsTrigger value="APPROVED">
-              Approved ({statusCount.APPROVED})
+              Approved ({requestData?.data?.[status]?.count || 0})
             </TabsTrigger>
             <TabsTrigger value="REJECTED">
-              Rejected ({statusCount.REJECTED})
+              Rejected ({requestData?.data?.[status]?.count || 0})
             </TabsTrigger>
           </TabsList>
 
@@ -434,7 +551,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
               table={table}
               columns={columns}
               activePage={activePage}
-              totalCount={requestCount}
+              totalCount={requestData?.data?.[status]?.count || 0}
             />
           </TabsContent>
 
@@ -443,7 +560,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
               table={table}
               columns={columns}
               activePage={activePage}
-              totalCount={requestCount}
+              totalCount={requestData?.data?.[status]?.count || 0}
             />
           </TabsContent>
 
@@ -452,7 +569,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
               table={table}
               columns={columns}
               activePage={activePage}
-              totalCount={requestCount}
+              totalCount={requestData?.data?.[status]?.count || 0}
             />
           </TabsContent>
         </Tabs>

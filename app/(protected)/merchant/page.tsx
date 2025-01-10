@@ -1,5 +1,5 @@
 import MerchantPage from "@/components/MerchantPage/MerchantPage";
-import { protectionMemberUser } from "@/utils/serversideProtection";
+import { protectionMerchantUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 export const metadata: Metadata = {
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 const Page = async () => {
   const { teamMemberProfile, redirect: redirectTo } =
-    await protectionMemberUser();
+    await protectionMerchantUser();
 
   if (redirectTo) {
     redirect(redirectTo);
@@ -22,8 +22,8 @@ const Page = async () => {
     redirect("/500");
   }
 
-  if (teamMemberProfile.alliance_member_role === "ADMIN")
-    return redirect("/admin");
+  if (teamMemberProfile.alliance_member_role === "MEMBER")
+    return redirect("/404");
 
   return <MerchantPage teamMemberProfile={teamMemberProfile} />;
 };

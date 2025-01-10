@@ -1,26 +1,39 @@
-import { TopUpRequestData } from "@/utils/types";
+import { MerchantTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
-export const getMemberTopUpRequest = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    page: number;
-    limit: number;
-    search?: string;
-    teamMemberId: string;
-    teamId: string;
-    columnAccessor: string;
-    isAscendingSort: boolean;
-  }
-) => {
-  const { data, error } = await supabaseClient.rpc(
-    "get_member_top_up_history",
+export const getMemberTopUpRequest = async (params: {
+  page: number;
+  limit: number;
+  search?: string;
+  columnAccessor: string;
+  isAscendingSort: boolean;
+  teamMemberId?: string;
+}) => {
+  const queryParams = {
+    search: params.search || "",
+    page: params.page.toString(),
+    limit: params.limit.toString(),
+    columnAccessor: params.columnAccessor,
+    isAscendingSort: params.isAscendingSort.toString(),
+    teamMemberId: params.teamMemberId || "",
+  };
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/top-up?${new URLSearchParams(queryParams)}`,
     {
-      input_data: params,
+      method: "GET",
     }
   );
 
-  if (error) throw error;
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while fetching the top-up history."
+    );
+  }
+
+  const { data } = result;
 
   return data as {
     data: TopUpRequestData[];
@@ -80,14 +93,5 @@ export const getMerchantTopUpRequest = async (
 
   if (error) throw error;
 
-  return data as {
-    data: TopUpRequestData[];
-    merchantBalance: number;
-    count: {
-      PENDING: number;
-      APPROVED: number;
-      REJECTED: number;
-    };
-    totalCount: 0;
-  };
+  return data as MerchantTopUpRequestData;
 };
