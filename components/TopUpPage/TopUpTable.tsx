@@ -195,7 +195,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
           REJECTED: { data: [], count: 0 },
           PENDING: { data: [], count: 0 },
         },
-        merchantBalance: 0,
+        merchantBalance: requestData?.merchantBalance || 0,
       };
 
       const sanitizedData = escapeFormData(getValues());
@@ -272,6 +272,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
     });
 
   const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
+
   const table = useReactTable({
     data: requestData?.data?.[status]?.data || [],
     columns,
@@ -537,13 +538,13 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
         <Tabs defaultValue="PENDING" onValueChange={handleTabChange}>
           <TabsList className="mb-4">
             <TabsTrigger value="PENDING">
-              Pending ({requestData?.data?.[status]?.count || 0})
+              Pending ({requestData?.data?.PENDING?.count || 0})
             </TabsTrigger>
             <TabsTrigger value="APPROVED">
-              Approved ({requestData?.data?.[status]?.count || 0})
+              Approved ({requestData?.data?.APPROVED?.count || 0})
             </TabsTrigger>
             <TabsTrigger value="REJECTED">
-              Rejected ({requestData?.data?.[status]?.count || 0})
+              Rejected ({requestData?.data?.REJECTED?.count || 0})
             </TabsTrigger>
           </TabsList>
 
@@ -552,7 +553,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
               table={table}
               columns={columns}
               activePage={activePage}
-              totalCount={requestData?.data?.[status]?.count || 0}
+              totalCount={requestData?.data?.PENDING?.count || 0}
             />
           </TabsContent>
 
@@ -561,7 +562,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
               table={table}
               columns={columns}
               activePage={activePage}
-              totalCount={requestData?.data?.[status]?.count || 0}
+              totalCount={requestData?.data?.APPROVED?.count || 0}
             />
           </TabsContent>
 
@@ -570,7 +571,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
               table={table}
               columns={columns}
               activePage={activePage}
-              totalCount={requestData?.data?.[status]?.count || 0}
+              totalCount={requestData?.data?.REJECTED?.count || 0}
             />
           </TabsContent>
         </Tabs>
