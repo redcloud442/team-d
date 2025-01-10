@@ -179,13 +179,85 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
     } catch (e) {}
   };
 
+  const handleRefresh = async () => {
+    try {
+      setIsFetchingList(true);
+
+      const statuses: Array<"PENDING" | "APPROVED" | "REJECTED"> = [
+        "PENDING",
+        "APPROVED",
+        "REJECTED",
+      ];
+
+      const updatedData: AdminWithdrawaldata = {
+        data: {
+          APPROVED: { data: [], count: 0 },
+          REJECTED: { data: [], count: 0 },
+          PENDING: { data: [], count: 0 },
+        },
+      };
+      const sanitizedData = escapeFormData(getValues());
+
+      const { referenceId, userFilter, statusFilter, dateFilter } =
+        sanitizedData;
+      const startDate = dateFilter.start
+        ? new Date(dateFilter.start)
+        : undefined;
+      const endDate = startDate ? new Date(startDate) : undefined;
+
+      for (const status of statuses) {
+        const requestData = await getWithdrawalRequestAccountant(
+          supabaseClient,
+          {
+            teamId: teamMemberProfile.alliance_member_alliance_id,
+            teamMemberId: teamMemberProfile.alliance_member_id,
+            page: activePage,
+            limit: 10,
+            columnAccessor: columnAccessor,
+            isAscendingSort: isAscendingSort,
+            search: referenceId,
+            userFilter,
+            statusFilter: statusFilter,
+            dateFilter: {
+              start:
+                startDate && !isNaN(startDate.getTime())
+                  ? startDate.toISOString()
+                  : undefined,
+              end:
+                endDate && !isNaN(endDate.getTime())
+                  ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
+                  : undefined,
+            },
+          }
+        );
+
+        updatedData.data[status] = requestData?.data?.[status] || {
+          data: [],
+          count: 0,
+        };
+      }
+
+      setRequestData(updatedData);
+    } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/TopUpPage/TopUpTable.tsx",
+        });
+      }
+    } finally {
+      setIsFetchingList(false); // Reset loading state
+    }
+  };
+
   const {
     columns,
     isOpenModal,
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = WithdrawalColumn(fetchRequest);
+  } = WithdrawalColumn(handleRefresh);
 
   const { register, handleSubmit, watch, getValues, control, reset, setValue } =
     useForm<FilterFormValues>({
@@ -281,78 +353,6 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
     }
 
     await fetchRequest();
-  };
-
-  const handleRefresh = async () => {
-    try {
-      setIsFetchingList(true);
-
-      const statuses: Array<"PENDING" | "APPROVED" | "REJECTED"> = [
-        "PENDING",
-        "APPROVED",
-        "REJECTED",
-      ];
-
-      const updatedData: AdminWithdrawaldata = {
-        data: {
-          APPROVED: { data: [], count: 0 },
-          REJECTED: { data: [], count: 0 },
-          PENDING: { data: [], count: 0 },
-        },
-      };
-      const sanitizedData = escapeFormData(getValues());
-
-      const { referenceId, userFilter, statusFilter, dateFilter } =
-        sanitizedData;
-      const startDate = dateFilter.start
-        ? new Date(dateFilter.start)
-        : undefined;
-      const endDate = startDate ? new Date(startDate) : undefined;
-
-      for (const status of statuses) {
-        const requestData = await getWithdrawalRequestAccountant(
-          supabaseClient,
-          {
-            teamId: teamMemberProfile.alliance_member_alliance_id,
-            teamMemberId: teamMemberProfile.alliance_member_id,
-            page: activePage,
-            limit: 10,
-            columnAccessor: columnAccessor,
-            isAscendingSort: isAscendingSort,
-            search: referenceId,
-            userFilter,
-            statusFilter: statusFilter,
-            dateFilter: {
-              start:
-                startDate && !isNaN(startDate.getTime())
-                  ? startDate.toISOString()
-                  : undefined,
-              end:
-                endDate && !isNaN(endDate.getTime())
-                  ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
-                  : undefined,
-            },
-          }
-        );
-
-        updatedData.data[status] = requestData?.data?.[status] || {
-          data: [],
-          count: 0,
-        };
-      }
-
-      setRequestData(updatedData);
-    } catch (e) {
-      if (e instanceof Error) {
-        await logError(supabaseClient, {
-          errorMessage: e.message,
-          stackTrace: e.stack,
-          stackPath: "components/TopUpPage/TopUpTable.tsx",
-        });
-      }
-    } finally {
-      setIsFetchingList(false); // Reset loading state
-    }
   };
 
   const rejectNote = watch("rejectNote");

@@ -46,7 +46,7 @@ const topUpFormSchema = z.object({
     .max(6, "Amount must be less than 6 digits")
     .regex(/^\d+$/, "Amount must be a number")
     .refine((amount) => parseInt(amount, 10) >= 300, {
-      message: "Amount must be at least 200 pesos",
+      message: "Amount must be at least 300 pesos",
     }),
   topUpMode: z.string().min(1, "Top up mode is required"),
   accountName: z.string().min(1, "Field is required"),
