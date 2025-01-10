@@ -215,10 +215,10 @@ export const TopUpColumn = (handleFetch: () => void) => {
                 <DialogTitle>Attachment</DialogTitle>
               </DialogHeader>
               <div className="flex justify-center items-center">
-                <iframe
+                <img
                   src={attachmentUrl || ""}
-                  className="w-full h-96"
-                  title="Attachment Preview"
+                  alt="Attachment Preview"
+                  className="object-contain w-full h-full"
                 />
               </div>
               <DialogClose asChild>

@@ -601,8 +601,7 @@ plv8.subtransaction(function() {
     }
   });
 
-  // Group requests by status
-  topUpRequests.forEach(request => {
+  topUpRequest.forEach(request => {
     if (returnData.data[request.alliance_top_up_request_status]) {
       returnData.data[request.alliance_top_up_request_status].data.push(request);
     }
@@ -930,6 +929,7 @@ plv8.subtransaction(function() {
   `,[teamId])[0].count;
 
   returnData.data = userRequest;
+  returnData.totalCount = Number(totalCount);
 });
 return returnData;
 $$ LANGUAGE plv8;
