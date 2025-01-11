@@ -20,6 +20,7 @@ import {
   alliance_member_table,
   package_table,
 } from "@prisma/client";
+import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 type Props = {
@@ -48,6 +49,7 @@ const DashboardDepositModalPackages = ({
   );
   const [packages, setPackages] = useState<package_table[]>(initialPackage);
   const handlePackageSelect = (pkg: package_table) => {
+    if (earnings.alliance_olympus_wallet === 0) return null;
     setSelectedPackage(pkg);
   };
 
@@ -87,53 +89,49 @@ const DashboardDepositModalPackages = ({
       }}
     >
       <DialogTrigger asChild className={className}>
-        <Button variant="outline" onClick={() => setOpen(true)}>
-          Packages
+        <Button
+          className=" h-44 flex items-center justify-start  px-4 sm:justify-center sm:items-center text-lg border-2"
+          onClick={() => setOpen(true)}
+        >
+          Buy Pr1me Plans
+          <Image
+            src="/assets/packages.png"
+            alt="deposit"
+            width={250}
+            height={250}
+          />
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">
-        <ScrollArea className="h-auto max-h-[500px]">
-          <DialogHeader>
-            <DialogTitle>Buy Packages</DialogTitle>
+        <ScrollArea className="h-auto max-h-[600px]">
+          <DialogHeader className="text-start text-2xl font-bold">
+            <DialogTitle>Avail Pr1me Plans</DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
 
-          {selectedPackage ? (
-            <AvailPackagePage
-              setOpen={setOpen}
-              setSelectedPackage={setSelectedPackage}
-              earnings={earnings}
-              pkg={selectedPackage}
-              teamMemberProfile={teamMemberProfile}
-              setEarnings={setEarnings}
-              setChartData={setChartData}
-            />
-          ) : (
-            packages.map((pkg) => (
-              <div className="flex flex-col gap-4 p-2" key={pkg.package_id}>
-                <PackageCard
-                  packageName={pkg.package_name}
-                  packageDescription={pkg.package_description}
-                  packagePercentage={`${pkg.package_percentage} %`}
-                  packageDays={String(pkg.packages_days)}
-                  onClick={() => handlePackageSelect(pkg)}
-                />
-              </div>
-            ))
-          )}
+          <div className="flex justify-between gap-4 p-2">
+            {packages.map((pkg) => (
+              <PackageCard
+                key={pkg.package_id}
+                packageName={pkg.package_name}
+                selectedPackage={pkg}
+                onClick={() => handlePackageSelect(pkg)}
+              />
+            ))}
+          </div>
 
-          <DialogFooter>
-            {selectedPackage && (
-              <Button
-                variant="outline"
-                className="w-full py-3 mt-4 rounded-lg"
-                onClick={() => setSelectedPackage(null)}
-              >
-                Back to Packages
-              </Button>
-            )}
-          </DialogFooter>
+          <AvailPackagePage
+            setOpen={setOpen}
+            setSelectedPackage={setSelectedPackage}
+            earnings={earnings}
+            pkg={selectedPackage || packages[0]}
+            teamMemberProfile={teamMemberProfile}
+            setEarnings={setEarnings}
+            setChartData={setChartData}
+          />
+
+          <DialogFooter></DialogFooter>
         </ScrollArea>
       </DialogContent>
     </Dialog>

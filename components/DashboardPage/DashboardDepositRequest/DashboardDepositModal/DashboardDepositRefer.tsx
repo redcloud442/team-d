@@ -62,7 +62,7 @@ const topUpFormSchema = z.object({
 
 export type TopUpFormValues = z.infer<typeof topUpFormSchema>;
 
-const DashboardDepositModalDeposit = ({
+const DashboardDepositModalRefer = ({
   teamMemberProfile,
   className,
 }: Props) => {
@@ -167,20 +167,24 @@ const DashboardDepositModalDeposit = ({
     >
       <DialogTrigger asChild className={className}>
         <Button
-          className=" h-60 flex flex-col gap-8 items-start sm:justify-center sm:items-center px-4 text-lg"
+          className=" min-h-44 flex flex-col items-start justify-start sm:justify-center sm:items-center px-4 text-lg pt-8 sm:pt-8"
           onClick={() => setOpen(true)}
         >
-          Deposit
-          <Image
-            src="/assets/deposit.png"
-            alt="deposit"
-            width={150}
-            height={150}
-          />
+          Refer & Earn
+          <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center ">
+            <Image
+              src="/assets/refer-a-friend.png"
+              alt="deposit"
+              width={200}
+              height={200}
+              priority
+              className="float-right"
+            />
+          </div>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <ScrollArea className="h-[500px] sm:h-[620px]">
+        <ScrollArea className="h-[500px]">
           <DialogHeader className="text-start text-2xl font-bold">
             <DialogTitle>Deposit</DialogTitle>
           </DialogHeader>
@@ -375,4 +379,4 @@ const DashboardDepositModalDeposit = ({
   );
 };
 
-export default DashboardDepositModalDeposit;
+export default DashboardDepositModalRefer;

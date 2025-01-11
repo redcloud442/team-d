@@ -1,30 +1,37 @@
+import { package_table } from "@prisma/client";
 import Link from "next/link";
 import { Button } from "./button";
 import { Card } from "./card";
 
 type Props = {
+  onClick: () => void;
   packageName: string;
-  packageDescription: string;
-  packagePercentage: string;
-  packageDays: string;
+  selectedPackage: package_table | null;
+  packageDescription?: string;
+  packagePercentage?: string;
+  packageDays?: string;
   href?: string;
-  onClick?: () => void;
-  type?: "ADMIN" | "MEMBER";
+  type?: string;
 };
 
 const PackageCard = ({
   packageName,
+  selectedPackage,
+  onClick,
   packageDescription,
   packagePercentage,
   packageDays,
+  type,
   href,
-  onClick,
-  type = "MEMBER",
 }: Props) => {
   return (
     <Card
       onClick={onClick}
-      className="relative border border-gray-400 rounded-lg cursor-pointer shadow-lg p-6 flex flex-col items-center space-y-4 animate-tracing-border "
+      className={`border w-full h-36 border-gray-400 rounded-lg cursor-pointer shadow-lg p-6 flex flex-col items-center justify-center space-y-4 r ${
+        selectedPackage?.package_id === selectedPackage?.package_id
+          ? "bg-pageColor"
+          : ""
+      }`}
     >
       <h2 className="text-xl font-bold z-10">{packageName}</h2>
 

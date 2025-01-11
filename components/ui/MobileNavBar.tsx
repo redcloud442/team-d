@@ -23,6 +23,9 @@ type NavItem = {
   icon: JSX.Element;
   onClick?: () => void | Promise<void>;
 };
+type Props = {
+  userId: string;
+};
 
 const MobileNavBar = () => {
   const supabase = createClientSide();
@@ -87,6 +90,12 @@ const MobileNavBar = () => {
     }
   };
 
+  // useEffect(() => {
+  //   const handleFetchUserInformation = () => {
+  //     try {
+  //     } catch (error) {}
+  //   };
+  // }, []);
   return (
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t dark:bg-zinc-800 shadow-md md:hidden">
