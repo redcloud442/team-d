@@ -34,7 +34,7 @@ const toastVariants = cva(
         destructive:
           "destructive group border-red-500 bg-red-500 text-neutral-50 dark:border-red-900 dark:bg-red-900 dark:text-neutral-50",
         success:
-          "success group border-green-500 bg-green-500 text-neutral-50 dark:border-green-900 dark:bg-green-700 dark:text-neutral-50",
+          "success group border-none shadow-xs shadow-white bg-[#1E1E1E] text-primaryYellow dark:border-green-900 dark:bg-green-700 dark:text-neutral-50",
       },
     },
     defaultVariants: {

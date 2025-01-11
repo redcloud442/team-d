@@ -1,15 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { loginValidation } from "@/services/auth/auth";
 import { logError } from "@/services/Error/ErrorLogs";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -63,7 +62,7 @@ const LoginPage = () => {
         variant: "success",
       });
 
-      setIsSuccess(true); // Indicate success
+      setIsSuccess(true);
       router.push(result);
     } catch (e) {
       if (e instanceof Error) {
@@ -85,44 +84,70 @@ const LoginPage = () => {
   };
 
   return (
-    <Card className="w-[400px] mx-auto p-4">
+    <div className="flex w-full flex-col items-center justify-center sm:justify-center min-h-screen h-full p-10">
       <NavigationLoader visible={isSubmitting || isLoading || isSuccess} />
-      <CardTitle>Login Page</CardTitle>
-      <CardContent className="p-4">
-        <form
-          className="flex flex-col gap-4"
-          onSubmit={handleSubmit(handleSignIn)}
-        >
-          <div>
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              placeholder="Enter your username"
-              {...register("userName")}
-            />
-            {errors.userName && (
-              <p className="text-sm text-red-500">{errors.userName.message}</p>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              {...register("password")}
-            />
-            {errors.password && (
-              <p className="text-sm text-red-500">{errors.password.message}</p>
-            )}
-          </div>
 
-          <Button disabled={isSubmitting || isLoading} type="submit">
-            {isSubmitting || isLoading ? "Signing in..." : "Sign in"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+      <div className="fixed top-20 right-0  z-10 ">
+        <Image
+          src="/assets/lightning-2.svg"
+          alt="thunder"
+          width={300}
+          height={300}
+          style={{
+            objectFit: "contain",
+          }}
+          quality={100}
+          className="sm:hidden"
+        />
+      </div>
+
+      <div className="fixed -top-12 z-10">
+        <Image
+          src="/assets/lightning.svg"
+          alt="thunder"
+          width={300}
+          height={300}
+          quality={100}
+          className="w-full sm:hidden"
+        />
+      </div>
+
+      <form
+        className="flex flex-col items-center gap-6 w-full max-w-lg m-4 z-40"
+        onSubmit={handleSubmit(handleSignIn)}
+      >
+        <div className="fixed top-44 left-50 sm:relative sm:top-0 sm:left-0 ">
+          <Image src="/app-logo.svg" alt="logo" width={120} height={120} />
+        </div>
+        <div className="w-full">
+          <Input
+            variant="non-card"
+            id="username"
+            placeholder="Username"
+            {...register("userName")}
+          />
+          {errors.userName && (
+            <p className="text-sm text-red-500">{errors.userName.message}</p>
+          )}
+        </div>
+        <div className="w-full">
+          <Input
+            variant="non-card"
+            id="password"
+            type="password"
+            placeholder="Password"
+            {...register("password")}
+          />
+          {errors.password && (
+            <p className="text-sm text-red-500">{errors.password.message}</p>
+          )}
+        </div>
+
+        <Button disabled={isSubmitting || isLoading} type="submit">
+          {isSubmitting || isLoading ? "Signing in..." : "Login"}
+        </Button>
+      </form>
+    </div>
   );
 };
 

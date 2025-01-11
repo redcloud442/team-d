@@ -170,7 +170,7 @@ const DashboardDepositModalDeposit = ({
     >
       <DialogTrigger asChild className={className}>
         <Button variant="outline" onClick={() => setOpen(true)}>
-          Deposit (Minimum 300)
+          Deposit
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -184,7 +184,7 @@ const DashboardDepositModalDeposit = ({
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Minimum Deposit Amount</AlertTitle>
           <AlertDescription>
-            The minimum deposit amount is 300 pesos.
+            The minimum deposit amount is 200 pesos.
           </AlertDescription>
         </Alert>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

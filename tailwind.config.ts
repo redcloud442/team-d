@@ -10,6 +10,11 @@ export default {
   theme: {
     extend: {
       colors: {
+        pageColor: "#1E1E1E",
+        cardColor: "#D9D9D9",
+        inputColor: "#1E1E1E",
+        primaryRed: "#A30000",
+        primaryYellow: "#F6DB4E",
         background: "var(--background)",
         foreground: "var(--foreground)",
         sidebar: {
@@ -30,5 +35,6 @@ export default {
       },
     },
   },
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;

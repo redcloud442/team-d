@@ -44,7 +44,7 @@ const Page = async ({
   // }
 
   return (
-    <main className="max-w-full min-h-screen flex flex-col items-center justify-center">
+    <main className="max-w-full min-h-screen flex flex-col items-center justify-center p-4 bg-pageColor">
       <RegisterPage referralLink={referralLink} />
     </main>
   );
