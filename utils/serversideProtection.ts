@@ -135,6 +135,7 @@ export const protectionMemberUser = async (ip?: string) => {
           user_id: true,
           user_first_name: true,
           user_last_name: true,
+          user_profile_picture: true,
           user_username: true,
         },
       }),
@@ -172,14 +173,16 @@ export const protectionMemberUser = async (ip?: string) => {
         where: {
           alliance_referral_link_member_id: teamMember.alliance_member_id,
         },
+        select: {
+          alliance_referral_link: true,
+        },
       }),
       prisma.alliance_earnings_table.findFirst({
         where: { alliance_earnings_member_id: teamMember.alliance_member_id },
         select: {
-          alliance_legion_bounty: true,
-          alliance_olympus_earnings: true,
           alliance_olympus_wallet: true,
-          alliance_ally_bounty: true,
+          alliance_referral_bounty: true,
+          alliance_combined_earnings: true,
         },
       }),
     ]);

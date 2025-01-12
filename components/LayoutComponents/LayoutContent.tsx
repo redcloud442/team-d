@@ -61,7 +61,7 @@ export default function LayoutContent({
                 }}
               />
               {/* Overlay */}
-              <div className="absolute inset-0 bg-black bg-opacity-40" />
+              <div className="absolute inset-0 dark:bg-zinc-900/60" />
             </div>
           )}
           {children}

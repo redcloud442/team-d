@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -43,8 +44,8 @@ const topUpFormSchema = z.object({
     .min(3, "Amount is required and must be at least 200 pesos")
     .max(6, "Amount must be less than 6 digits")
     .regex(/^\d+$/, "Amount must be a number")
-    .refine((amount) => parseInt(amount, 10) >= 300, {
-      message: "Amount must be at least 300 pesos",
+    .refine((amount) => parseInt(amount, 10) >= 200, {
+      message: "Amount must be at least 200 pesos",
     }),
   topUpMode: z.string().min(1, "Top up mode is required"),
   accountName: z.string().min(1, "Field is required"),
@@ -121,7 +122,6 @@ const DashboardDepositModalDeposit = ({
       toast({
         title: "Top Up Successfully",
         description: "Please wait for it to be approved.",
-        variant: "success",
       });
 
       setOpen(false);
@@ -155,6 +155,24 @@ const DashboardDepositModalDeposit = ({
   };
   const uploadedFile = watch("file");
 
+  const handleCopy = (text: string) => {
+    if (!text) {
+      toast({
+        title: "Error",
+        description: "Nothing to copy!",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    navigator.clipboard.writeText(text);
+
+    toast({
+      title: "Copied to clipboard",
+      variant: "success",
+    });
+  };
+
   return (
     <Dialog
       open={open}
@@ -167,22 +185,26 @@ const DashboardDepositModalDeposit = ({
     >
       <DialogTrigger asChild className={className}>
         <Button
-          className=" h-60 flex flex-col gap-8 items-start sm:justify-center sm:items-center px-4 text-lg"
+          className=" relative h-60 sm:h-80 flex flex-col gap-8 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl "
           onClick={() => setOpen(true)}
         >
           Deposit
-          <Image
-            src="/assets/deposit.png"
-            alt="deposit"
-            width={150}
-            height={150}
-          />
+          <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
+            <Image
+              src="/assets/deposit.png"
+              alt="deposit"
+              width={250}
+              height={250}
+              className="absolute sm:relative bottom-10 sm:bottom-0 sm:left-0 left-2"
+            />
+          </div>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <ScrollArea className="h-[500px] sm:h-[620px]">
           <DialogHeader className="text-start text-2xl font-bold">
             <DialogTitle>Deposit</DialogTitle>
+            <DialogDescription></DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -284,7 +306,11 @@ const DashboardDepositModalDeposit = ({
                       />
                     )}
                   />
-                  <Button className="w-20 bg-pageColor text-white h-12">
+                  <Button
+                    type="button"
+                    onClick={() => handleCopy(watch("accountName") || "")}
+                    className="w-20 bg-pageColor text-white h-12"
+                  >
                     Copy
                   </Button>
                 </div>
@@ -310,7 +336,11 @@ const DashboardDepositModalDeposit = ({
                       />
                     )}
                   />
-                  <Button className="w-20 bg-pageColor text-white h-12">
+                  <Button
+                    type="button"
+                    onClick={() => handleCopy(watch("accountNumber") || "")}
+                    className="w-20 bg-pageColor text-white h-12"
+                  >
                     Copy
                   </Button>
                 </div>

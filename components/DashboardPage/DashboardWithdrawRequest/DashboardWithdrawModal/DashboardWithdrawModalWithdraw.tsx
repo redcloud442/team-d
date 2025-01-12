@@ -24,17 +24,19 @@ import { getEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
 import { calculateFinalAmount, escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
+import { DashboardEarnings } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_earnings_table, alliance_member_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
   earnings: alliance_earnings_table;
+  setTotalEarnings: Dispatch<SetStateAction<DashboardEarnings | null>>;
 };
 
 const withdrawalFormSchema = z.object({
@@ -57,6 +59,7 @@ const bankData = ["GCASH", "MAYA", "GOTYME BANK", "UNION BANK", "BDO", "BPI"];
 const DashboardWithdrawModalWithdraw = ({
   teamMemberProfile,
   earnings: initialEarnings,
+  setTotalEarnings,
 }: Props) => {
   const [open, setOpen] = useState(false);
   const [earnings, setEarnings] =
@@ -110,10 +113,8 @@ const DashboardWithdrawModalWithdraw = ({
     switch (selectedEarnings) {
       case "TOTAL":
         return earnings.alliance_olympus_earnings;
-      case "DIRECT REFERRAL":
-        return earnings.alliance_ally_bounty;
-      case "INDIRECT REFERRAL":
-        return earnings.alliance_legion_bounty;
+      case "REFERRAL":
+        return earnings.alliance_referral_bounty;
       default:
         return 0;
     }
@@ -139,27 +140,28 @@ const DashboardWithdrawModalWithdraw = ({
         case "TOTAL":
           setEarnings({
             ...earnings,
+            alliance_combined_earnings:
+              earnings.alliance_combined_earnings -
+              Number(sanitizedData.amount),
             alliance_olympus_earnings:
               earnings.alliance_olympus_earnings - Number(sanitizedData.amount),
           });
+
           break;
-        case "DIRECT REFERRAL":
+        case "REFERRAL":
           setEarnings({
             ...earnings,
-            alliance_ally_bounty:
-              earnings.alliance_ally_bounty - Number(sanitizedData.amount),
-          });
-          break;
-        case "INDIRECT REFERRAL":
-          setEarnings({
-            ...earnings,
-            alliance_legion_bounty:
-              earnings.alliance_legion_bounty - Number(sanitizedData.amount),
+            alliance_referral_bounty:
+              earnings.alliance_referral_bounty - Number(sanitizedData.amount),
+            alliance_combined_earnings:
+              earnings.alliance_combined_earnings -
+              Number(sanitizedData.amount),
           });
           break;
         default:
           break;
       }
+
       toast({
         title: "Withdrawal Request Successfully",
         description: "Please wait for it to be approved",
@@ -199,7 +201,7 @@ const DashboardWithdrawModalWithdraw = ({
     >
       <DialogTrigger asChild>
         <Button
-          className=" h-60 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg"
+          className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2"
           onClick={() => setOpen(true)}
         >
           Withdraw
@@ -243,8 +245,8 @@ const DashboardWithdrawModalWithdraw = ({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="TOTAL">
-                        Wallet Balance (₱
-                        {earnings.alliance_olympus_earnings.toLocaleString(
+                        Wallet Balance (₱{" "}
+                        {earnings.alliance_olympus_wallet.toLocaleString(
                           "en-US",
                           {
                             minimumFractionDigits: 2,
@@ -253,17 +255,9 @@ const DashboardWithdrawModalWithdraw = ({
                         )}
                         )
                       </SelectItem>
-                      <SelectItem value="DIRECT REFERRAL">
-                        Direct Income (₱
-                        {earnings.alliance_ally_bounty.toLocaleString("en-US", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                        )
-                      </SelectItem>
-                      <SelectItem value="INDIRECT REFERRAL">
-                        Multiple Income (₱
-                        {earnings.alliance_legion_bounty.toLocaleString(
+                      <SelectItem value="REFERRAL">
+                        Referral Income (₱{" "}
+                        {earnings.alliance_referral_bounty.toLocaleString(
                           "en-US",
                           {
                             minimumFractionDigits: 2,
@@ -317,7 +311,7 @@ const DashboardWithdrawModalWithdraw = ({
             </div>
 
             <div className="flex flex-col w-full space-y-2 ">
-              <Label htmlFor="amount">Total Net Payout</Label>
+              <Label htmlFor="amount">Amount</Label>
               <div className="flex items-center justify-between w-full gap-2">
                 <Controller
                   name="amount"
@@ -341,11 +335,11 @@ const DashboardWithdrawModalWithdraw = ({
 
                         field.onChange(inputValue);
 
-                        const numericValue = parseFloat(inputValue);
+                        const numericValue = Number(inputValue);
                         const maxAmount = getMaxAmount();
 
                         if (numericValue > maxAmount) {
-                          setValue("amount", maxAmount.toString());
+                          setValue("amount", maxAmount.toFixed(2).toString());
                         }
                       }}
                     />
@@ -364,7 +358,7 @@ const DashboardWithdrawModalWithdraw = ({
                       });
                       return;
                     }
-                    setValue("amount", getMaxAmount().toString());
+                    setValue("amount", getMaxAmount().toFixed(2));
                   }}
                 >
                   MAX
@@ -426,10 +420,8 @@ const DashboardWithdrawModalWithdraw = ({
               <Label htmlFor="amount">Total Net Payout</Label>
               <div className="flex items-center justify-between w-full gap-2">
                 <Input
-                  type="number"
                   id="amount"
                   className="w-full flex-grow"
-                  placeholder="Enter amount"
                   readOnly
                   value={calculateFinalAmount(
                     Number(amount || 0),
@@ -440,11 +432,6 @@ const DashboardWithdrawModalWithdraw = ({
                   })}
                 />
               </div>
-              {errors.amount && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.amount.message}
-                </p>
-              )}
             </div>
             <p className="text-sm font-bold text-primaryRed">
               {

@@ -31,6 +31,15 @@ const Page = async () => {
     where: {
       package_is_disabled: false,
     },
+    select: {
+      package_id: true,
+      package_name: true,
+      package_percentage: true,
+      packages_days: true,
+      package_description: true,
+      package_color: true,
+      package_is_disabled: true,
+    },
   });
 
   if (teamMemberProfile.alliance_member_role === "ADMIN")

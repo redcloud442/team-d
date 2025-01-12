@@ -51,6 +51,10 @@ export async function PUT(
 
     const teamMemberProfile = await prisma.alliance_member_table.findFirst({
       where: { alliance_member_user_id: user?.user_id },
+      select: {
+        alliance_member_restricted: true,
+        alliance_member_alliance_id: true,
+      },
     });
 
     if (!teamMemberProfile) {

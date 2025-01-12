@@ -1,379 +1,268 @@
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import FileUpload from "@/components/ui/dropZone";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import TableLoading from "@/components/ui/tableLoading";
 import { useToast } from "@/hooks/use-toast";
-import { logError } from "@/services/Error/ErrorLogs";
-import { getMerchantOptions } from "@/services/Options/Options";
-import { createTopUpRequest } from "@/services/TopUp/TopUp";
-import { escapeFormData } from "@/utils/function";
-import { createClientSide } from "@/utils/supabase/client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { alliance_member_table, merchant_table } from "@prisma/client";
-import { CheckCircle, Loader2 } from "lucide-react";
+import { getReferralData } from "@/services/User/User";
+import {
+  alliance_member_table,
+  alliance_referral_link_table,
+} from "@prisma/client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
+import DashboardDirectReferral from "./DashboardDirectReferral";
+import DashboardIndirectReferral from "./DashboardIndirectReferral";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
+  referal: alliance_referral_link_table;
   className: string;
+  isActive: boolean;
 };
-
-const topUpFormSchema = z.object({
-  amount: z
-    .string()
-    .min(3, "Amount is required and must be at least 200 pesos")
-    .max(6, "Amount must be less than 6 digits")
-    .regex(/^\d+$/, "Amount must be a number")
-    .refine((amount) => parseInt(amount, 10) >= 300, {
-      message: "Amount must be at least 300 pesos",
-    }),
-  topUpMode: z.string().min(1, "Top up mode is required"),
-  accountName: z.string().min(1, "Field is required"),
-  accountNumber: z.string().min(1, "Field is required"),
-  file: z
-    .instanceof(File)
-    .refine((file) => !!file, { message: "File is required" })
-    .refine(
-      (file) =>
-        ["image/jpeg", "image/png", "image/jpg"].includes(file.type) &&
-        file.size <= 5 * 1024 * 1024, // 5MB limit
-      { message: "File must be a valid image and less than 5MB." }
-    ),
-});
-
-export type TopUpFormValues = z.infer<typeof topUpFormSchema>;
 
 const DashboardDepositModalRefer = ({
   teamMemberProfile,
+  referal,
+  isActive,
   className,
 }: Props) => {
-  const supabaseClient = createClientSide();
-  const [topUpOptions, setTopUpOptions] = useState<merchant_table[]>([]);
-  const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<TopUpFormValues>({
-    resolver: zodResolver(topUpFormSchema),
-    defaultValues: {
-      amount: "",
-      topUpMode: "",
-      accountName: "",
-      accountNumber: "",
-      file: undefined,
-    },
-  });
+  const [isFetching, setIsFetching] = useState(false);
+  const [referralData, setReferralData] = useState<{
+    direct: {
+      sum: number;
+      count: number;
+    };
+    indirect: {
+      sum: number;
+      count: number;
+    };
+  } | null>(null);
+  const { toast } = useToast();
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast({
+        title: "Copied to clipboard!",
+        description: "You can now share the link with your connections.",
+        variant: "success",
+      });
+    });
+  };
 
   useEffect(() => {
-    const getOptions = async () => {
+    const handleFetchReferralData = async () => {
+      if (!open || referralData) return;
       try {
-        if (!open) return;
-        const options = await getMerchantOptions();
-        setTopUpOptions(options);
-      } catch (e) {
-        if (e instanceof Error) {
-          await logError(supabaseClient, {
-            errorMessage: e.message,
-            stackTrace: e.stack,
-            stackPath:
-              "components/DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit.tsx",
+        setIsFetching(true);
+        const referralData = await getReferralData();
+        if ("error" in referralData) {
+          toast({
+            title: "Error",
+            description: "Internal server error",
+            variant: "destructive",
           });
+          return;
         }
+        setReferralData(referralData);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Internal server error",
+          variant: "destructive",
+        });
+      } finally {
+        setIsFetching(false);
       }
     };
 
-    getOptions();
-  }, [open]);
-
-  const onSubmit = async (data: TopUpFormValues) => {
-    try {
-      const sanitizedData = escapeFormData(data);
-
-      await createTopUpRequest({
-        TopUpFormValues: sanitizedData,
-        teamMemberId: teamMemberProfile.alliance_member_id,
-      });
-
-      toast({
-        title: "Top Up Successfully",
-        description: "Please wait for it to be approved.",
-        variant: "success",
-      });
-
-      setOpen(false);
-      reset();
-    } catch (e) {
-      if (e instanceof Error) {
-        await logError(supabaseClient, {
-          errorMessage: e.message,
-          stackTrace: e.stack,
-          stackPath:
-            "components/DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit.tsx",
-        });
-      }
-
-      toast({
-        title: "Error",
-        description: "Someting went wrong",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const onTopUpModeChange = (value: string) => {
-    const selectedOption = topUpOptions.find(
-      (option) => option.merchant_account_type === value
-    );
-    if (selectedOption) {
-      setValue("accountName", selectedOption.merchant_account_name || "");
-      setValue("accountNumber", selectedOption.merchant_account_number || "");
-    }
-  };
-  const uploadedFile = watch("file");
+    handleFetchReferralData();
+  }, [open, referralData]);
 
   return (
     <Dialog
       open={open}
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
-        if (!isOpen) {
-          reset();
-        }
       }}
     >
-      <DialogTrigger asChild className={className}>
+      <DialogTrigger asChild>
         <Button
-          className=" min-h-44 flex flex-col items-start justify-start sm:justify-center sm:items-center px-4 text-lg pt-8 sm:pt-8"
+          className={`relative h-48 flex flex-col items-start justify-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl pt-8 sm:pt-8 ${className}`}
           onClick={() => setOpen(true)}
         >
           Refer & Earn
-          <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center ">
+          <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
             <Image
               src="/assets/refer-a-friend.png"
-              alt="deposit"
+              alt="Refer a Friend"
               width={200}
               height={200}
               priority
-              className="float-right"
+              className="absolute sm:relative top-10 sm:-top-4 sm:left-0 left-8 "
             />
           </div>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <ScrollArea className="h-[500px]">
-          <DialogHeader className="text-start text-2xl font-bold">
-            <DialogTitle>Deposit</DialogTitle>
+
+      <DialogContent className="sm:max-w-[425px] dark:bg-transparent p-0 border-none shadow-none">
+        {isFetching && <TableLoading />}
+        <ScrollArea className="h-[600px] sm:h-full ">
+          <DialogDescription></DialogDescription>
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl font-bold"></DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Amount Field */}
-            <div>
-              <Label htmlFor="amount">Amount</Label>
-              <Controller
-                name="amount"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    variant="default"
-                    type="text"
-                    id="amount"
-                    className="text-center"
-                    placeholder="Enter the top-up amount (e.g., 1000)"
-                    {...field}
-                    autoFocus
-                    value={
-                      field.value ? Number(field.value).toLocaleString() : ""
-                    }
-                    onChange={(e) => {
-                      let value = e.target.value;
-
-                      value = value.replace(/\D/g, "");
-
-                      if (value.startsWith("0")) {
-                        value = value.replace(/^0+/, "");
-                      }
-                      if (value.length > 7) {
-                        return;
-                      }
-                      field.onChange(value);
-                    }}
-                  />
-                )}
-              />
-              {errors.amount && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.amount.message}
-                </p>
-              )}
-            </div>
-
-            {/* Top-Up Mode */}
-            <div>
-              <Label htmlFor="topUpMode">Cashier Bank</Label>
-              <Controller
-                name="topUpMode"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      onTopUpModeChange(value);
-                    }}
-                    value={field.value}
-                  >
-                    <SelectTrigger className="text-center">
-                      <SelectValue placeholder="Select Cashier Bank" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {topUpOptions.map((option) => (
-                        <SelectItem
-                          key={option.merchant_id}
-                          value={option.merchant_account_type}
-                        >
-                          {option.merchant_account_type} -{" "}
-                          {option.merchant_account_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.topUpMode && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.topUpMode.message}
-                </p>
-              )}
-            </div>
-
-            {/* Account Details */}
-            <div className="flex flex-col gap-4">
-              <div className="flex-1">
-                <Label htmlFor="accountName">Account Name</Label>
-                <div className="flex gap-2">
-                  <Controller
-                    name="accountName"
-                    control={control}
-                    render={({ field }) => (
+          <div className="flex flex-col items-end space-y-4">
+            {/* Referral Link and Code */}
+            {isActive && (
+              <Card className="dark:bg-cardColor border-none w-full">
+                <CardHeader>
+                  <CardTitle className="text-black text-2xl">
+                    Refer & Earn
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-end gap-2">
+                    <div className="flex flex-col gap-2">
+                      <Label
+                        htmlFor="referral_link"
+                        className="font-bold dark:text-black"
+                      >
+                        Referral Link
+                      </Label>
                       <Input
-                        className="text-center"
-                        readOnly
                         variant="default"
-                        id="accountName"
-                        placeholder="Account Name"
-                        {...field}
-                      />
-                    )}
-                  />
-                  <Button className="w-20 bg-pageColor text-white h-12">
-                    Copy
-                  </Button>
-                </div>
-                {errors.accountName && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.accountName.message}
-                  </p>
-                )}
-              </div>
-              <div className="flex-1">
-                <Label htmlFor="accountNumber">Account Number</Label>
-                <div className="flex gap-2">
-                  <Controller
-                    name="accountNumber"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
+                        id="referral_link"
+                        type="text"
                         readOnly
                         className="text-center"
-                        id="accountNumber"
-                        placeholder="Account Number"
-                        {...field}
+                        value={referal.alliance_referral_link}
                       />
-                    )}
-                  />
-                  <Button className="w-20 bg-pageColor text-white h-12">
-                    Copy
-                  </Button>
-                </div>
-                {errors.accountNumber && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.accountNumber.message}
-                  </p>
-                )}
-              </div>
-            </div>
+                    </div>
 
-            {uploadedFile ? (
-              <div className="flex flex-col justify-center items-center animate-pulse">
-                <CheckCircle
-                  className="animate-pulse text-green-600"
-                  size={50}
-                />
-                {errors.file ? (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.file?.message}
-                  </p>
-                ) : (
-                  <p className="text-green-600 text-xl font-bold">
-                    File Uploaded
-                  </p>
-                )}
-              </div>
-            ) : (
-              <div>
-                <Controller
-                  name="file"
-                  control={control}
-                  render={({ field }) => (
-                    <FileUpload
-                      label="Upload Receipt"
-                      onFileChange={(file) => field.onChange(file)}
-                    />
-                  )}
-                />
-                {errors.file && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.file?.message}
-                  </p>
-                )}
-              </div>
+                    <Button
+                      onClick={() =>
+                        copyToClipboard(referal.alliance_referral_link)
+                      }
+                      className="bg-pageColor text-white h-12"
+                    >
+                      Copy
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             )}
-            <div className="flex justify-center items-center">
-              <Button
-                type="submit"
-                className=" bg-pageColor text-white h-12 "
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? <Loader2 className="animate-spin" /> : null}{" "}
-                Submit
-              </Button>
-            </div>
-          </form>
-          <DialogFooter></DialogFooter>
+
+            <Card className="dark:bg-cardColor border-none w-full">
+              <CardHeader>
+                <CardTitle className="text-black text-xl"></CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="flex flex-col gap-2">
+                    <Label
+                      htmlFor="direct_referrals"
+                      className="font-bold dark:text-black"
+                    >
+                      Direct Bonus Earning
+                    </Label>
+                    <Input
+                      variant="default"
+                      id="direct_referrals"
+                      readOnly
+                      type="text"
+                      className="text-center"
+                      value={
+                        "₱ " +
+                        (referralData?.direct.sum
+                          ? referralData.direct.sum.toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })
+                          : "0.00")
+                      }
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label
+                      htmlFor="multiple_referrals"
+                      className="font-bold dark:text-black"
+                    >
+                      Multiple Bonus Earning
+                    </Label>
+                    <Input
+                      variant="default"
+                      id="multiple_referrals"
+                      type="text"
+                      readOnly
+                      className="text-center"
+                      value={
+                        "₱ " +
+                        (referralData?.indirect.sum
+                          ? referralData.indirect.sum.toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })
+                          : "0.00")
+                      }
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="dark:bg-cardColor border-none w-full">
+              <CardHeader>
+                <CardTitle className="text-black text-xl"></CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-around gap-2">
+                  <div className="flex flex-col gap-2 items-center justify-center w-24">
+                    <Label
+                      htmlFor="referrals"
+                      className="font-bold dark:text-black text-center"
+                    >
+                      Direct Referral
+                    </Label>
+                    <DashboardDirectReferral
+                      teamMemberProfile={teamMemberProfile}
+                      count={referralData?.direct.count || 0}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2 items-center justify-center w-24">
+                    <Label
+                      htmlFor="earnings"
+                      className="font-bold dark:text-black text-center"
+                    >
+                      Multiple Referral
+                    </Label>
+                    <DashboardIndirectReferral
+                      teamMemberProfile={teamMemberProfile}
+                      count={referralData?.indirect.count || 0}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Earnings */}
+          </div>
         </ScrollArea>
+        <DialogFooter className="flex justify-center"></DialogFooter>
       </DialogContent>
     </Dialog>
   );

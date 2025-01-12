@@ -8,85 +8,80 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAllyBounty } from "@/services/Bounty/Member";
-import { escapeFormData } from "@/utils/function";
+import { logError } from "@/services/Error/ErrorLogs";
+import { getTransactionHistory } from "@/services/Transaction/Transaction";
 import { createClientSide } from "@/utils/supabase/client";
-import { alliance_member_table, user_table } from "@prisma/client";
+import {
+  alliance_member_table,
+  alliance_transaction_table,
+} from "@prisma/client";
 import {
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  SortingState,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import TableLoading from "../ui/tableLoading";
-import { AllyBountyColumn } from "./AllyBountyColum";
+import { TransactionHistoryColumn } from "./TransactionHistoryColumn";
 
 type DataTableProps = {
   teamMemberProfile: alliance_member_table;
-  sponsor?: string;
 };
 
 type FilterFormValues = {
-  emailFilter: string;
+  referenceId: string;
 };
 
-const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
+const TransactionHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   const supabaseClient = createClientSide();
-  const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [requestData, setRequestData] = useState<
-    (user_table & { total_bounty_earnings: string })[]
-  >([]);
+  const [requestData, setRequestData] = useState<alliance_transaction_table[]>(
+    []
+  );
   const [requestCount, setRequestCount] = useState(0);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
 
-  const columnAccessor = sorting?.[0]?.id || "user_date_created";
-  const isAscendingSort =
-    sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
-
-  const fetchAdminRequest = async () => {
+  const fetchRequest = async () => {
     try {
       if (!teamMemberProfile) return;
       setIsFetchingList(true);
 
-      const sanitizedData = escapeFormData(getValues());
+      const { transactionHistory, totalTransactions } =
+        await getTransactionHistory({
+          page: activePage,
+          limit: 10,
+        });
 
-      const { emailFilter } = sanitizedData;
-
-      const { data, totalCount } = await getAllyBounty({
-        page: activePage,
-        limit: 10,
-        columnAccessor: columnAccessor,
-        isAscendingSort: isAscendingSort,
-        search: emailFilter,
-      });
-
-      setRequestData(data || []);
-      setRequestCount(totalCount || 0);
+      setRequestData(transactionHistory || []);
+      setRequestCount(totalTransactions || 0);
     } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/TopUpHistoryPage/TopUpHistoryTable.tsx",
+        });
+      }
     } finally {
       setIsFetchingList(false);
     }
   };
 
-  const columns = AllyBountyColumn();
+  const columns = TransactionHistoryColumn();
 
   const table = useReactTable({
     data: requestData,
     columns,
-    onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -94,22 +89,15 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
     },
   });
 
-  const { getValues } = useForm<FilterFormValues>({
-    defaultValues: {
-      emailFilter: "",
-    },
-  });
-
   useEffect(() => {
-    fetchAdminRequest();
-  }, [supabaseClient, teamMemberProfile, activePage, sorting]);
+    fetchRequest();
+  }, [supabaseClient, teamMemberProfile, activePage]);
 
   const pageCount = Math.ceil(requestCount / 10);
 
@@ -176,23 +164,23 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
 
       <div className="flex items-center justify-between gap-x-4 py-4">
         {/* <div className="flex justify-between items-center px-2 pt-2">
-        <span className="text-sm dark:text-pageColor font-bold ">
-          Rows per page
-        </span>
-        <Select
-          defaultValue="10"
-          onValueChange={(value) => setLimit(Number(value))}
-        >
-          <SelectTrigger className="w-[70px] h-8 dark:bg-transparent space-x-2 dark:text-pageColor font-bold border-none border-b-2 shadow-none border-black">
-            <SelectValue placeholder="10" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="10">10</SelectItem>
-            <SelectItem value="20">20</SelectItem>
-            <SelectItem value="30">30</SelectItem>
-          </SelectContent>
-        </Select>
-      </div> */}
+          <span className="text-sm dark:text-pageColor font-bold ">
+            Rows per page
+          </span>
+          <Select
+            defaultValue="10"
+            onValueChange={(value) => setLimit(Number(value))}
+          >
+            <SelectTrigger className="w-[70px] h-8 dark:bg-transparent space-x-2 dark:text-pageColor font-bold border-none border-b-2 shadow-none border-black">
+              <SelectValue placeholder="10" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="30">30</SelectItem>
+            </SelectContent>
+          </Select>
+        </div> */}
         <div className="flex items-center justify-start gap-x-4">
           {/* Left Arrow */}
           <Button
@@ -224,4 +212,4 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
   );
 };
 
-export default AllyBountyTable;
+export default TransactionHistoryTable;

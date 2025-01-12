@@ -23,14 +23,11 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { ChevronLeft, ChevronRight, RefreshCw, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
-import { Card } from "../ui/card";
-import { Input } from "../ui/input";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import { Separator } from "../ui/separator";
 import TableLoading from "../ui/tableLoading";
 import { LegionBountyColumn } from "./LegionBountyColumn";
 
@@ -83,12 +80,6 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
     }
   };
 
-  const handleFilter = async () => {
-    try {
-      await fetchAdminRequest();
-    } catch (e) {}
-  };
-
   const columns = LegionBountyColumn();
 
   const table = useReactTable({
@@ -122,166 +113,102 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
   const pageCount = Math.ceil(requestCount / 10);
 
   return (
-    <Card className="w-full rounded-sm p-4">
-      <div className="flex flex-wrap items-center py-4">
-        <form
-          className="flex flex-wrap gap-2"
-          onSubmit={handleSubmit(handleFilter)}
-        >
-          <Input
-            {...register("emailFilter")}
-            placeholder="Filter username..."
-            className="w-full sm:w-auto"
-          />
-          <Button
-            type="submit"
-            disabled={isFetchingList}
-            size="sm"
-            variant="outline"
-          >
-            <Search />
-          </Button>
-          <Button
-            onClick={fetchAdminRequest}
-            disabled={isFetchingList}
-            size="sm"
-          >
-            <RefreshCw />
-            Refresh
-          </Button>
-        </form>
-      </div>
-      <ScrollArea className="w-full overflow-x-auto ">
-        {isFetchingList && <TableLoading />}
-        <Separator />
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
+    <ScrollArea className="w-full overflow-x-auto ">
+      {isFetchingList && <TableLoading />}
+
+      <Table className="w-full border-collapse border border-black font-bold">
+        <TableHeader className="border-b border-black dark:text-pageColor font-bold">
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow
+              key={headerGroup.id}
+              className="border-b border-black  dark:text-pageColor font-bold"
+            >
+              {headerGroup.headers.map((header) => (
+                <TableHead
+                  className="border-r border-black px-4 py-2 dark:text-pageColor hover:bg-transparent font-bold"
+                  key={header.id}
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+
+        <TableBody>
+          {table.getRowModel().rows.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+                className="border-none font-bold"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    className="border-r border-black px-4 py-2"
+                    key={cell.id}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableHeader>
-
-          <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-          <tfoot>
-            <TableRow>
-              <TableCell className="px-0" colSpan={columns.length}>
-                <div className="flex justify-between items-center border-t px-2 pt-2">
-                  <span className="text-sm text-gray-600 dark:text-white">
-                    Showing {Math.min(activePage * 10, requestCount)} out of{" "}
-                    {requestCount} entries
-                  </span>
-                </div>
+            ))
+          ) : (
+            <TableRow className="border-b border-black">
+              <TableCell
+                colSpan={columns.length}
+                className="h-24 text-center border-r border-black"
+              >
+                No results.
               </TableCell>
             </TableRow>
-          </tfoot>
-        </Table>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+          )}
+        </TableBody>
+      </Table>
 
-      <div className="flex items-center justify-end gap-x-4 py-4">
-        {activePage > 1 && (
+      <ScrollBar orientation="horizontal" />
+
+      <div className="flex items-center justify-between gap-x-4 py-4">
+        {/* <div className="flex justify-between items-center px-2 pt-2">
+      <span className="text-sm dark:text-pageColor font-bold ">
+        Rows per page
+      </span>
+      <Select
+        defaultValue="10"
+        onValueChange={(value) => setLimit(Number(value))}
+      >
+        <SelectTrigger className="w-[70px] h-8 dark:bg-transparent space-x-2 dark:text-pageColor font-bold border-none border-b-2 shadow-none border-black">
+          <SelectValue placeholder="10" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="10">10</SelectItem>
+          <SelectItem value="20">20</SelectItem>
+          <SelectItem value="30">30</SelectItem>
+        </SelectContent>
+      </Select>
+    </div> */}
+        <div className="flex items-center justify-start gap-x-4">
+          {/* Left Arrow */}
           <Button
-            variant="outline"
+            className="shadow-none"
             size="sm"
             onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
             disabled={activePage <= 1}
           >
             <ChevronLeft />
           </Button>
-        )}
 
-        <div className="flex space-x-2">
-          {(() => {
-            const maxVisiblePages = 3;
-            const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
-            let displayedPages = [];
+          {/* Active Page */}
+          <span className="text-lg font-semibold">{activePage}</span>
 
-            if (pageCount <= maxVisiblePages) {
-              // Show all pages if there are 3 or fewer
-              displayedPages = pages;
-            } else {
-              if (activePage <= 2) {
-                // Show the first 3 pages and the last page
-                displayedPages = [1, 2, 3, "...", pageCount];
-              } else if (activePage >= pageCount - 1) {
-                // Show the first page and the last 3 pages
-                displayedPages = [
-                  1,
-                  "...",
-                  pageCount - 2,
-                  pageCount - 1,
-                  pageCount,
-                ];
-              } else {
-                displayedPages = [
-                  activePage - 1,
-                  activePage,
-                  activePage + 1,
-                  "...",
-                  pageCount,
-                ];
-              }
-            }
-
-            return displayedPages.map((page, index) =>
-              typeof page === "number" ? (
-                <Button
-                  key={page}
-                  variant={activePage === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setActivePage(page)}
-                >
-                  {page}
-                </Button>
-              ) : (
-                <span key={`ellipsis-${index}`} className="px-2 py-1">
-                  {page}
-                </span>
-              )
-            );
-          })()}
-        </div>
-        {activePage < pageCount && (
+          {/* Right Arrow */}
           <Button
-            variant="outline"
+            className="shadow-none"
             size="sm"
             onClick={() =>
               setActivePage((prev) => Math.min(prev + 1, pageCount))
@@ -290,9 +217,9 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
           >
             <ChevronRight />
           </Button>
-        )}
+        </div>
       </div>
-    </Card>
+    </ScrollArea>
   );
 };
 

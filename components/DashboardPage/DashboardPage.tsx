@@ -15,9 +15,7 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
-import CardAmount from "../ui/cardAmount";
 import {
   Carousel,
   CarouselApi,
@@ -27,7 +25,9 @@ import {
 import TableLoading from "../ui/tableLoading";
 import DashboardDepositModalDeposit from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit";
 import DashboardDepositModalPackages from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositPackagesModal";
+import DashboardDepositProfile from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositProfile";
 import DashboardDepositModalRefer from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositRefer";
+import DashboardTransactionHistory from "./DashboardDepositRequest/DashboardDepositModal/DashboardTransactionHistory";
 import DashboardPackages from "./DashboardPackages";
 import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
 
@@ -57,7 +57,9 @@ const DashboardPage = ({
     teamMemberProfile.alliance_member_is_active
   );
   const [activeSlide, setActiveSlide] = useState(0);
-  const [totalEarnings, setTotalEarnings] = useState<DashboardEarnings>();
+  const [totalEarnings, setTotalEarnings] = useState<DashboardEarnings | null>(
+    null
+  );
 
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
@@ -68,6 +70,7 @@ const DashboardPage = ({
       const dashboardEarnings = await getDashboardEarnings(supabaseClient, {
         teamMemberId: teamMemberProfile.alliance_member_id,
       });
+      console.log(dashboardEarnings);
       setTotalEarnings(dashboardEarnings);
     } catch (e) {
       if (e instanceof Error) {
@@ -108,15 +111,6 @@ const DashboardPage = ({
     }
   };
 
-  const copyReferralLink = () => {
-    const referralLink = referal.alliance_referral_link;
-    navigator.clipboard.writeText(referralLink);
-    toast({
-      title: "Referral link copied to clipboard!",
-      variant: "success",
-    });
-  };
-
   useEffect(() => {
     getPackagesData();
   }, []);
@@ -147,16 +141,13 @@ const DashboardPage = ({
     <div className="relative min-h-screen h-full mx-auto py-4">
       {isLoading && <TableLoading />}
 
-      <div className="w-full space-y-6 md:px-10">
-        <div className="flex justify-between items-center gap-2">
+      <div className="w-full space-y-4 md:px-10">
+        <div className="flex justify-between items-center gap-4">
           <div className="flex items-center justify-between gap-2">
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback>
-                {profile.user_first_name?.slice(0, 1)}
-                {profile.user_last_name?.slice(0, 1)}
-              </AvatarFallback>
-            </Avatar>
+            <DashboardDepositProfile
+              teamMemberProfile={teamMemberProfile}
+              profile={profile}
+            />
 
             <div>
               <p className="text-xs font-medium">{profile.user_username}</p>
@@ -166,13 +157,13 @@ const DashboardPage = ({
             </div>
           </div>
 
-          <div className="flex items-center justify-center">
-            <Image src="/app-logo.svg" alt="logo" width={50} height={50} />
+          <div className="flex items-center justify-center gap-2">
+            <Image src="/app-logo.png" alt="logo" width={55} height={55} />
             <div>
               <p className="text-sm font-medium">Balance</p>
               <p className="text-sm">
                 {"₱ "}
-                {earnings.alliance_olympus_wallet.toLocaleString("en-US", {
+                {earnings?.alliance_combined_earnings.toLocaleString("en-US", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -225,45 +216,30 @@ const DashboardPage = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
           <div className="flex flex-col gap-4 ">
             <DashboardDepositModalDeposit
               teamMemberProfile={teamMemberProfile}
               className="w-full"
             />
-            <CardAmount
-              title="Indirect Referral"
-              value={
-                Number(totalEarnings?.indirectReferralAmount).toLocaleString(
-                  "en-US",
-                  {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }
-                ) as unknown as number
-              }
-              description={
-                <>
-                  <Button
-                    size={"sm"}
-                    onClick={() => router.push("/indirect-referral")}
-                  >
-                    Indirect Referral
-                  </Button>
-                </>
-              }
-              descriptionClassName="text-sm text-red-600"
+            <DashboardTransactionHistory
+              teamMemberProfile={teamMemberProfile}
+              referal={referal}
+              className="w-full"
             />
           </div>
 
-          <div className="flex flex-col gap-4 ">
+          <div className="flex flex-col justify-start gap-4 ">
             <DashboardDepositModalRefer
               teamMemberProfile={teamMemberProfile}
+              referal={referal}
+              isActive={isActive}
               className="w-full"
             />
 
             <DashboardWithdrawModalWithdraw
               teamMemberProfile={teamMemberProfile}
+              setTotalEarnings={setTotalEarnings}
               earnings={earnings}
             />
           </div>
@@ -329,16 +305,15 @@ const DashboardPage = ({
           teamMemberProfile={teamMemberProfile}
           className="w-full"
         />
-        <DashboardPackages chartData={chartData} setChartData={setChartData} />
 
-        {/* {chartData.length > 0 && (
+        {chartData.length > 0 && (
           <div className=" gap-6">
             <DashboardPackages
               chartData={chartData}
               setChartData={setChartData}
             />
           </div>
-        )} */}
+        )}
 
         {/* <div className="w-full flex flex-col lg:flex-row space-6 gap-6">
           <DashboardDepositRequest

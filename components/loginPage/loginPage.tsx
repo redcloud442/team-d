@@ -143,7 +143,15 @@ const LoginPage = () => {
           )}
         </div>
 
-        <Button disabled={isSubmitting || isLoading} type="submit">
+        <Button
+          disabled={isSubmitting || isLoading}
+          type="submit"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSubmit(handleSignIn);
+            }
+          }}
+        >
           {isSubmitting || isLoading ? "Signing in..." : "Login"}
         </Button>
       </form>

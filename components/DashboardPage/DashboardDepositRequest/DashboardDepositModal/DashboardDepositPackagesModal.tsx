@@ -90,7 +90,7 @@ const DashboardDepositModalPackages = ({
     >
       <DialogTrigger asChild className={className}>
         <Button
-          className=" h-44 flex items-center justify-start  px-4 sm:justify-center sm:items-center text-lg border-2"
+          className=" h-44 flex items-center justify-start  px-4 sm:justify-around sm:items-center text-lg sm:text-2xl border-2"
           onClick={() => setOpen(true)}
         >
           Buy Pr1me Plans

@@ -136,13 +136,9 @@ export const changeUserPassword = async (params: {
 }) => {
   const { email, password, userId } = params;
 
-  const { iv, encryptedData } = await hashData(password);
-
   const inputData = {
     email,
     clientpass: password,
-    password: encryptedData,
-    iv,
   };
 
   const response = await fetch(
@@ -152,6 +148,7 @@ export const changeUserPassword = async (params: {
       body: JSON.stringify(inputData),
     }
   );
+
   if (!response.ok) {
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("text/html")) {

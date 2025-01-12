@@ -64,6 +64,7 @@ export type ChartDataMember = {
   amount: number;
   is_ready_to_claim: boolean;
   package_connection_id: string;
+  profit_amount: number;
 };
 
 export type DashboardEarnings = {

@@ -232,3 +232,7 @@ export const calculateFee = (
   }
   return 0;
 };
+
+export const userNameToEmail = (userName: string) => {
+  return `${userName}@gmail.com`;
+};

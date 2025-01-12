@@ -63,8 +63,8 @@ export async function PUT(
         const earningsField =
           earningsType === "TOTAL"
             ? "alliance_olympus_earnings"
-            : earningsType === "DIRECT REFERRAL"
-              ? "alliance_ally_bounty"
+            : earningsType === "REFERRAL"
+              ? "alliance_referral_bounty"
               : "alliance_legion_bounty";
 
         await tx.alliance_earnings_table.update({
@@ -73,6 +73,9 @@ export async function PUT(
           },
           data: {
             [earningsField]: {
+              increment: updatedRequest.alliance_withdrawal_request_amount,
+            },
+            alliance_combined_earnings: {
               increment: updatedRequest.alliance_withdrawal_request_amount,
             },
           },

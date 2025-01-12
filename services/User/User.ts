@@ -41,3 +41,29 @@ export const getUserSponsor = async (params: { userId: string }) => {
     user_username: string;
   };
 };
+
+export const getReferralData = async () => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/referrals`,
+      {
+        method: "GET",
+      }
+    );
+
+    const result = await response.json();
+
+    return result as {
+      direct: {
+        sum: number;
+        count: number;
+      };
+      indirect: {
+        sum: number;
+        count: number;
+      };
+    };
+  } catch (e) {
+    return { error: "Internal server error" };
+  }
+};

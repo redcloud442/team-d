@@ -115,18 +115,16 @@ const AvailPackagePage = ({
           amount: sumOfTotal,
           is_ready_to_claim: false,
           package_connection_id: "",
+          profit_amount: computation,
         },
         ...prev,
       ]);
       setSelectedPackage(null);
       setOpen(false);
     } catch (e) {
-      const errorMessage =
-        e instanceof Error ? e.message : "An unexpected error occurred.";
-
       toast({
         title: "Error",
-        description: errorMessage,
+        description: "An unexpected error occurred.",
         variant: "destructive",
       });
     }
