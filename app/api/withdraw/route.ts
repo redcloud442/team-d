@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
-    if (Number(amount) <= 0 || Number(amount) <= 200) {
+    if (Number(amount) <= 0 || Number(amount) < 200) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
@@ -90,6 +90,11 @@ export async function POST(request: Request) {
 
     const amountMatch = await prisma.alliance_earnings_table.findUnique({
       where: { alliance_earnings_member_id: teamMemberId },
+      select: {
+        alliance_olympus_earnings: true,
+        alliance_referral_bounty: true,
+        alliance_combined_earnings: true,
+      },
     });
 
     if (!amountMatch || !teamMemberProfile?.alliance_member_is_active) {
@@ -108,10 +113,16 @@ export async function POST(request: Request) {
 
     // Calculate proportional deductions
     let remainingAmount = Number(amount);
-    let olympusDeduction = Math.min(remainingAmount, alliance_olympus_earnings);
+    const olympusDeduction = Math.min(
+      remainingAmount,
+      alliance_olympus_earnings
+    );
     remainingAmount -= olympusDeduction;
 
-    let referralDeduction = Math.min(remainingAmount, alliance_referral_bounty);
+    const referralDeduction = Math.min(
+      remainingAmount,
+      alliance_referral_bounty
+    );
     remainingAmount -= referralDeduction;
 
     // If remainingAmount > 0 here, it indicates a miscalculation, but it should not happen
@@ -152,7 +163,7 @@ export async function POST(request: Request) {
       }),
       prisma.alliance_transaction_table.create({
         data: {
-          transaction_amount: Number(amount),
+          transaction_amount: Number(calculateFee(Number(amount), earnings)),
           transaction_description: "Withdrawal Pending",
           transaction_member_id: teamMemberId,
         },

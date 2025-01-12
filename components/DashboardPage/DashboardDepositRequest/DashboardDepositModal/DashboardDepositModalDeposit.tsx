@@ -222,7 +222,7 @@ const DashboardDepositModalDeposit = ({
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <ScrollArea className="h-[500px] sm:h-">
+        <ScrollArea className="h-[500px] sm:h-full">
           <DialogHeader className="text-start text-2xl font-bold">
             <DialogTitle className="text-2xl font-bold mb-4">
               Deposit

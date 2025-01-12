@@ -51,8 +51,9 @@ const DashboardPage = ({
   const { toast } = useToast();
   const [chartData, setChartData] = useState<ChartDataMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [earnings, setEarnings] =
-    useState<alliance_earnings_table>(initialEarnings);
+  const [earnings, setEarnings] = useState<alliance_earnings_table | null>(
+    initialEarnings
+  );
   const [isActive, setIsActive] = useState(
     teamMemberProfile.alliance_member_is_active
   );
@@ -70,7 +71,7 @@ const DashboardPage = ({
       const dashboardEarnings = await getDashboardEarnings(supabaseClient, {
         teamMemberId: teamMemberProfile.alliance_member_id,
       });
-      console.log(dashboardEarnings);
+
       setTotalEarnings(dashboardEarnings);
     } catch (e) {
       if (e instanceof Error) {
@@ -239,8 +240,8 @@ const DashboardPage = ({
 
             <DashboardWithdrawModalWithdraw
               teamMemberProfile={teamMemberProfile}
-              setTotalEarnings={setTotalEarnings}
               earnings={earnings}
+              setEarnings={setEarnings}
             />
           </div>
 
@@ -311,6 +312,7 @@ const DashboardPage = ({
             <DashboardPackages
               chartData={chartData}
               setChartData={setChartData}
+              setEarnings={setEarnings}
             />
           </div>
         )}

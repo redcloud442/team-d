@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ChartDataMember } from "@/utils/types";
+import { alliance_earnings_table } from "@prisma/client";
+import { Loader2 } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -29,17 +31,20 @@ import { Separator } from "../ui/separator";
 type Props = {
   chartData: ChartDataMember[];
   setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
+  setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
 };
 
-const DashboardPackages = ({ chartData, setChartData }: Props) => {
+const DashboardPackages = ({ chartData, setChartData, setEarnings }: Props) => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleClaimPackage = async (
     amount: number,
     packageConnectionId: string
   ) => {
     try {
+      setIsLoading(true);
       const response = await claimPackage({
         packageConnectionId,
         amount,
@@ -55,6 +60,18 @@ const DashboardPackages = ({ chartData, setChartData }: Props) => {
             (data) => data.package_connection_id !== packageConnectionId
           )
         );
+        if (setEarnings) {
+          setEarnings((prev) => {
+            if (!prev) return null;
+            return {
+              ...prev,
+              alliance_olympus_earnings:
+                prev.alliance_olympus_earnings + amount,
+              alliance_combined_earnings:
+                prev.alliance_combined_earnings + amount,
+            };
+          });
+        }
         setIsOpen(false);
       }
     } catch (error) {
@@ -62,6 +79,8 @@ const DashboardPackages = ({ chartData, setChartData }: Props) => {
         title: "Failed to claim package",
         description: "Please try again later",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -71,6 +90,9 @@ const DashboardPackages = ({ chartData, setChartData }: Props) => {
         {chartData.map((data, index) => (
           <Card
             key={index}
+            style={{
+              background: `linear-gradient(110deg, ${data.package_color || "#F6DB4E"} 60%, #ED9738)`, // Make package color dominate
+            }}
             className={`min-w-[260px] max-w-[500px] h-auto dark:bg-${data.package_color || "cardColor"} transition-all duration-300 `}
           >
             <CardHeader>
@@ -153,6 +175,7 @@ const DashboardPackages = ({ chartData, setChartData }: Props) => {
                     </DialogHeader>
                     <DialogFooter>
                       <Button
+                        disabled={isLoading}
                         onClick={() =>
                           handleClaimPackage(
                             data.amount,
@@ -162,7 +185,14 @@ const DashboardPackages = ({ chartData, setChartData }: Props) => {
                         className="w-full"
                         variant="card"
                       >
-                        Claim
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            {"Claiming ..."}
+                          </>
+                        ) : (
+                          "Claim"
+                        )}
                       </Button>
                     </DialogFooter>
                   </DialogContent>

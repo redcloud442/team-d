@@ -24,7 +24,6 @@ import { getEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
 import { calculateFinalAmount, escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { DashboardEarnings } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_earnings_table, alliance_member_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
@@ -35,8 +34,8 @@ import { z } from "zod";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
-  earnings: alliance_earnings_table;
-  setTotalEarnings: Dispatch<SetStateAction<DashboardEarnings | null>>;
+  earnings: alliance_earnings_table | null;
+  setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
 };
 
 const withdrawalFormSchema = z.object({
@@ -58,15 +57,14 @@ const bankData = ["GCASH", "MAYA", "GOTYME BANK", "UNION BANK", "BDO", "BPI"];
 
 const DashboardWithdrawModalWithdraw = ({
   teamMemberProfile,
-  earnings: initialEarnings,
-  setTotalEarnings,
+  earnings,
+  setEarnings,
 }: Props) => {
   const [open, setOpen] = useState(false);
-  const [earnings, setEarnings] =
-    useState<alliance_earnings_table>(initialEarnings);
-
   const totalEarnings =
-    earnings.alliance_olympus_earnings + earnings.alliance_referral_bounty;
+    (earnings?.alliance_olympus_earnings ?? 0) +
+    (earnings?.alliance_referral_bounty ?? 0);
+
   const supabase = createClientSide();
   const { toast } = useToast();
 
@@ -139,26 +137,44 @@ const DashboardWithdrawModalWithdraw = ({
 
       switch (selectedEarnings) {
         case "TOTAL":
-          setEarnings({
-            ...earnings,
-            alliance_combined_earnings:
-              earnings.alliance_combined_earnings -
-              Number(sanitizedData.amount),
-            alliance_olympus_earnings:
-              earnings.alliance_olympus_earnings - Number(sanitizedData.amount),
-          });
+          if (earnings) {
+            // Remaining amount to be deducted
+            let remainingAmount = Number(sanitizedData.amount);
 
+            // Calculate Olympus Earnings deduction
+            const olympusDeduction = Math.min(
+              remainingAmount,
+              earnings.alliance_olympus_earnings
+            );
+            remainingAmount -= olympusDeduction;
+
+            // Calculate Referral Bounty deduction
+            const referralDeduction = Math.min(
+              remainingAmount,
+              earnings.alliance_referral_bounty
+            );
+            remainingAmount -= referralDeduction;
+
+            // Ensure no remaining amount (sanity check)
+            if (remainingAmount > 0) {
+              console.error("Insufficient funds to update state.");
+              break;
+            }
+
+            // Update state with new earnings values
+            setEarnings({
+              ...earnings,
+              alliance_combined_earnings:
+                earnings.alliance_combined_earnings -
+                Number(sanitizedData.amount),
+              alliance_olympus_earnings:
+                earnings.alliance_olympus_earnings - olympusDeduction,
+              alliance_referral_bounty:
+                earnings.alliance_referral_bounty - referralDeduction,
+            });
+          }
           break;
-        case "REFERRAL":
-          setEarnings({
-            ...earnings,
-            alliance_referral_bounty:
-              earnings.alliance_referral_bounty - Number(sanitizedData.amount),
-            alliance_combined_earnings:
-              earnings.alliance_combined_earnings -
-              Number(sanitizedData.amount),
-          });
-          break;
+
         default:
           break;
       }
@@ -252,7 +268,7 @@ const DashboardWithdrawModalWithdraw = ({
                     <SelectContent>
                       <SelectItem className="text-xs" value="TOTAL">
                         Balance ( ₱{" "}
-                        {earnings.alliance_referral_bounty.toLocaleString(
+                        {earnings?.alliance_olympus_earnings.toLocaleString(
                           "en-US",
                           {
                             minimumFractionDigits: 2,
@@ -260,7 +276,7 @@ const DashboardWithdrawModalWithdraw = ({
                           }
                         )}{" "}
                         Package + ₱{" "}
-                        {earnings.alliance_referral_bounty.toLocaleString(
+                        {earnings?.alliance_referral_bounty.toLocaleString(
                           "en-US",
                           {
                             minimumFractionDigits: 2,

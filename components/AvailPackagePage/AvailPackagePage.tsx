@@ -1,9 +1,9 @@
 "use client";
 
-import { availPackageData } from "@/app/actions/package/packageAction";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { createPackageConnection } from "@/services/Package/Member";
 import { escapeFormData } from "@/utils/function";
 import { ChartDataMember } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,10 +19,10 @@ import * as z from "zod";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 type Props = {
-  earnings: alliance_earnings_table;
+  earnings: alliance_earnings_table | null;
   pkg: package_table;
   teamMemberProfile: alliance_member_table;
-  setEarnings: Dispatch<SetStateAction<alliance_earnings_table>>;
+  setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
   setOpen: Dispatch<SetStateAction<boolean>>;
   setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
   setSelectedPackage: Dispatch<SetStateAction<package_table | null>>;
@@ -39,7 +39,7 @@ const AvailPackagePage = ({
 }: Props) => {
   const { toast } = useToast();
   const [maxAmount, setMaxAmount] = useState(
-    earnings.alliance_combined_earnings
+    earnings?.alliance_combined_earnings ?? 0
   );
 
   const formattedMaxAmount = new Intl.NumberFormat("en-PH", {
@@ -91,9 +91,11 @@ const AvailPackagePage = ({
         now.getTime() + pkg.packages_days * 24 * 60 * 60 * 1000
       );
 
-      await availPackageData({
-        amount: result.amount,
-        packageId: result.packageId,
+      await createPackageConnection({
+        packageData: {
+          amount: result.amount,
+          packageId: result.packageId,
+        },
         teamMemberId: teamMemberProfile.alliance_member_id,
       });
 
@@ -105,12 +107,34 @@ const AvailPackagePage = ({
 
       reset({ amount: "", packageId: pkg.package_id });
 
-      setEarnings((prev) => ({
-        ...prev,
-        alliance_olympus_wallet: prev.alliance_olympus_wallet - result.amount,
-        alliance_combined_earnings:
-          prev.alliance_combined_earnings - result.amount,
-      }));
+      if (earnings) {
+        // Remaining amount to be deducted
+        let remainingAmount = Number(result.amount);
+
+        // Calculate Olympus Earnings deduction
+        const olympusDeduction = Math.min(
+          remainingAmount,
+          earnings.alliance_olympus_earnings
+        );
+        remainingAmount -= olympusDeduction;
+
+        // Calculate Referral Bounty deduction
+        const referralDeduction = Math.min(
+          remainingAmount,
+          earnings.alliance_referral_bounty
+        );
+        remainingAmount -= referralDeduction;
+
+        setEarnings({
+          ...earnings,
+          alliance_combined_earnings:
+            earnings.alliance_combined_earnings - Number(result.amount),
+          alliance_olympus_earnings:
+            earnings.alliance_olympus_earnings - olympusDeduction,
+          alliance_referral_bounty:
+            earnings.alliance_referral_bounty - referralDeduction,
+        });
+      }
 
       setMaxAmount((prev) => prev - result.amount);
       setChartData((prev) => [

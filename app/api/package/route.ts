@@ -92,6 +92,7 @@ export async function POST(request: Request) {
           select: {
             alliance_olympus_wallet: true,
             alliance_referral_bounty: true,
+            alliance_olympus_earnings: true,
             alliance_combined_earnings: true,
           },
         }),
@@ -125,6 +126,7 @@ export async function POST(request: Request) {
 
     const {
       alliance_olympus_wallet,
+      alliance_olympus_earnings,
       alliance_referral_bounty,
       alliance_combined_earnings,
     } = earningsData;
@@ -138,14 +140,18 @@ export async function POST(request: Request) {
     }
 
     // Deduct from the wallets
-    const { combinedWallet, olympusWallet, referralWallet } =
-      deductFromCombinedWallet(
-        amount,
-        alliance_combined_earnings,
-        alliance_olympus_wallet,
-        alliance_referral_bounty
-      );
-
+    const {
+      olympusWallet,
+      olympusEarnings,
+      referralWallet,
+      updatedCombinedWallet,
+    } = deductFromWallets(
+      amount,
+      alliance_combined_earnings,
+      alliance_olympus_wallet,
+      alliance_olympus_earnings,
+      alliance_referral_bounty
+    );
     // Calculate earnings
     const packagePercentage = new Prisma.Decimal(
       packageData.package_percentage
@@ -178,8 +184,9 @@ export async function POST(request: Request) {
       await prisma.alliance_earnings_table.update({
         where: { alliance_earnings_member_id: teamMemberId },
         data: {
-          alliance_combined_earnings: combinedWallet,
+          alliance_combined_earnings: updatedCombinedWallet,
           alliance_olympus_wallet: olympusWallet,
+          alliance_olympus_earnings: olympusEarnings,
           alliance_referral_bounty: referralWallet,
         },
       });
@@ -207,22 +214,20 @@ export async function POST(request: Request) {
 
           await prisma.package_ally_bounty_log.createMany({ data: bountyLogs });
 
-          // Update earnings for the batch
-          const updates = batch.map((ref) => ({
-            memberId: ref.referrerId,
-            increment: decimalAmount.mul(ref.percentage).div(100).toNumber(),
-          }));
-
-          const updateQuery = updates
-            .map(
-              (u) =>
-                `UPDATE alliance_earnings_table
-                 SET alliance_referral_bounty = alliance_referral_bounty + ${u.increment}
-                 WHERE alliance_earnings_member_id = '${u.memberId}'`
-            )
-            .join("; ");
-
-          await prisma.$executeRawUnsafe(updateQuery);
+          // Update earnings for the batch using Prisma's native methods
+          for (const ref of batch) {
+            await prisma.alliance_earnings_table.update({
+              where: { alliance_earnings_member_id: ref.referrerId },
+              data: {
+                alliance_referral_bounty: {
+                  increment: decimalAmount
+                    .mul(ref.percentage)
+                    .div(100)
+                    .toNumber(),
+                },
+              },
+            });
+          }
         }
       }
 
@@ -291,18 +296,19 @@ function getBonusPercentage(level: number): number {
   return bonusMap[level] || 0;
 }
 
-function deductFromCombinedWallet(
+function deductFromWallets(
   amount: number,
   combinedWallet: number,
   olympusWallet: number,
+  olympusEarnings: number,
   referralWallet: number
 ) {
-  if (combinedWallet < amount) {
-    throw new Error("Invalid request.");
-  }
-
   let remaining = amount;
-  combinedWallet -= amount; // Deduct directly from the combined wallet
+
+  // Validate total funds
+  if (combinedWallet < amount) {
+    throw new Error("Insufficient balance in combined wallet.");
+  }
 
   // Deduct from Olympus Wallet first
   if (olympusWallet >= remaining) {
@@ -313,15 +319,38 @@ function deductFromCombinedWallet(
     olympusWallet = 0;
   }
 
-  // Deduct from Referral Wallet next
-  if (remaining > 0 && referralWallet >= remaining) {
-    referralWallet -= remaining;
-    remaining = 0;
-  }
-
+  // Deduct from Olympus Earnings next
   if (remaining > 0) {
-    throw new Error("Invalid request.");
+    if (olympusEarnings >= remaining) {
+      olympusEarnings -= remaining;
+      remaining = 0;
+    } else {
+      remaining -= olympusEarnings;
+      olympusEarnings = 0;
+    }
   }
 
-  return { combinedWallet, olympusWallet, referralWallet };
+  // Deduct from Referral Wallet
+  if (remaining > 0) {
+    if (referralWallet >= remaining) {
+      referralWallet -= remaining;
+      remaining = 0;
+    } else {
+      remaining -= referralWallet;
+      referralWallet = 0;
+    }
+  }
+
+  // If any balance remains, throw an error
+  if (remaining > 0) {
+    throw new Error("Insufficient funds to complete the transaction.");
+  }
+
+  // Return updated balances and remaining combined wallet
+  return {
+    olympusWallet,
+    olympusEarnings,
+    referralWallet,
+    updatedCombinedWallet: combinedWallet - amount, // Decrement combined wallet
+  };
 }

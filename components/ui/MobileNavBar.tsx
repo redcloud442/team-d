@@ -103,7 +103,7 @@ const MobileNavBar = () => {
         </div>
 
         {/* Centered Image */}
-        <div className=" fixed sm:hidden bottom-10 left-1/2 transform -translate-x-1/2 z-10 flex items-center justify-center">
+        <div className=" fixed block sm:hidden bottom-10 left-1/2 transform -translate-x-1/2 z-10 ">
           <Image
             src="/assets/app-logo-bg.svg"
             alt="Logo"
@@ -144,15 +144,7 @@ const MobileNavBar = () => {
       <div
         className="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center gap-4"
         style={{ width: "64px", height: "64px" }}
-      >
-        <Image
-          src="/mobile-logo.svg"
-          alt="logo"
-          width={64}
-          height={64}
-          className="w-full h-full object-contain"
-        />{" "}
-      </div>
+      ></div>
 
       {/* Logout Confirmation Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

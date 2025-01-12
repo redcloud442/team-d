@@ -21,7 +21,7 @@ type Props = {
   teamMemberProfile: alliance_member_table;
   packages: package_table[];
   earnings: alliance_earnings_table;
-  setEarnings: Dispatch<SetStateAction<alliance_earnings_table>>;
+  setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
   setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
   setIsActive: Dispatch<SetStateAction<boolean>>;
 };

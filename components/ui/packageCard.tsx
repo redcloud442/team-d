@@ -24,7 +24,6 @@ const PackageCard = ({
   type,
   href,
 }: Props) => {
-  console.log(selectedPackage?.package_id, packageId);
   return (
     <Card
       onClick={onClick}

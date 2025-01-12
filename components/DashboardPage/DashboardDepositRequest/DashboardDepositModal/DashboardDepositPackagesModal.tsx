@@ -27,8 +27,8 @@ type Props = {
   className: string;
   teamMemberProfile: alliance_member_table;
   packages: package_table[];
-  earnings: alliance_earnings_table;
-  setEarnings: Dispatch<SetStateAction<alliance_earnings_table>>;
+  earnings: alliance_earnings_table | null;
+  setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
   setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
   setIsActive: Dispatch<SetStateAction<boolean>>;
 };
@@ -50,7 +50,7 @@ const DashboardDepositModalPackages = ({
   const [packages, setPackages] = useState<package_table[]>(initialPackage);
 
   const handlePackageSelect = (pkg: package_table) => {
-    if (earnings.alliance_combined_earnings === 0) return null;
+    if (earnings?.alliance_combined_earnings === 0) return null;
     setSelectedPackage(pkg);
   };
 

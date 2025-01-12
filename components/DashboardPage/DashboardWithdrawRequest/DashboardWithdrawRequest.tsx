@@ -5,7 +5,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DashboardEarnings } from "@/utils/types";
 import { alliance_earnings_table, alliance_member_table } from "@prisma/client";
 import { Dispatch, SetStateAction } from "react";
 import DashboardWithdrawModalHistory from "./DashboardWithdrawModal/DashboardWithdrawModalHistory";
@@ -13,12 +12,12 @@ import DashboardWithdrawModalWithdraw from "./DashboardWithdrawModal/DashboardWi
 type Props = {
   teamMemberProfile: alliance_member_table;
   earnings: alliance_earnings_table;
-  setTotalEarnings: Dispatch<SetStateAction<DashboardEarnings | null>>;
+  setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
 };
 const DashboardWithdrawRequest = ({
   teamMemberProfile,
   earnings,
-  setTotalEarnings,
+  setEarnings,
 }: Props) => {
   return (
     <Card className="w-full mx-auto">
@@ -33,7 +32,7 @@ const DashboardWithdrawRequest = ({
             <DashboardWithdrawModalWithdraw
               teamMemberProfile={teamMemberProfile}
               earnings={earnings}
-              setTotalEarnings={setTotalEarnings}
+              setEarnings={setEarnings}
             />
             <DashboardWithdrawModalHistory
               teamMemberProfile={teamMemberProfile}

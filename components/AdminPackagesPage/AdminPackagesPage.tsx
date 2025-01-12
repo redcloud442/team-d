@@ -46,7 +46,7 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
   const handleSelectPackage = (pkg: package_table) => {
     setSelectedPackage(pkg);
   };
-  console.log(packages);
+
   return (
     <div className="container mx-auto p-0 md:p-10">
       <div className="flex justify-between items-center">

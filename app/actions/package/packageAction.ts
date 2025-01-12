@@ -50,6 +50,15 @@ export const claimPackage = async (params: {
         },
         data: {
           alliance_olympus_earnings: { increment: amount },
+          alliance_combined_earnings: { increment: amount },
+        },
+      });
+
+      await tx.alliance_transaction_table.create({
+        data: {
+          transaction_member_id: teamMemberProfile.alliance_member_id,
+          transaction_amount: amount,
+          transaction_description: "Package Claimed",
         },
       });
 
@@ -169,6 +178,7 @@ export const availPackageData = async (params: {
       teamMemberId,
       100 // Cap the depth to 100 levels
     );
+    // Generate referral chain with a capped depth
 
     const transaction = await prisma.$transaction(async (prisma) => {
       // Create package member connection
@@ -216,22 +226,20 @@ export const availPackageData = async (params: {
 
           await prisma.package_ally_bounty_log.createMany({ data: bountyLogs });
 
-          // Update earnings for the batch
-          const updates = batch.map((ref) => ({
-            memberId: ref.referrerId,
-            increment: decimalAmount.mul(ref.percentage).div(100).toNumber(),
-          }));
-
-          const updateQuery = updates
-            .map(
-              (u) =>
-                `UPDATE alliance_earnings_table
-                 SET alliance_referral_bounty = alliance_referral_bounty + ${u.increment}
-                 WHERE alliance_earnings_member_id = '${u.memberId}'`
-            )
-            .join("; ");
-
-          await prisma.$executeRawUnsafe(updateQuery);
+          // Update earnings for the batch using Prisma's native methods
+          for (const ref of batch) {
+            await prisma.alliance_earnings_table.update({
+              where: { alliance_earnings_member_id: ref.referrerId },
+              data: {
+                alliance_referral_bounty: {
+                  increment: decimalAmount
+                    .mul(ref.percentage)
+                    .div(100)
+                    .toNumber(),
+                },
+              },
+            });
+          }
         }
       }
 

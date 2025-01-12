@@ -32,7 +32,7 @@ export async function PUT(
 
     const { userId } = await context.params;
     const { email, password, iv, clientpass } = await request.json();
-    console.log(email, password, iv, clientpass);
+
     if (!password || !email || !userId) {
       return NextResponse.json(
         { error: "Email and password are required." },
