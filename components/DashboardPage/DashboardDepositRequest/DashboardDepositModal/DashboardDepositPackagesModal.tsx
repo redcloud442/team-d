@@ -113,7 +113,6 @@ const DashboardDepositModalPackages = ({
             </DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
-
           <div className="flex justify-between gap-4 p-2">
             {packages.map((pkg) => (
               <PackageCard
@@ -121,6 +120,7 @@ const DashboardDepositModalPackages = ({
                 packageId={pkg.package_id}
                 packageName={pkg.package_name}
                 selectedPackage={selectedPackage}
+                packageColor={pkg.package_color || undefined}
                 onClick={() => handlePackageSelect(pkg)}
               />
             ))}
@@ -134,6 +134,7 @@ const DashboardDepositModalPackages = ({
             teamMemberProfile={teamMemberProfile}
             setEarnings={setEarnings}
             setChartData={setChartData}
+            selectedPackage={selectedPackage}
           />
 
           <DialogFooter></DialogFooter>

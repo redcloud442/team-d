@@ -22,6 +22,7 @@ export async function GET(request: Request) {
           package_percentage: true,
           package_description: true,
           packages_days: true,
+          package_color: true,
         },
       });
       return data;

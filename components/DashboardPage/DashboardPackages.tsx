@@ -41,6 +41,7 @@ const DashboardPackages = ({ chartData, setChartData, setEarnings }: Props) => {
 
   const handleClaimPackage = async (
     amount: number,
+    earnings: number,
     packageConnectionId: string
   ) => {
     try {
@@ -48,6 +49,7 @@ const DashboardPackages = ({ chartData, setChartData, setEarnings }: Props) => {
       const response = await claimPackage({
         packageConnectionId,
         amount,
+        earnings,
       });
 
       if (response.success) {
@@ -66,9 +68,9 @@ const DashboardPackages = ({ chartData, setChartData, setEarnings }: Props) => {
             return {
               ...prev,
               alliance_olympus_earnings:
-                prev.alliance_olympus_earnings + amount,
+                prev.alliance_olympus_earnings + amount + earnings,
               alliance_combined_earnings:
-                prev.alliance_combined_earnings + amount,
+                prev.alliance_combined_earnings + amount + earnings,
             };
           });
         }
@@ -179,6 +181,7 @@ const DashboardPackages = ({ chartData, setChartData, setEarnings }: Props) => {
                         onClick={() =>
                           handleClaimPackage(
                             data.amount,
+                            data.profit_amount,
                             data.package_connection_id
                           )
                         }

@@ -26,6 +26,7 @@ type Props = {
   setOpen: Dispatch<SetStateAction<boolean>>;
   setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
   setSelectedPackage: Dispatch<SetStateAction<package_table | null>>;
+  selectedPackage: package_table | null;
 };
 
 const AvailPackagePage = ({
@@ -36,6 +37,7 @@ const AvailPackagePage = ({
   setOpen,
   setChartData,
   setSelectedPackage,
+  selectedPackage,
 }: Props) => {
   const { toast } = useToast();
   const [maxAmount, setMaxAmount] = useState(
@@ -108,17 +110,14 @@ const AvailPackagePage = ({
       reset({ amount: "", packageId: pkg.package_id });
 
       if (earnings) {
-        // Remaining amount to be deducted
         let remainingAmount = Number(result.amount);
 
-        // Calculate Olympus Earnings deduction
         const olympusDeduction = Math.min(
           remainingAmount,
           earnings.alliance_olympus_earnings
         );
         remainingAmount -= olympusDeduction;
 
-        // Calculate Referral Bounty deduction
         const referralDeduction = Math.min(
           remainingAmount,
           earnings.alliance_referral_bounty
@@ -146,7 +145,7 @@ const AvailPackagePage = ({
           is_ready_to_claim: false,
           package_connection_id: "",
           profit_amount: computation,
-          package_color: pkg.package_color || "",
+          package_color: selectedPackage?.package_color || "",
         },
         ...prev,
       ]);
@@ -214,14 +213,42 @@ const AvailPackagePage = ({
                           placeholder="Enter amount"
                           {...field}
                           className="w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                          value={Number(field.value).toLocaleString() || ""}
+                          // Handle empty values explicitly
+                          value={
+                            field.value !== undefined && field.value !== ""
+                              ? Number(field.value).toLocaleString()
+                              : ""
+                          }
                           onChange={(e) => {
-                            let value = e.target.value.replace(/\D/g, "");
+                            let value = e.target.value;
 
-                            if (value.startsWith("0")) {
+                            // Allow deleting the value
+                            if (value === "") {
+                              field.onChange("");
+                              return;
+                            }
+
+                            // Allow only numbers and a single decimal point
+                            value = value.replace(/[^0-9.]/g, "");
+
+                            // Ensure only one decimal point
+                            const parts = value.split(".");
+                            if (parts.length > 2) {
+                              value = parts[0] + "." + parts[1];
+                            }
+
+                            // Limit to two decimal places
+                            if (parts[1]?.length > 2) {
+                              value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                            }
+
+                            // Ensure no leading zeros unless it's "0."
+                            if (
+                              value.startsWith("0") &&
+                              !value.startsWith("0.")
+                            ) {
                               value = value.replace(/^0+/, "");
                             }
-                            if (value.length > 7) return null;
 
                             field.onChange(value);
                           }}

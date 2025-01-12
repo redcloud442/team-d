@@ -10,9 +10,10 @@ import { NextResponse } from "next/server";
 export const claimPackage = async (params: {
   packageConnectionId: string;
   amount: number;
+  earnings: number;
 }) => {
   try {
-    const { packageConnectionId, amount } = params;
+    const { packageConnectionId, amount, earnings } = params;
 
     if (!packageConnectionId || !amount) {
       throw new Error("Missing required fields in the request body.");
@@ -49,15 +50,15 @@ export const claimPackage = async (params: {
           alliance_earnings_member_id: teamMemberProfile.alliance_member_id,
         },
         data: {
-          alliance_olympus_earnings: { increment: amount },
-          alliance_combined_earnings: { increment: amount },
+          alliance_olympus_earnings: { increment: amount + earnings },
+          alliance_combined_earnings: { increment: amount + earnings },
         },
       });
 
       await tx.alliance_transaction_table.create({
         data: {
           transaction_member_id: teamMemberProfile.alliance_member_id,
-          transaction_amount: amount,
+          transaction_amount: amount + earnings,
           transaction_description: "Package Claimed",
         },
       });
@@ -71,7 +72,7 @@ export const claimPackage = async (params: {
           package_member_connection_created:
             packageConnection.package_member_connection_created,
           package_member_amount: packageConnection.package_member_amount,
-          package_member_amount_earnings: amount,
+          package_member_amount_earnings: amount + earnings,
           package_member_status: "ENDED",
         },
       });

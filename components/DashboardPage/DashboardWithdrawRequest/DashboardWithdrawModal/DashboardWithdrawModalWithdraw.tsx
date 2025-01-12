@@ -233,7 +233,7 @@ const DashboardWithdrawModalWithdraw = ({
       </DialogTrigger>
 
       <DialogContent className="w-full sm:max-w-[400px]">
-        <ScrollArea className="w-full sm:max-w-[400px] h-[600px] sm:h-full">
+        <ScrollArea className="w-full relative sm:max-w-[400px] h-[600px] sm:h-full">
           <DialogHeader className="text-start text-2xl font-bold">
             <DialogTitle className="text-2xl font-bold mb-4">
               Withdraw
@@ -243,7 +243,7 @@ const DashboardWithdrawModalWithdraw = ({
 
           <form
             onSubmit={handleSubmit(handleWithdrawalRequest)}
-            className="space-y-4"
+            className="space-y-4 mx-auto"
             onChange={validateAmount} // Validate whenever form changes
           >
             {/* Earnings Select */}
@@ -263,7 +263,15 @@ const DashboardWithdrawModalWithdraw = ({
                     value={field.value}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Available Balance" />
+                      <SelectValue placeholder="Select Available Balance">
+                        {" "}
+                        {field.value === "TOTAL"
+                          ? `₱ ${totalEarnings.toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}`
+                          : ""}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem className="text-xs" value="TOTAL">

@@ -10,6 +10,7 @@ type Props = {
   packageDescription?: string;
   packagePercentage?: string;
   packageDays?: string;
+  packageColor?: string;
   packageId?: string;
   href?: string;
   type?: string;
@@ -21,16 +22,20 @@ const PackageCard = ({
   selectedPackage,
   onClick,
   packageDescription,
+  packageColor,
   type,
   href,
 }: Props) => {
   return (
     <Card
       onClick={onClick}
-      className={`border w-full h-36 rounded-lg cursor-pointer shadow-lg p-6 flex flex-col items-center justify-center space-y-4 ${
+      style={{
+        background: `linear-gradient(110deg, ${packageColor || "#F6DB4E"} 60%, #ED9738)`,
+      }}
+      className={`w-full h-36 rounded-lg cursor-pointer shadow-lg p-6 flex flex-col items-center justify-center space-y-4 relative ${
         selectedPackage?.package_id === packageId
-          ? "border-2 dark:border-primaryYellow"
-          : ""
+          ? "border-2 dark:border-pageColor shadow-lg"
+          : "border-none"
       }`}
     >
       <h2 className="text-xl font-bold z-10">{packageName}</h2>
