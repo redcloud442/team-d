@@ -1,3 +1,4 @@
+import { depositWalletData } from "@/app/actions/deposit/depositAction";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,7 +23,6 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getMerchantOptions } from "@/services/Options/Options";
-import { createTopUpRequest } from "@/services/TopUp/TopUp";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -114,9 +114,8 @@ const DashboardDepositModalDeposit = ({
     try {
       const sanitizedData = escapeFormData(data);
 
-      await createTopUpRequest({
+      await depositWalletData({
         TopUpFormValues: sanitizedData,
-        teamMemberId: teamMemberProfile.alliance_member_id,
       });
 
       toast({

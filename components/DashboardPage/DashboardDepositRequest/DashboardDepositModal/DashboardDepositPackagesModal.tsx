@@ -50,7 +50,7 @@ const DashboardDepositModalPackages = ({
   const [packages, setPackages] = useState<package_table[]>(initialPackage);
 
   const handlePackageSelect = (pkg: package_table) => {
-    if (earnings.alliance_olympus_earnings === 0) return null;
+    if (earnings.alliance_combined_earnings === 0) return null;
     setSelectedPackage(pkg);
   };
 
