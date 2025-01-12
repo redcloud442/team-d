@@ -112,13 +112,13 @@ const LoginPage = () => {
         />
       </div>
 
+      <div className="fixed top-[16%]  left-50 sm:relative sm:top-0 sm:left-0 ">
+        <Image src="/app-logo.svg" alt="logo" width={120} height={120} />
+      </div>
       <form
         className="flex flex-col items-center gap-6 w-full max-w-lg m-4 z-40"
         onSubmit={handleSubmit(handleSignIn)}
       >
-        <div className="fixed top-44 left-50 sm:relative sm:top-0 sm:left-0 ">
-          <Image src="/app-logo.svg" alt="logo" width={120} height={120} />
-        </div>
         <div className="w-full">
           <Input
             variant="non-card"
