@@ -103,7 +103,7 @@ const MobileNavBar = () => {
         </div>
 
         {/* Centered Image */}
-        <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-10 flex items-center justify-center">
+        <div className=" fixed sm:hidden bottom-10 left-1/2 transform -translate-x-1/2 z-10 flex items-center justify-center">
           <Image
             src="/assets/app-logo-bg.svg"
             alt="Logo"
