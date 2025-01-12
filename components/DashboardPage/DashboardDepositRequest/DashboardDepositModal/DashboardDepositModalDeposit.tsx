@@ -29,6 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, merchant_table } from "@prisma/client";
 import { CheckCircle, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { NextResponse } from "next/server";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -113,9 +114,30 @@ const DashboardDepositModalDeposit = ({
   const onSubmit = async (data: TopUpFormValues) => {
     try {
       const sanitizedData = escapeFormData(data);
+      const file = data.file;
+
+      const filePath = `uploads/${Date.now()}_${file.name}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from("REQUEST_ATTACHMENTS")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) {
+        return NextResponse.json(
+          { error: "File upload failed.", details: uploadError.message },
+          { status: 500 }
+        );
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabaseClient.storage
+        .from("REQUEST_ATTACHMENTS")
+        .getPublicUrl(filePath);
 
       await depositWalletData({
         TopUpFormValues: sanitizedData,
+        publicUrl,
       });
 
       toast({
