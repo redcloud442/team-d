@@ -7,7 +7,9 @@ export const TransactionHistoryColumn =
     return [
       {
         accessorKey: "transaction_date",
-        header: () => <div className="text-center font-bold">Date</div>,
+        header: () => (
+          <div className="text-center  text-lg  font-bold">Date</div>
+        ),
         cell: ({ row }) => {
           return (
             <div className="text-center">
@@ -19,7 +21,9 @@ export const TransactionHistoryColumn =
 
       {
         accessorKey: "transaction_description",
-        header: () => <div className="text-center font-bold">Category</div>,
+        header: () => (
+          <div className="text-center  text-lg  font-bold">Category</div>
+        ),
         cell: ({ row }) => {
           const description = row.getValue("transaction_description") as string;
           return <div className=" text-center">{description}</div>;
@@ -27,7 +31,9 @@ export const TransactionHistoryColumn =
       },
       {
         accessorKey: "transaction_amount",
-        header: () => <div className="text-center font-bold">Amount</div>,
+        header: () => (
+          <div className="text-center text-lg font-bold">Amount</div>
+        ),
         cell: ({ row }) => (
           <div className="text-center">
             ₱{" "}

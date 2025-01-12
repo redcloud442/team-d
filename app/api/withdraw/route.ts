@@ -64,7 +64,6 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    // Retrieve IP address with fallback
     const ip =
       request.headers.get("x-forwarded-for") ||
       request.headers.get("cf-connecting-ip") ||
@@ -77,11 +76,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid input." }, { status: 400 });
     }
 
-    if (!["TOTAL", "REFERRAL"].includes(earnings)) {
-      return NextResponse.json(
-        { error: "Invalid earnings type." },
-        { status: 400 }
-      );
+    if (!["TOTAL"].includes(earnings)) {
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
     if (Number(amount) <= 0 || Number(amount) <= 200) {
@@ -100,12 +96,33 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
-    const maxAmount = amountMatch.alliance_olympus_wallet;
+    const {
+      alliance_olympus_earnings,
+      alliance_referral_bounty,
+      alliance_combined_earnings,
+    } = amountMatch;
 
-    if (amount > maxAmount) {
+    if (Number(amount) > alliance_combined_earnings) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
-    const earningsType = earnings;
+
+    // Calculate proportional deductions
+    let remainingAmount = Number(amount);
+    let olympusDeduction = Math.min(remainingAmount, alliance_olympus_earnings);
+    remainingAmount -= olympusDeduction;
+
+    let referralDeduction = Math.min(remainingAmount, alliance_referral_bounty);
+    remainingAmount -= referralDeduction;
+
+    // If remainingAmount > 0 here, it indicates a miscalculation, but it should not happen
+    if (remainingAmount > 0) {
+      return NextResponse.json(
+        { error: "Insufficient funds to process the request." },
+        { status: 400 }
+      );
+    }
+
+    // Transaction logic
     const [allianceData] = await prisma.$transaction([
       prisma.alliance_withdrawal_request_table.create({
         data: {
@@ -114,11 +131,11 @@ export async function POST(request: Request) {
           alliance_withdrawal_request_account: accountNumber,
           alliance_withdrawal_request_fee: calculateFee(
             Number(amount),
-            earningsType
+            earnings
           ),
           alliance_withdrawal_request_withdraw_amount: calculateFinalAmount(
             Number(amount),
-            earningsType
+            earnings
           ),
           alliance_withdrawal_request_status: WITHDRAWAL_STATUS.PENDING,
           alliance_withdrawal_request_member_id: teamMemberId,
@@ -128,12 +145,8 @@ export async function POST(request: Request) {
       prisma.alliance_earnings_table.update({
         where: { alliance_earnings_member_id: teamMemberId },
         data: {
-          ...(earningsType === "TOTAL" && {
-            alliance_olympus_earnings: { decrement: Number(amount) },
-          }),
-          ...(earningsType === "REFERRAL" && {
-            alliance_referral_bounty: { decrement: Number(amount) },
-          }), // Always decrement the combined earnings
+          alliance_olympus_earnings: { decrement: olympusDeduction },
+          alliance_referral_bounty: { decrement: referralDeduction },
           alliance_combined_earnings: { decrement: Number(amount) },
         },
       }),
@@ -157,6 +170,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

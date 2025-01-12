@@ -67,108 +67,109 @@ const DashboardPackages = ({ chartData, setChartData }: Props) => {
 
   return (
     <ScrollArea className="w-full pb-10">
-      <div className="flex grid-cols-1 md:grid md:grid-cols-2 lg:grid-cols-2 gap-4 ">
+      <div className="flex grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 ">
         {chartData.map((data, index) => (
-          <div key={index} className="relative">
-            <Card
-              className={`min-w-[220px] max-w-[500px] h-auto md:w-full border-none dark:bg-cardColor transition-all duration-300 `}
-            >
-              <CardHeader>
-                <CardTitle className="flex justify-end items-end">
-                  <div className="text-xs rounded-full  bg-black p-2">
-                    {data.completion.toFixed(2)}%
-                  </div>
-                </CardTitle>
-                <CardDescription className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Badge className="dark:bg-black dark:text-white min-w-[80px] text-center flex items-center justify-center">
-                      Amount
-                    </Badge>
-                    <span className="text-lg font-extrabold text-black">
-                      {"₱ "}
-                      {data.amount.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <Badge className="dark:bg-black dark:text-white min-w-[80px] text-center flex items-center justify-center">
-                      Profit
-                    </Badge>
-                    <span className="text-lg font-extrabold text-black">
-                      {"₱ "}
-                      {data.profit_amount.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
-                </CardDescription>
-
-                <Separator />
-              </CardHeader>
-
-              <CardContent className=" space-y-1 pb-0">
-                <div className="flex flex-col items-center">
-                  <Badge className="dark:bg-black dark:text-white">
-                    Total Amount
+          <Card
+            key={index}
+            className={`min-w-[260px] max-w-[500px] h-auto dark:bg-${data.package_color || "cardColor"} transition-all duration-300 `}
+          >
+            <CardHeader>
+              <CardTitle className="flex justify-end items-end">
+                <div className="text-xs rounded-full  bg-black p-2">
+                  {data.completion.toFixed(2)}%
+                </div>
+              </CardTitle>
+              <CardDescription className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Badge className="dark:bg-black dark:text-white min-w-[80px] text-center flex items-center justify-center">
+                    Amount
                   </Badge>
-                  <span className="text-2xl font-extrabold text-black">
+                  <span className="text-lg font-extrabold text-black">
                     {"₱ "}
                     {data.amount.toLocaleString("en-US", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
                   </span>
-
-                  <span className="text-xl  text-black font-extrabold">
-                    {data.package} Plan
+                </div>
+                <div className="flex justify-between items-center">
+                  <Badge className="dark:bg-black dark:text-white min-w-[80px] text-center flex items-center justify-center">
+                    Profit
+                  </Badge>
+                  <span className="text-lg font-extrabold text-black">
+                    {"₱ "}
+                    {data.profit_amount.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                   </span>
                 </div>
-                <Separator />
-              </CardContent>
-              <CardFooter className="flex-col items-center gap-2 text-sm">
-                <div className=" font-extrabold text-sm text-black">
-                  {new Intl.DateTimeFormat("en-US", {
-                    month: "long", // Full month name
-                    day: "numeric", // Day of the month
-                    year: "numeric", // Full year
-                  }).format(new Date(data.completion_date))}
-                </div>
-                {data.is_ready_to_claim && (
-                  <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                    <DialogDescription></DialogDescription>
-                    <DialogTrigger asChild>
-                      <Badge className="dark:bg-black dark:text-white dark:hover:bg-black hover:bg-black hover:text-white cursor-pointer">
-                        Collect
-                      </Badge>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Claim Package</DialogTitle>
-                        Are you sure you want to claim this package?
-                      </DialogHeader>
-                      <DialogFooter>
-                        <Button
-                          onClick={() =>
-                            handleClaimPackage(
-                              data.amount,
-                              data.package_connection_id
-                            )
-                          }
-                          className="w-full"
-                          variant="card"
-                        >
-                          Claim
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                )}
-              </CardFooter>
-            </Card>
-          </div>
+              </CardDescription>
+
+              <Separator />
+            </CardHeader>
+
+            <CardContent className=" space-y-1 pb-0">
+              <div className="flex flex-col items-center">
+                <Badge className="dark:bg-black dark:text-white dark:hover:bg-black hover:bg-black hover:text-white">
+                  Total Amount
+                </Badge>
+                <span className="text-2xl font-extrabold text-black">
+                  {"₱ "}
+                  {data.amount.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+
+                <span className="text-xl  text-black font-extrabold">
+                  {data.package} Plan
+                </span>
+              </div>
+              <Separator />
+            </CardContent>
+            <CardFooter className="flex-col items-center gap-2 text-sm">
+              <div className=" font-extrabold text-sm text-black">
+                {new Intl.DateTimeFormat("en-US", {
+                  month: "long", // Full month name
+                  day: "numeric", // Day of the month
+                  year: "numeric", // Full year
+                }).format(new Date(data.completion_date))}
+              </div>
+              {data.is_ready_to_claim && (
+                <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                  <DialogDescription></DialogDescription>
+                  <DialogTrigger asChild>
+                    <Badge className="dark:bg-black dark:text-white dark:hover:bg-black hover:bg-black hover:text-white cursor-pointer px-10 py-2">
+                      Collect
+                    </Badge>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle className="text-bold mb-4">
+                        Claim Package
+                      </DialogTitle>
+                      Are you sure you want to claim this package?
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button
+                        onClick={() =>
+                          handleClaimPackage(
+                            data.amount,
+                            data.package_connection_id
+                          )
+                        }
+                        className="w-full"
+                        variant="card"
+                      >
+                        Claim
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </CardFooter>
+          </Card>
         ))}
       </div>
       <ScrollBar orientation="horizontal" />

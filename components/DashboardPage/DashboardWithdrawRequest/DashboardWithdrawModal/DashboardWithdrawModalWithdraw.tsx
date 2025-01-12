@@ -64,6 +64,9 @@ const DashboardWithdrawModalWithdraw = ({
   const [open, setOpen] = useState(false);
   const [earnings, setEarnings] =
     useState<alliance_earnings_table>(initialEarnings);
+
+  const totalEarnings =
+    earnings.alliance_olympus_earnings + earnings.alliance_referral_bounty;
   const supabase = createClientSide();
   const { toast } = useToast();
 
@@ -112,9 +115,7 @@ const DashboardWithdrawModalWithdraw = ({
   const getMaxAmount = () => {
     switch (selectedEarnings) {
       case "TOTAL":
-        return earnings.alliance_olympus_earnings;
-      case "REFERRAL":
-        return earnings.alliance_referral_bounty;
+        return totalEarnings;
       default:
         return 0;
     }
@@ -216,9 +217,11 @@ const DashboardWithdrawModalWithdraw = ({
       </DialogTrigger>
 
       <DialogContent className="w-full sm:max-w-[400px]">
-        <ScrollArea className="w-full sm:max-w-[400px] max-h-[500px] sm:max-h-[620px] ">
+        <ScrollArea className="w-full sm:max-w-[400px] h-[600px] sm:h-full">
           <DialogHeader className="text-start text-2xl font-bold">
-            <DialogTitle>Withdraw</DialogTitle>
+            <DialogTitle className="text-2xl font-bold mb-4">
+              Withdraw
+            </DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
 
@@ -237,6 +240,9 @@ const DashboardWithdrawModalWithdraw = ({
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
+                      if (value === "TOTAL") {
+                        setValue("amount", totalEarnings.toFixed(2));
+                      }
                     }}
                     value={field.value}
                   >
@@ -244,27 +250,28 @@ const DashboardWithdrawModalWithdraw = ({
                       <SelectValue placeholder="Select Available Balance" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="TOTAL">
-                        Wallet Balance (₱{" "}
-                        {earnings.alliance_olympus_wallet.toLocaleString(
-                          "en-US",
-                          {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }
-                        )}
-                        )
-                      </SelectItem>
-                      <SelectItem value="REFERRAL">
-                        Referral Income (₱{" "}
+                      <SelectItem className="text-xs" value="TOTAL">
+                        Balance ( ₱{" "}
                         {earnings.alliance_referral_bounty.toLocaleString(
                           "en-US",
                           {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           }
-                        )}
-                        )
+                        )}{" "}
+                        Package + ₱{" "}
+                        {earnings.alliance_referral_bounty.toLocaleString(
+                          "en-US",
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }
+                        )}{" "}
+                        Referral ) ={" "}
+                        {totalEarnings.toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                       </SelectItem>
                     </SelectContent>
                   </Select>

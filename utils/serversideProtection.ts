@@ -182,6 +182,7 @@ export const protectionMemberUser = async (ip?: string) => {
         select: {
           alliance_olympus_wallet: true,
           alliance_referral_bounty: true,
+          alliance_olympus_earnings: true,
           alliance_combined_earnings: true,
         },
       }),

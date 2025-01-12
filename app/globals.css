@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 @layer base {
+  body {
+    padding: 0px;
+  }
   :root {
     --radius: 0.5rem;
     --sidebar-background: 0 0% 98%;

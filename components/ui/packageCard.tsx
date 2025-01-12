@@ -10,26 +10,27 @@ type Props = {
   packageDescription?: string;
   packagePercentage?: string;
   packageDays?: string;
+  packageId?: string;
   href?: string;
   type?: string;
 };
 
 const PackageCard = ({
+  packageId,
   packageName,
   selectedPackage,
   onClick,
   packageDescription,
-  packagePercentage,
-  packageDays,
   type,
   href,
 }: Props) => {
+  console.log(selectedPackage?.package_id, packageId);
   return (
     <Card
       onClick={onClick}
-      className={`border w-full h-36 border-gray-400 rounded-lg cursor-pointer shadow-lg p-6 flex flex-col items-center justify-center space-y-4 r ${
-        selectedPackage?.package_id === selectedPackage?.package_id
-          ? "bg-pageColor"
+      className={`border w-full h-36 rounded-lg cursor-pointer shadow-lg p-6 flex flex-col items-center justify-center space-y-4 ${
+        selectedPackage?.package_id === packageId
+          ? "border-2 dark:border-primaryYellow"
           : ""
       }`}
     >
@@ -38,10 +39,10 @@ const PackageCard = ({
       <p className="text-gray-600 text-center dark:text-white z-10">
         {packageDescription}
       </p>
-      <p className="text-2xl text-center font-extrabold text-gray-800 dark:text-white z-10">
+      {/* <p className="text-2xl text-center font-extrabold text-gray-800 dark:text-white z-10">
         {packagePercentage} Earnings in {packageDays}{" "}
         {Number(packageDays) > 1 ? `Days` : ` Day`}
-      </p>
+      </p> */}
 
       {href && type === "MEMBER" && (
         <Link href={href} className="w-full z-10">

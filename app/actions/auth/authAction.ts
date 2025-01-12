@@ -8,7 +8,6 @@ import {
   createServiceRoleClientServerSide,
 } from "@/utils/supabase/server";
 import crypto from "crypto";
-import { NextResponse } from "next/server";
 
 export const changeUserPassword = async (params: {
   email: string;
@@ -44,12 +43,10 @@ export const changeUserPassword = async (params: {
   encrypted += cipher.final("hex");
 
   if (!password || !email || !userId) {
-    return NextResponse.json(
-      { error: "Email and password are required." },
-      { status: 400 }
-    );
+    throw new Error("Invalid input");
   }
 
+  // Fetch user data from Prisma
   const user = await prisma.user_table.findFirst({
     where: {
       user_email: {
@@ -59,27 +56,27 @@ export const changeUserPassword = async (params: {
     },
   });
 
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  // Fetch team member profile
   const teamMemberProfile = await prisma.alliance_member_table.findFirst({
-    where: { alliance_member_user_id: user?.user_id },
+    where: { alliance_member_user_id: user.user_id },
   });
 
   if (!teamMemberProfile) {
-    return NextResponse.json(
-      { error: "User profile not found or incomplete." },
-      { status: 403 }
-    );
+    throw new Error("User profile not found or incomplete.");
   }
 
   if (
     teamMemberProfile.alliance_member_restricted ||
     !teamMemberProfile.alliance_member_alliance_id
   ) {
-    return NextResponse.json(
-      { success: false, error: "Access restricted or incomplete profile." },
-      { status: 403 }
-    );
+    throw new Error("Access restricted or incomplete profile.");
   }
 
+  // Update user data in the database
   await prisma.$transaction(async (tx) => {
     await tx.user_table.update({
       where: {
@@ -92,6 +89,7 @@ export const changeUserPassword = async (params: {
     });
   });
 
+  // Update password in Supabase
   if (role?.alliance_member_role !== "ADMIN") {
     const supabaseClient = await createClientServerSide();
     const { error } = await supabaseClient.auth.updateUser({
@@ -99,8 +97,6 @@ export const changeUserPassword = async (params: {
       password: password,
     });
     if (error) {
-      console.log(error);
-
       throw new Error("Failed to update user password");
     }
   } else {
@@ -109,4 +105,5 @@ export const changeUserPassword = async (params: {
       password: password,
     });
   }
+  return { success: true, iv: iv.toString("hex"), creds: encrypted };
 };

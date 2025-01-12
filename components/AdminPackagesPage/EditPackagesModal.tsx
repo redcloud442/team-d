@@ -40,6 +40,7 @@ const PackagesSchema = z.object({
     message: "Days must be greater than 0",
   }),
   packageIsDisabled: z.boolean().optional(),
+  packageColor: z.string().optional(),
 });
 
 export type PackagesFormValues = z.infer<typeof PackagesSchema>;
@@ -67,6 +68,7 @@ const EditPackagesModal = ({
       packagePercentage: "",
       packageDays: "",
       packageIsDisabled: false,
+      packageColor: "",
     },
   });
 
@@ -78,6 +80,7 @@ const EditPackagesModal = ({
         packagePercentage: selectedPackage.package_percentage.toString(),
         packageDays: selectedPackage.packages_days.toString(),
         packageIsDisabled: selectedPackage.package_is_disabled,
+        packageColor: selectedPackage.package_color ?? "",
       });
     }
   }, [selectedPackage, reset]);
@@ -138,10 +141,10 @@ const EditPackagesModal = ({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Update Package</DialogTitle>
-          <DialogDescription>
-            Update the package details below.
-          </DialogDescription>
+          <DialogTitle className="text-xl font-bold">
+            Update Package
+          </DialogTitle>
+          <DialogDescription></DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="flex justify-between items-center space-x-2">
@@ -209,6 +212,27 @@ const EditPackagesModal = ({
             )}
           </div>
 
+          <div>
+            <Label htmlFor="packageColor">Package Color</Label>
+            <Controller
+              name="packageColor"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="packageColor"
+                  className="w-full py-0"
+                  type="color"
+                  {...field}
+                />
+              )}
+            />
+            {errors.packageColor && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.packageColor.message}
+              </p>
+            )}
+          </div>
+
           {/* Package Percentage */}
           <div>
             <Label htmlFor="packagePercentage">Package Percentage</Label>
@@ -220,7 +244,7 @@ const EditPackagesModal = ({
                   id="packagePercentage"
                   type="number"
                   placeholder="Enter package percentage"
-                  readOnly={control._formValues.packageIsDisabled}
+                  readOnly={true}
                   min="1"
                   {...field}
                 />
@@ -244,7 +268,7 @@ const EditPackagesModal = ({
                   id="packageDays"
                   type="number"
                   placeholder="Enter package days"
-                  readOnly={control._formValues.packageIsDisabled}
+                  readOnly={true}
                   min="1"
                   {...field}
                 />
@@ -256,10 +280,16 @@ const EditPackagesModal = ({
               </p>
             )}
           </div>
-
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="animate-spin mr-2" />} Submit
-          </Button>
+          <div className="flex justify-center items-center">
+            <Button
+              type="submit"
+              className="w-full"
+              variant="card"
+              disabled={isSubmitting}
+            >
+              {isSubmitting && <Loader2 className="animate-spin mr-2" />} Submit
+            </Button>
+          </div>
         </form>
         <DialogFooter></DialogFooter>
       </DialogContent>

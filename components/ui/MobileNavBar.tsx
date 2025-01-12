@@ -1,36 +1,28 @@
 "use client";
 
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
-import { DollarSign, Home, LogOut, ShoppingBag, User } from "lucide-react";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "./button";
+import { DialogFooter, DialogHeader } from "./dialog";
 
 type NavItem = {
   href: string;
   label: string;
-  icon: JSX.Element;
   onClick?: () => void | Promise<void>;
-};
-type Props = {
-  userId: string;
 };
 
 const MobileNavBar = () => {
   const supabase = createClientSide();
   const pathname = usePathname();
-  const { role } = useRole();
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -39,42 +31,21 @@ const MobileNavBar = () => {
       await supabase.auth.signOut();
       router.push("/auth/login");
     } catch (e) {
-      console.error("Error during sign out:", e);
     } finally {
       setIsModalOpen(false);
     }
   };
 
   const navItems: NavItem[] = [
-    { href: "/", label: "Home", icon: <Home className="w-8 h-8" /> },
-    { href: "/profile", label: "Profile", icon: <User className="w-8 h-8" /> },
-    ...(role === "MERCHANT"
-      ? [
-          {
-            href: "/deposit",
-            label: "Deposit",
-            icon: <ShoppingBag className="w-8 h-8" />,
-          },
-          {
-            href: "/merchant",
-            label: "Merchant",
-            icon: <ShoppingBag className="w-8 h-8" />,
-          },
-        ]
-      : []),
-    ...(role === "ACCOUNTING"
-      ? [
-          {
-            href: "/withdrawal",
-            label: "Withdrawal",
-            icon: <DollarSign className="w-8 h-8" />,
-          },
-        ]
-      : []),
+    { href: "/profile", label: "Profile" },
+    {
+      href: "/",
+      label: "Home",
+    },
     {
       href: "/auth/login",
       label: "Logout",
-      icon: <LogOut className="w-8 h-8" />,
+
       onClick: () => setIsModalOpen(true),
     },
   ];
@@ -98,44 +69,94 @@ const MobileNavBar = () => {
   // }, []);
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t dark:bg-zinc-800 shadow-md md:hidden">
-        <ul className="flex justify-around py-2">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 sm:hidden">
+        <ul className="flex justify-around gap-4 items-end relative z-10 ">
           {navItems.map((item) => (
             <li key={item.href}>
               <Button
                 onClick={() => handleNavigation(item.href, item.onClick)}
                 variant="link"
                 className={cn(
-                  "flex flex-col items-center text-gray-500 hover:text-black",
-                  pathname === item.href && "text-black font-semibold"
+                  "flex flex-col items-center hover:text-black dark:text-black dark:hover:text-white font-extrabold"
                 )}
               >
-                {item.icon}
-                <span className="text-xs">{item.label}</span>
+                <span
+                  className={cn("text-md", item.label === "Home" && "pb-4")}
+                >
+                  {item.label}
+                </span>
               </Button>
             </li>
           ))}
         </ul>
+
+        <div className="fixed -bottom-3 -left-24 transform translate-x-1/2 z-10 flex items-center justify-center">
+          <Image
+            src="/assets/guide.png"
+            alt="Logo"
+            width={160}
+            height={160}
+            className="z-10"
+            priority
+            onClick={() => setIsModalOpen(true)}
+          />
+        </div>
+
+        {/* Centered Image */}
+        <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-10 flex items-center justify-center">
+          <Image
+            src="/assets/app-logo-bg.svg"
+            alt="Logo"
+            width={70}
+            height={70}
+            className="z-10"
+            priority
+            onClick={() => router.push("/")}
+          />
+        </div>
+
+        <div className="fixed -bottom-3 -right-24 transform -translate-x-1/2 z-10 flex items-center justify-center">
+          <Image
+            src="/assets/logout.png"
+            alt="Logo"
+            width={160}
+            height={160}
+            className="z-10"
+            priority
+            onClick={() => setIsModalOpen(true)}
+          />
+        </div>
+
+        {/* Mobile Navigation Background */}
+
+        <Image
+          src="/assets/mobile-navigation.svg"
+          alt="Mobile Navigation"
+          width={430}
+          height={60}
+          priority
+          style={{
+            objectFit: "cover",
+          }}
+          className="fixed -bottom-2 left-0 right-0 z-0 w-full min-h-[115px] max-h-[115px]"
+        />
       </nav>
 
       {/* Logout Confirmation Modal */}
-      <AlertDialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Are you sure you want to log out?
-            </AlertDialogTitle>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleSignOut}>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="z-50">
+          <DialogHeader>
+            <DialogTitle>Are you sure you want to log out?</DialogTitle>
+          </DialogHeader>
+          <DialogDescription />
+
+          <DialogFooter>
+            <Button variant="card" onClick={handleSignOut}>
               Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

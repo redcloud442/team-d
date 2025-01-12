@@ -1,11 +1,11 @@
+import { changeUserPassword } from "@/app/actions/auth/authAction";
 import { useToast } from "@/hooks/use-toast";
-import { changeUserPassword } from "@/services/auth/auth";
 import { logError } from "@/services/Error/ErrorLogs";
-import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
@@ -33,9 +33,10 @@ type ChangePasswordFormValues = z.infer<typeof ChangePasswordSchema>;
 
 type Props = {
   userProfile: UserRequestdata;
+  setUserProfile?: Dispatch<SetStateAction<UserRequestdata>>;
 };
 
-const ChangePassword = ({ userProfile }: Props) => {
+const ChangePassword = ({ userProfile, setUserProfile }: Props) => {
   const { toast } = useToast();
   const supabaseClient = createClientSide();
   const {
@@ -53,15 +54,20 @@ const ChangePassword = ({ userProfile }: Props) => {
 
   const onSubmit = async (data: ChangePasswordFormValues) => {
     try {
-      const formData = escapeFormData(data);
-
-      await changeUserPassword({
+      const { iv, creds } = await changeUserPassword({
         userId: userProfile.user_id,
         email: userProfile.user_email,
-        password: formData.password,
+        password: data.password,
       });
 
       reset();
+      if (setUserProfile) {
+        setUserProfile((prev) => ({
+          ...prev,
+          user_iv: iv,
+          user_password: creds,
+        }));
+      }
       toast({
         title: "Password Change Successfully",
         variant: "success",

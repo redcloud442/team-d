@@ -19,14 +19,20 @@ export async function POST(request: Request) {
       );
     }
 
-    const { packageName, packageDescription, packagePercentage, packageDays } =
-      body;
+    const {
+      packageName,
+      packageDescription,
+      packagePercentage,
+      packageDays,
+      packageColor,
+    } = body;
 
     if (
       !packageName ||
       !packageDescription ||
       !packagePercentage ||
-      !packageDays
+      !packageDays ||
+      !packageColor
     ) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
@@ -69,6 +75,7 @@ export async function POST(request: Request) {
           package_description: packageDescription,
           package_percentage: parsedPackagePercentage,
           packages_days: parsedPackageDays,
+          package_color: packageColor,
         },
       }),
     ]);

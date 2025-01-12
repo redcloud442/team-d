@@ -104,7 +104,7 @@ const DashboardDepositModalRefer = ({
         className="w-[400px] sm:w-[600px] dark:bg-cardColor border-none shadow-none overflow-auto"
       >
         <ScrollArea className="h-[500px] sm:h-full">
-          <DialogTitle className=" text-2xl font-bold">
+          <DialogTitle className="text-2xl font-bold mb-4">
             Transaction History
           </DialogTitle>
           <TransactionHistoryTable teamMemberProfile={teamMemberProfile} />

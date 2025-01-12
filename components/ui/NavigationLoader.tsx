@@ -3,11 +3,12 @@ import Image from "next/image";
 type Props = {
   visible: boolean;
 };
+
 const NavigationLoader = ({ visible }: Props) => {
   return (
     <div
-      className={`fixed flex inset-0 bg-pageColor dark:bg-zinc-800 z-50 flex-col items-center justify-center transition-opacity duration-300 ${
-        visible ? "opacity-50" : "opacity-0 pointer-events-none"
+      className={`fixed inset-0 z-[9999] flex bg-pageColor dark:bg-zinc-800 flex-col items-center justify-center duration-300 ${
+        visible ? "" : "opacity-0 pointer-events-none"
       }`}
     >
       <div className="animate-pulse transition-all duration-1000">

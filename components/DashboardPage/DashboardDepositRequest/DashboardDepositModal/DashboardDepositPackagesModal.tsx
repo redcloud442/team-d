@@ -45,11 +45,12 @@ const DashboardDepositModalPackages = ({
   const supabaseClient = createClientSide();
   const [open, setOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<package_table | null>(
-    null
+    initialPackage[0] || null
   );
   const [packages, setPackages] = useState<package_table[]>(initialPackage);
+
   const handlePackageSelect = (pkg: package_table) => {
-    if (earnings.alliance_olympus_wallet === 0) return null;
+    if (earnings.alliance_olympus_earnings === 0) return null;
     setSelectedPackage(pkg);
   };
 
@@ -97,16 +98,18 @@ const DashboardDepositModalPackages = ({
           <Image
             src="/assets/packages.png"
             alt="deposit"
-            width={250}
-            height={250}
+            width={200}
+            height={200}
           />
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">
-        <ScrollArea className="h-auto max-h-[600px]">
+        <ScrollArea className="h-[600px] sm:h-full">
           <DialogHeader className="text-start text-2xl font-bold">
-            <DialogTitle>Avail Pr1me Plans</DialogTitle>
+            <DialogTitle className="text-2xl font-bold mb-4">
+              Avail Pr1me Plans
+            </DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
 
@@ -114,8 +117,9 @@ const DashboardDepositModalPackages = ({
             {packages.map((pkg) => (
               <PackageCard
                 key={pkg.package_id}
+                packageId={pkg.package_id}
                 packageName={pkg.package_name}
-                selectedPackage={pkg}
+                selectedPackage={selectedPackage}
                 onClick={() => handlePackageSelect(pkg)}
               />
             ))}

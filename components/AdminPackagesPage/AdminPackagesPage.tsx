@@ -46,7 +46,7 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
   const handleSelectPackage = (pkg: package_table) => {
     setSelectedPackage(pkg);
   };
-
+  console.log(packages);
   return (
     <div className="container mx-auto p-0 md:p-10">
       <div className="flex justify-between items-center">
@@ -57,7 +57,12 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
         {packages.map((pkg) => (
           <Card
             key={pkg.package_id}
-            className={`bg-white border rounded-lg shadow-md p-6 flex flex-col items-center space-y-4 ${
+            style={{
+              background: pkg.package_is_disabled
+                ? "gray"
+                : `linear-gradient(110deg, ${pkg.package_color || "#F6DB4E"} 60%, #ED9738)`, // Make package color dominate
+            }}
+            className={`border rounded-lg shadow-md p-6 flex flex-col items-center space-y-4 ${
               pkg.package_is_disabled
                 ? "bg-gray-200 border-gray-400 opacity-50"
                 : "border-gray-200"

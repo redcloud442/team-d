@@ -1,3 +1,4 @@
+import { depositWalletData } from "@/app/actions/deposit/depositAction";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,7 +23,6 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getMerchantOptions } from "@/services/Options/Options";
-import { createTopUpRequest } from "@/services/TopUp/TopUp";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -114,9 +114,25 @@ const DashboardDepositModalDeposit = ({
     try {
       const sanitizedData = escapeFormData(data);
 
-      await createTopUpRequest({
+      const filePath = `uploads/${Date.now()}_${data.file.name}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from("REQUEST_ATTACHMENTS")
+        .upload(filePath, data.file, { upsert: true });
+
+      if (uploadError) {
+        throw new Error("File upload failed.");
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabaseClient.storage
+        .from("REQUEST_ATTACHMENTS")
+        .getPublicUrl(filePath);
+
+      await depositWalletData({
         TopUpFormValues: sanitizedData,
-        teamMemberId: teamMemberProfile.alliance_member_id,
+        publicUrl,
       });
 
       toast({
@@ -201,9 +217,11 @@ const DashboardDepositModalDeposit = ({
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <ScrollArea className="h-[500px] sm:h-[620px]">
+        <ScrollArea className="h-[500px] sm:h-full">
           <DialogHeader className="text-start text-2xl font-bold">
-            <DialogTitle>Deposit</DialogTitle>
+            <DialogTitle className="text-2xl font-bold mb-4">
+              Deposit
+            </DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
 

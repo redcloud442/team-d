@@ -186,8 +186,8 @@ const DashboardDepositProfile = ({ profile }: Props) => {
                 alt={`${profile.user_first_name} ${profile.user_last_name}`}
               />
               <AvatarFallback>
-                {profile.user_first_name?.slice(0, 1)}
-                {profile.user_last_name?.slice(0, 1)}
+                {profile.user_first_name?.slice(0, 1).toUpperCase()}
+                {profile.user_last_name?.slice(0, 1).toUpperCase()}
               </AvatarFallback>
             </>
           )}
@@ -196,7 +196,7 @@ const DashboardDepositProfile = ({ profile }: Props) => {
 
       <DialogContent>
         <ScrollArea className="h-[500px] sm:h-full">
-          <DialogTitle className="text-2xl font bold mb-4">
+          <DialogTitle className="text-2xl font-bold mb-4">
             Personal Profile
           </DialogTitle>
           <DialogDescription />

@@ -1,9 +1,9 @@
 "use client";
 
+import { availPackageData } from "@/app/actions/package/packageAction";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { createPackageConnection } from "@/services/Package/Member";
 import { escapeFormData } from "@/utils/function";
 import { ChartDataMember } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,7 +38,9 @@ const AvailPackagePage = ({
   setSelectedPackage,
 }: Props) => {
   const { toast } = useToast();
-  const [maxAmount, setMaxAmount] = useState(earnings.alliance_olympus_wallet);
+  const [maxAmount, setMaxAmount] = useState(
+    earnings.alliance_combined_earnings
+  );
 
   const formattedMaxAmount = new Intl.NumberFormat("en-PH", {
     style: "currency",
@@ -88,8 +90,10 @@ const AvailPackagePage = ({
       const completionDate = new Date(
         now.getTime() + pkg.packages_days * 24 * 60 * 60 * 1000
       );
-      await createPackageConnection({
-        packageData: result,
+
+      await availPackageData({
+        amount: result.amount,
+        packageId: result.packageId,
         teamMemberId: teamMemberProfile.alliance_member_id,
       });
 
@@ -104,6 +108,8 @@ const AvailPackagePage = ({
       setEarnings((prev) => ({
         ...prev,
         alliance_olympus_wallet: prev.alliance_olympus_wallet - result.amount,
+        alliance_combined_earnings:
+          prev.alliance_combined_earnings - result.amount,
       }));
 
       setMaxAmount((prev) => prev - result.amount);
@@ -116,6 +122,7 @@ const AvailPackagePage = ({
           is_ready_to_claim: false,
           package_connection_id: "",
           profit_amount: computation,
+          package_color: pkg.package_color || "",
         },
         ...prev,
       ]);
@@ -146,6 +153,7 @@ const AvailPackagePage = ({
                       variant="default"
                       id="Profit"
                       type="text"
+                      readOnly
                       className="text-center"
                       placeholder="Enter amount"
                       value={`${pkg.package_percentage} %`}
@@ -162,6 +170,7 @@ const AvailPackagePage = ({
                       className="text-center"
                       placeholder="Enter amount"
                       value={Number(pkg.packages_days) || ""}
+                      readOnly
                     />
                   </div>
                 </div>
@@ -199,7 +208,7 @@ const AvailPackagePage = ({
                   <Button
                     type="button"
                     onClick={() => {
-                      setValue("amount", maxAmount.toString());
+                      setValue("amount", maxAmount.toString() || "0");
                     }}
                     className="h-12 bg-pageColor text-white"
                   >
@@ -213,30 +222,32 @@ const AvailPackagePage = ({
                 )}
                 {/* no. days */}
                 <div className="flex flex-col gap-2 w-full">
-                  <label className="font-bold" htmlFor="Days">
+                  <label className="font-bold" htmlFor="Maturity">
                     Maturity Income
                   </label>
                   <Input
                     variant="default"
-                    id="Days"
+                    id="Maturity"
+                    readOnly
                     type="text"
                     className="text-center"
                     placeholder="Enter amount"
-                    value={Number(pkg.packages_days) || ""}
+                    value={computation.toLocaleString() || ""}
                   />
                 </div>
 
                 <div className="flex flex-col gap-2 w-full">
-                  <label className="font-bold" htmlFor="Days">
+                  <label className="font-bold" htmlFor="Gross">
                     Total Gross
                   </label>
                   <Input
                     variant="default"
-                    id="Days"
+                    id="Gross"
+                    readOnly
                     type="text"
                     className="text-center"
-                    placeholder="Enter amount"
-                    value={Number(pkg.packages_days) || ""}
+                    placeholder="Gross Income"
+                    value={sumOfTotal.toLocaleString() || ""}
                   />
                 </div>
                 <div className="flex items-center justify-center">
