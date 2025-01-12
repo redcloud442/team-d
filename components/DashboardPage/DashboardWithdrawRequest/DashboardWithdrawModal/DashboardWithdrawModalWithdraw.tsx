@@ -1,4 +1,3 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,27 +18,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
-import {
-  calculateFee,
-  calculateFinalAmount,
-  escapeFormData,
-} from "@/utils/function";
+import { calculateFinalAmount, escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
+import { DashboardEarnings } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_earnings_table, alliance_member_table } from "@prisma/client";
-import { AlertCircle, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import Image from "next/image";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
   earnings: alliance_earnings_table;
+  setTotalEarnings: Dispatch<SetStateAction<DashboardEarnings | null>>;
 };
 
 const withdrawalFormSchema = z.object({
@@ -57,15 +54,19 @@ const withdrawalFormSchema = z.object({
 
 export type WithdrawalFormValues = z.infer<typeof withdrawalFormSchema>;
 
-const bankData = ["GCASH", "MAYA", "GOTYME", "UNIONBANK", "BDO", "BPI"];
+const bankData = ["GCASH", "MAYA", "GOTYME BANK", "UNION BANK", "BDO", "BPI"];
 
 const DashboardWithdrawModalWithdraw = ({
   teamMemberProfile,
   earnings: initialEarnings,
+  setTotalEarnings,
 }: Props) => {
   const [open, setOpen] = useState(false);
   const [earnings, setEarnings] =
     useState<alliance_earnings_table>(initialEarnings);
+
+  const totalEarnings =
+    earnings.alliance_olympus_earnings + earnings.alliance_referral_bounty;
   const supabase = createClientSide();
   const { toast } = useToast();
 
@@ -114,11 +115,7 @@ const DashboardWithdrawModalWithdraw = ({
   const getMaxAmount = () => {
     switch (selectedEarnings) {
       case "TOTAL":
-        return earnings.alliance_olympus_earnings;
-      case "DIRECT REFERRAL":
-        return earnings.alliance_ally_bounty;
-      case "INDIRECT REFERRAL":
-        return earnings.alliance_legion_bounty;
+        return totalEarnings;
       default:
         return 0;
     }
@@ -144,27 +141,28 @@ const DashboardWithdrawModalWithdraw = ({
         case "TOTAL":
           setEarnings({
             ...earnings,
+            alliance_combined_earnings:
+              earnings.alliance_combined_earnings -
+              Number(sanitizedData.amount),
             alliance_olympus_earnings:
               earnings.alliance_olympus_earnings - Number(sanitizedData.amount),
           });
+
           break;
-        case "DIRECT REFERRAL":
+        case "REFERRAL":
           setEarnings({
             ...earnings,
-            alliance_ally_bounty:
-              earnings.alliance_ally_bounty - Number(sanitizedData.amount),
-          });
-          break;
-        case "INDIRECT REFERRAL":
-          setEarnings({
-            ...earnings,
-            alliance_legion_bounty:
-              earnings.alliance_legion_bounty - Number(sanitizedData.amount),
+            alliance_referral_bounty:
+              earnings.alliance_referral_bounty - Number(sanitizedData.amount),
+            alliance_combined_earnings:
+              earnings.alliance_combined_earnings -
+              Number(sanitizedData.amount),
           });
           break;
         default:
           break;
       }
+
       toast({
         title: "Withdrawal Request Successfully",
         description: "Please wait for it to be approved",
@@ -203,30 +201,29 @@ const DashboardWithdrawModalWithdraw = ({
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline" onClick={() => setOpen(true)}>
+        <Button
+          className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2"
+          onClick={() => setOpen(true)}
+        >
           Withdraw
+          <Image
+            src="/assets/withdraw.png"
+            alt="deposit"
+            width={200}
+            height={200}
+            priority
+          />
         </Button>
       </DialogTrigger>
 
       <DialogContent className="w-full sm:max-w-[400px]">
-        <ScrollArea className="w-full sm:max-w-[400px] max-h-[620px] ">
-          <DialogHeader>
-            <DialogTitle>Withdraw Request</DialogTitle>
-            <DialogDescription>
-              Withdraw your earnings to your account
-            </DialogDescription>
+        <ScrollArea className="w-full sm:max-w-[400px] h-[600px] sm:h-full">
+          <DialogHeader className="text-start text-2xl font-bold">
+            <DialogTitle className="text-2xl font-bold mb-4">
+              Withdraw
+            </DialogTitle>
+            <DialogDescription></DialogDescription>
           </DialogHeader>
-          {selectedEarnings && (
-            <Alert variant="destructive" className="my-2">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Withdrawal Fee Notice</AlertTitle>
-              <AlertDescription>
-                {selectedEarnings === "TOTAL"
-                  ? "3% withdrawal fee will be deducted from your withdrawal amount"
-                  : "10% withdrawal fee will be deducted from your withdrawal amount"}
-              </AlertDescription>
-            </Alert>
-          )}
 
           <form
             onSubmit={handleSubmit(handleWithdrawalRequest)}
@@ -235,7 +232,7 @@ const DashboardWithdrawModalWithdraw = ({
           >
             {/* Earnings Select */}
             <div>
-              <Label htmlFor="earnings">Earnings</Label>
+              <Label htmlFor="earnings">Your Available Balance</Label>
               <Controller
                 name="earnings"
                 control={control}
@@ -243,42 +240,38 @@ const DashboardWithdrawModalWithdraw = ({
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
+                      if (value === "TOTAL") {
+                        setValue("amount", totalEarnings.toFixed(2));
+                      }
                     }}
                     value={field.value}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="SELECT EARNINGS" />
+                      <SelectValue placeholder="Select Available Balance" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="TOTAL">
-                        TOTAL EARNINGS (₱
-                        {earnings.alliance_olympus_earnings.toLocaleString(
+                      <SelectItem className="text-xs" value="TOTAL">
+                        Balance ( ₱{" "}
+                        {earnings.alliance_referral_bounty.toLocaleString(
                           "en-US",
                           {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           }
-                        )}
-                        )
-                      </SelectItem>
-                      <SelectItem value="DIRECT REFERRAL">
-                        DIRECT REFERRAL (₱
-                        {earnings.alliance_ally_bounty.toLocaleString("en-US", {
+                        )}{" "}
+                        Package + ₱{" "}
+                        {earnings.alliance_referral_bounty.toLocaleString(
+                          "en-US",
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }
+                        )}{" "}
+                        Referral ) ={" "}
+                        {totalEarnings.toLocaleString("en-US", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
-                        )
-                      </SelectItem>
-                      <SelectItem value="INDIRECT REFERRAL">
-                        INDIRECT REFERRAL (₱
-                        {earnings.alliance_legion_bounty.toLocaleString(
-                          "en-US",
-                          {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }
-                        )}
-                        )
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -293,7 +286,7 @@ const DashboardWithdrawModalWithdraw = ({
 
             {/* Bank Type Select */}
             <div>
-              <Label htmlFor="bank">Bank Type</Label>
+              <Label htmlFor="bank">Select Your Bank</Label>
               <Controller
                 name="bank"
                 control={control}
@@ -320,6 +313,67 @@ const DashboardWithdrawModalWithdraw = ({
               {errors.bank && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.bank.message}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col w-full space-y-2 ">
+              <Label htmlFor="amount">Amount</Label>
+              <div className="flex items-center justify-between w-full gap-2">
+                <Controller
+                  name="amount"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      type="number"
+                      id="amount"
+                      className="w-full flex-grow"
+                      placeholder="Enter amount"
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => {
+                        let inputValue = e.target.value;
+
+                        if (inputValue.startsWith("0")) {
+                          inputValue = "";
+                        }
+
+                        inputValue = inputValue.replace(/\D/g, "");
+
+                        field.onChange(inputValue);
+
+                        const numericValue = Number(inputValue);
+                        const maxAmount = getMaxAmount();
+
+                        if (numericValue > maxAmount) {
+                          setValue("amount", maxAmount.toFixed(2).toString());
+                        }
+                      }}
+                    />
+                  )}
+                />
+
+                <Button
+                  type="button"
+                  className="h-12 bg-pageColor text-white"
+                  onClick={() => {
+                    if (!selectedEarnings) {
+                      toast({
+                        title: "Select an earnings",
+                        description: "Please select an earnings",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    setValue("amount", getMaxAmount().toFixed(2));
+                  }}
+                >
+                  MAX
+                </Button>
+              </div>
+              {errors.amount && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.amount.message}
                 </p>
               )}
             </div>
@@ -369,122 +423,45 @@ const DashboardWithdrawModalWithdraw = ({
             </div>
 
             {/* Amount Input */}
-            <div className="flex flex-col w-full space-y-2">
-              <Label htmlFor="amount">Amount</Label>
-              <div className="flex items-center justify-between w-full">
-                <Controller
-                  name="amount"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      type="number"
-                      id="amount"
-                      className="w-full flex-grow"
-                      placeholder="Enter amount"
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => {
-                        let inputValue = e.target.value;
-
-                        if (inputValue.startsWith("0")) {
-                          inputValue = "";
-                        }
-
-                        inputValue = inputValue.replace(/\D/g, "");
-
-                        field.onChange(inputValue);
-
-                        const numericValue = parseFloat(inputValue);
-                        const maxAmount = getMaxAmount();
-
-                        if (numericValue > maxAmount) {
-                          setValue("amount", maxAmount.toString());
-                        }
-                      }}
-                    />
-                  )}
+            <div className="flex flex-col w-full space-y-2 ">
+              <Label htmlFor="amount">Total Net Payout</Label>
+              <div className="flex items-center justify-between w-full gap-2">
+                <Input
+                  id="amount"
+                  className="w-full flex-grow"
+                  readOnly
+                  value={calculateFinalAmount(
+                    Number(amount || 0),
+                    selectedEarnings
+                  ).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 />
-
-                <Button
-                  type="button"
-                  className="ml-2 bg-blue-500 text-white"
-                  onClick={() => setValue("amount", getMaxAmount().toString())}
-                >
-                  MAX
-                </Button>
               </div>
-              {errors.amount && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.amount.message}
-                </p>
-              )}
             </div>
-            {amount && (
-              <div className="flex flex-col w-full space-y-2">
-                <Label htmlFor="amountToWithdraw">Amount Computation</Label>
-                <div className="flex flex-col gap-2 items-end justify-end w-full">
-                  {/* Fee Display */}
-                  <div className="flex items-center justify-between w-full">
-                    <p className="text-md darktext-gray-200">
-                      {selectedEarnings === "TOTAL" ? "3%" : "10%"} Fee:
-                    </p>
-                    <p className="text-md  dark:text-gray-300">
-                      {"₱ "}
-                      {calculateFee(
-                        Number(amount || 0),
-                        selectedEarnings
-                      ).toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between w-full">
-                    <p className="text-md  dark:text-gray-200">Amount</p>
-                    <p className="text-md  dark:text-gray-300">
-                      {"₱ "}
-                      {Number(amount || 0).toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </p>
-                  </div>
-
-                  {/* Separator */}
-                  <Separator />
-
-                  {/* Final Amount Display */}
-                  <div className="flex items-center justify-between w-full">
-                    <p className="text-md font-bold">Amount to be Received</p>
-                    <p className="text-md font-bold dark:text-gray-300">
-                      {"₱ "}
-                      {calculateFinalAmount(
-                        Number(amount || 0),
-                        selectedEarnings
-                      ).toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-            <Button
-              disabled={isSubmitting || getMaxAmount() === 0}
-              type="submit"
-              className="w-full pb-2"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                "Submit"
-              )}
-            </Button>
+            <p className="text-sm font-bold text-primaryRed">
+              {
+                "Note: 10% withdrawal fee will be deducted to your withdrawal amount."
+              }
+            </p>
+            {/* Submit Button */}
+            <div className="flex items-center justify-center gap-2">
+              <Button
+                disabled={isSubmitting || getMaxAmount() === 0}
+                type="submit"
+                className="bg-pageColor text-white rounded-xl py-6 px-6"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit"
+                )}
+              </Button>
+            </div>
           </form>
 
           <DialogFooter></DialogFooter>

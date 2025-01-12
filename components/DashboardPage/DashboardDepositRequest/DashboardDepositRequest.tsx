@@ -11,13 +11,11 @@ import {
   alliance_member_table,
   package_table,
 } from "@prisma/client";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 
-import dynamic from "next/dynamic";
 import DashboardDepositModalHistory from "./DashboardDepositModal/DashboardDepositHistory";
 import DashboardDepositModalDeposit from "./DashboardDepositModal/DashboardDepositModalDeposit";
 import DashboardDepositModalPackages from "./DashboardDepositModal/DashboardDepositPackagesModal";
-const ReactJoyride = dynamic(() => import("react-joyride"), { ssr: false });
 
 type Props = {
   teamMemberProfile: alliance_member_table;
@@ -37,7 +35,6 @@ const DashboardDepositRequest = ({
   setIsActive,
 }: Props) => {
   // const [runTour, setRunTour] = useState(false); // Manage tour state
-  const [open, setOpen] = useState(false);
 
   // const steps = [
   //   {
@@ -80,8 +77,6 @@ const DashboardDepositRequest = ({
               <DashboardDepositModalDeposit
                 teamMemberProfile={teamMemberProfile}
                 className="deposit-button"
-                setOpen={setOpen}
-                open={open}
               />
 
               <DashboardDepositModalPackages

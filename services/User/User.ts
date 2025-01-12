@@ -1,5 +1,3 @@
-import { escapeFormData } from "@/utils/function";
-import prisma from "@/utils/prisma";
 import { alliance_earnings_table } from "@prisma/client";
 
 export const getEarnings = async () => {
@@ -20,47 +18,52 @@ export const getEarnings = async () => {
   return data as alliance_earnings_table;
 };
 
-export const getUserSponsor = async (params: {
-  teamMemberId: string;
-  userId?: string;
-}) => {
-  try {
-    const sanitizedData = escapeFormData(params);
-    let userSponsor;
-    if (!sanitizedData.userId) {
-      userSponsor = await prisma.$queryRawUnsafe(
-        `
-      SELECT 
-        ut.user_username
-      FROM alliance_schema.alliance_referral_table art
-      JOIN alliance_schema.alliance_member_table am 
-        ON am.alliance_member_id = art.alliance_referral_from_member_id
-      JOIN user_schema.user_table ut
-        ON ut.user_id = am.alliance_member_user_id
-      WHERE art.alliance_referral_member_id = $1
-      `,
-        sanitizedData.teamMemberId
-      );
-    } else {
-      userSponsor = await prisma.$queryRawUnsafe(
-        `
-      SELECT 
-        ut.user_username
-      FROM user_schema.user_table ut
-      WHERE ut.user_id = $1
-      `,
-        sanitizedData.userId
-      );
+export const getUserSponsor = async (params: { userId: string }) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/sponsor`,
+    {
+      method: "POST",
+      body: JSON.stringify(params),
     }
+  );
 
-    // Ensure data exists and handle the response
-    if (!userSponsor) {
-      return null;
-    }
-    return {
-      user_username: (userSponsor as any[])[0]?.user_username, // Return the first result's username
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while fetching the earnings."
+    );
+  }
+
+  const { data } = result;
+
+  return data as {
+    user_username: string;
+  };
+};
+
+export const getReferralData = async () => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/referrals`,
+      {
+        method: "GET",
+      }
+    );
+
+    const result = await response.json();
+
+    return result as {
+      direct: {
+        sum: number;
+        count: number;
+      };
+      indirect: {
+        sum: number;
+        count: number;
+      };
     };
   } catch (e) {
-    return null; // Handle errors gracefully
+    return { error: "Internal server error" };
   }
 };

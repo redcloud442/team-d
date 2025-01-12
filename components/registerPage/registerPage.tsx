@@ -11,6 +11,7 @@ import { BASE_URL } from "@/utils/constant";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CheckCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -23,11 +24,11 @@ const RegisterSchema = z
   .object({
     firstName: z
       .string()
-      .min(1, "First name is required")
+      .min(4, "First name is required")
       .max(50, "First name must be less than 50 characters"),
     lastName: z
       .string()
-      .min(1, "Last name is required")
+      .min(4, "Last name is required")
       .max(50, "Last name must be less than 50 characters"),
     userName: z
       .string()
@@ -61,10 +62,20 @@ const RegisterPage = ({ referralLink }: Props) => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    watch,
+    formState: { errors, isSubmitting, touchedFields },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(RegisterSchema),
   });
+
+  const firstNameSchema = z.string().min(4).max(50);
+  const lastNameSchema = z.string().min(4).max(50);
+  const userNameSchema = z
+    .string()
+    .min(6)
+    .max(20)
+    .regex(/^[a-zA-Z0-9_]+$/);
+
   const supabase = createClientSide();
   const router = useRouter();
   const pathName = usePathname();
@@ -89,6 +100,7 @@ const RegisterPage = ({ referralLink }: Props) => {
         url,
       });
       setIsSuccess(true);
+
       toast({
         title: "Registration Successful",
         variant: "success",
@@ -103,87 +115,154 @@ const RegisterPage = ({ referralLink }: Props) => {
           stackPath: "components/registerPage/registerPage.tsx",
         });
       }
-      const errorMessage =
-        e instanceof Error ? e.message : "An unexpected error occurred.";
+
       toast({
         title: "Error",
-        description: errorMessage,
+        description: "Check your account details and try again",
         variant: "destructive",
       });
     }
   };
 
   return (
-    <Card className="w-[400px] mx-auto p-4">
+    <Card className="w-full max-w-lg mx-auto p-2">
       <NavigationLoader visible={isSubmitting || isSuccess} />
-      <CardTitle>Registration Sponsored by: {referralLink}</CardTitle>
+      <CardTitle className="font-bold text-2xl">Register</CardTitle>
       <CardContent className="p-4">
         <form
           className="flex flex-col gap-4"
           onSubmit={handleSubmit(handleRegistrationSubmit)}
         >
-          <div>
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              placeholder="Enter your first name"
-              {...register("firstName")}
-            />
-            {errors.firstName && (
-              <p className="text-sm text-red-500">{errors.firstName.message}</p>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input
-              id="lastName"
-              placeholder="Enter your last name"
-              {...register("lastName")}
-            />
-            {errors.lastName && (
-              <p className="text-sm text-red-500">{errors.lastName.message}</p>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="email">Username</Label>
-            <Input
-              id="email"
-              placeholder="Enter your username"
-              {...register("userName")}
-            />
+          {/* Username Field */}
+          <div className="relative">
+            <Label htmlFor="userName">Your Username</Label>
+            <div className="flex items-center">
+              <Input
+                id="userName"
+                placeholder="Username"
+                {...register("userName")}
+                className="pr-10"
+              />
+              {touchedFields.userName &&
+                !errors.userName &&
+                userNameSchema.safeParse(watch("userName")).success && (
+                  <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3" />
+                )}
+            </div>
             {errors.userName && (
               <p className="text-sm text-red-500">{errors.userName.message}</p>
             )}
           </div>
-          <div>
+
+          {/* First Name Field */}
+          <div className="relative">
+            <Label htmlFor="firstName">First Name</Label>
+            <div className="flex items-center">
+              <Input
+                id="firstName"
+                placeholder="First Name"
+                {...register("firstName")}
+                className="pr-10"
+              />
+              {touchedFields.firstName &&
+                !errors.firstName &&
+                firstNameSchema.safeParse(watch("firstName")).success && (
+                  <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3" />
+                )}
+            </div>
+            {errors.firstName && (
+              <p className="text-sm text-red-500">{errors.firstName.message}</p>
+            )}
+          </div>
+
+          {/* Last Name Field */}
+          <div className="relative">
+            <Label htmlFor="lastName">Last Name</Label>
+            <div className="flex items-center">
+              <Input
+                id="lastName"
+                placeholder="Last Name"
+                {...register("lastName")}
+                className="pr-10"
+              />
+              {touchedFields.lastName &&
+                !errors.lastName &&
+                lastNameSchema.safeParse(watch("lastName")).success && (
+                  <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3" />
+                )}
+            </div>
+            {errors.lastName && (
+              <p className="text-sm text-red-500">{errors.lastName.message}</p>
+            )}
+          </div>
+
+          {/* Password Field */}
+          <div className="relative">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              {...register("password")}
-            />
+            <div className="flex items-center">
+              <Input
+                id="password"
+                type="password"
+                placeholder="Password"
+                {...register("password")}
+                className="pr-10"
+              />
+              {touchedFields.password && !errors.password && (
+                <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3" />
+              )}
+            </div>
             {errors.password && (
               <p className="text-sm text-red-500">{errors.password.message}</p>
             )}
           </div>
-          <div>
+
+          {/* Confirm Password Field */}
+          <div className="relative">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              placeholder="Confirm your password"
-              {...register("confirmPassword")}
-            />
+            <div className="flex items-center">
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm Password"
+                {...register("confirmPassword")}
+                className="pr-10"
+              />
+              {touchedFields.confirmPassword &&
+                !errors.confirmPassword &&
+                touchedFields.password &&
+                !errors.password &&
+                watch("password") === watch("confirmPassword") && (
+                  <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3" />
+                )}
+            </div>
             {errors.confirmPassword && (
               <p className="text-sm text-red-500">
                 {errors.confirmPassword.message}
               </p>
             )}
           </div>
-          <Button disabled={isSubmitting || isSuccess} type="submit">
-            Register
-          </Button>
+          <div className="relative">
+            <Label htmlFor="confirmPassword">Sponsor</Label>
+            <div className="flex items-center">
+              <Input
+                id="sponsor"
+                placeholder="Sponsor"
+                value={referralLink}
+                className="pr-10"
+              />
+            </div>
+          </div>
+
+          <div className="w-full flex justify-center">
+            <Button
+              variant="card"
+              className="px-4 font-medium"
+              disabled={isSubmitting || isSuccess}
+              type="submit"
+            >
+              Submit
+            </Button>
+          </div>
         </form>
       </CardContent>
       <CardFooter>

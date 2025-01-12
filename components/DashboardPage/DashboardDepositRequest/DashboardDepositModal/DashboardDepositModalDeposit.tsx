@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { depositWalletData } from "@/app/actions/deposit/depositAction";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,6 +12,7 @@ import {
 import FileUpload from "@/components/ui/dropZone";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -22,21 +23,19 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getMerchantOptions } from "@/services/Options/Options";
-import { createTopUpRequest } from "@/services/TopUp/TopUp";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, merchant_table } from "@prisma/client";
-import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { CheckCircle, Loader2 } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
   className: string;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  open: boolean;
 };
 
 const topUpFormSchema = z.object({
@@ -67,12 +66,11 @@ export type TopUpFormValues = z.infer<typeof topUpFormSchema>;
 const DashboardDepositModalDeposit = ({
   teamMemberProfile,
   className,
-  setOpen,
-  open,
 }: Props) => {
   const supabaseClient = createClientSide();
   const [topUpOptions, setTopUpOptions] = useState<merchant_table[]>([]);
   const { toast } = useToast();
+  const [open, setOpen] = useState(false);
   const {
     control,
     handleSubmit,
@@ -116,15 +114,30 @@ const DashboardDepositModalDeposit = ({
     try {
       const sanitizedData = escapeFormData(data);
 
-      await createTopUpRequest({
+      const filePath = `uploads/${Date.now()}_${data.file.name}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from("REQUEST_ATTACHMENTS")
+        .upload(filePath, data.file, { upsert: true });
+
+      if (uploadError) {
+        throw new Error("File upload failed.");
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabaseClient.storage
+        .from("REQUEST_ATTACHMENTS")
+        .getPublicUrl(filePath);
+
+      await depositWalletData({
         TopUpFormValues: sanitizedData,
-        teamMemberId: teamMemberProfile.alliance_member_id,
+        publicUrl,
       });
 
       toast({
         title: "Top Up Successfully",
         description: "Please wait for it to be approved.",
-        variant: "success",
       });
 
       setOpen(false);
@@ -158,6 +171,24 @@ const DashboardDepositModalDeposit = ({
   };
   const uploadedFile = watch("file");
 
+  const handleCopy = (text: string) => {
+    if (!text) {
+      toast({
+        title: "Error",
+        description: "Nothing to copy!",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    navigator.clipboard.writeText(text);
+
+    toast({
+      title: "Copied to clipboard",
+      variant: "success",
+    });
+  };
+
   return (
     <Dialog
       open={open}
@@ -169,183 +200,224 @@ const DashboardDepositModalDeposit = ({
       }}
     >
       <DialogTrigger asChild className={className}>
-        <Button variant="outline" onClick={() => setOpen(true)}>
+        <Button
+          className=" relative h-60 sm:h-80 flex flex-col gap-8 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl "
+          onClick={() => setOpen(true)}
+        >
           Deposit
+          <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
+            <Image
+              src="/assets/deposit.png"
+              alt="deposit"
+              width={250}
+              height={250}
+              className="absolute sm:relative bottom-10 sm:bottom-0 sm:left-0 left-2"
+            />
+          </div>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Deposit</DialogTitle>
-          <DialogDescription>
-            Add an amount to add a amount to your wallet
-          </DialogDescription>
-        </DialogHeader>
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Minimum Deposit Amount</AlertTitle>
-          <AlertDescription>
-            The minimum deposit amount is 200 pesos.
-          </AlertDescription>
-        </Alert>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Amount Field */}
-          <div>
-            <Label htmlFor="amount">Enter Amount</Label>
-            <Controller
-              name="amount"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  type="text"
-                  id="amount"
-                  placeholder="Enter the top-up amount (e.g., 1000)"
-                  {...field}
-                  autoFocus
-                  value={
-                    field.value ? Number(field.value).toLocaleString() : ""
-                  }
-                  onChange={(e) => {
-                    let value = e.target.value;
+        <ScrollArea className="h-[500px] sm:h-full">
+          <DialogHeader className="text-start text-2xl font-bold">
+            <DialogTitle className="text-2xl font-bold mb-4">
+              Deposit
+            </DialogTitle>
+            <DialogDescription></DialogDescription>
+          </DialogHeader>
 
-                    value = value.replace(/\D/g, "");
-
-                    if (value.startsWith("0")) {
-                      value = value.replace(/^0+/, "");
-                    }
-                    if (value.length > 7) {
-                      return;
-                    }
-                    field.onChange(value);
-                  }}
-                />
-              )}
-            />
-            {errors.amount && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.amount.message}
-              </p>
-            )}
-          </div>
-
-          {/* Top-Up Mode */}
-          <div>
-            <Label htmlFor="topUpMode">Select Deposit Mode</Label>
-            <Controller
-              name="topUpMode"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    onTopUpModeChange(value);
-                  }}
-                  value={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select top-up mode" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {topUpOptions.map((option) => (
-                      <SelectItem
-                        key={option.merchant_id}
-                        value={option.merchant_account_type}
-                      >
-                        {option.merchant_account_type} -{" "}
-                        {option.merchant_account_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors.topUpMode && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.topUpMode.message}
-              </p>
-            )}
-          </div>
-
-          {/* Account Details */}
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Label htmlFor="accountName">Account Name</Label>
-              <Controller
-                name="accountName"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    readOnly
-                    id="accountName"
-                    placeholder="Account Name"
-                    {...field}
-                  />
-                )}
-              />
-              {errors.accountName && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.accountName.message}
-                </p>
-              )}
-            </div>
-            <div className="flex-1">
-              <Label htmlFor="accountNumber">Account Number</Label>
-              <Controller
-                name="accountNumber"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    readOnly
-                    id="accountNumber"
-                    placeholder="Account Number"
-                    {...field}
-                  />
-                )}
-              />
-              {errors.accountNumber && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.accountNumber.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {uploadedFile ? (
-            <div className="flex flex-col justify-center items-center animate-pulse">
-              <CheckCircle className="animate-pulse text-green-600" size={50} />
-              {errors.file ? (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.file?.message}
-                </p>
-              ) : (
-                <p className="text-green-600 text-xl font-bold">
-                  File Uploaded
-                </p>
-              )}
-            </div>
-          ) : (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Amount Field */}
             <div>
+              <Label htmlFor="amount">Amount</Label>
               <Controller
-                name="file"
+                name="amount"
                 control={control}
                 render={({ field }) => (
-                  <FileUpload
-                    label="Upload Proof of Payment"
-                    onFileChange={(file) => field.onChange(file)}
+                  <Input
+                    variant="default"
+                    type="text"
+                    id="amount"
+                    className="text-center"
+                    placeholder="Enter the top-up amount (e.g., 1000)"
+                    {...field}
+                    autoFocus
+                    value={
+                      field.value ? Number(field.value).toLocaleString() : ""
+                    }
+                    onChange={(e) => {
+                      let value = e.target.value;
+
+                      value = value.replace(/\D/g, "");
+
+                      if (value.startsWith("0")) {
+                        value = value.replace(/^0+/, "");
+                      }
+                      if (value.length > 7) {
+                        return;
+                      }
+                      field.onChange(value);
+                    }}
                   />
                 )}
               />
-              {errors.file && (
+              {errors.amount && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.file?.message}
+                  {errors.amount.message}
                 </p>
               )}
             </div>
-          )}
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? <Loader2 className="animate-spin" /> : null} Submit
-          </Button>
-        </form>
-        <DialogFooter></DialogFooter>
+
+            {/* Top-Up Mode */}
+            <div>
+              <Label htmlFor="topUpMode">Cashier Bank</Label>
+              <Controller
+                name="topUpMode"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      onTopUpModeChange(value);
+                    }}
+                    value={field.value}
+                  >
+                    <SelectTrigger className="text-center">
+                      <SelectValue placeholder="Select Cashier Bank" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {topUpOptions.map((option) => (
+                        <SelectItem
+                          key={option.merchant_id}
+                          value={option.merchant_account_type}
+                        >
+                          {option.merchant_account_type} -{" "}
+                          {option.merchant_account_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.topUpMode && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.topUpMode.message}
+                </p>
+              )}
+            </div>
+
+            {/* Account Details */}
+            <div className="flex flex-col gap-4">
+              <div className="flex-1">
+                <Label htmlFor="accountName">Account Name</Label>
+                <div className="flex gap-2">
+                  <Controller
+                    name="accountName"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        className="text-center"
+                        readOnly
+                        variant="default"
+                        id="accountName"
+                        placeholder="Account Name"
+                        {...field}
+                      />
+                    )}
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => handleCopy(watch("accountName") || "")}
+                    className="w-20 bg-pageColor text-white h-12"
+                  >
+                    Copy
+                  </Button>
+                </div>
+                {errors.accountName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.accountName.message}
+                  </p>
+                )}
+              </div>
+              <div className="flex-1">
+                <Label htmlFor="accountNumber">Account Number</Label>
+                <div className="flex gap-2">
+                  <Controller
+                    name="accountNumber"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        readOnly
+                        className="text-center"
+                        id="accountNumber"
+                        placeholder="Account Number"
+                        {...field}
+                      />
+                    )}
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => handleCopy(watch("accountNumber") || "")}
+                    className="w-20 bg-pageColor text-white h-12"
+                  >
+                    Copy
+                  </Button>
+                </div>
+                {errors.accountNumber && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.accountNumber.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {uploadedFile ? (
+              <div className="flex flex-col justify-center items-center animate-pulse">
+                <CheckCircle
+                  className="animate-pulse text-green-600"
+                  size={50}
+                />
+                {errors.file ? (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.file?.message}
+                  </p>
+                ) : (
+                  <p className="text-green-600 text-xl font-bold">
+                    File Uploaded
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div>
+                <Controller
+                  name="file"
+                  control={control}
+                  render={({ field }) => (
+                    <FileUpload
+                      label="Upload Receipt"
+                      onFileChange={(file) => field.onChange(file)}
+                    />
+                  )}
+                />
+                {errors.file && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.file?.message}
+                  </p>
+                )}
+              </div>
+            )}
+            <div className="flex justify-center items-center">
+              <Button
+                type="submit"
+                className=" bg-pageColor text-white h-12 "
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? <Loader2 className="animate-spin" /> : null}{" "}
+                Submit
+              </Button>
+            </div>
+          </form>
+          <DialogFooter></DialogFooter>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

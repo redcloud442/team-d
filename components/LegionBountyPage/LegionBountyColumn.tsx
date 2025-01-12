@@ -1,63 +1,21 @@
-import { Button } from "@/components/ui/button";
 import { LegionRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
 
 export const LegionBountyColumn = (): ColumnDef<LegionRequestData>[] => {
   return [
     {
       accessorKey: "user_username",
-
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Username <ArrowUpDown />
-        </Button>
+      header: () => (
+        <div className="text-center text-lg font-bold">Username</div>
       ),
       cell: ({ row }) => {
         return <div>{row.getValue("user_username")}</div>;
       },
     },
-
-    {
-      accessorKey: "user_first_name",
-
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          First Name <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => <div>{row.getValue("user_first_name")}</div>,
-    },
-    {
-      accessorKey: "user_last_name",
-
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Last Name <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => <div>{row.getValue("user_last_name")}</div>,
-    },
     {
       accessorKey: "total_bounty_earnings",
 
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Total Referral Earnings <ArrowUpDown />
-        </Button>
-      ),
+      header: () => <div className="text-center text-lg font-bold">Amount</div>,
       cell: ({ row }) => (
         <div>
           ₱{" "}

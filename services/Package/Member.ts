@@ -16,6 +16,9 @@ export const createPackageConnection = async (params: {
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/package/`,
     {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(inputData),
     }
   );
@@ -90,4 +93,39 @@ export const getPackageHistory = async (params: {
     data: PackageHistoryData[];
     totalCount: number;
   };
+};
+
+export const claimPackage = async (params: {
+  packageId: string;
+  packageConnectionId: string;
+  amount: number;
+}) => {
+  const { packageId, packageConnectionId, amount } = params;
+
+  const inputData = {
+    earnings: amount,
+    packageId,
+    packageConnectionId,
+  };
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/package/${packageId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ inputData }),
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while claiming the package."
+    );
+  }
+
+  return response;
 };

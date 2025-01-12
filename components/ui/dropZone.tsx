@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils"; // Utility for merging classes, or replace with classNames if preferred
-import { Upload } from "lucide-react"; // Icon for better UI
+import Image from "next/image";
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 
@@ -35,14 +35,17 @@ const FileUpload: React.FC<FileUploadProps> = ({
       <div
         {...getRootProps()}
         className={cn(
-          "border-2 border-dashed border-gray-300 rounded-md p-4 flex flex-col items-center justify-center text-center cursor-pointer",
+          "bg-pageColor rounded-md p-4 flex flex-col items-center justify-center text-center cursor-pointer",
           isDragActive && "border-blue-500 bg-blue-50"
         )}
       >
         <Input {...getInputProps()} className="hidden" type="file" />
-        <Upload className="h-10 w-10 text-gray-400" />
-        <p className="text-gray-500">Drag and drop a file or click to browse</p>
-        <p className="text-sm text-gray-400">PDF, image, video, or audio</p>
+        <Image
+          src="/assets/upload-file.svg"
+          alt="upload"
+          width={130}
+          height={130}
+        />
       </div>
     </div>
   );

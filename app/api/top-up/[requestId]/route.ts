@@ -89,6 +89,9 @@ export async function PUT(
             alliance_olympus_wallet: {
               increment: updatedRequest.alliance_top_up_request_amount,
             },
+            alliance_combined_earnings: {
+              increment: updatedRequest.alliance_top_up_request_amount,
+            },
           },
         });
         if (merchant) {

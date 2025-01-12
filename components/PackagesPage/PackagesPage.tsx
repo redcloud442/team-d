@@ -18,6 +18,9 @@ const PackagesPage = ({ packages }: Props) => {
         {packages.map((pkg) => (
           <PackageCard
             key={pkg.package_id}
+            onClick={() => {}}
+            selectedPackage={pkg}
+            type={"MEMBER"}
             packageName={pkg.package_name}
             packageDescription={pkg.package_description}
             packagePercentage={`${pkg.package_percentage} %`}

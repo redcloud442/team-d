@@ -32,7 +32,7 @@ export async function PUT(
 
     const { userId } = await context.params;
     const { email, password, iv, clientpass } = await request.json();
-
+    console.log(email, password, iv, clientpass);
     if (!password || !email || !userId) {
       return NextResponse.json(
         { error: "Email and password are required." },
@@ -51,6 +51,10 @@ export async function PUT(
 
     const teamMemberProfile = await prisma.alliance_member_table.findFirst({
       where: { alliance_member_user_id: user?.user_id },
+      select: {
+        alliance_member_restricted: true,
+        alliance_member_alliance_id: true,
+      },
     });
 
     if (!teamMemberProfile) {

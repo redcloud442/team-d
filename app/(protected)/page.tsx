@@ -1,26 +1,24 @@
 import DashboardPage from "@/components/DashboardPage/DashboardPage";
-import { getDashboardEarnings } from "@/services/Dasboard/Member";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
-import { createClientServerSide } from "@/utils/supabase/server";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Dashboard",
-  description: "List of records",
+  description: "Pr1me Dashboard",
   openGraph: {
     url: "/",
   },
 };
 
 const Page = async () => {
-  const supabase = await createClientServerSide();
   const {
     redirect: redirectTo,
     earnings,
     referal,
     teamMemberProfile,
+    profile,
   } = await protectionMemberUser();
 
   if (redirectTo) {
@@ -33,20 +31,25 @@ const Page = async () => {
     where: {
       package_is_disabled: false,
     },
+    select: {
+      package_id: true,
+      package_name: true,
+      package_percentage: true,
+      packages_days: true,
+      package_description: true,
+      package_color: true,
+      package_is_disabled: true,
+    },
   });
 
   if (teamMemberProfile.alliance_member_role === "ADMIN")
     return redirect("/admin");
 
-  const dashboardEarnings = await getDashboardEarnings(supabase, {
-    teamMemberId: teamMemberProfile.alliance_member_id,
-  });
-
   return (
     <DashboardPage
+      profile={profile}
       teamMemberProfile={teamMemberProfile}
       referal={referal}
-      dashboardEarnings={dashboardEarnings}
       earnings={earnings}
       packages={packages}
     />

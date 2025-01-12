@@ -4,10 +4,10 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { TopUpRequestData } from "@/utils/types";
+import { MerchantTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
-import { useCallback, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { Badge } from "../ui/badge";
 import {
   Dialog,
@@ -25,7 +25,10 @@ const statusColorMap: Record<string, string> = {
   REJECTED: "bg-red-600 dark:bg-red-600 dark:text-white",
 };
 
-export const TopUpColumn = (handleFetch: () => void) => {
+export const TopUpColumn = (
+  handleFetch: () => void,
+  setRequestData: Dispatch<SetStateAction<MerchantTopUpRequestData | null>>
+) => {
   const { toast } = useToast();
   const supabaseClient = createClientSide();
   const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +36,7 @@ export const TopUpColumn = (handleFetch: () => void) => {
     open: false,
     requestId: "",
     status: "",
+    amount: 0,
   });
 
   const handleUpdateStatus = useCallback(
@@ -44,13 +48,23 @@ export const TopUpColumn = (handleFetch: () => void) => {
           requestId,
           note,
         });
+
         handleFetch();
+        setRequestData((prev) => {
+          if (prev) {
+            return {
+              ...prev,
+              merchantBalance: prev.merchantBalance - isOpenModal.amount,
+            };
+          }
+          return prev;
+        });
         toast({
           title: `Status Update`,
           description: `${status} Request Successfully`,
           variant: "success",
         });
-        setIsOpenModal({ open: false, requestId: "", status: "" });
+        setIsOpenModal({ open: false, requestId: "", status: "", amount: 0 });
       } catch (e) {
         if (e instanceof Error) {
           await logError(supabaseClient, {
@@ -215,10 +229,10 @@ export const TopUpColumn = (handleFetch: () => void) => {
                 <DialogTitle>Attachment</DialogTitle>
               </DialogHeader>
               <div className="flex justify-center items-center">
-                <iframe
+                <img
                   src={attachmentUrl || ""}
-                  className="w-full h-96"
-                  title="Attachment Preview"
+                  alt="Attachment Preview"
+                  className="object-contain w-full h-full"
                 />
               </div>
               <DialogClose asChild>
@@ -274,6 +288,7 @@ export const TopUpColumn = (handleFetch: () => void) => {
                       open: true,
                       requestId: data.alliance_top_up_request_id,
                       status: "APPROVED",
+                      amount: data.alliance_top_up_request_amount || 0,
                     })
                   }
                 >
@@ -287,6 +302,7 @@ export const TopUpColumn = (handleFetch: () => void) => {
                       open: true,
                       requestId: data.alliance_top_up_request_id,
                       status: "REJECTED",
+                      amount: 0,
                     })
                   }
                 >

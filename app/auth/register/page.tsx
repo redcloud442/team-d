@@ -1,8 +1,5 @@
 import RegisterPage from "@/components/registerPage/registerPage";
-import prisma from "@/utils/prisma";
-import { protectionRegisteredUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 export const metadata: Metadata = {
   title: "Register an account",
   description: "Register an account",
@@ -17,37 +14,37 @@ const Page = async ({
   searchParams: Promise<{ referralLink: string }>;
 }) => {
   const { referralLink } = await searchParams;
-  const result = await protectionRegisteredUser();
+  // const result = await protectionRegisteredUser();
 
-  if (result?.redirect || !referralLink) {
-    redirect("/");
-  }
+  // if (result?.redirect || !referralLink) {
+  //   redirect("/");
+  // }
 
-  const user = await prisma.user_table.findFirst({
-    where: {
-      user_username: referralLink,
-    },
-    select: {
-      user_username: true,
-      user_id: true,
-    },
-  });
+  // const user = await prisma.user_table.findFirst({
+  //   where: {
+  //     user_username: referralLink,
+  //   },
+  //   select: {
+  //     user_username: true,
+  //     user_id: true,
+  //   },
+  // });
 
-  const teamMemberProfile = await prisma.alliance_member_table.findFirst({
-    where: {
-      alliance_member_user_id: user?.user_id,
-    },
-    select: {
-      alliance_member_is_active: true,
-    },
-  });
+  // const teamMemberProfile = await prisma.alliance_member_table.findFirst({
+  //   where: {
+  //     alliance_member_user_id: user?.user_id,
+  //   },
+  //   select: {
+  //     alliance_member_is_active: true,
+  //   },
+  // });
 
-  if (!teamMemberProfile?.alliance_member_is_active) {
-    redirect("/auth/login");
-  }
+  // if (!teamMemberProfile?.alliance_member_is_active) {
+  //   redirect("/auth/login");
+  // }
 
   return (
-    <main className="max-w-full min-h-screen flex flex-col items-center justify-center">
+    <main className="max-w-full min-h-screen flex flex-col items-center justify-center p-4 bg-pageColor">
       <RegisterPage referralLink={referralLink} />
     </main>
   );

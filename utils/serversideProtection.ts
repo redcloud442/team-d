@@ -129,9 +129,25 @@ export const protectionMemberUser = async (ip?: string) => {
     // }
 
     const [profile, teamMember] = await Promise.all([
-      prisma.user_table.findUnique({ where: { user_id: userId } }),
+      prisma.user_table.findUnique({
+        where: { user_id: userId },
+        select: {
+          user_id: true,
+          user_first_name: true,
+          user_last_name: true,
+          user_profile_picture: true,
+          user_username: true,
+        },
+      }),
       prisma.alliance_member_table.findFirst({
         where: { alliance_member_user_id: userId },
+        select: {
+          alliance_member_id: true,
+          alliance_member_is_active: true,
+          alliance_member_role: true,
+          alliance_member_alliance_id: true,
+          alliance_member_restricted: true,
+        },
       }),
     ]);
 
@@ -157,9 +173,18 @@ export const protectionMemberUser = async (ip?: string) => {
         where: {
           alliance_referral_link_member_id: teamMember.alliance_member_id,
         },
+        select: {
+          alliance_referral_link: true,
+        },
       }),
       prisma.alliance_earnings_table.findFirst({
         where: { alliance_earnings_member_id: teamMember.alliance_member_id },
+        select: {
+          alliance_olympus_wallet: true,
+          alliance_referral_bounty: true,
+          alliance_olympus_earnings: true,
+          alliance_combined_earnings: true,
+        },
       }),
     ]);
 

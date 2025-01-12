@@ -30,6 +30,7 @@ export async function PUT(
       packagePercentage,
       packageDays,
       packageIsDisabled,
+      packageColor,
     } = packageData;
 
     if (
@@ -66,6 +67,7 @@ export async function PUT(
           package_percentage: parseFloat(packagePercentage),
           packages_days: parseInt(packageDays),
           package_is_disabled: packageIsDisabled,
+          package_color: packageColor,
         },
       });
     });

@@ -116,7 +116,7 @@ const CreatePackageModal = ({ fetchPackages }: Props) => {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create Package</DialogTitle>
-          <DialogDescription>Create a new package below.</DialogDescription>
+          <DialogDescription></DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Package Name */}
@@ -206,10 +206,16 @@ const CreatePackageModal = ({ fetchPackages }: Props) => {
               </p>
             )}
           </div>
-
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="animate-spin mr-2" />} Submit
-          </Button>
+          <div className="flex justify-center items-center">
+            <Button
+              type="submit"
+              className="w-full"
+              variant="card"
+              disabled={isSubmitting}
+            >
+              {isSubmitting && <Loader2 className="animate-spin mr-2" />} Submit
+            </Button>
+          </div>
         </form>
         <DialogFooter></DialogFooter>
       </DialogContent>

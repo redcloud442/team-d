@@ -27,12 +27,7 @@ export default async function AppLayout({
   }
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="light"
-      enableSystem
-      disableTransitionOnChange
-    >
+    <ThemeProvider attribute="class" defaultTheme="dark">
       <SidebarProvider>
         <RoleProvider
           initialRole={teamMemberProfile.alliance_member_role}

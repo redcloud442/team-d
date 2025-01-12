@@ -1,11 +1,13 @@
-
+import Image from "next/image";
 
 const TableLoading = () => {
   return (
     <div
-      className={`fixed inset-0 bg-black opacity-30 z-10 flex items-center justify-center`}
+      className={`fixed flex inset-0 bg-pageColor dark:bg-zinc-800/70 z-50 flex-col items-center justify-center transition-opacity duration-300`}
     >
-      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-opacity-75"></div>
+      <div className="animate-pulse transition-all duration-1000">
+        <Image src="/app-logo.png" alt="thunder" width={100} height={100} />
+      </div>
     </div>
   );
 };

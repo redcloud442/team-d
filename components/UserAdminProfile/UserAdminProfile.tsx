@@ -1,6 +1,7 @@
 "use client";
 
 import { UserRequestdata } from "@/utils/types";
+import { useState } from "react";
 import TopUpHistoryTable from "../TopUpHistoryPage/TopUpHistoryTable";
 import WithdrawalHistoryTable from "../WithrawalHistoryPage/WithdrawalHistoryTable";
 import ChangePassword from "./ChangePassword";
@@ -11,7 +12,9 @@ type Props = {
   userProfile: UserRequestdata;
 };
 
-const UserAdminProfile = ({ userProfile }: Props) => {
+const UserAdminProfile = ({ userProfile: initialData }: Props) => {
+  const [userProfileData, setUserProfileData] =
+    useState<UserRequestdata>(initialData);
   return (
     <div className="mx-auto ">
       <div className="w-full flex flex-col gap-6">
@@ -23,16 +26,16 @@ const UserAdminProfile = ({ userProfile }: Props) => {
           </p>
         </header>
 
-        <PersonalInformation userProfile={userProfile} />
-        {userProfile.alliance_member_role === "MERCHANT" && (
-          <MerchantBalance userProfile={userProfile} />
+        <PersonalInformation userProfile={userProfileData} />
+        {userProfileData.alliance_member_role === "MERCHANT" && (
+          <MerchantBalance userProfile={userProfileData} />
         )}
 
-        <ChangePassword userProfile={userProfile} />
+        <ChangePassword userProfile={userProfileData} />
 
-        <TopUpHistoryTable teamMemberProfile={userProfile} />
+        <TopUpHistoryTable teamMemberProfile={userProfileData} />
 
-        <WithdrawalHistoryTable teamMemberProfile={userProfile} />
+        <WithdrawalHistoryTable teamMemberProfile={userProfileData} />
       </div>
     </div>
   );

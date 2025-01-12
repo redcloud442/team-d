@@ -20,6 +20,7 @@ import {
   alliance_member_table,
   package_table,
 } from "@prisma/client";
+import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 type Props = {
@@ -44,10 +45,12 @@ const DashboardDepositModalPackages = ({
   const supabaseClient = createClientSide();
   const [open, setOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<package_table | null>(
-    null
+    initialPackage[0] || null
   );
   const [packages, setPackages] = useState<package_table[]>(initialPackage);
+
   const handlePackageSelect = (pkg: package_table) => {
+    if (earnings.alliance_olympus_earnings === 0) return null;
     setSelectedPackage(pkg);
   };
 
@@ -87,53 +90,52 @@ const DashboardDepositModalPackages = ({
       }}
     >
       <DialogTrigger asChild className={className}>
-        <Button variant="outline" onClick={() => setOpen(true)}>
-          Packages
+        <Button
+          className=" h-44 flex items-center justify-start  px-4 sm:justify-around sm:items-center text-lg sm:text-2xl border-2"
+          onClick={() => setOpen(true)}
+        >
+          Buy Pr1me Plans
+          <Image
+            src="/assets/packages.png"
+            alt="deposit"
+            width={200}
+            height={200}
+          />
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">
-        <ScrollArea className="h-auto max-h-[500px]">
-          <DialogHeader>
-            <DialogTitle>Buy Packages</DialogTitle>
+        <ScrollArea className="h-[600px] sm:h-full">
+          <DialogHeader className="text-start text-2xl font-bold">
+            <DialogTitle className="text-2xl font-bold mb-4">
+              Avail Pr1me Plans
+            </DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
 
-          {selectedPackage ? (
-            <AvailPackagePage
-              setOpen={setOpen}
-              setSelectedPackage={setSelectedPackage}
-              earnings={earnings}
-              pkg={selectedPackage}
-              teamMemberProfile={teamMemberProfile}
-              setEarnings={setEarnings}
-              setChartData={setChartData}
-            />
-          ) : (
-            packages.map((pkg) => (
-              <div className="flex flex-col gap-4 p-2" key={pkg.package_id}>
-                <PackageCard
-                  packageName={pkg.package_name}
-                  packageDescription={pkg.package_description}
-                  packagePercentage={`${pkg.package_percentage} %`}
-                  packageDays={String(pkg.packages_days)}
-                  onClick={() => handlePackageSelect(pkg)}
-                />
-              </div>
-            ))
-          )}
+          <div className="flex justify-between gap-4 p-2">
+            {packages.map((pkg) => (
+              <PackageCard
+                key={pkg.package_id}
+                packageId={pkg.package_id}
+                packageName={pkg.package_name}
+                selectedPackage={selectedPackage}
+                onClick={() => handlePackageSelect(pkg)}
+              />
+            ))}
+          </div>
 
-          <DialogFooter>
-            {selectedPackage && (
-              <Button
-                variant="outline"
-                className="w-full py-3 mt-4 rounded-lg"
-                onClick={() => setSelectedPackage(null)}
-              >
-                Back to Packages
-              </Button>
-            )}
-          </DialogFooter>
+          <AvailPackagePage
+            setOpen={setOpen}
+            setSelectedPackage={setSelectedPackage}
+            earnings={earnings}
+            pkg={selectedPackage || packages[0]}
+            teamMemberProfile={teamMemberProfile}
+            setEarnings={setEarnings}
+            setChartData={setChartData}
+          />
+
+          <DialogFooter></DialogFooter>
         </ScrollArea>
       </DialogContent>
     </Dialog>

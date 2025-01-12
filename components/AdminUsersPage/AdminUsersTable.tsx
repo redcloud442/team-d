@@ -8,8 +8,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
-import { getAdminUserRequest } from "@/services/User/Admin";
+import {
+  getAdminUserRequest,
+  handleUpdateRole,
+  handleUpdateUserRestriction,
+} from "@/services/User/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
@@ -29,6 +34,7 @@ import {
   CalendarIcon,
   ChevronLeft,
   ChevronRight,
+  Loader2,
   RefreshCw,
   Search,
 } from "lucide-react";
@@ -37,6 +43,14 @@ import { Controller, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
 import { Card } from "../ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -76,7 +90,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-
+  const { toast } = useToast();
   const columnAccessor = sorting?.[0]?.id || "user_date_created";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
@@ -126,7 +140,8 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
     } catch (e) {}
   };
 
-  const columns = AdminUsersColumn(fetchAdminRequest);
+  const { columns, isOpenModal, setIsOpenModal, setIsLoading, isLoading } =
+    AdminUsersColumn();
 
   const table = useReactTable<UserRequestdata>({
     data: requestData,
@@ -171,8 +186,102 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
     }
   };
 
+  const handlePromoteUser = async (memberId: string, role: string) => {
+    try {
+      setIsLoading(true);
+      await handleUpdateRole({ userId: memberId, role });
+
+      fetchAdminRequest();
+      setIsOpenModal({ memberId: "", role: "", open: false, type: "" });
+      toast({
+        title: `Role Updated`,
+        description: `Role Updated Sucessfully`,
+        variant: "success",
+      });
+    } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/AdminUsersPage/AdminUsersTable.tsx",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBanUser = async (memberId: string) => {
+    try {
+      setIsLoading(true);
+      await handleUpdateUserRestriction({ userId: memberId });
+      fetchAdminRequest();
+      setIsOpenModal({ memberId: "", role: "", open: false, type: "" });
+      toast({
+        title: `User Banned`,
+        description: `User Banned Sucessfully`,
+        variant: "success",
+      });
+    } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/AdminUsersPage/AdminUsersTable.tsx",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Card className="w-full rounded-sm p-4">
+      {isOpenModal && (
+        <Dialog
+          open={isOpenModal.open}
+          onOpenChange={(open) => setIsOpenModal({ ...isOpenModal, open })}
+        >
+          <DialogDescription></DialogDescription>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                Are your sure you want to{" "}
+                {isOpenModal.type === "PROMOTE" ? "promote" : "ban"} this user
+                to{" "}
+                {isOpenModal.role.charAt(0).toUpperCase() +
+                  isOpenModal.role.slice(1).toLocaleLowerCase()}{" "}
+                ?
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="flex justify-end gap-2 mt-4">
+              <DialogClose asChild>
+                <Button variant="secondary">Cancel</Button>
+              </DialogClose>
+              <Button
+                onClick={() => {
+                  if (isOpenModal.type === "PROMOTE") {
+                    handlePromoteUser(isOpenModal.memberId, isOpenModal.role);
+                  } else {
+                    handleBanUser(isOpenModal.memberId);
+                  }
+                }}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    {isOpenModal.type === "PROMOTE" ? "Promoting" : "Banning"}{" "}
+                    <Loader2 className="animate-spin" />
+                  </>
+                ) : (
+                  "Yes"
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
       <div className="flex flex-wrap items-start py-4">
         <form
           className="flex flex-col gap-6 w-full max-w-3xl"
