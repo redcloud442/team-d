@@ -110,7 +110,7 @@ const DashboardDepositModalRefer = ({
               width={200}
               height={200}
               priority
-              className="absolute sm:relative top-10 sm:-top-4 sm:left-0 left-8 "
+              className="absolute sm:relative top-10 sm:-top-4 sm:left-0 left-4"
             />
           </div>
         </Button>
@@ -118,7 +118,7 @@ const DashboardDepositModalRefer = ({
 
       <DialogContent className="sm:max-w-[425px] dark:bg-transparent p-0 border-none shadow-none">
         {isFetching && <TableLoading />}
-        <ScrollArea className="h-[600px] sm:h-full ">
+        <ScrollArea className="h-[610px] sm:h-full ">
           <DialogDescription></DialogDescription>
           <DialogHeader>
             <DialogTitle className="text-center text-2xl font-bold"></DialogTitle>

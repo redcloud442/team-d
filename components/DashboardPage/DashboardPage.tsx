@@ -1,6 +1,5 @@
 "use client";
 
-import { useToast } from "@/hooks/use-toast";
 import { getDashboard, getDashboardEarnings } from "@/services/Dasboard/Member";
 import { logError } from "@/services/Error/ErrorLogs";
 import { createClientSide } from "@/utils/supabase/client";
@@ -13,7 +12,6 @@ import {
   user_table,
 } from "@prisma/client";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import {
@@ -37,6 +35,7 @@ type Props = {
   referal: alliance_referral_link_table;
   packages: package_table[];
   profile: user_table;
+  sponsor: string;
 };
 
 const DashboardPage = ({
@@ -45,10 +44,10 @@ const DashboardPage = ({
   teamMemberProfile,
   packages,
   profile,
+  sponsor,
 }: Props) => {
   const supabaseClient = createClientSide();
-  const router = useRouter();
-  const { toast } = useToast();
+
   const [chartData, setChartData] = useState<ChartDataMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [earnings, setEarnings] = useState<alliance_earnings_table | null>(
@@ -146,6 +145,7 @@ const DashboardPage = ({
         <div className="flex justify-between items-center gap-4">
           <div className="flex items-center justify-between gap-2">
             <DashboardDepositProfile
+              sponsor={sponsor}
               teamMemberProfile={teamMemberProfile}
               profile={profile}
             />

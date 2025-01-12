@@ -274,11 +274,16 @@ const AvailPackagePage = ({
                     value={sumOfTotal.toLocaleString() || ""}
                   />
                 </div>
+                <p className="text-sm font-bold text-primaryRed">
+                  {
+                    "Note: 10% withdrawal fee will be deducted to your withdrawal amount."
+                  }
+                </p>
                 <div className="flex items-center justify-center">
                   <Button
                     disabled={isSubmitting || maxAmount === 0}
                     type="submit"
-                    className="py-5 rounded-xl mt-4  bg-pageColor text-white"
+                    className="py-5 rounded-xl   bg-pageColor text-white"
                   >
                     {isSubmitting && <Loader2 className="animate-spin mr-2" />}
                     Submit

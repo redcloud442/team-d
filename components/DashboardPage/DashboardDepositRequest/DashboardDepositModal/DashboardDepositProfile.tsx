@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/passwordInput";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import TableLoading from "@/components/ui/tableLoading";
 import { useToast } from "@/hooks/use-toast";
@@ -27,6 +28,7 @@ import { z } from "zod";
 type Props = {
   teamMemberProfile: alliance_member_table;
   profile: user_table;
+  sponsor: string;
 };
 
 const ChangePasswordSchema = z
@@ -48,7 +50,7 @@ const ChangePasswordSchema = z
 
 type ChangePasswordFormValues = z.infer<typeof ChangePasswordSchema>;
 
-const DashboardDepositProfile = ({ profile }: Props) => {
+const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
   const [open, setOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(
     profile.user_profile_picture || ""
@@ -195,7 +197,7 @@ const DashboardDepositProfile = ({ profile }: Props) => {
       </DialogTrigger>
 
       <DialogContent>
-        <ScrollArea className="h-[500px] sm:h-full">
+        <ScrollArea className="h-[550px] sm:h-full">
           <DialogTitle className="text-2xl font-bold mb-4">
             Personal Profile
           </DialogTitle>
@@ -238,18 +240,14 @@ const DashboardDepositProfile = ({ profile }: Props) => {
 
               <div className="flex flex-col gap-4">
                 <div>
-                  <Label>Your Username</Label>
-                  <Input
-                    readOnly
-                    value={profile?.user_username || "gagamboy123"}
-                    className="w-full"
-                  />
+                  <Label>Sponsor</Label>
+                  <Input readOnly value={sponsor || ""} className="w-full" />
                 </div>
                 <div>
                   <Label>Your Username</Label>
                   <Input
                     readOnly
-                    value={profile?.user_username || "gagamboy123"}
+                    value={profile?.user_username || ""}
                     className="w-full"
                   />
                 </div>
@@ -283,17 +281,17 @@ const DashboardDepositProfile = ({ profile }: Props) => {
               {/* Password */}
 
               <div className="relative">
-                <Label htmlFor="password">Password</Label>
-                <div className="flex items-center">
-                  <Input
+                <Label htmlFor="password">New Password</Label>
+                <div className="relative">
+                  <PasswordInput
                     id="password"
-                    type="password"
+                    value={watch("password")}
                     placeholder="Password"
                     {...register("password")}
-                    className="pr-10"
+                    className="pr-10 w-full"
                   />
                   {touchedFields.password && !errors.password && (
-                    <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3" />
+                    <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-10 top-1/2 transform -translate-y-1/2" />
                   )}
                 </div>
                 {errors.password && (
@@ -302,23 +300,24 @@ const DashboardDepositProfile = ({ profile }: Props) => {
                   </p>
                 )}
               </div>
+
               {/* Confirm Password */}
               <div className="relative">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <div className="flex items-center">
-                  <Input
+                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <div className="relative">
+                  <PasswordInput
                     id="confirmPassword"
-                    type="password"
+                    value={watch("confirmPassword")}
                     placeholder="Confirm Password"
                     {...register("confirmPassword")}
-                    className="pr-10"
+                    className="pr-10 w-full"
                   />
                   {touchedFields.confirmPassword &&
                     !errors.confirmPassword &&
                     touchedFields.password &&
                     !errors.password &&
                     watch("password") === watch("confirmPassword") && (
-                      <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3" />
+                      <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-10 top-1/2 transform -translate-y-1/2" />
                     )}
                 </div>
                 {errors.confirmPassword && (

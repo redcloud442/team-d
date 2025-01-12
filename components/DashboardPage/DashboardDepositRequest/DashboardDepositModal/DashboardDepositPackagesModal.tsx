@@ -91,15 +91,16 @@ const DashboardDepositModalPackages = ({
     >
       <DialogTrigger asChild className={className}>
         <Button
-          className=" h-44 flex items-center justify-start  px-4 sm:justify-around sm:items-center text-lg sm:text-2xl border-2"
+          className=" h-44 flex items-center justify-start px-4 sm:justify-around sm:items-center text-lg sm:text-2xl "
           onClick={() => setOpen(true)}
         >
           Buy Pr1me Plans
           <Image
             src="/assets/packages.png"
             alt="deposit"
-            width={200}
-            height={200}
+            width={170}
+            height={170}
+            className="relative "
           />
         </Button>
       </DialogTrigger>

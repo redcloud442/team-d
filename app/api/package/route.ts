@@ -225,6 +225,12 @@ export async function POST(request: Request) {
                     .div(100)
                     .toNumber(),
                 },
+                alliance_combined_earnings: {
+                  increment: decimalAmount
+                    .mul(ref.percentage)
+                    .div(100)
+                    .toNumber(),
+                },
               },
             });
           }

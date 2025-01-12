@@ -27,7 +27,7 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, merchant_table } from "@prisma/client";
-import { CheckCircle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { NextResponse } from "next/server";
 import { useEffect, useState } from "react";
@@ -57,17 +57,14 @@ const topUpFormSchema = z.object({
     .refine(
       (file) =>
         ["image/jpeg", "image/png", "image/jpg"].includes(file.type) &&
-        file.size <= 5 * 1024 * 1024, // 5MB limit
-      { message: "File must be a valid image and less than 5MB." }
+        file.size <= 12 * 1024 * 1024, // 12MB limit
+      { message: "File must be a valid image and less than 12MB." }
     ),
 });
 
 export type TopUpFormValues = z.infer<typeof topUpFormSchema>;
 
-const DashboardDepositModalDeposit = ({
-  teamMemberProfile,
-  className,
-}: Props) => {
+const DashboardDepositModalDeposit = ({ className }: Props) => {
   const supabaseClient = createClientSide();
   const [topUpOptions, setTopUpOptions] = useState<merchant_table[]>([]);
   const { toast } = useToast();
@@ -243,7 +240,7 @@ const DashboardDepositModalDeposit = ({
                     type="text"
                     id="amount"
                     className="text-center"
-                    placeholder="Enter the top-up amount (e.g., 1000)"
+                    placeholder="Deposit Amount"
                     {...field}
                     autoFocus
                     value={
@@ -375,41 +372,29 @@ const DashboardDepositModalDeposit = ({
               </div>
             </div>
 
-            {uploadedFile ? (
-              <div className="flex flex-col justify-center items-center animate-pulse">
-                <CheckCircle
-                  className="animate-pulse text-green-600"
-                  size={50}
-                />
-                {errors.file ? (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.file?.message}
-                  </p>
-                ) : (
-                  <p className="text-green-600 text-xl font-bold">
-                    File Uploaded
-                  </p>
+            <div>
+              <Controller
+                name="file"
+                control={control}
+                render={({ field }) => (
+                  <FileUpload
+                    label="Upload Receipt"
+                    onFileChange={(file) => field.onChange(file)}
+                  />
                 )}
-              </div>
-            ) : (
-              <div>
-                <Controller
-                  name="file"
-                  control={control}
-                  render={({ field }) => (
-                    <FileUpload
-                      label="Upload Receipt"
-                      onFileChange={(file) => field.onChange(file)}
-                    />
-                  )}
-                />
-                {errors.file && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.file?.message}
-                  </p>
-                )}
-              </div>
-            )}
+              />
+              {uploadedFile && (
+                <p className="text-md font-bold text-green-700">
+                  {"File Uploaded Successfully"}
+                </p>
+              )}
+              {errors.file && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.file?.message}
+                </p>
+              )}
+            </div>
+
             <div className="flex justify-center items-center">
               <Button
                 type="submit"

@@ -138,7 +138,7 @@ const DashboardPackages = ({ chartData, setChartData, setEarnings }: Props) => {
                 </Badge>
                 <span className="text-2xl font-extrabold text-black">
                   {"₱ "}
-                  {data.amount.toLocaleString("en-US", {
+                  {(data.amount + data.profit_amount).toLocaleString("en-US", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}

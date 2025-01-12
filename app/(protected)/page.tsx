@@ -1,6 +1,7 @@
 import DashboardPage from "@/components/DashboardPage/DashboardPage";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
+import { createClientServerSide } from "@/utils/supabase/server";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
+  const supabaseClient = await createClientServerSide();
   const {
     redirect: redirectTo,
     earnings,
@@ -42,6 +44,19 @@ const Page = async () => {
     },
   });
 
+  const { data: userData, error } = await supabaseClient.rpc(
+    "get_user_sponsor",
+    {
+      input_data: { userId: profile.user_id },
+    }
+  );
+
+  if (error) {
+    throw new Error("An error occurred while fetching the sponsor.");
+  }
+
+  const { data } = userData;
+
   if (teamMemberProfile.alliance_member_role === "ADMIN")
     return redirect("/admin");
 
@@ -52,6 +67,7 @@ const Page = async () => {
       referal={referal}
       earnings={earnings}
       packages={packages}
+      sponsor={data?.user_username || ""}
     />
   );
 };

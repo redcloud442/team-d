@@ -314,7 +314,7 @@ const DashboardWithdrawModalWithdraw = ({
                     value={field.value}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="SELECT BANK" />
+                      <SelectValue placeholder="Select Bank" />
                     </SelectTrigger>
                     <SelectContent>
                       {bankData.map((bank, index) => (

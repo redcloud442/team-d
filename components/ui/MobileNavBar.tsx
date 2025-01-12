@@ -77,7 +77,7 @@ const MobileNavBar = () => {
                 onClick={() => handleNavigation(item.href, item.onClick)}
                 variant="ghost"
                 className={cn(
-                  "flex flex-col items-center hover:text-black dark:text-black dark:hover:text-white font-extrabold"
+                  "flex flex-col items-center dark:text-black dark:hover:text-white font-extrabold"
                 )}
               >
                 <span
