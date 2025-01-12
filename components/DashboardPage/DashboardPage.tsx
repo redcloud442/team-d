@@ -313,6 +313,7 @@ const DashboardPage = ({
               chartData={chartData}
               setChartData={setChartData}
               setEarnings={setEarnings}
+              setTotalEarnings={setTotalEarnings}
             />
           </div>
         )}

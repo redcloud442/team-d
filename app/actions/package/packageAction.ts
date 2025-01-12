@@ -98,8 +98,8 @@ export const availPackageData = async (params: {
       !packageId ||
       !teamMemberId ||
       amount <= 0 ||
-      amount.toString().length > 7 ||
-      amount.toString().length < 3
+      Math.floor(amount).toString().length > 7 || // Ignore decimal places for length
+      Math.floor(amount).toString().length < 3 // Ignore decimal places for length
     ) {
       return NextResponse.json(
         { error: "Invalid input or amount must be between 3 and 7 digits." },

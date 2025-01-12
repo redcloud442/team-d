@@ -181,7 +181,9 @@ model alliance_withdrawal_request_table {
   alliance_withdrawal_request_id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   alliance_withdrawal_request_amount    Float     @default(0.0)
   alliance_withdrawal_request_fee       Float     @default(0.0)
-  alliance_withdrawal_request_withdraw_amount    Float     @default(0.0)
+  alliance_withdrawal_request_withdraw_amount     Float     @default(0.0)
+  alliance_withdrawal_request_referral_amount     Float     @default(0.0)
+  alliance_withdrawal_request_earnings_amount     Float     @default(0.0)
 
   alliance_withdrawal_request_date      DateTime  @default(now())
   alliance_withdrawal_request_status    String    @default("APPROVED")

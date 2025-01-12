@@ -16,11 +16,13 @@ import TableLoading from "@/components/ui/tableLoading";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from "@/utils/constant";
+import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData, userNameToEmail } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, user_table } from "@prisma/client";
 import { CheckCircleIcon, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -56,8 +58,11 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
     profile.user_profile_picture || ""
   );
   const [isUploading, setIsUploading] = useState(false);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const { role } = useRole();
   const { toast } = useToast();
+  const router = useRouter();
+
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const supabaseClient = createClientSide();
   const {
     register,
@@ -326,6 +331,36 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
                   </p>
                 )}
               </div>
+              {role === "MERCHANT" && (
+                <div className="flex justify-between gap-4">
+                  <Button
+                    className="w-full"
+                    variant="card"
+                    onClick={() => router.push("/merchant")}
+                  >
+                    Merchant
+                  </Button>
+                  <Button
+                    className="w-full"
+                    variant="card"
+                    onClick={() => router.push("/deposit")}
+                  >
+                    Deposit
+                  </Button>
+                </div>
+              )}
+
+              {role === "ACCOUNTING" && (
+                <div className="flex justify-between gap-4">
+                  <Button
+                    className="w-full"
+                    variant="card"
+                    onClick={() => router.push("/withdraw")}
+                  >
+                    Merchant
+                  </Button>
+                </div>
+              )}
 
               {/* Submit Button */}
               <div className="flex justify-center">

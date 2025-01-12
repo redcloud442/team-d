@@ -16,10 +16,13 @@ const Page = async () => {
   const { teamMemberProfile } = await protectionAllUser();
 
   if (!teamMemberProfile) return redirect("/500");
+  if (teamMemberProfile) {
+    redirect("/");
+  }
 
   const { data } = await supabase.rpc("get_direct_sponsor", {
     input_data: {
-      teamMemberId: teamMemberProfile.alliance_member_id,
+      teamMemberId: "",
     },
   });
 

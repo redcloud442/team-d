@@ -16,7 +16,7 @@ const Page = async () => {
 
   if (!teamMemberProfile) return redirect("/500");
 
-  if (!teamMemberProfile) {
+  if (teamMemberProfile) {
     redirect("/");
   }
 

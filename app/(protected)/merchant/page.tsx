@@ -22,7 +22,7 @@ const Page = async () => {
     redirect("/500");
   }
 
-  if (teamMemberProfile.alliance_member_role === "MEMBER")
+  if (teamMemberProfile.alliance_member_role !== "MERCHANT")
     return redirect("/404");
 
   return <MerchantPage teamMemberProfile={teamMemberProfile} />;

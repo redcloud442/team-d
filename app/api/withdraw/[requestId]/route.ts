@@ -60,20 +60,18 @@ export async function PUT(
         const earningsType =
           updatedRequest.alliance_withdrawal_request_withdraw_type;
 
-        const earningsField =
-          earningsType === "TOTAL"
-            ? "alliance_olympus_earnings"
-            : earningsType === "REFERRAL"
-              ? "alliance_referral_bounty"
-              : "alliance_legion_bounty";
-
         await tx.alliance_earnings_table.update({
           where: {
             alliance_earnings_member_id: teamMemberProfile.alliance_member_id,
           },
           data: {
-            [earningsField]: {
-              increment: updatedRequest.alliance_withdrawal_request_amount,
+            alliance_olympus_wallet: {
+              increment:
+                updatedRequest.alliance_withdrawal_request_earnings_amount,
+            },
+            alliance_olympus_earnings: {
+              increment:
+                updatedRequest.alliance_withdrawal_request_earnings_amount,
             },
             alliance_combined_earnings: {
               increment: updatedRequest.alliance_withdrawal_request_amount,

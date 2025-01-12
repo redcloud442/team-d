@@ -16,7 +16,8 @@ const Page = async () => {
 
   if (!teamMemberProfile) return redirect("/500");
 
-  if (teamMemberProfile.alliance_member_role === "MEMBER") return redirect("/");
+  if (teamMemberProfile.alliance_member_role !== "ACCOUNTING")
+    return redirect("/");
 
   return <WithdrawalPage teamMemberProfile={teamMemberProfile} />;
 };

@@ -43,7 +43,7 @@ const withdrawalFormSchema = z.object({
   amount: z
     .string()
     .min(3, "Minimum amount is required atleast 200 pesos")
-    .refine((amount) => parseInt(amount, 10) >= 200, {
+    .refine((amount) => parseInt(amount, 10) > 200, {
       message: "Amount must be at least 200 pesos",
     }),
   bank: z.string().min(1, "Please select a bank"),
@@ -121,8 +121,11 @@ const DashboardWithdrawModalWithdraw = ({
 
   const validateAmount = () => {
     const maxAmount = getMaxAmount();
-    if (parseFloat(amount || "0") > maxAmount) {
-      setValue("amount", maxAmount.toString());
+    const numericValue = parseFloat(amount || "0");
+
+    // If the input exceeds the maximum, reset it (no reformatting yet)
+    if (numericValue > maxAmount) {
+      setValue("amount", maxAmount.toFixed(2)); // Use plain number format
     }
   };
 
@@ -244,7 +247,6 @@ const DashboardWithdrawModalWithdraw = ({
           <form
             onSubmit={handleSubmit(handleWithdrawalRequest)}
             className="space-y-4 mx-auto"
-            onChange={validateAmount} // Validate whenever form changes
           >
             {/* Earnings Select */}
             <div>
@@ -349,34 +351,46 @@ const DashboardWithdrawModalWithdraw = ({
                   control={control}
                   render={({ field }) => (
                     <Input
-                      type="number"
+                      type="text"
                       id="amount"
                       className="w-full flex-grow"
                       placeholder="Enter amount"
                       {...field}
                       value={field.value}
                       onChange={(e) => {
-                        let inputValue = e.target.value;
+                        let value = e.target.value;
 
-                        if (inputValue.startsWith("0")) {
-                          inputValue = "";
+                        if (value === "") {
+                          field.onChange("");
+                          return;
                         }
 
-                        inputValue = inputValue.replace(/\D/g, "");
+                        value = value.replace(/[^0-9.]/g, "");
 
-                        field.onChange(inputValue);
-
-                        const numericValue = Number(inputValue);
-                        const maxAmount = getMaxAmount();
-
-                        if (numericValue > maxAmount) {
-                          setValue("amount", maxAmount.toFixed(2).toString());
+                        const parts = value.split(".");
+                        if (parts.length > 2) {
+                          value = `${parts[0]}.${parts[1]}`;
                         }
+
+                        // Limit to 2 decimal places
+                        if (parts[1]?.length > 2) {
+                          value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                        }
+
+                        if (value.startsWith("0")) {
+                          value = value.replace(/^0+/, "");
+                        }
+
+                        // Limit total length to 10 characters
+                        if (Math.floor(Number(value)).toString().length > 7) {
+                          value = value.substring(0, 7);
+                        }
+
+                        field.onChange(value);
                       }}
                     />
                   )}
                 />
-
                 <Button
                   type="button"
                   className="h-12 bg-pageColor text-white"
@@ -389,7 +403,7 @@ const DashboardWithdrawModalWithdraw = ({
                       });
                       return;
                     }
-                    setValue("amount", getMaxAmount().toFixed(2));
+                    setValue("amount", getMaxAmount().toString());
                   }}
                 >
                   MAX

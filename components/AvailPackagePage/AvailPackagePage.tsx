@@ -25,6 +25,7 @@ type Props = {
   setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
   setOpen: Dispatch<SetStateAction<boolean>>;
   setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
+
   setSelectedPackage: Dispatch<SetStateAction<package_table | null>>;
   selectedPackage: package_table | null;
 };
@@ -136,6 +137,7 @@ const AvailPackagePage = ({
       }
 
       setMaxAmount((prev) => prev - result.amount);
+
       setChartData((prev) => [
         {
           package: pkg.package_name,
@@ -213,12 +215,7 @@ const AvailPackagePage = ({
                           placeholder="Enter amount"
                           {...field}
                           className="w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                          // Handle empty values explicitly
-                          value={
-                            field.value !== undefined && field.value !== ""
-                              ? Number(field.value).toLocaleString()
-                              : ""
-                          }
+                          value={field.value || ""}
                           onChange={(e) => {
                             let value = e.target.value;
 
@@ -231,23 +228,29 @@ const AvailPackagePage = ({
                             // Allow only numbers and a single decimal point
                             value = value.replace(/[^0-9.]/g, "");
 
-                            // Ensure only one decimal point
+                            // Split the value to check for decimal places
                             const parts = value.split(".");
                             if (parts.length > 2) {
-                              value = parts[0] + "." + parts[1];
+                              value = parts[0] + "." + parts[1]; // Keep only the first decimal
                             }
 
-                            // Limit to two decimal places
+                            // Limit to 2 decimal places
                             if (parts[1]?.length > 2) {
                               value = `${parts[0]}.${parts[1].substring(0, 2)}`;
                             }
 
-                            // Ensure no leading zeros unless it's "0."
+                            // Remove leading zeros unless it's "0."
                             if (
                               value.startsWith("0") &&
                               !value.startsWith("0.")
                             ) {
                               value = value.replace(/^0+/, "");
+                            }
+
+                            if (
+                              Math.floor(Number(value)).toString().length > 7
+                            ) {
+                              value = value.substring(0, 7);
                             }
 
                             field.onChange(value);
@@ -259,13 +262,14 @@ const AvailPackagePage = ({
                   <Button
                     type="button"
                     onClick={() => {
-                      setValue("amount", maxAmount.toString() || "0");
+                      setValue("amount", maxAmount.toFixed(2));
                     }}
                     className="h-12 bg-pageColor text-white"
                   >
                     Max
                   </Button>
                 </div>
+
                 {errors.amount && (
                   <p className="text-red-500 text-sm">
                     {errors.amount.message}
@@ -298,7 +302,12 @@ const AvailPackagePage = ({
                     type="text"
                     className="text-center"
                     placeholder="Gross Income"
-                    value={sumOfTotal.toLocaleString() || ""}
+                    value={
+                      sumOfTotal.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }) || ""
+                    }
                   />
                 </div>
                 <p className="text-sm font-bold text-primaryRed">

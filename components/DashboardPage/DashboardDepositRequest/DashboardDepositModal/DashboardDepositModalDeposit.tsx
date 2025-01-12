@@ -243,21 +243,37 @@ const DashboardDepositModalDeposit = ({ className }: Props) => {
                     placeholder="Deposit Amount"
                     {...field}
                     autoFocus
-                    value={
-                      field.value ? Number(field.value).toLocaleString() : ""
-                    }
+                    value={field.value}
                     onChange={(e) => {
-                      let value = e.target.value;
+                      let inputValue = e.target.value;
 
-                      value = value.replace(/\D/g, "");
-
-                      if (value.startsWith("0")) {
-                        value = value.replace(/^0+/, "");
-                      }
-                      if (value.length > 7) {
+                      // Allow clearing the value
+                      if (inputValue === "") {
+                        field.onChange("");
                         return;
                       }
-                      field.onChange(value);
+
+                      // Remove non-numeric characters
+                      inputValue = inputValue.replace(/[^0-9.]/g, "");
+
+                      // Ensure only one decimal point
+                      const parts = inputValue.split(".");
+                      if (parts.length > 2) {
+                        inputValue = parts[0] + "." + parts[1];
+                      }
+
+                      // Limit to two decimal places
+                      if (parts[1]?.length > 2) {
+                        inputValue = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                      }
+
+                      // Update the field value
+                      field.onChange(inputValue);
+
+                      // Enforce max amount
+                      const numericValue = Number(inputValue);
+
+                      setValue("amount", numericValue.toString());
                     }}
                   />
                 )}

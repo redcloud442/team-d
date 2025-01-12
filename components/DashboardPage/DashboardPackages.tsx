@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ChartDataMember } from "@/utils/types";
+import { ChartDataMember, DashboardEarnings } from "@/utils/types";
 import { alliance_earnings_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
@@ -32,9 +32,15 @@ type Props = {
   chartData: ChartDataMember[];
   setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
   setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
+  setTotalEarnings: Dispatch<SetStateAction<DashboardEarnings | null>>;
 };
 
-const DashboardPackages = ({ chartData, setChartData, setEarnings }: Props) => {
+const DashboardPackages = ({
+  chartData,
+  setChartData,
+  setEarnings,
+  setTotalEarnings,
+}: Props) => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -74,6 +80,13 @@ const DashboardPackages = ({ chartData, setChartData, setEarnings }: Props) => {
             };
           });
         }
+        setTotalEarnings((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            totalEarnings: prev.totalEarnings + amount + earnings,
+          };
+        });
         setIsOpen(false);
       }
     } catch (error) {

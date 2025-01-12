@@ -21,8 +21,9 @@ const Page = async () => {
 
   if (!teamMemberProfile) redirect("/500");
 
-  if (teamMemberProfile.alliance_member_role === "ADMIN")
-    return redirect("/admin");
+  if (teamMemberProfile) {
+    redirect("/");
+  }
 
   return <TopUpHistoryPage teamMemberProfile={teamMemberProfile} />;
 };

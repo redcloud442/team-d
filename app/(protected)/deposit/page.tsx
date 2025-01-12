@@ -15,8 +15,9 @@ const Page = async () => {
   const { teamMemberProfile } = await protectionMerchantUser();
 
   if (!teamMemberProfile) return redirect("/500");
-  if (teamMemberProfile.alliance_member_role === "MEMBER")
-    return redirect("/404");
+  if (teamMemberProfile) {
+    redirect("/");
+  }
 
   return <TopUpPage teamMemberProfile={teamMemberProfile} />;
 };
