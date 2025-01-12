@@ -2,9 +2,10 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-type InputProps = React.ComponentProps<"input"> & {
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   variant?: "default" | "non-card";
-};
+}
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, variant = "default", ...props }, ref) => {
