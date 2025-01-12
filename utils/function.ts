@@ -36,33 +36,20 @@ export const decryptData = async (encryptedData: string, ivHex: string) => {
 
 export const hashData = async (data: string) => {
   const iv = crypto.randomBytes(16);
-  const key = process.env.NEXT_PUBLIC_CRYPTO_SECRET_KEY;
+
   const allowedKey = process.env.ALLOWED_CRYPTO_KEY;
-
-  if (!key) {
-    throw new Error("CRYPTO_SECRET_KEY is not defined");
-  }
-
-  if (key.length !== 64) {
-    throw new Error(
-      "CRYPTO_SECRET_KEY must be a 32-byte (64 characters) hex string"
-    );
-  }
-  if (!key) {
-    throw new Error("CRYPTO_SECRET_KEY is not defined");
-  }
 
   if (!allowedKey) {
     throw new Error("ALLOWED_CRYPTO_KEY is not defined");
   }
 
   // Ensure only the allowed key is accepted
-  if (key !== allowedKey) {
+  if (!allowedKey) {
     throw new Error("The provided key does not match the allowed key");
   }
   const cipher = crypto.createCipheriv(
     "aes-256-cbc",
-    Buffer.from(key, "hex"),
+    Buffer.from(allowedKey, "hex"),
     iv
   );
 

@@ -1,4 +1,5 @@
-import { decryptData, hashData } from "@/utils/function";
+import { registerUser } from "@/app/actions/auth/authAction";
+import { decryptData } from "@/utils/function";
 import { UserRequestdata } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
@@ -14,7 +15,6 @@ export const createTriggerUser = async (
   }
 ) => {
   const { userName, password, referalLink, url, firstName, lastName } = params;
-  const formatUsername = userName + "@gmail.com";
 
   const checkUserNameResult = await checkUserName({ userName });
 
@@ -22,33 +22,16 @@ export const createTriggerUser = async (
     throw new Error("Username already taken.");
   }
 
-  const { data: userData, error: userError } = await supabaseClient.auth.signUp(
-    { email: formatUsername, password }
-  );
-
-  if (userError) throw userError;
-
-  const { iv, encryptedData } = await hashData(password);
-
-  const userParams = {
+  await registerUser({
     userName,
-    email: formatUsername,
-    password: encryptedData,
-    userId: userData.user?.id,
+    password,
     firstName,
     lastName,
-    referalLink,
-    iv,
+    referalLink: referalLink ?? "",
     url,
-  };
-
-  const { data, error } = await supabaseClient.rpc("create_user_trigger", {
-    input_data: userParams,
   });
 
-  if (error) throw error;
-
-  return data;
+  return { success: true };
 };
 
 export const loginValidation = async (

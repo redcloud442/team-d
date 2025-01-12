@@ -1,6 +1,6 @@
 "use server";
 
-import { applyRateLimitMember } from "@/utils/function";
+import { applyRateLimitMember, hashData } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import {
@@ -106,4 +106,53 @@ export const changeUserPassword = async (params: {
     });
   }
   return { success: true, iv: iv.toString("hex"), creds: encrypted };
+};
+
+export const registerUser = async (params: {
+  userName: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  referalLink: string;
+  url: string;
+}) => {
+  try {
+    const supabaseClient = await createClientServerSide();
+
+    const { userName, password, firstName, lastName, referalLink, url } =
+      params;
+
+    const formatUsername = userName + "@gmail.com";
+
+    const { iv, encryptedData } = await hashData(password);
+
+    const { data: userData, error: userError } =
+      await supabaseClient.auth.signUp({ email: formatUsername, password });
+
+    if (userError) throw userError;
+
+    const userParams = {
+      userName,
+      email: formatUsername,
+      password: encryptedData,
+      userId: userData.user?.id,
+      firstName,
+      lastName,
+      referalLink,
+      iv,
+      url,
+    };
+
+    const { error } = await supabaseClient.rpc("create_user_trigger", {
+      input_data: userParams,
+    });
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (error) {
+    throw new Error(
+      error instanceof Error ? error.message : "An unknown error occurred."
+    );
+  }
 };

@@ -154,10 +154,13 @@ export async function GET(request: Request) {
     });
 
     if (existingUser) {
-      return sendErrorResponse("Username already taken.", 409);
+      return NextResponse.json(
+        { error: "Username already taken." },
+        { status: 409 }
+      );
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, userName });
   } catch (error) {
     return sendErrorResponse(
       error instanceof Error ? error.message : "An unknown error occurred.",

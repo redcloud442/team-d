@@ -246,6 +246,7 @@ const RegisterPage = ({ referralLink }: Props) => {
             <div className="flex items-center">
               <Input
                 id="sponsor"
+                readOnly
                 placeholder="Sponsor"
                 value={referralLink}
                 className="pr-10"
