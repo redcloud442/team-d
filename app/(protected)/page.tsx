@@ -48,8 +48,6 @@ const Page = async () => {
     input_data: { userId: profile.user_id },
   });
 
-  const { data } = userData;
-
   if (teamMemberProfile.alliance_member_role === "ADMIN")
     return redirect("/admin");
 
@@ -60,7 +58,7 @@ const Page = async () => {
       referal={referal}
       earnings={earnings}
       packages={packages}
-      sponsor={data?.user_username || ""}
+      sponsor={userData?.user_username || ""}
     />
   );
 };

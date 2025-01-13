@@ -52,7 +52,6 @@ const DashboardDepositModalRefer = ({
       });
     });
   };
-  console.log("totalEarnings", totalEarnings);
 
   return (
     <Dialog

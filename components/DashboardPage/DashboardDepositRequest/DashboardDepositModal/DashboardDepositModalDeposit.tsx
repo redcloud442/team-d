@@ -164,7 +164,7 @@ const DashboardDepositModalDeposit = ({ className }: Props) => {
 
   const onTopUpModeChange = (value: string) => {
     const selectedOption = topUpOptions.find(
-      (option) => option.merchant_account_type === value
+      (option) => option.merchant_id === value
     );
     if (selectedOption) {
       setValue("accountName", selectedOption.merchant_account_name || "");
@@ -306,7 +306,7 @@ const DashboardDepositModalDeposit = ({ className }: Props) => {
                       {topUpOptions.map((option) => (
                         <SelectItem
                           key={option.merchant_id}
-                          value={option.merchant_account_type}
+                          value={option.merchant_id}
                         >
                           {option.merchant_account_type} -{" "}
                           {option.merchant_account_name}
