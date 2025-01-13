@@ -329,6 +329,7 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
               {role === "MERCHANT" && (
                 <div className="flex justify-between gap-4">
                   <Button
+                    type="button"
                     className="w-full"
                     variant="card"
                     onClick={() => router.push("/merchant")}
@@ -336,6 +337,7 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
                     Merchant
                   </Button>
                   <Button
+                    type="button"
                     className="w-full"
                     variant="card"
                     onClick={() => router.push("/deposit")}
@@ -348,6 +350,7 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
               {role === "ACCOUNTING" && (
                 <div className="flex justify-between gap-4">
                   <Button
+                    type="button"
                     className="w-full"
                     variant="card"
                     onClick={() => router.push("/withdraw")}

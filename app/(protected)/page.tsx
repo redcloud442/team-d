@@ -44,16 +44,9 @@ const Page = async () => {
     },
   });
 
-  const { data: userData, error } = await supabaseClient.rpc(
-    "get_user_sponsor",
-    {
-      input_data: { userId: profile.user_id },
-    }
-  );
-
-  if (error) {
-    throw new Error("An error occurred while fetching the sponsor.");
-  }
+  const { data: userData } = await supabaseClient.rpc("get_user_sponsor", {
+    input_data: { userId: profile.user_id },
+  });
 
   const { data } = userData;
 

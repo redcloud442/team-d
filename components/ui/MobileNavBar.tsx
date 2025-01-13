@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { createClientSide } from "@/utils/supabase/client";
+import { LogOut } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -37,7 +38,7 @@ const MobileNavBar = () => {
   };
 
   const navItems: NavItem[] = [
-    { href: "/profile", label: "Profile" },
+    { href: "/guides", label: "Guides" },
     {
       href: "/",
       label: "Home",
@@ -70,14 +71,14 @@ const MobileNavBar = () => {
   return (
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 sm:hidden">
-        <ul className="flex justify-around gap-4 items-end relative z-10 ">
+        <ul className="flex justify-between items-end relative z-10 ">
           {navItems.map((item) => (
             <li key={item.href}>
               <Button
                 onClick={() => handleNavigation(item.href, item.onClick)}
                 variant="ghost"
                 className={cn(
-                  "flex flex-col items-center dark:text-black dark:hover:text-white font-extrabold"
+                  "flex flex-col items-center dark:hover:bg-none dark:text-black dark:hover:text-white font-extrabold"
                 )}
               >
                 <span
@@ -115,7 +116,7 @@ const MobileNavBar = () => {
           />
         </div>
 
-        <div className="fixed -bottom-3 -right-24 transform -translate-x-1/2 z-10 flex items-center justify-center">
+        <div className="fixed -bottom-3 -right-4 z-10 flex items-center justify-center">
           <Image
             src="/assets/logout.png"
             alt="Logo"
@@ -141,10 +142,14 @@ const MobileNavBar = () => {
           className="fixed -bottom-2 left-0 right-0 z-0 w-full min-h-[115px] max-h-[115px]"
         />
       </nav>
-      <div
-        className="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center gap-4"
-        style={{ width: "64px", height: "64px" }}
-      ></div>
+
+      <Button
+        className="hidden sm:block fixed bottom-10 right-4 h-12 w-12 rounded-full p-4 z-50 bg-gray-100 border border-gray-300 shadow-lg hover:shadow-xl transition-transform transform hover:scale-105 dark:bg-cardColor dark:border-gray-700"
+        variant="card"
+        onClick={() => setIsModalOpen(true)}
+      >
+        <LogOut className="w-5 h-5 text-gray-700 dark:text-pageColor" />
+      </Button>
 
       {/* Logout Confirmation Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

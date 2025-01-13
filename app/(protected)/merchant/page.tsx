@@ -19,11 +19,11 @@ const Page = async () => {
   }
 
   if (!teamMemberProfile) {
-    redirect("/500");
+    redirect("/auth/login");
   }
 
   if (teamMemberProfile.alliance_member_role !== "MERCHANT")
-    return redirect("/404");
+    return redirect("/");
 
   return <MerchantPage teamMemberProfile={teamMemberProfile} />;
 };
