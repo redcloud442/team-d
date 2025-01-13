@@ -154,10 +154,7 @@ export async function POST(request: Request) {
     remainingAmount -= referralDeduction;
 
     if (remainingAmount > 0) {
-      return NextResponse.json(
-        { error: "Insufficient funds to process the request." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
     // Transaction logic

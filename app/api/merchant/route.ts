@@ -47,9 +47,9 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    return sendErrorResponse(
-      error instanceof Error ? error.message : "Unknown error.",
-      500
+    return NextResponse.json(
+      { error: "Internal Server Error." },
+      { status: 500 }
     );
   }
 }
@@ -89,9 +89,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    return sendErrorResponse(
-      error instanceof Error ? error.message : "Unknown error.",
-      500
+    return NextResponse.json(
+      { error: "Internal Server Error." },
+      { status: 500 }
     );
   }
 }
@@ -127,9 +127,9 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
-    return sendErrorResponse(
-      error instanceof Error ? error.message : "Unknown error.",
-      500
+    return NextResponse.json(
+      { error: "Internal Server Error." },
+      { status: 500 }
     );
   }
 }
@@ -165,9 +165,9 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ success: true, data: merchant });
   } catch (error) {
-    return sendErrorResponse(
-      error instanceof Error ? error.message : "Unknown error.",
-      500
+    return NextResponse.json(
+      { error: "Internal Server Error." },
+      { status: 500 }
     );
   }
 }

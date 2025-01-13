@@ -128,9 +128,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, redirect });
   } catch (error) {
-    return sendErrorResponse(
-      error instanceof Error ? error.message : "Unknown error.",
-      500
+    return NextResponse.json(
+      { error: "Internal Server Error." },
+      { status: 500 }
     );
   }
 }
@@ -189,9 +189,9 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ success: true, userName });
   } catch (error) {
-    return sendErrorResponse(
-      error instanceof Error ? error.message : "An unknown error occurred.",
-      500
+    return NextResponse.json(
+      { error: "Internal Server Error." },
+      { status: 500 }
     );
   }
 }

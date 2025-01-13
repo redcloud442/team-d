@@ -72,11 +72,8 @@ export async function PUT(
       });
     });
 
-    return successResponse({ data: updatedPackage });
+    return successResponse(updatedPackage);
   } catch (error) {
-    return errorResponse(
-      error instanceof Error ? error.message : "Unexpected error occurred.",
-      500
-    );
+    return errorResponse("Internal Server Error.", 500);
   }
 }
