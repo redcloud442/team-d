@@ -175,6 +175,7 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
     }
   };
 
+  if (isUploading) return <TableLoading />;
   return (
     <Dialog
       open={open}
@@ -184,20 +185,14 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
     >
       <DialogTrigger asChild>
         <Avatar className="cursor-pointer">
-          {isUploading ? (
-            <TableLoading />
-          ) : (
-            <>
-              <AvatarImage
-                src={avatarUrl}
-                alt={`${profile.user_first_name} ${profile.user_last_name}`}
-              />
-              <AvatarFallback>
-                {profile.user_first_name?.slice(0, 1).toUpperCase()}
-                {profile.user_last_name?.slice(0, 1).toUpperCase()}
-              </AvatarFallback>
-            </>
-          )}
+          <AvatarImage
+            src={avatarUrl}
+            alt={`${profile.user_first_name} ${profile.user_last_name}`}
+          />
+          <AvatarFallback>
+            {profile.user_first_name?.slice(0, 1).toUpperCase()}
+            {profile.user_last_name?.slice(0, 1).toUpperCase()}
+          </AvatarFallback>
         </Avatar>
       </DialogTrigger>
 

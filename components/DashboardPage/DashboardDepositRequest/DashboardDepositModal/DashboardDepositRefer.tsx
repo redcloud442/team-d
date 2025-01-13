@@ -14,13 +14,13 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import TableLoading from "@/components/ui/tableLoading";
 import { useToast } from "@/hooks/use-toast";
-import { getReferralData } from "@/services/User/User";
+import { DashboardEarnings } from "@/utils/types";
 import {
   alliance_member_table,
   alliance_referral_link_table,
 } from "@prisma/client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import DashboardDirectReferral from "./DashboardDirectReferral";
 import DashboardIndirectReferral from "./DashboardIndirectReferral";
 
@@ -29,6 +29,7 @@ type Props = {
   referal: alliance_referral_link_table;
   className: string;
   isActive: boolean;
+  totalEarnings: DashboardEarnings | null;
 };
 
 const DashboardDepositModalRefer = ({
@@ -36,19 +37,11 @@ const DashboardDepositModalRefer = ({
   referal,
   isActive,
   className,
+  totalEarnings,
 }: Props) => {
   const [open, setOpen] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
-  const [referralData, setReferralData] = useState<{
-    direct: {
-      sum: number;
-      count: number;
-    };
-    indirect: {
-      sum: number;
-      count: number;
-    };
-  } | null>(null);
+
   const { toast } = useToast();
 
   const copyToClipboard = (text: string) => {
@@ -56,39 +49,9 @@ const DashboardDepositModalRefer = ({
       toast({
         title: "Copied to clipboard!",
         description: "You can now share the link with your connections.",
-        variant: "success",
       });
     });
   };
-
-  useEffect(() => {
-    const handleFetchReferralData = async () => {
-      if (!open || referralData) return;
-      try {
-        setIsFetching(true);
-        const referralData = await getReferralData();
-        if ("error" in referralData) {
-          toast({
-            title: "Error",
-            description: "Internal server error",
-            variant: "destructive",
-          });
-          return;
-        }
-        setReferralData(referralData);
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Internal server error",
-          variant: "destructive",
-        });
-      } finally {
-        setIsFetching(false);
-      }
-    };
-
-    handleFetchReferralData();
-  }, [open, referralData]);
 
   return (
     <Dialog
@@ -186,11 +149,14 @@ const DashboardDepositModalRefer = ({
                       className="text-center"
                       value={
                         "₱ " +
-                        (referralData?.direct.sum
-                          ? referralData.direct.sum.toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })
+                        (totalEarnings?.directReferralAmount
+                          ? totalEarnings.directReferralAmount.toLocaleString(
+                              "en-US",
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }
+                            )
                           : "0.00")
                       }
                     />
@@ -211,11 +177,14 @@ const DashboardDepositModalRefer = ({
                       className="text-center"
                       value={
                         "₱ " +
-                        (referralData?.indirect.sum
-                          ? referralData.indirect.sum.toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })
+                        (totalEarnings?.indirectReferralAmount
+                          ? totalEarnings.indirectReferralAmount.toLocaleString(
+                              "en-US",
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }
+                            )
                           : "0.00")
                       }
                     />
@@ -239,7 +208,7 @@ const DashboardDepositModalRefer = ({
                     </Label>
                     <DashboardDirectReferral
                       teamMemberProfile={teamMemberProfile}
-                      count={referralData?.direct.count || 0}
+                      count={totalEarnings?.directReferralCount || 0}
                     />
                   </div>
 
@@ -252,7 +221,7 @@ const DashboardDepositModalRefer = ({
                     </Label>
                     <DashboardIndirectReferral
                       teamMemberProfile={teamMemberProfile}
-                      count={referralData?.indirect.count || 0}
+                      count={totalEarnings?.indirectReferralCount || 0}
                     />
                   </div>
                 </div>

@@ -73,6 +73,8 @@ export type DashboardEarnings = {
   indirectReferralAmount: number;
   totalEarnings: number;
   withdrawalAmount: number;
+  directReferralCount: number;
+  indirectReferralCount: number;
 };
 
 export type AdminDashboardDataByDate = {

@@ -164,11 +164,18 @@ export const applyRateLimitMember = async (teamMemberId: string) => {
   rateLimiter.set(rateLimitKey, currentCount + 1);
 };
 
-export const loginRateLimit = (ip: string) => {
+export const loginRateLimit = (ip: string, userName?: string) => {
   const currentCount = (rateLimiter.get(ip) as number) || 0;
 
   if (currentCount >= 5) {
     throw new Error("Too many requests. Please try again later.");
+  }
+
+  if (userName) {
+    const userNameCount = (rateLimiter.get(userName) as number) || 0;
+    if (userNameCount >= 5) {
+      throw new Error("Too many requests. Please try again later.");
+    }
   }
 
   rateLimiter.set(ip, currentCount + 1);

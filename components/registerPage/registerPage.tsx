@@ -5,19 +5,20 @@ import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { createTriggerUser } from "@/services/auth/auth";
+import { checkUserName, createTriggerUser } from "@/services/auth/auth";
 import { logError } from "@/services/Error/ErrorLogs";
 import { BASE_URL } from "@/utils/constant";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircleIcon } from "lucide-react";
+import { CheckCircleIcon, XCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useCallback, useState } from "react";
+import { useController, useForm } from "react-hook-form";
 import { z } from "zod";
 import NavigationLoader from "../ui/NavigationLoader";
+import { PasswordInput } from "../ui/passwordInput";
 import Text from "../ui/text";
 
 const RegisterSchema = z
@@ -59,22 +60,31 @@ type Props = {
   referralLink: string;
 };
 const RegisterPage = ({ referralLink }: Props) => {
+  const [isUsernameLoading, setIsUsernameLoading] = useState(false);
+  const [isUsernameValidated, setIsUsernameValidated] = useState(false);
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors, isSubmitting, touchedFields },
+    control,
+    setError,
+    clearErrors,
   } = useForm<RegisterFormData>({
+    mode: "onBlur",
     resolver: zodResolver(RegisterSchema),
   });
-
-  const firstNameSchema = z.string().min(4).max(50);
+  function debounce<T extends (...args: Parameters<T>) => void>(
+    func: T,
+    wait: number
+  ): (...args: Parameters<T>) => void {
+    let timeout: NodeJS.Timeout;
+    return (...args: Parameters<T>) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+  }
   const lastNameSchema = z.string().min(4).max(50);
-  const userNameSchema = z
-    .string()
-    .min(6)
-    .max(20)
-    .regex(/^[a-zA-Z0-9_]+$/);
 
   const supabase = createClientSide();
   const router = useRouter();
@@ -85,13 +95,48 @@ const RegisterPage = ({ referralLink }: Props) => {
 
   const url = `${BASE_URL}${pathName}`;
 
+  const { field: userNameField } = useController({
+    name: "userName",
+    control,
+  });
+
+  const validateUserName = useCallback(
+    debounce(async (value: string) => {
+      if (!value) return;
+
+      setIsUsernameLoading(true);
+
+      try {
+        const result = await checkUserName({ userName: value });
+        if (result.error) {
+          setError("userName", { message: result.error });
+        } else {
+          clearErrors("userName");
+          setIsUsernameValidated(true);
+        }
+      } catch (e) {
+        setError("userName", { message: "Validation failed. Try again." });
+      } finally {
+        setIsUsernameLoading(false);
+      }
+    }, 3000),
+    [clearErrors, setError]
+  );
+
   const handleRegistrationSubmit = async (data: RegisterFormData) => {
+    if (isUsernameLoading || !isUsernameValidated) {
+      return toast({
+        title: "Please wait",
+        description: "Username validation is still in progress.",
+        variant: "destructive",
+      });
+    }
     const sanitizedData = escapeFormData(data);
 
     const { userName, password, firstName, lastName } = sanitizedData;
 
     try {
-      await createTriggerUser(supabase, {
+      await createTriggerUser({
         userName: userName,
         password: password,
         firstName,
@@ -103,7 +148,6 @@ const RegisterPage = ({ referralLink }: Props) => {
 
       toast({
         title: "Registration Successful",
-        variant: "success",
       });
       router.push("/");
     } catch (e) {
@@ -115,7 +159,6 @@ const RegisterPage = ({ referralLink }: Props) => {
           stackPath: "components/registerPage/registerPage.tsx",
         });
       }
-
       toast({
         title: "Error",
         description: "Check your account details and try again",
@@ -140,17 +183,29 @@ const RegisterPage = ({ referralLink }: Props) => {
               <Input
                 id="userName"
                 placeholder="Username"
-                {...register("userName")}
+                onChange={(e) => {
+                  userNameField.onChange(e.target.value);
+                  validateUserName(e.target.value);
+                }}
+                onBlur={() => validateUserName(userNameField.value)}
                 className="pr-10"
               />
-              {touchedFields.userName &&
-                !errors.userName &&
-                userNameSchema.safeParse(watch("userName")).success && (
+
+              {!isUsernameLoading &&
+                isUsernameValidated &&
+                !errors.userName && (
                   <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3" />
                 )}
+
+              {/* Show error icon if validation failed */}
+              {!isUsernameLoading && errors.userName && (
+                <XCircleIcon className="w-5 h-5 text-primaryRed absolute right-3" />
+              )}
             </div>
             {errors.userName && (
-              <p className="text-sm text-red-500">{errors.userName.message}</p>
+              <p className="text-sm text-primaryRed">
+                {errors.userName.message}
+              </p>
             )}
           </div>
 
@@ -164,14 +219,14 @@ const RegisterPage = ({ referralLink }: Props) => {
                 {...register("firstName")}
                 className="pr-10"
               />
-              {touchedFields.firstName &&
-                !errors.firstName &&
-                firstNameSchema.safeParse(watch("firstName")).success && (
-                  <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3" />
-                )}
+              {touchedFields.firstName && !errors.firstName && (
+                <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3" />
+              )}
             </div>
             {errors.firstName && (
-              <p className="text-sm text-red-500">{errors.firstName.message}</p>
+              <p className="text-sm text-primaryRed">
+                {errors.firstName.message}
+              </p>
             )}
           </div>
 
@@ -192,25 +247,26 @@ const RegisterPage = ({ referralLink }: Props) => {
                 )}
             </div>
             {errors.lastName && (
-              <p className="text-sm text-red-500">{errors.lastName.message}</p>
+              <p className="text-sm text-primaryRed">
+                {errors.lastName.message}
+              </p>
             )}
           </div>
 
           {/* Password Field */}
           <div className="relative">
             <Label htmlFor="password">Password</Label>
-            <div className="flex items-center">
-              <Input
-                id="password"
-                type="password"
-                placeholder="Password"
-                {...register("password")}
-                className="pr-10"
-              />
-              {touchedFields.password && !errors.password && (
-                <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3" />
-              )}
-            </div>
+
+            <PasswordInput
+              id="password"
+              placeholder="Password"
+              {...register("password")}
+              className="pr-10"
+            />
+            {touchedFields.password && !errors.password && (
+              <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-10 top-10" />
+            )}
+
             {errors.password && (
               <p className="text-sm text-red-500">{errors.password.message}</p>
             )}
@@ -219,28 +275,27 @@ const RegisterPage = ({ referralLink }: Props) => {
           {/* Confirm Password Field */}
           <div className="relative">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <div className="flex items-center">
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Confirm Password"
-                {...register("confirmPassword")}
-                className="pr-10"
-              />
-              {touchedFields.confirmPassword &&
-                !errors.confirmPassword &&
-                touchedFields.password &&
-                !errors.password &&
-                watch("password") === watch("confirmPassword") && (
-                  <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3" />
-                )}
-            </div>
-            {errors.confirmPassword && (
-              <p className="text-sm text-red-500">
-                {errors.confirmPassword.message}
-              </p>
-            )}
+
+            <PasswordInput
+              id="confirmPassword"
+              placeholder="Confirm Password"
+              {...register("confirmPassword")}
+              className="pr-10"
+            />
+            {touchedFields.confirmPassword &&
+              !errors.confirmPassword &&
+              touchedFields.password &&
+              !errors.password &&
+              watch("password") === watch("confirmPassword") && (
+                <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-10 top-10 " />
+              )}
           </div>
+          {errors.confirmPassword && (
+            <p className="text-sm text-primaryRed">
+              {errors.confirmPassword.message}
+            </p>
+          )}
+
           <div className="relative">
             <Label htmlFor="confirmPassword">Sponsor</Label>
             <div className="flex items-center">

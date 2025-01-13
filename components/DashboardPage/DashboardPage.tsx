@@ -236,6 +236,7 @@ const DashboardPage = ({
               referal={referal}
               isActive={isActive}
               className="w-full"
+              totalEarnings={totalEarnings}
             />
 
             <DashboardWithdrawModalWithdraw

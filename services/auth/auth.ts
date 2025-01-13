@@ -3,17 +3,14 @@ import { decryptData } from "@/utils/function";
 import { UserRequestdata } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
-export const createTriggerUser = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    userName: string;
-    firstName: string;
-    lastName: string;
-    password: string;
-    referalLink?: string;
-    url: string;
-  }
-) => {
+export const createTriggerUser = async (params: {
+  userName: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  referalLink?: string;
+  url: string;
+}) => {
   const { userName, password, referalLink, url, firstName, lastName } = params;
 
   const checkUserNameResult = await checkUserName({ userName });
@@ -102,10 +99,6 @@ export const checkUserName = async (params: { userName: string }) => {
       method: "GET",
     }
   );
-
-  if (!response.ok) {
-    throw new Error("An unexpected error occurred.");
-  }
 
   const result = await response.json();
 

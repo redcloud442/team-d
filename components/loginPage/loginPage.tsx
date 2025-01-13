@@ -87,7 +87,7 @@ const LoginPage = () => {
     <div className="flex w-full flex-col items-center justify-center sm:justify-center min-h-screen h-full p-10">
       <NavigationLoader visible={isSubmitting || isLoading || isSuccess} />
 
-      <div className="fixed top-20 right-0  z-10 ">
+      <div className="fixed top-20 -right-6  z-10 ">
         <Image
           src="/assets/lightning-2.svg"
           alt="thunder"
@@ -112,9 +112,10 @@ const LoginPage = () => {
         />
       </div>
 
-      <div className="fixed top-[16%]  left-50 sm:relative sm:top-0 sm:left-0 ">
+      <div className="fixed top-[16%]  left-54 sm:relative sm:top-0 sm:left-0 ">
         <Image src="/app-logo.svg" alt="logo" width={120} height={120} />
       </div>
+
       <form
         className="flex flex-col items-center gap-6 w-full max-w-lg m-4 z-40"
         onSubmit={handleSubmit(handleSignIn)}
@@ -155,6 +156,19 @@ const LoginPage = () => {
           {isSubmitting || isLoading ? "Signing in..." : "Login"}
         </Button>
       </form>
+
+      <Image
+        src="/assets/login-page.png"
+        alt="background"
+        width={1200}
+        height={1200}
+        style={{
+          objectFit: "none", // Keeps the original size without scaling
+        }}
+        quality={100}
+        priority={true}
+        className="hidden sm:block fixed bottom-64 left-[40%] -rotate-45 z-10 w-full h-full"
+      />
     </div>
   );
 };
