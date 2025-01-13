@@ -39,9 +39,9 @@ export const claimPackage = async (params: {
       throw new Error("Invalid request. Package already ended.");
     }
 
-    if (!packageConnection.package_member_is_ready_to_claim) {
-      throw new Error("Invalid request. Package is not ready to claim.");
-    }
+    // if (!packageConnection.package_member_is_ready_to_claim) {
+    //   throw new Error("Invalid request. Package is not ready to claim.");
+    // }
 
     const totalClaimedAmount =
       packageConnection.package_member_amount +
