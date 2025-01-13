@@ -295,7 +295,7 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
                   )}
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-primaryRed text-sm">
                     {errors.password.message}
                   </p>
                 )}
@@ -321,7 +321,7 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
                     )}
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-primaryRed text-sm">
                     {errors.confirmPassword.message}
                   </p>
                 )}

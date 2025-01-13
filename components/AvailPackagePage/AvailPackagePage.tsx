@@ -104,7 +104,6 @@ const AvailPackagePage = ({
       toast({
         title: "Package Enrolled",
         description: "You have successfully enrolled in a package",
-        variant: "success",
       });
 
       reset({ amount: "", packageId: selectedPackage?.package_id || "" });
@@ -270,7 +269,7 @@ const AvailPackagePage = ({
                 </div>
 
                 {errors.amount && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-primaryRed text-sm">
                     {errors.amount.message}
                   </p>
                 )}

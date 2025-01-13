@@ -59,7 +59,6 @@ const LoginPage = () => {
 
       toast({
         title: "Login Successfully",
-        variant: "success",
       });
 
       setIsSuccess(true);

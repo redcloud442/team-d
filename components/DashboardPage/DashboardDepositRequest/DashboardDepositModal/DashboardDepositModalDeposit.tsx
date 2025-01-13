@@ -279,7 +279,7 @@ const DashboardDepositModalDeposit = ({ className }: Props) => {
                 )}
               />
               {errors.amount && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-primaryRed text-sm mt-1">
                   {errors.amount.message}
                 </p>
               )}
@@ -317,7 +317,7 @@ const DashboardDepositModalDeposit = ({ className }: Props) => {
                 )}
               />
               {errors.topUpMode && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-primaryRed text-sm mt-1">
                   {errors.topUpMode.message}
                 </p>
               )}
@@ -351,7 +351,7 @@ const DashboardDepositModalDeposit = ({ className }: Props) => {
                   </Button>
                 </div>
                 {errors.accountName && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p className="text-primaryRed text-sm mt-1">
                     {errors.accountName.message}
                   </p>
                 )}
@@ -381,7 +381,7 @@ const DashboardDepositModalDeposit = ({ className }: Props) => {
                   </Button>
                 </div>
                 {errors.accountNumber && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p className="text-primaryRed text-sm mt-1">
                     {errors.accountNumber.message}
                   </p>
                 )}
@@ -405,7 +405,7 @@ const DashboardDepositModalDeposit = ({ className }: Props) => {
                 </p>
               )}
               {errors.file && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-primaryRed text-sm mt-1">
                   {errors.file?.message}
                 </p>
               )}

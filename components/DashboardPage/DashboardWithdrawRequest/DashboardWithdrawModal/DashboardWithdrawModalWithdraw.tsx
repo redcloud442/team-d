@@ -181,7 +181,6 @@ const DashboardWithdrawModalWithdraw = ({
       toast({
         title: "Withdrawal Request Successfully",
         description: "Please wait for it to be approved",
-        variant: "success",
       });
 
       reset();
@@ -300,7 +299,7 @@ const DashboardWithdrawModalWithdraw = ({
                 )}
               />
               {errors.earnings && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-primaryRed text-sm mt-1">
                   {errors.earnings.message}
                 </p>
               )}
@@ -333,7 +332,7 @@ const DashboardWithdrawModalWithdraw = ({
                 )}
               />
               {errors.bank && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-primaryRed text-sm mt-1">
                   {errors.bank.message}
                 </p>
               )}
@@ -406,7 +405,7 @@ const DashboardWithdrawModalWithdraw = ({
                 </Button>
               </div>
               {errors.amount && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-primaryRed text-sm mt-1">
                   {errors.amount.message}
                 </p>
               )}
@@ -428,7 +427,7 @@ const DashboardWithdrawModalWithdraw = ({
                 )}
               />
               {errors.accountName && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-primaryRed text-sm mt-1">
                   {errors.accountName.message}
                 </p>
               )}
@@ -450,7 +449,7 @@ const DashboardWithdrawModalWithdraw = ({
                 )}
               />
               {errors.accountNumber && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-primaryRed text-sm mt-1">
                   {errors.accountNumber.message}
                 </p>
               )}

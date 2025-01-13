@@ -5,6 +5,30 @@ import { applyRateLimitMember } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
+import { z } from "zod";
+
+const topUpFormSchema = z.object({
+  amount: z
+    .string()
+    .min(3, "Amount is required and must be at least 200 pesos")
+    .max(6, "Amount must be less than 6 digits")
+    .regex(/^\d+$/, "Amount must be a number")
+    .refine((amount) => parseInt(amount, 10) >= 200, {
+      message: "Amount must be at least 200 pesos",
+    }),
+  topUpMode: z.string().min(1, "Top up mode is required"),
+  accountName: z.string().min(1, "Field is required"),
+  accountNumber: z.string().min(1, "Field is required"),
+  file: z
+    .instanceof(File)
+    .refine((file) => !!file, { message: "File is required" })
+    .refine(
+      (file) =>
+        ["image/jpeg", "image/png", "image/jpg"].includes(file.type) &&
+        file.size <= 12 * 1024 * 1024, // 12MB limit
+      { message: "File must be a valid image and less than 12MB." }
+    ),
+});
 
 export const depositWalletData = async (params: {
   TopUpFormValues: TopUpFormValues;
@@ -13,6 +37,12 @@ export const depositWalletData = async (params: {
   const publicUrl = params.publicUrl;
   const supabase = await createClientServerSide();
   try {
+    const sanitizedData = topUpFormSchema.safeParse(params.TopUpFormValues);
+
+    if (!sanitizedData.success) {
+      throw new Error("Invalid Request.");
+    }
+
     const { teamMemberProfile } = await protectionMemberUser();
 
     if (!teamMemberProfile?.alliance_member_id) {
