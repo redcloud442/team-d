@@ -9,6 +9,7 @@ import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 export async function GET(request: Request) {
   try {
@@ -61,6 +62,24 @@ export async function GET(request: Request) {
     );
   }
 }
+const withdrawalFormSchema = z.object({
+  earnings: z.string(),
+  amount: z
+    .string()
+    .min(3, "Minimum amount is required atleast 200 pesos")
+    .refine((amount) => parseInt(amount, 10) > 200, {
+      message: "Amount must be at least 200 pesos",
+    }),
+  bank: z.string().min(1, "Please select a bank"),
+  accountName: z
+    .string()
+    .min(6, "Account name is required")
+    .max(40, "Account name must be at most 24 characters"),
+  accountNumber: z
+    .string()
+    .min(6, "Account number is required")
+    .max(24, "Account number must be at most 24 digits"),
+});
 
 export async function POST(request: Request) {
   try {
@@ -72,7 +91,14 @@ export async function POST(request: Request) {
     const { earnings, accountNumber, amount, bank, teamMemberId } =
       await request.json();
 
-    if (!amount || !accountNumber || !bank || !teamMemberId) {
+    const withdrawalData = withdrawalFormSchema.safeParse({
+      earnings,
+      accountNumber,
+      amount,
+      bank,
+    });
+
+    if (!withdrawalData.success) {
       return NextResponse.json({ error: "Invalid input." }, { status: 400 });
     }
 
@@ -125,7 +151,6 @@ export async function POST(request: Request) {
     );
     remainingAmount -= referralDeduction;
 
-    // If remainingAmount > 0 here, it indicates a miscalculation, but it should not happen
     if (remainingAmount > 0) {
       return NextResponse.json(
         { error: "Insufficient funds to process the request." },

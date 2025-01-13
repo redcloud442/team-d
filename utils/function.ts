@@ -195,6 +195,20 @@ export const formatDateToYYYYMMDD = (date: Date | string): string => {
   return `${year}-${month}-${day}`;
 };
 
+export const formateMonthDateYear = (date: Date | string): string => {
+  const inputDate = typeof date === "string" ? new Date(date) : date;
+
+  if (isNaN(inputDate.getTime())) {
+    return "Invalid date"; // Handle invalid dates gracefully
+  }
+
+  const year = String(inputDate.getFullYear()); // Full year
+  const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+  const day = String(inputDate.getDate()).padStart(2, "0");
+
+  return `${month}/${day}/${year}`;
+};
+
 export const calculateFinalAmount = (
   amount: number,
   selectedEarnings: string

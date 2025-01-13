@@ -1,4 +1,4 @@
-import { formatDateToYYYYMMDD } from "@/utils/function";
+import { formateMonthDateYear } from "@/utils/function";
 import { alliance_transaction_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -13,7 +13,7 @@ export const TransactionHistoryColumn =
         cell: ({ row }) => {
           return (
             <div className="text-center">
-              {formatDateToYYYYMMDD(row.getValue("transaction_date"))}
+              {formateMonthDateYear(row.getValue("transaction_date"))}
             </div>
           );
         },

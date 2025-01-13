@@ -35,10 +35,6 @@ type DataTableProps = {
   teamMemberProfile: alliance_member_table;
 };
 
-type FilterFormValues = {
-  referenceId: string;
-};
-
 const TransactionHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   const supabaseClient = createClientSide();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

@@ -1,3 +1,4 @@
+import { LoginSchema } from "@/components/loginPage/loginPage";
 import { ROLE } from "@/utils/constant";
 import { decryptData, loginRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
@@ -125,9 +126,6 @@ export async function POST(request: Request) {
   }
 }
 
-const requestCache = new Map<string, number>(); // In-memory store
-const DEBOUNCE_TIME_MS = 3000; // 3 seconds
-
 export async function GET(request: Request) {
   try {
     const ip = getClientIP(request);
@@ -140,38 +138,18 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const userName = searchParams.get("userName");
 
+    const loginData = LoginSchema.safeParse({
+      userName,
+    });
+
+    if (!loginData.success) {
+      return sendErrorResponse("Invalid request.", 400);
+    }
+
+    loginRateLimit(ip, userName ?? undefined);
+
     if (!userName) {
       return sendErrorResponse("Username is required.", 400);
-    }
-
-    // Create a unique key based on IP and username
-    const cacheKey = `${ip}:${userName.toLowerCase()}`;
-
-    const currentTime = Date.now();
-
-    // Check if the same IP and username have made a request recently
-    if (requestCache.has(cacheKey)) {
-      const lastRequestTime = requestCache.get(cacheKey)!;
-
-      if (currentTime - lastRequestTime < DEBOUNCE_TIME_MS) {
-        return sendErrorResponse(
-          `Too many requests. Please wait ${(
-            (DEBOUNCE_TIME_MS - (currentTime - lastRequestTime)) /
-            1000
-          ).toFixed(1)} seconds before trying again.`,
-          429
-        );
-      }
-    }
-
-    // Store the current request time in the cache
-    requestCache.set(cacheKey, currentTime);
-
-    // Optional: Clean up expired entries in the cache
-    for (const [key, timestamp] of requestCache.entries()) {
-      if (currentTime - timestamp > DEBOUNCE_TIME_MS) {
-        requestCache.delete(key);
-      }
     }
 
     const existingUser: user_table | null = await prisma.user_table.findFirst({

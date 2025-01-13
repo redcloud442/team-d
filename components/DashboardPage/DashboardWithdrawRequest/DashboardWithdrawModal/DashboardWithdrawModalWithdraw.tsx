@@ -47,8 +47,14 @@ const withdrawalFormSchema = z.object({
       message: "Amount must be at least 200 pesos",
     }),
   bank: z.string().min(1, "Please select a bank"),
-  accountName: z.string().min(6, "Account name is required"),
-  accountNumber: z.string().min(6, "Account number is required"),
+  accountName: z
+    .string()
+    .min(6, "Account name is required")
+    .max(40, "Account name must be at most 24 characters"),
+  accountNumber: z
+    .string()
+    .min(6, "Account number is required")
+    .max(24, "Account number must be at most 24 digits"),
 });
 
 export type WithdrawalFormValues = z.infer<typeof withdrawalFormSchema>;
@@ -116,16 +122,6 @@ const DashboardWithdrawModalWithdraw = ({
         return totalEarnings;
       default:
         return 0;
-    }
-  };
-
-  const validateAmount = () => {
-    const maxAmount = getMaxAmount();
-    const numericValue = parseFloat(amount || "0");
-
-    // If the input exceeds the maximum, reset it (no reformatting yet)
-    if (numericValue > maxAmount) {
-      setValue("amount", maxAmount.toFixed(2)); // Use plain number format
     }
   };
 

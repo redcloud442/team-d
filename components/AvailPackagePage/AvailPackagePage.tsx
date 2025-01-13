@@ -25,7 +25,6 @@ type Props = {
   setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
   setOpen: Dispatch<SetStateAction<boolean>>;
   setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
-
   setSelectedPackage: Dispatch<SetStateAction<package_table | null>>;
   selectedPackage: package_table | null;
 };
@@ -86,6 +85,10 @@ const AvailPackagePage = ({
     : 0;
   const sumOfTotal = Number(amount) + computation;
 
+  console.log("amount", amount);
+  console.log("pkg.package_percentage", pkg.package_percentage);
+  console.log("computation", computation);
+  console.log("sumOfTotal", sumOfTotal);
   const onSubmit = async (data: FormValues) => {
     try {
       const result = escapeFormData({ ...data, amount: Number(data.amount) });
@@ -96,7 +99,7 @@ const AvailPackagePage = ({
 
       await createPackageConnection({
         packageData: {
-          amount: result.amount,
+          amount: Number(result.amount),
           packageId: result.packageId,
         },
         teamMemberId: teamMemberProfile.alliance_member_id,
@@ -143,7 +146,7 @@ const AvailPackagePage = ({
           package: pkg.package_name,
           completion: 0,
           completion_date: completionDate.toISOString(),
-          amount: sumOfTotal,
+          amount: Number(amount),
           is_ready_to_claim: false,
           package_connection_id: "",
           profit_amount: computation,
@@ -310,11 +313,7 @@ const AvailPackagePage = ({
                     }
                   />
                 </div>
-                <p className="text-sm font-bold text-primaryRed">
-                  {
-                    "Note: 10% withdrawal fee will be deducted to your withdrawal amount."
-                  }
-                </p>
+
                 <div className="flex items-center justify-center">
                   <Button
                     disabled={isSubmitting || maxAmount === 0}

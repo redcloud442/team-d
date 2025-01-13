@@ -39,6 +39,19 @@ export const claimPackage = async (params: {
       throw new Error("Invalid request. Package already ended.");
     }
 
+    if (!packageConnection.package_member_is_ready_to_claim) {
+      throw new Error("Invalid request. Package is not ready to claim.");
+    }
+
+    const totalClaimedAmount =
+      packageConnection.package_member_amount +
+      packageConnection.package_amount_earnings;
+    const totalAmountToBeClaimed = amount + earnings;
+
+    if (totalClaimedAmount !== totalAmountToBeClaimed) {
+      throw new Error("Invalid request");
+    }
+
     await prisma.$transaction(async (tx) => {
       await tx.package_member_connection_table.update({
         where: { package_member_connection_id: packageConnectionId },
@@ -50,15 +63,15 @@ export const claimPackage = async (params: {
           alliance_earnings_member_id: teamMemberProfile.alliance_member_id,
         },
         data: {
-          alliance_olympus_earnings: { increment: amount + earnings },
-          alliance_combined_earnings: { increment: amount + earnings },
+          alliance_olympus_earnings: { increment: totalClaimedAmount },
+          alliance_combined_earnings: { increment: totalClaimedAmount },
         },
       });
 
       await tx.alliance_transaction_table.create({
         data: {
           transaction_member_id: teamMemberProfile.alliance_member_id,
-          transaction_amount: amount + earnings,
+          transaction_amount: totalClaimedAmount,
           transaction_description: "Package Claimed",
         },
       });
@@ -78,8 +91,9 @@ export const claimPackage = async (params: {
       });
     });
 
-    return { success: true };
+    return { success: true, totalClaimedAmount };
   } catch (error) {
+    console.log("error", error);
     throw new Error("Internal server error");
   }
 };

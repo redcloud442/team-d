@@ -5,6 +5,7 @@ import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 export async function GET(request: Request) {
   try {
@@ -52,6 +53,16 @@ export async function GET(request: Request) {
   }
 }
 
+const topupSchema = z.object({
+  amount: z
+    .number()
+    .min(3, "Minimum amount is 200 pesos")
+    .refine((val) => !isNaN(Number(val)), {
+      message: "Amount must be a number",
+    }),
+  packageId: z.string(),
+});
+
 export async function POST(request: Request) {
   try {
     const ip =
@@ -61,14 +72,22 @@ export async function POST(request: Request) {
 
     const { amount, packageId, teamMemberId } = await request.json();
 
-    // Consolidated input validation
+    const parsedData = topupSchema.safeParse({ amount, packageId });
+
+    if (!parsedData.success) {
+      return NextResponse.json(
+        { error: parsedData.error.message },
+        { status: 400 }
+      );
+    }
+
     if (
       !amount ||
       !packageId ||
       !teamMemberId ||
       amount <= 0 ||
-      amount.toString().length > 7 ||
-      amount.toString().length < 3
+      Math.floor(amount.toString().length) > 7 ||
+      Math.floor(amount.toString().length) < 3
     ) {
       return NextResponse.json(
         { error: "Invalid input or amount must be between 3 and 7 digits." },
@@ -159,6 +178,8 @@ export async function POST(request: Request) {
     const packageAmountEarnings = decimalAmount
       .mul(packagePercentage)
       .toNumber();
+
+    console.log("packageAmountEarnings", packageAmountEarnings);
 
     // Generate referral chain with a capped depth
     const referralChain = generateReferralChain(
