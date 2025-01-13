@@ -119,18 +119,18 @@ model alliance_referral_table {
   @@schema("alliance_schema")
 }
 
-// model dashboard_earnings_summary {
-//   member_id              String   @id @map("member_id") @db.Uuid
-//   total_earnings         Float    @default(0.0) @map("total_earnings")
-//   total_withdrawals      Float    @default(0.0) @map("total_withdrawals")
-//   direct_referral_amount Float    @default(0.0) @map("direct_referral_amount")
-//   indirect_referral_amount Float  @default(0.0) @map("indirect_referral_amount")
-//   direct_referral_count  Int      @default(0) @map("direct_referral_count")
-//   indirect_referral_count Int     @default(0) @map("indirect_referral_count")
+model dashboard_earnings_summary {
+  member_id              String   @id @map("member_id") @db.Uuid
+  total_earnings         Float    @default(0.0) @map("total_earnings")
+  total_withdrawals      Float    @default(0.0) @map("total_withdrawals")
+  direct_referral_amount Float    @default(0.0) @map("direct_referral_amount")
+  indirect_referral_amount Float  @default(0.0) @map("indirect_referral_amount")
+  direct_referral_count  Int      @default(0) @map("direct_referral_count")
+  indirect_referral_count Int     @default(0) @map("indirect_referral_count")
 
-//   @@map("dashboard_earnings_summary")
-//   @@schema("alliance_schema")
-// }
+  @@map("dashboard_earnings_summary")
+  @@schema("alliance_schema")
+}
 
 
 model alliance_earnings_table {
@@ -160,6 +160,7 @@ model alliance_top_up_request_table {
   alliance_top_up_request_date         DateTime  @default(now())
   alliance_top_up_request_status       String    @default("PENDING")
   alliance_top_up_request_type         String
+  alliance_top_up_request_bank_name    String?
   alliance_top_up_request_account      String
   alliance_top_up_request_name         String
   alliance_top_up_request_attachment   String
@@ -184,6 +185,7 @@ model alliance_withdrawal_request_table {
   alliance_withdrawal_request_withdraw_amount     Float     @default(0.0)
   alliance_withdrawal_request_referral_amount     Float     @default(0.0)
   alliance_withdrawal_request_earnings_amount     Float     @default(0.0)
+  alliance_withdrawal_request_bank_name           String?
 
   alliance_withdrawal_request_date      DateTime  @default(now())
   alliance_withdrawal_request_status    String    @default("APPROVED")

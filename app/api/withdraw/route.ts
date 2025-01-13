@@ -175,6 +175,7 @@ export async function POST(request: Request) {
             Number(amount),
             earnings
           ),
+          alliance_withdrawal_request_bank_name: accountName,
           alliance_withdrawal_request_status: WITHDRAWAL_STATUS.PENDING,
           alliance_withdrawal_request_member_id: teamMemberId,
           alliance_withdrawal_request_earnings_amount: olympusDeduction,

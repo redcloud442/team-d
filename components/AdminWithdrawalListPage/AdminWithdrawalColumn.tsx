@@ -168,12 +168,29 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Bank Name <ArrowUpDown />
+          Bank Type <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
         <div className="text-center">
           {row.getValue("alliance_withdrawal_request_type")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "alliance_withdrawal_request_bank_name",
+
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Bank Name <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.getValue("alliance_withdrawal_request_bank_name")}
         </div>
       ),
     },
