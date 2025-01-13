@@ -1,9 +1,9 @@
-import { LoginSchema } from "@/components/loginPage/loginPage";
 import { ROLE } from "@/utils/constant";
 import { decryptData, loginRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { user_table } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 const sendErrorResponse = (message: string, status: number) =>
   NextResponse.json({ error: message }, { status });
@@ -32,6 +32,15 @@ export async function POST(request: Request) {
     } = await request.json();
     if (!userName || !password)
       return sendErrorResponse("Email and password are required.", 400);
+
+    const loginData = LoginSchema.safeParse({
+      userName,
+      password,
+    });
+
+    if (!loginData.success) {
+      return sendErrorResponse("Invalid request.", 400);
+    }
 
     const user = await prisma.user_table.findFirst({
       where: {
@@ -126,6 +135,16 @@ export async function POST(request: Request) {
   }
 }
 
+const LoginSchema = z.object({
+  userName: z
+    .string()
+    .min(6, "Username must be at least 6 characters long")
+    .max(20, "Username must be at most 20 characters long")
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      "Username can only contain letters, numbers, and underscores"
+    ),
+});
 export async function GET(request: Request) {
   try {
     const ip = getClientIP(request);
