@@ -68,7 +68,7 @@ export async function PUT(
       return sendErrorResponse("Insufficient merchant balance.");
     }
 
-    await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const updatedRequest = await tx.alliance_top_up_request_table.update({
         where: { alliance_top_up_request_id: requestId },
         data: {
@@ -76,6 +76,17 @@ export async function PUT(
           alliance_top_up_request_approved_by:
             teamMemberProfile.alliance_member_id,
           alliance_top_up_request_reject_note: note ?? null,
+        },
+      });
+
+      await tx.alliance_transaction_table.create({
+        data: {
+          transaction_description: `Deposit (${
+            status.slice(0, 1).toUpperCase() + status.slice(1).toLowerCase()
+          })`,
+          transaction_amount: updatedRequest.alliance_top_up_request_amount,
+          transaction_member_id:
+            updatedRequest.alliance_top_up_request_member_id,
         },
       });
 
@@ -94,6 +105,7 @@ export async function PUT(
             },
           },
         });
+
         if (merchant) {
           const updatedMerchant = await tx.merchant_member_table.update({
             where: { merchant_member_id: merchant.merchant_member_id },
@@ -104,27 +116,20 @@ export async function PUT(
             },
           });
 
-          await tx.alliance_transaction_table.create({
-            data: {
-              transaction_description: `Deposit (${status.slice(0, 1).toUpperCase() + status.slice(1).toLowerCase()})`,
-              transaction_amount: updatedRequest.alliance_top_up_request_amount,
-              transaction_member_id:
-                updatedRequest.alliance_top_up_request_member_id,
-            },
-          });
-
           return {
             updatedRequest,
             updatedEarnings,
             updatedMerchant,
           };
         }
+
+        return { updatedRequest, updatedEarnings };
       }
 
       return { updatedRequest };
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, result });
   } catch (error) {
     return NextResponse.json(
       {

@@ -252,6 +252,17 @@ export async function POST(request: Request) {
                 },
               },
             });
+
+            await prisma.alliance_transaction_table.create({
+              data: {
+                transaction_member_id: ref.referrerId,
+                transaction_amount: decimalAmount
+                  .mul(ref.percentage)
+                  .div(100)
+                  .toNumber(),
+                transaction_description: "Refer & Earn",
+              },
+            });
           }
         }
       }
