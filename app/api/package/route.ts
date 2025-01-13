@@ -179,8 +179,6 @@ export async function POST(request: Request) {
       .mul(packagePercentage)
       .toNumber();
 
-    console.log("packageAmountEarnings", packageAmountEarnings);
-
     // Generate referral chain with a capped depth
     const referralChain = generateReferralChain(
       referralData?.alliance_referral_hierarchy ?? null,

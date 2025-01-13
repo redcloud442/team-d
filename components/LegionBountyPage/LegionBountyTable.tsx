@@ -56,7 +56,7 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const fetchAdminRequest = async () => {
     try {
-      if (!teamMemberProfile) return;
+      if (!teamMemberProfile || requestData.length > 0) return;
       setIsFetchingList(true);
 
       const sanitizedData = escapeFormData(getValues());

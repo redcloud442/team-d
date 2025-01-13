@@ -18,7 +18,7 @@ const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
 
   const { teamMemberProfile } = await protectionAdminUser();
 
-  if (!teamMemberProfile) return redirect("/500");
+  if (!teamMemberProfile) return redirect("/auth/login");
 
   const [userData, allianceData] = await prisma.$transaction([
     prisma.user_table.findFirst({
@@ -45,7 +45,7 @@ const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
     ...merchantData,
   } as UserRequestdata;
 
-  if (!combinedData) return redirect("/500");
+  if (!combinedData) return redirect("/auth/login");
 
   return <UserAdminProfile userProfile={combinedData} />;
 };

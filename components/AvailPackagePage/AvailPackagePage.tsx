@@ -17,10 +17,9 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-
 type Props = {
   earnings: alliance_earnings_table | null;
-  pkg: package_table;
+  pkg: package_table | [];
   teamMemberProfile: alliance_member_table;
   setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -75,32 +74,29 @@ const AvailPackagePage = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       amount: "",
-      packageId: pkg.package_id,
+      packageId: selectedPackage?.package_id || "",
     },
   });
 
   const amount = watch("amount");
   const computation = amount
-    ? (Number(amount) * pkg.package_percentage) / 100
+    ? (Number(amount) * (selectedPackage?.package_percentage ?? 0)) / 100
     : 0;
   const sumOfTotal = Number(amount) + computation;
 
-  console.log("amount", amount);
-  console.log("pkg.package_percentage", pkg.package_percentage);
-  console.log("computation", computation);
-  console.log("sumOfTotal", sumOfTotal);
   const onSubmit = async (data: FormValues) => {
     try {
       const result = escapeFormData({ ...data, amount: Number(data.amount) });
       const now = new Date();
       const completionDate = new Date(
-        now.getTime() + pkg.packages_days * 24 * 60 * 60 * 1000
+        now.getTime() +
+          (selectedPackage?.packages_days ?? 0) * 24 * 60 * 60 * 1000
       );
 
       await createPackageConnection({
         packageData: {
           amount: Number(result.amount),
-          packageId: result.packageId,
+          packageId: selectedPackage?.package_id || "",
         },
         teamMemberId: teamMemberProfile.alliance_member_id,
       });
@@ -111,7 +107,7 @@ const AvailPackagePage = ({
         variant: "success",
       });
 
-      reset({ amount: "", packageId: pkg.package_id });
+      reset({ amount: "", packageId: selectedPackage?.package_id || "" });
 
       if (earnings) {
         let remainingAmount = Number(result.amount);
@@ -143,12 +139,12 @@ const AvailPackagePage = ({
 
       setChartData((prev) => [
         {
-          package: pkg.package_name,
+          package: selectedPackage?.package_name || "",
           completion: 0,
           completion_date: completionDate.toISOString(),
           amount: Number(amount),
           is_ready_to_claim: false,
-          package_connection_id: "",
+          package_connection_id: selectedPackage?.package_id || "",
           profit_amount: computation,
           package_color: selectedPackage?.package_color || "",
         },
@@ -184,7 +180,7 @@ const AvailPackagePage = ({
                       readOnly
                       className="text-center"
                       placeholder="Enter amount"
-                      value={`${pkg.package_percentage} %`}
+                      value={`${selectedPackage?.package_percentage} %`}
                     />
                   </div>
                   <div className="flex flex-col items-center justify-center gap-2 w-32">
@@ -197,7 +193,7 @@ const AvailPackagePage = ({
                       type="text"
                       className="text-center"
                       placeholder="Enter amount"
-                      value={Number(pkg.packages_days) || ""}
+                      value={Number(selectedPackage?.packages_days) || ""}
                       readOnly
                     />
                   </div>
@@ -313,7 +309,9 @@ const AvailPackagePage = ({
                     }
                   />
                 </div>
-
+                <p className="text-sm font-bold text-primaryRed">
+                  {"Tip: You can Maximize your earnings with Multiple Plan."}
+                </p>
                 <div className="flex items-center justify-center">
                   <Button
                     disabled={isSubmitting || maxAmount === 0}

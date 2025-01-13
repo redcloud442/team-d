@@ -42,77 +42,84 @@ const DashboardPackages = ({
   setTotalEarnings,
 }: Props) => {
   const { toast } = useToast();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [openDialogId, setOpenDialogId] = useState<string | null>(null); // Track which dialog is open
+  const [isLoading, setIsLoading] = useState<string | null>(null); // Track loading state for specific packages
 
-  const handleClaimPackage = async (
-    amount: number,
-    earnings: number,
-    packageConnectionId: string
-  ) => {
+  const handleClaimPackage = async (packageData: ChartDataMember) => {
+    const { amount, profit_amount, package_connection_id } = packageData;
+
     try {
-      setIsLoading(true);
+      setIsLoading(package_connection_id); // Indicate the specific package is being claimed
       const response = await claimPackage({
-        packageConnectionId,
+        packageConnectionId: package_connection_id,
         amount,
-        earnings,
+        earnings: profit_amount,
       });
 
       if (response.success) {
         toast({
           title: "Package claimed successfully",
           description: "You have successfully claimed the package",
+          variant: "success",
         });
+
+        // Update chart data to remove the claimed package
         setChartData((prev) =>
           prev.filter(
-            (data) => data.package_connection_id !== packageConnectionId
+            (data) => data.package_connection_id !== package_connection_id
           )
         );
-        if (setEarnings) {
-          setEarnings((prev) => {
-            if (!prev) return null;
-            return {
-              ...prev,
-              alliance_olympus_earnings:
-                prev.alliance_olympus_earnings + amount + earnings,
-              alliance_combined_earnings:
-                prev.alliance_combined_earnings + amount + earnings,
-            };
-          });
-        }
-        setTotalEarnings((prev) => {
+
+        // Update earnings
+        setEarnings((prev) => {
           if (!prev) return null;
+          const newEarnings = amount + profit_amount;
           return {
             ...prev,
-            totalEarnings: prev.totalEarnings + amount + earnings,
+            alliance_olympus_earnings:
+              prev.alliance_olympus_earnings + newEarnings,
+            alliance_combined_earnings:
+              prev.alliance_combined_earnings + newEarnings,
           };
         });
-        setIsOpen(false);
+
+        // Update total earnings
+        setTotalEarnings((prev) => {
+          if (!prev) return null;
+          const newEarnings = amount + profit_amount;
+          return {
+            ...prev,
+            totalEarnings: prev.totalEarnings + newEarnings,
+          };
+        });
       }
     } catch (error) {
       toast({
         title: "Failed to claim package",
         description: "Please try again later",
+        variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsLoading(null); // Clear loading state
     }
   };
 
   return (
     <ScrollArea className="w-full pb-10">
-      <div className="flex grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 ">
-        {chartData.map((data, index) => (
+      <div className="flex grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {chartData.map((data) => (
           <Card
-            key={index}
+            key={data.package_connection_id}
             style={{
-              background: `linear-gradient(110deg, ${data.package_color || "#F6DB4E"} 60%, #ED9738)`, // Make package color dominate
+              background: `linear-gradient(110deg, ${
+                data.package_color || "#F6DB4E"
+              } 60%, #ED9738)`,
             }}
-            className={`min-w-[260px] max-w-[500px] h-auto dark:bg-${data.package_color || "cardColor"} transition-all duration-300 `}
+            className="min-w-[260px] max-w-[500px] h-auto dark:bg-cardColor transition-all duration-300"
           >
             <CardHeader>
               <CardTitle className="flex justify-end items-end">
-                <div className="text-xs rounded-full  bg-black p-2">
+                <div className="text-xs rounded-full bg-black p-2">
                   {data.completion.toFixed(2)}%
                 </div>
               </CardTitle>
@@ -122,7 +129,7 @@ const DashboardPackages = ({
                     Amount
                   </Badge>
                   <span className="text-lg font-extrabold text-black">
-                    {"₱ "}
+                    ₱{" "}
                     {data.amount.toLocaleString("en-US", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -134,7 +141,7 @@ const DashboardPackages = ({
                     Profit
                   </Badge>
                   <span className="text-lg font-extrabold text-black">
-                    {"₱ "}
+                    ₱{" "}
                     {data.profit_amount.toLocaleString("en-US", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -142,44 +149,48 @@ const DashboardPackages = ({
                   </span>
                 </div>
               </CardDescription>
-
               <Separator />
             </CardHeader>
 
-            <CardContent className=" space-y-1 pb-0">
+            <CardContent className="space-y-1 pb-0">
               <div className="flex flex-col items-center">
                 <Badge className="dark:bg-black dark:text-white dark:hover:bg-black hover:bg-black hover:text-white">
                   Total Amount
                 </Badge>
                 <span className="text-2xl font-extrabold text-black">
-                  {"₱ "}
+                  ₱{" "}
                   {(data.amount + data.profit_amount).toLocaleString("en-US", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
                 </span>
-
-                <span className="text-xl  text-black font-extrabold">
+                <span className="text-xl text-black font-extrabold">
                   {data.package} Plan
                 </span>
               </div>
               <Separator />
             </CardContent>
+
             <CardFooter className="flex-col items-center gap-2 text-sm">
-              <div className=" font-extrabold text-sm text-black">
+              <div className="font-extrabold text-sm text-black">
                 {new Intl.DateTimeFormat("en-US", {
-                  month: "long", // Full month name
-                  day: "numeric", // Day of the month
-                  year: "numeric", // Full year
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
                 }).format(new Date(data.completion_date))}
               </div>
               {data.is_ready_to_claim && (
-                <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <Dialog
+                  open={openDialogId === data.package_connection_id}
+                  onOpenChange={(isOpen) =>
+                    setOpenDialogId(isOpen ? data.package_connection_id : null)
+                  }
+                >
                   <DialogDescription></DialogDescription>
                   <DialogTrigger asChild>
-                    <Badge className="dark:bg-black dark:text-white dark:hover:bg-black hover:bg-black hover:text-white cursor-pointer px-10 py-2">
+                    <Button className="dark:bg-black dark:text-white dark:hover:bg-black hover:bg-black hover:text-white cursor-pointer px-10 py-2">
                       Collect
-                    </Badge>
+                    </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
@@ -190,18 +201,12 @@ const DashboardPackages = ({
                     </DialogHeader>
                     <DialogFooter>
                       <Button
-                        disabled={isLoading}
-                        onClick={() =>
-                          handleClaimPackage(
-                            data.amount,
-                            data.profit_amount,
-                            data.package_connection_id
-                          )
-                        }
+                        disabled={isLoading === data.package_connection_id}
+                        onClick={() => handleClaimPackage(data)}
                         className="w-full"
                         variant="card"
                       >
-                        {isLoading ? (
+                        {isLoading === data.package_connection_id ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
                             {"Claiming ..."}
