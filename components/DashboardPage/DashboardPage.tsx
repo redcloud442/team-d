@@ -2,6 +2,7 @@
 
 import { getDashboard, getDashboardEarnings } from "@/services/Dasboard/Member";
 import { logError } from "@/services/Error/ErrorLogs";
+import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
 import { ChartDataMember, DashboardEarnings } from "@/utils/types";
 import {
@@ -64,6 +65,7 @@ const DashboardPage = ({
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+  const { role } = useRole();
 
   const getDasboardEarningsData = async () => {
     try {
@@ -113,7 +115,7 @@ const DashboardPage = ({
 
   useEffect(() => {
     getPackagesData();
-  }, []);
+  }, [role]);
 
   useEffect(() => {
     if (!api) {

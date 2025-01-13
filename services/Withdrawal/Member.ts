@@ -37,6 +37,7 @@ export const getMemberWithdrawalRequest = async (params: {
   limit: number;
   search?: string;
   teamMemberId: string;
+  userId: string;
   teamId: string;
   columnAccessor: string;
   isAscendingSort: boolean;
@@ -47,6 +48,7 @@ export const getMemberWithdrawalRequest = async (params: {
     search: params.search || "",
     columnAccessor: params.columnAccessor,
     isAscendingSort: params.isAscendingSort ? "true" : "false",
+    userId: params.userId,
   };
 
   const response = await fetch(

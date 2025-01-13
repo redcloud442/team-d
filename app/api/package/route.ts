@@ -60,7 +60,7 @@ const topupSchema = z.object({
     .refine((val) => !isNaN(Number(val)), {
       message: "Amount must be a number",
     }),
-  packageId: z.string(),
+  packageId: z.string().uuid(),
 });
 
 export async function POST(request: Request) {
@@ -100,27 +100,29 @@ export async function POST(request: Request) {
 
     const decimalAmount = new Prisma.Decimal(amount);
 
-    const [packageData, earningsData, referralData] = await prisma.$transaction(
-      [
-        prisma.package_table.findUnique({
-          where: { package_id: packageId },
-          select: { package_percentage: true, package_is_disabled: true },
-        }),
-        prisma.alliance_earnings_table.findUnique({
-          where: { alliance_earnings_member_id: teamMemberId },
-          select: {
-            alliance_olympus_wallet: true,
-            alliance_referral_bounty: true,
-            alliance_olympus_earnings: true,
-            alliance_combined_earnings: true,
-          },
-        }),
-        prisma.alliance_referral_table.findFirst({
-          where: { alliance_referral_member_id: teamMemberId },
-          select: { alliance_referral_hierarchy: true },
-        }),
-      ]
-    );
+    const [packageData, earningsData, referralData] = await Promise.all([
+      prisma.package_table.findUnique({
+        where: { package_id: packageId },
+        select: {
+          package_percentage: true,
+          package_is_disabled: true,
+          package_name: true,
+        },
+      }),
+      prisma.alliance_earnings_table.findUnique({
+        where: { alliance_earnings_member_id: teamMemberId },
+        select: {
+          alliance_olympus_wallet: true,
+          alliance_referral_bounty: true,
+          alliance_olympus_earnings: true,
+          alliance_combined_earnings: true,
+        },
+      }),
+      prisma.alliance_referral_table.findFirst({
+        where: { alliance_referral_member_id: teamMemberId },
+        select: { alliance_referral_hierarchy: true },
+      }),
+    ]);
 
     if (!packageData) {
       return NextResponse.json(
@@ -186,21 +188,18 @@ export async function POST(request: Request) {
       100 // Cap the depth to 100 levels
     );
 
-    const transaction = await prisma.$transaction(async (prisma) => {
-      // Create package member connection
-      const connectionData =
-        await prisma.package_member_connection_table.create({
-          data: {
-            package_member_member_id: teamMemberId,
-            package_member_package_id: packageId,
-            package_member_amount: amount,
-            package_amount_earnings: packageAmountEarnings,
-            package_member_status: "ACTIVE",
-          },
-        });
+    const connectionData = await prisma.$transaction(async (tx) => {
+      const connectionData = await tx.package_member_connection_table.create({
+        data: {
+          package_member_member_id: teamMemberId,
+          package_member_package_id: packageId,
+          package_member_amount: amount,
+          package_amount_earnings: packageAmountEarnings,
+          package_member_status: "ACTIVE",
+        },
+      });
 
-      // Update the earnings table
-      await prisma.alliance_earnings_table.update({
+      await tx.alliance_earnings_table.update({
         where: { alliance_earnings_member_id: teamMemberId },
         data: {
           alliance_combined_earnings: updatedCombinedWallet,
@@ -210,32 +209,54 @@ export async function POST(request: Request) {
         },
       });
 
-      // Process referral chain in batches
-      if (referralChain.length > 0) {
-        const batchSize = 100; // Process in batches of 100
-        for (let i = 0; i < referralChain.length; i += batchSize) {
-          const batch = referralChain.slice(i, i + batchSize);
+      await tx.alliance_transaction_table.create({
+        data: {
+          transaction_member_id: teamMemberId,
+          transaction_amount: amount,
+          transaction_description: `Package ${packageData.package_name} Registration`,
+        },
+      });
+      return connectionData;
+    });
 
-          // Create bounty logs
-          const bountyLogs = batch.map((ref) => ({
-            package_ally_bounty_member_id: ref.referrerId,
-            package_ally_bounty_percentage: ref.percentage,
-            package_ally_bounty_earnings: decimalAmount
-              .mul(ref.percentage)
-              .div(100)
-              .toNumber(),
-            package_ally_bounty_type:
-              ref.level === 1 ? DIRECTYPE.DIRECT : DIRECTYPE.INDIRECT,
-            package_ally_bounty_connection_id:
-              connectionData.package_member_connection_id,
-            package_ally_bounty_from: teamMemberId,
-          }));
+    if (referralChain.length > 0) {
+      const batchSize = 100;
+      for (let i = 0; i < referralChain.length; i += batchSize) {
+        const batch = referralChain.slice(i, i + batchSize);
 
-          await prisma.package_ally_bounty_log.createMany({ data: bountyLogs });
+        const bountyLogs = batch.map((ref) => ({
+          package_ally_bounty_member_id: ref.referrerId,
+          package_ally_bounty_percentage: ref.percentage,
+          package_ally_bounty_earnings: decimalAmount
+            .mul(ref.percentage)
+            .div(100)
+            .toNumber(),
+          package_ally_bounty_type:
+            ref.level === 1 ? DIRECTYPE.DIRECT : DIRECTYPE.INDIRECT,
+          package_ally_bounty_connection_id:
+            connectionData.package_member_connection_id,
+          package_ally_bounty_from: teamMemberId,
+        }));
 
-          // Update earnings for the batch using Prisma's native methods
-          for (const ref of batch) {
-            await prisma.alliance_earnings_table.update({
+        const transactionLogs = batch.map((ref) => ({
+          transaction_member_id: ref.referrerId,
+          transaction_amount: decimalAmount
+            .mul(ref.percentage)
+            .div(100)
+            .toNumber(),
+          transaction_description: "Refer & Earn",
+        }));
+
+        await Promise.all([
+          prisma.package_ally_bounty_log.createMany({ data: bountyLogs }),
+          prisma.alliance_transaction_table.createMany({
+            data: transactionLogs,
+          }),
+        ]);
+
+        await Promise.all(
+          batch.map((ref) =>
+            prisma.alliance_earnings_table.update({
               where: { alliance_earnings_member_id: ref.referrerId },
               data: {
                 alliance_referral_bounty: {
@@ -251,26 +272,12 @@ export async function POST(request: Request) {
                     .toNumber(),
                 },
               },
-            });
-
-            await prisma.alliance_transaction_table.create({
-              data: {
-                transaction_member_id: ref.referrerId,
-                transaction_amount: decimalAmount
-                  .mul(ref.percentage)
-                  .div(100)
-                  .toNumber(),
-                transaction_description: "Refer & Earn",
-              },
-            });
-          }
-        }
+            })
+          )
+        );
       }
+    }
 
-      return connectionData;
-    });
-
-    // Activate team member if inactive
     if (!teamMemberProfile?.alliance_member_is_active) {
       await prisma.alliance_member_table.update({
         where: { alliance_member_id: teamMemberId },
@@ -281,7 +288,7 @@ export async function POST(request: Request) {
       });
     }
 
-    return NextResponse.json({ success: true, transaction });
+    return NextResponse.json({ success: true, transaction: connectionData });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error." },
@@ -289,7 +296,6 @@ export async function POST(request: Request) {
     );
   }
 }
-
 function generateReferralChain(
   hierarchy: string | null,
   teamMemberId: string,

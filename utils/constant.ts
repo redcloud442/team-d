@@ -29,3 +29,6 @@ export const BASE_URL = "https://pr1meph.vercel.app";
 
 export const MAX_FILE_SIZE_MB = 12;
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+export const ACTIVE = "ACTIVE";
+export const ENDED = "ENDED";

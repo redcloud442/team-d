@@ -30,17 +30,18 @@ export async function GET(request: Request) {
     const search = url.searchParams.get("search") || "";
     const columnAccessor = url.searchParams.get("columnAccessor") || "";
     const isAscendingSort = url.searchParams.get("isAscendingSort") || "false";
+    const userId = url.searchParams.get("userId") || "";
 
     if (limit !== "10") {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
     const params = {
-      teamMemberId: teamMemberProfile?.alliance_member_id || "",
       page: parseInt(page),
       limit: parseInt(limit),
       search,
       columnAccessor,
+      userId: userId,
       isAscendingSort: isAscendingSort === "true",
       teamId: teamMemberProfile?.alliance_member_alliance_id || "",
     };
@@ -88,12 +89,13 @@ export async function POST(request: Request) {
       request.headers.get("cf-connecting-ip") ||
       "unknown";
 
-    const { earnings, accountNumber, amount, bank, teamMemberId } =
+    const { earnings, accountNumber, accountName, amount, bank, teamMemberId } =
       await request.json();
 
     const withdrawalData = withdrawalFormSchema.safeParse({
       earnings,
       accountNumber,
+      accountName,
       amount,
       bank,
     });

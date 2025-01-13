@@ -25,6 +25,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { ChevronLeft, ChevronRight, RefreshCw, Search } from "lucide-react";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
@@ -53,7 +54,7 @@ const WithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   const [requestCount, setRequestCount] = useState(0);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
-
+  const searchParams = useParams();
   const columnAccessor = sorting?.[0]?.id || "alliance_withdrawal_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
@@ -71,6 +72,7 @@ const WithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
         teamId: teamMemberProfile.alliance_member_alliance_id,
         teamMemberId: teamMemberProfile.alliance_member_id,
         page: activePage,
+        userId: searchParams?.userId?.toString() || "",
         limit: 10,
         columnAccessor: columnAccessor,
         isAscendingSort: isAscendingSort,
