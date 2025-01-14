@@ -44,18 +44,29 @@ const Page = async () => {
     },
   });
 
-  const { data: sponsorData } = await supabaseClient.rpc("get_user_sponsor", {
-    input_data: { userId: profile.user_id },
-  });
+  let sponsorData = null;
 
-  const { data } = sponsorData;
+  try {
+    const { data, error } = await supabaseClient.rpc("get_user_sponsor", {
+      input_data: { userId: profile.user_id },
+    });
 
-  if (!data) {
+    if (error) {
+      sponsorData = null;
+    } else {
+      sponsorData = data;
+    }
+  } catch (err) {
+    sponsorData = null;
+  }
+
+  if (!sponsorData) {
     return null;
   }
 
-  if (teamMemberProfile.alliance_member_role === "ADMIN")
+  if (teamMemberProfile.alliance_member_role === "ADMIN") {
     return redirect("/admin");
+  }
 
   return (
     <DashboardPage
@@ -64,7 +75,7 @@ const Page = async () => {
       referal={referal}
       earnings={earnings}
       packages={packages}
-      sponsor={data?.user_username || ""}
+      sponsor={sponsorData?.user_username || ""}
     />
   );
 };

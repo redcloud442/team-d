@@ -54,7 +54,9 @@ export async function GET(request: Request) {
     );
 
     if (error) throw error;
+
     const { data: withdrawals, totalCount } = data;
+
     return NextResponse.json({ success: true, data: withdrawals, totalCount });
   } catch (error) {
     return NextResponse.json(
