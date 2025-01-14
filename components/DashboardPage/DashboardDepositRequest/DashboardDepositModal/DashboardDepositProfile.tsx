@@ -91,7 +91,6 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
       reset();
       toast({
         title: "Password Change Successfully",
-        variant: "success",
       });
       setOpen(false);
     } catch (e) {

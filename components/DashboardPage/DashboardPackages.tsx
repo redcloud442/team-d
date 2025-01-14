@@ -60,7 +60,6 @@ const DashboardPackages = ({
         toast({
           title: "Package claimed successfully",
           description: "You have successfully claimed the package",
-          variant: "success",
         });
 
         // Update chart data to remove the claimed package
