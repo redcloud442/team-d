@@ -1,6 +1,7 @@
 import { ROLE } from "@/utils/constant";
 import { decryptData, loginRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
+import { createServiceRoleClientServerSide } from "@/utils/supabase/server";
 import { user_table } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -147,6 +148,7 @@ const LoginSchema = z.object({
 });
 export async function GET(request: Request) {
   try {
+    const supabase = await createServiceRoleClientServerSide();
     const ip = getClientIP(request);
     if (ip === "unknown")
       return sendErrorResponse(
@@ -180,6 +182,17 @@ export async function GET(request: Request) {
       },
     });
 
+    const { data } = await supabase.auth.admin.getUserById(
+      existingUser?.user_id ?? ""
+    );
+
+    if (data) {
+      return NextResponse.json(
+        { error: "Username already taken." },
+        { status: 409 }
+      );
+    }
+
     if (existingUser) {
       return NextResponse.json(
         { error: "Username already taken." },
@@ -190,7 +203,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: true, userName });
   } catch (error) {
     return NextResponse.json(
-      { error: "Internal Server Error." },
+      {
+        error:
+          error instanceof Error ? error.message : "Internal Server Error.",
+      },
       { status: 500 }
     );
   }
