@@ -166,7 +166,7 @@ export async function POST(request: Request) {
       alliance_referral_bounty,
       alliance_combined_earnings,
     } = amountMatch;
-    if (Number(amount) >= alliance_combined_earnings) {
+    if (Number(amount) > alliance_combined_earnings) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
