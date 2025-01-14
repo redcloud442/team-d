@@ -80,7 +80,7 @@ export async function PUT(
 
       await tx.alliance_transaction_table.create({
         data: {
-          transaction_description: `Withdrawal (${status.slice(0, 1).toUpperCase() + status.slice(1).toLowerCase()})`,
+          transaction_description: `Withdrawal ${status.slice(0, 1).toUpperCase() + status.slice(1).toLowerCase()} ${note ? `(${note})` : ""}`,
           transaction_amount: updatedRequest.alliance_withdrawal_request_amount,
           transaction_member_id:
             updatedRequest.alliance_withdrawal_request_member_id,

@@ -81,9 +81,7 @@ export async function PUT(
 
       await tx.alliance_transaction_table.create({
         data: {
-          transaction_description: `Deposit (${
-            status.slice(0, 1).toUpperCase() + status.slice(1).toLowerCase()
-          })`,
+          transaction_description: `Deposit ${status.slice(0, 1).toUpperCase() + status.slice(1).toLowerCase()} ${note ? `(${note})` : ""}`,
           transaction_amount: updatedRequest.alliance_top_up_request_amount,
           transaction_member_id:
             updatedRequest.alliance_top_up_request_member_id,
