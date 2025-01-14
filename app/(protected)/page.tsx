@@ -47,21 +47,22 @@ const Page = async () => {
   let sponsorData = null;
 
   try {
-    const { data, error } = await supabaseClient.rpc("get_user_sponsor", {
-      input_data: { userId: profile.user_id },
-    });
+    const { data: sponsor, error } = await supabaseClient.rpc(
+      "get_user_sponsor",
+      {
+        input_data: { userId: profile.user_id },
+      }
+    );
+
+    const { data } = sponsor;
 
     if (error) {
       sponsorData = null;
     } else {
-      sponsorData = data;
+      sponsorData = data?.user_username || "";
     }
   } catch (err) {
     sponsorData = null;
-  }
-
-  if (!sponsorData) {
-    return null;
   }
 
   if (teamMemberProfile.alliance_member_role === "ADMIN") {
@@ -75,7 +76,7 @@ const Page = async () => {
       referal={referal}
       earnings={earnings}
       packages={packages}
-      sponsor={sponsorData?.user_username || ""}
+      sponsor={sponsorData || ""}
     />
   );
 };
