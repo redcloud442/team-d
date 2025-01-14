@@ -176,6 +176,7 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
   };
 
   if (isUploading) return <TableLoading />;
+
   return (
     <Dialog
       open={open}

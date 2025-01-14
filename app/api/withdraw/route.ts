@@ -101,17 +101,14 @@ export async function POST(request: Request) {
     });
 
     if (!withdrawalData.success) {
-      console.log(withdrawalData.error);
       return NextResponse.json({ error: "Invalid input." }, { status: 400 });
     }
 
     if (!["TOTAL"].includes(earnings)) {
-      console.log("Invalid request.");
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
     if (Number(amount) <= 0 || Number(amount) < 200) {
-      console.log("Invalid request.");
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 

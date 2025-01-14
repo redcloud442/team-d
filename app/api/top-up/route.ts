@@ -103,7 +103,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (amount.length > 7 || amount.length < 3) {
+    if (Math.floor(Number(amount)) > 7 || Math.floor(Number(amount)) < 3) {
       return NextResponse.json({ error: "Invalid Request." }, { status: 400 });
     }
 

@@ -14,11 +14,11 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { TopUpRequestData } from "@/utils/types";
+import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { AspectRatio } from "../ui/aspect-ratio";
 import TableLoading from "../ui/tableLoading";
 import { Textarea } from "../ui/textarea";
@@ -28,7 +28,10 @@ const statusColorMap: Record<string, string> = {
   REJECTED: "bg-red-600 dark:bg-red-700 dark:text-white",
 };
 
-export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
+export const useAdminTopUpApprovalColumns = (
+  handleFetch: () => void,
+  setRequestData: Dispatch<SetStateAction<AdminTopUpRequestData[] | null>>
+) => {
   const { toast } = useToast();
   const router = useRouter();
   const supabaseClient = createClientSide();
@@ -44,7 +47,19 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
       try {
         setIsLoading(true);
         await updateTopUpStatus({ status, requestId, note });
-        handleFetch();
+
+        if (setRequestData) {
+          setRequestData((prev) => {
+            if (!prev) return null;
+            const newData = prev.filter((item: AdminTopUpRequestData) =>
+              item.data[status as keyof typeof item.data].data.filter(
+                (item: TopUpRequestData) =>
+                  item.alliance_top_up_request_id !== requestId
+              )
+            );
+            return newData;
+          });
+        }
         toast({
           title: `Status Update`,
           description: `${status} Request Successfully`,

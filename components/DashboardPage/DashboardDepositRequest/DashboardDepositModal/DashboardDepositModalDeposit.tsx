@@ -152,13 +152,12 @@ const DashboardDepositModalDeposit = ({ className }: Props) => {
           stackPath:
             "components/DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit.tsx",
         });
+        toast({
+          title: "Error",
+          description: e.message,
+          variant: "destructive",
+        });
       }
-
-      toast({
-        title: "Error",
-        description: "Someting went wrong",
-        variant: "destructive",
-      });
     }
   };
 

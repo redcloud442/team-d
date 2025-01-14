@@ -44,9 +44,15 @@ const Page = async () => {
     },
   });
 
-  const { data: userData } = await supabaseClient.rpc("get_user_sponsor", {
+  const { data: sponsorData } = await supabaseClient.rpc("get_user_sponsor", {
     input_data: { userId: profile.user_id },
   });
+
+  const { data } = sponsorData;
+
+  if (!data) {
+    return null;
+  }
 
   if (teamMemberProfile.alliance_member_role === "ADMIN")
     return redirect("/admin");
@@ -58,7 +64,7 @@ const Page = async () => {
       referal={referal}
       earnings={earnings}
       packages={packages}
-      sponsor={userData?.user_username || ""}
+      sponsor={data?.user_username || ""}
     />
   );
 };

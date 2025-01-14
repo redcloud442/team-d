@@ -1,4 +1,4 @@
-import { loginRateLimit } from "@/utils/function";
+import { applyRateLimitMember, loginRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import {
   protectionAdminUser,
@@ -67,7 +67,8 @@ export async function POST(request: Request) {
       );
 
     await protectionMerchantUser(ip);
-    loginRateLimit(ip);
+
+    applyRateLimitMember(ip);
 
     const { accountNumber, accountType, accountName } = await request.json();
 
