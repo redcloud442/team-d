@@ -101,18 +101,51 @@ export async function POST(request: Request) {
     });
 
     if (!withdrawalData.success) {
+      console.log(withdrawalData.error);
       return NextResponse.json({ error: "Invalid input." }, { status: 400 });
     }
 
     if (!["TOTAL"].includes(earnings)) {
+      console.log("Invalid request.");
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
     if (Number(amount) <= 0 || Number(amount) < 200) {
+      console.log("Invalid request.");
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
     const { teamMemberProfile } = await protectionMemberUser(ip);
+    // const today = new Date().toISOString().slice(0, 10); // Get the current date in YYYY-MM-DD format
+
+    // const existingWithdrawal =
+    //   await prisma.alliance_withdrawal_request_table.findFirst({
+    //     where: {
+    //       alliance_withdrawal_request_member_id: teamMemberId,
+    //       AND: [
+    //         {
+    //           alliance_withdrawal_request_date: {
+    //             gte: new Date(`${today}T00:00:00Z`), // Start of the day
+    //           },
+    //         },
+    //         {
+    //           alliance_withdrawal_request_date: {
+    //             lte: new Date(`${today}T23:59:59Z`), // End of the day
+    //           },
+    //         },
+    //       ],
+    //     },
+    //   });
+
+    // if (existingWithdrawal) {
+    //   return NextResponse.json(
+    //     {
+    //       error:
+    //         "You have already made a withdrawal today. Please try again tomorrow.",
+    //     },
+    //     { status: 400 }
+    //   );
+    // }
 
     await applyRateLimit(teamMemberId, ip);
 
@@ -134,12 +167,10 @@ export async function POST(request: Request) {
       alliance_referral_bounty,
       alliance_combined_earnings,
     } = amountMatch;
-
-    if (Number(amount) > alliance_combined_earnings) {
+    if (Number(amount) >= alliance_combined_earnings) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
-    // Calculate proportional deductions
     let remainingAmount = Number(amount);
     const olympusDeduction = Math.min(
       remainingAmount,
@@ -157,7 +188,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
 
-    // Transaction logic
     const [allianceData] = await prisma.$transaction([
       prisma.alliance_withdrawal_request_table.create({
         data: {
@@ -208,9 +238,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: error instanceof Error ? error.message : "Unknown error." },
       { status: 500 }
     );
   }
