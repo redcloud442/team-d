@@ -34,6 +34,10 @@ const Page = async ({
     },
   });
 
+  if (!user) {
+    redirect("/auth/login");
+  }
+
   const teamMemberProfile = await prisma.alliance_member_table.findFirst({
     where: {
       alliance_member_user_id: user?.user_id,
