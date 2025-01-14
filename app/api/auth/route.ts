@@ -182,17 +182,6 @@ export async function GET(request: Request) {
       },
     });
 
-    const { data } = await supabase.auth.admin.getUserById(
-      existingUser?.user_id ?? ""
-    );
-
-    if (data) {
-      return NextResponse.json(
-        { error: "Username already taken." },
-        { status: 409 }
-      );
-    }
-
     if (existingUser) {
       return NextResponse.json(
         { error: "Username already taken." },
