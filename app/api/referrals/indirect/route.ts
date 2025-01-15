@@ -23,6 +23,7 @@ export const GET = async (request: NextRequest) => {
     const isAscendingSort = url.searchParams.get("isAscendingSort");
 
     const supabaseClient = await createClientServerSide();
+
     if (limit !== "10") {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }

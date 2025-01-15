@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/table";
 import { getLegionBounty } from "@/services/Bounty/Member";
 import { escapeFormData } from "@/utils/function";
-import { createClientSide } from "@/utils/supabase/client";
 import { LegionRequestData } from "@/utils/types";
 import { alliance_member_table } from "@prisma/client";
 import {
@@ -40,7 +39,6 @@ type FilterFormValues = {
 };
 
 const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
-  const supabaseClient = createClientSide();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -56,7 +54,7 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const fetchAdminRequest = async () => {
     try {
-      if (!teamMemberProfile || requestData.length > 0) return;
+      if (!teamMemberProfile) return;
       setIsFetchingList(true);
 
       const sanitizedData = escapeFormData(getValues());
@@ -100,7 +98,7 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
     },
   });
 
-  const { register, handleSubmit, getValues } = useForm<FilterFormValues>({
+  const { getValues } = useForm<FilterFormValues>({
     defaultValues: {
       emailFilter: "",
     },
@@ -108,7 +106,7 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
 
   useEffect(() => {
     fetchAdminRequest();
-  }, [supabaseClient, teamMemberProfile, activePage, sorting]);
+  }, [activePage, sorting]);
 
   const pageCount = Math.ceil(requestCount / 10);
 

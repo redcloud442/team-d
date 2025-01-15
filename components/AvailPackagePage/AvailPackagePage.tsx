@@ -51,7 +51,7 @@ const AvailPackagePage = ({
   const formSchema = z.object({
     amount: z
       .string()
-      .min(3, "Minimum amount is 200 pesos")
+      .min(1, "Minimum amount is 1 pesos")
       .refine((val) => !isNaN(Number(val)), {
         message: "Amount must be a number",
       })
@@ -245,9 +245,9 @@ const AvailPackagePage = ({
                             }
 
                             if (
-                              Math.floor(Number(value)).toString().length > 7
+                              Math.floor(Number(value)).toString().length > 1
                             ) {
-                              value = value.substring(0, 7);
+                              value = value.substring(0, 1);
                             }
 
                             field.onChange(value);

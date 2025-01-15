@@ -56,7 +56,7 @@ export async function GET(request: Request) {
 const topupSchema = z.object({
   amount: z
     .number()
-    .min(3, "Minimum amount is 200 pesos")
+    .min(1, "Minimum amount is 1 pesos")
     .refine((val) => !isNaN(Number(val)), {
       message: "Amount must be a number",
     }),
@@ -88,11 +88,10 @@ export async function POST(request: Request) {
       !packageId ||
       !teamMemberId ||
       amount === 0 ||
-      integerLength > 7 ||
-      integerLength < 3
+      integerLength > 1
     ) {
       return NextResponse.json(
-        { error: "Invalid input or amount must be between 3 and 7 digits." },
+        { error: "Invalid input or amount must be between 1 and 1 digits." },
         { status: 400 }
       );
     }
