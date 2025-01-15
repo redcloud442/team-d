@@ -1,5 +1,6 @@
 "use client";
 
+import { getUserEarnings } from "@/app/actions/user/userAction";
 import { getDashboard, getDashboardEarnings } from "@/services/Dasboard/Member";
 import { logError } from "@/services/Error/ErrorLogs";
 import { useRole } from "@/utils/context/roleContext";
@@ -12,6 +13,7 @@ import {
   package_table,
   user_table,
 } from "@prisma/client";
+import { RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
@@ -61,10 +63,11 @@ const DashboardPage = ({
   const [totalEarnings, setTotalEarnings] = useState<DashboardEarnings | null>(
     null
   );
-
+  const [open, setOpen] = useState(false);
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+  const [refresh, setRefresh] = useState(false);
   const { role } = useRole();
 
   const getDasboardEarningsData = async () => {
@@ -110,6 +113,53 @@ const DashboardPage = ({
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setRefresh(true);
+      const { totalEarnings, userEarningsData } = await getUserEarnings({
+        memberId: teamMemberProfile.alliance_member_id,
+      });
+
+      if (!totalEarnings || !userEarningsData) return;
+
+      setTotalEarnings({
+        directReferralAmount: totalEarnings.directReferralAmount ?? 0,
+        indirectReferralAmount: totalEarnings.indirectReferralAmount ?? 0,
+        totalEarnings: totalEarnings.totalEarnings ?? 0,
+        withdrawalAmount: totalEarnings.withdrawalAmount ?? 0,
+        directReferralCount: totalEarnings.directReferralCount ?? 0,
+        indirectReferralCount: totalEarnings.indirectReferralCount ?? 0,
+      });
+
+      setEarnings((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          alliance_combined_earnings:
+            userEarningsData.alliance_combined_earnings ??
+            prev.alliance_combined_earnings,
+          alliance_olympus_earnings:
+            userEarningsData.alliance_olympus_earnings ??
+            prev.alliance_olympus_earnings,
+          alliance_olympus_wallet:
+            userEarningsData.alliance_olympus_wallet ??
+            prev.alliance_olympus_wallet,
+          alliance_referral_bounty:
+            userEarningsData.alliance_referral_bounty ??
+            prev.alliance_referral_bounty,
+        };
+      });
+    } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+        });
+      }
+    } finally {
+      setRefresh(false);
     }
   };
 
@@ -164,22 +214,43 @@ const DashboardPage = ({
             <Image src="/app-logo.png" alt="logo" width={55} height={55} />
             <div>
               <p className="text-sm font-medium">Balance</p>
-              <p className="text-sm">
-                {"₱ "}
-                {earnings?.alliance_combined_earnings.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </p>
+              {refresh ? (
+                <div className="flex space-x-2 justify-center items-center pt-4">
+                  {/* Loader circles */}
+                  <p className="h-1 w-2 bg-cardColor rounded-full animate-bounce [animation-delay:-0.3s]"></p>
+                  <p className="h-1 w-2 bg-cardColor rounded-full animate-bounce [animation-delay:-0.15s]"></p>
+                  <p className="h-1 w-2 bg-cardColor rounded-full animate-bounce"></p>
+                </div>
+              ) : (
+                <p className="text-sm">
+                  {"₱ "}
+                  {earnings?.alliance_combined_earnings?.toLocaleString(
+                    "en-US",
+                    {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }
+                  )}
+                </p>
+              )}
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-4 justify-center">
           <div className="flex items-center justify-between">
-            <Button className="w-full max-w-[140px] min-w-[120px] h-7">
-              {carouselItems[activeSlide]?.label}{" "}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button className="w-full max-w-[140px] min-w-[120px] h-7">
+                {carouselItems[activeSlide]?.label}{" "}
+              </Button>
+              <Button
+                disabled={refresh}
+                className="h-7 px-2"
+                onClick={handleRefresh}
+              >
+                <RefreshCw />
+              </Button>
+            </div>
             <Button className="w-full max-w-[120px] h-7 text-white bg-blue-700">
               facebook
             </Button>
@@ -196,13 +267,22 @@ const DashboardPage = ({
             <CarouselContent>
               {carouselItems.map((item, index) => (
                 <CarouselItem key={index}>
-                  <p className="text-3xl font-bold text-center">
-                    {"₱ " +
+                  <div className="text-3xl font-bold text-center">
+                    {refresh ? (
+                      <div className="flex space-x-2 justify-center items-center pt-4">
+                        {/* Loader circles */}
+                        <p className="h-4 w-4 bg-cardColor rounded-full animate-bounce [animation-delay:-0.3s]"></p>
+                        <p className="h-4 w-4 bg-cardColor rounded-full animate-bounce [animation-delay:-0.15s]"></p>
+                        <p className="h-4 w-4 bg-cardColor rounded-full animate-bounce"></p>
+                      </div>
+                    ) : (
+                      "₱ " +
                       (item.value ?? 0).toLocaleString("en-US", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
-                      })}
-                  </p>
+                      })
+                    )}
+                  </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
@@ -229,6 +309,8 @@ const DashboardPage = ({
               teamMemberProfile={teamMemberProfile}
               referal={referal}
               className="w-full"
+              open={open}
+              setOpen={setOpen}
             />
           </div>
 
@@ -242,62 +324,12 @@ const DashboardPage = ({
             />
 
             <DashboardWithdrawModalWithdraw
+              setTransactionOpen={setOpen}
               teamMemberProfile={teamMemberProfile}
               earnings={earnings}
               setEarnings={setEarnings}
             />
           </div>
-
-          {/* <CardAmount
-            title="Total Earnings"
-            value={
-              Number(totalEarnings.totalEarnings).toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }) as unknown as number
-            }
-            description={
-              <>
-                <DashboardPackageRequest
-                  teamMemberProfile={teamMemberProfile}
-                />
-              </>
-            }
-            descriptionClassName="text-sm text-green-600"
-          />
-          <CardAmount
-            title="Total Withdraw"
-            value={
-              Number(
-                totalEarnings.withdrawalAmount
-              ).toLocaleString() as unknown as number
-            }
-            description=""
-            descriptionClassName="text-sm text-gray-500"
-          />
-          <CardAmount
-            title="Direct Referral"
-            value={
-              Number(totalEarnings.directReferralAmount).toLocaleString(
-                "en-US",
-                {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }
-              ) as unknown as number
-            }
-            description={
-              <>
-                <Button
-                  size={"sm"}
-                  onClick={() => router.push("/direct-referral")}
-                >
-                  Direct Referral
-                </Button>
-              </>
-            }
-            descriptionClassName="text-sm text-green-600"
-          /> */}
         </div>
 
         <DashboardDepositModalPackages

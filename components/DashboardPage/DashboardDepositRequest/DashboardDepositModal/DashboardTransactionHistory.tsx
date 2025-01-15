@@ -15,21 +15,23 @@ import {
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import Image from "next/image";
-import { useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
   referal: alliance_referral_link_table;
   className: string;
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 const DashboardDepositModalRefer = ({
   teamMemberProfile,
   referal,
+  open,
+  setOpen,
   className,
 }: Props) => {
-  const [open, setOpen] = useState(false);
-
   return (
     <Dialog
       open={open}

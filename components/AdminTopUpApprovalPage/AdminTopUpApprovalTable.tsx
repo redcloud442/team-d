@@ -108,6 +108,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
+
       const endDate = startDate ? new Date(startDate) : undefined;
       const requestData = await getAdminTopUpRequest(supabaseClient, {
         teamId: teamMemberProfile.alliance_member_alliance_id,
@@ -476,11 +477,16 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
               type="submit"
               disabled={isFetchingList}
               size="sm"
-              variant="outline"
+              variant="card"
             >
               <Search />
             </Button>
-            <Button onClick={handleRefresh} disabled={isFetchingList} size="sm">
+            <Button
+              variant="card"
+              onClick={handleRefresh}
+              disabled={isFetchingList}
+              size="sm"
+            >
               <RefreshCw />
               Refresh
             </Button>
@@ -551,7 +557,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
-                        variant="outline"
+                        variant="card"
                         className="font-normal justify-start"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
@@ -576,7 +582,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
                 )}
               />
 
-              <Button type="submit" onClick={fetchRequest}>
+              <Button variant="card" type="submit" onClick={fetchRequest}>
                 Submit
               </Button>
             </div>
@@ -632,7 +638,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
       <div className="flex items-center justify-end gap-x-4 py-4">
         {activePage > 1 && (
           <Button
-            variant="outline"
+            variant="card"
             size="sm"
             onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
             disabled={activePage <= 1}
@@ -675,7 +681,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
               typeof page === "number" ? (
                 <Button
                   key={page}
-                  variant={activePage === page ? "default" : "outline"}
+                  variant={activePage === page ? "card" : "outline"}
                   size="sm"
                   onClick={() => setActivePage(page)}
                 >
@@ -691,7 +697,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
         </div>
         {activePage < pageCount && (
           <Button
-            variant="outline"
+            variant="card"
             size="sm"
             onClick={() =>
               setActivePage((prev) => Math.min(prev + 1, pageCount))

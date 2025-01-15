@@ -224,6 +224,7 @@ model package_table {
   packages_days      Int
   package_is_disabled Boolean @default(false)
   package_color      String?
+  package_image      String?
   
   package_member_connection_table package_member_connection_table[]
   package_earnings_log package_earnings_log[]

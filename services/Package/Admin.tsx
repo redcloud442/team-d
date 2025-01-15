@@ -51,6 +51,8 @@ export const createPackage = async (params: {
   packageDescription: string;
   packagePercentage: string;
   packageDays: string;
+  packageImage: string;
+  packageColor: string;
 }) => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/package/create`,

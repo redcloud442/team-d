@@ -219,7 +219,9 @@ export async function POST(request: Request) {
       }),
       prisma.alliance_transaction_table.create({
         data: {
-          transaction_amount: Number(calculateFee(Number(amount), earnings)),
+          transaction_amount: Number(
+            calculateFinalAmount(Number(amount), earnings)
+          ),
           transaction_description: "Withdrawal Pending",
           transaction_member_id: teamMemberId,
         },

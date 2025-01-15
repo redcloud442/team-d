@@ -4,6 +4,7 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminPackages } from "@/services/Package/Admin";
 import { createClientSide } from "@/utils/supabase/client";
 import { alliance_member_table, package_table } from "@prisma/client";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import EditPackagesModal from "../AdminPackagesPage/EditPackagesModal";
 import { Card } from "../ui/card";
@@ -68,6 +69,13 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
                 : "border-gray-200"
             }`}
           >
+            <Image
+              src={pkg.package_image || "/images/package-default.png"}
+              alt={pkg.package_name}
+              width={300}
+              height={300}
+              className="object-cover"
+            />
             <h2
               className={`text-xl font-bold ${pkg.package_is_disabled ? "text-gray-500" : ""}`}
             >

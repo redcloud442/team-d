@@ -22,6 +22,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
+import FileUpload from "../ui/dropZone";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
@@ -41,6 +42,15 @@ const PackagesSchema = z.object({
   }),
   packageIsDisabled: z.boolean().optional(),
   packageColor: z.string().optional(),
+  file: z
+    .instanceof(File)
+    .refine((file) => !!file, { message: "File is required" })
+    .refine(
+      (file) =>
+        ["image/jpeg", "image/png", "image/jpg"].includes(file.type) &&
+        file.size <= 12 * 1024 * 1024, // 12MB limit
+      { message: "File must be a valid image and less than 12MB." }
+    ),
 });
 
 export type PackagesFormValues = z.infer<typeof PackagesSchema>;
@@ -59,6 +69,7 @@ const EditPackagesModal = ({
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<PackagesFormValues>({
     resolver: zodResolver(PackagesSchema),
@@ -88,8 +99,33 @@ const EditPackagesModal = ({
   const onSubmit = async (data: PackagesFormValues) => {
     try {
       const sanitizedData = escapeFormData(data);
+
+      const file = data.file;
+
+      const filePath = `uploads/${Date.now()}_${file.name}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from("PACKAGE_IMAGES")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) {
+        return toast({
+          title: "Error",
+          description: "File upload failed.",
+          variant: "destructive",
+        });
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabaseClient.storage.from("PACKAGE_IMAGES").getPublicUrl(filePath);
+
+      const packageData = {
+        ...sanitizedData,
+        package_image: publicUrl,
+      };
       await updatePackagesData({
-        packageData: sanitizedData,
+        packageData: packageData,
         teamMemberId: teamMemberProfile.alliance_member_id,
         packageId: selectedPackage?.package_id ?? "",
       });
@@ -122,6 +158,8 @@ const EditPackagesModal = ({
     setOpen(false);
     reset();
   };
+
+  const uploadedFile = watch("file");
 
   return (
     <Dialog
@@ -280,6 +318,30 @@ const EditPackagesModal = ({
               </p>
             )}
           </div>
+
+          <div>
+            <Controller
+              name="file"
+              control={control}
+              render={({ field }) => (
+                <FileUpload
+                  label="Upload Package Image"
+                  onFileChange={(file) => field.onChange(file)}
+                />
+              )}
+            />
+            {!errors.file && uploadedFile && (
+              <p className="text-md font-bold text-green-700">
+                {"File Uploaded Successfully"}
+              </p>
+            )}
+            {errors.file && (
+              <p className="text-primaryRed text-sm mt-1">
+                {errors.file?.message}
+              </p>
+            )}
+          </div>
+
           <div className="flex justify-center items-center">
             <Button
               type="submit"

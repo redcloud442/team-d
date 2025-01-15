@@ -31,6 +31,7 @@ export async function PUT(
       packageDays,
       packageIsDisabled,
       packageColor,
+      package_image,
     } = packageData;
 
     if (
@@ -68,6 +69,7 @@ export async function PUT(
           packages_days: parseInt(packageDays),
           package_is_disabled: packageIsDisabled,
           package_color: packageColor,
+          package_image: package_image ? package_image : undefined,
         },
       });
     });

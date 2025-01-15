@@ -432,11 +432,16 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
               type="submit"
               disabled={isFetchingList}
               size="sm"
-              variant="outline"
+              variant="card"
             >
               <Search />
             </Button>
-            <Button onClick={handleRefresh} disabled={isFetchingList} size="sm">
+            <Button
+              variant="card"
+              onClick={handleRefresh}
+              disabled={isFetchingList}
+              size="sm"
+            >
               <RefreshCw />
               Refresh
             </Button>
@@ -505,7 +510,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
-                        variant="outline"
+                        variant="card"
                         className="font-normal justify-start"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
@@ -532,7 +537,9 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
               {/* End Date Picker */}
 
-              <Button onClick={fetchRequest}>Submit</Button>
+              <Button variant="card" onClick={fetchRequest}>
+                Submit
+              </Button>
             </div>
           )}
         </form>
@@ -586,7 +593,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
       <div className="flex items-center justify-end gap-x-4 py-4">
         {activePage > 1 && (
           <Button
-            variant="outline"
+            variant="card"
             size="sm"
             onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
             disabled={activePage <= 1}
@@ -632,7 +639,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
               typeof page === "number" ? (
                 <Button
                   key={page}
-                  variant={activePage === page ? "default" : "outline"}
+                  variant={activePage === page ? "card" : "outline"}
                   size="sm"
                   onClick={() => setActivePage(page)}
                 >
@@ -648,7 +655,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
         </div>
         {activePage < pageCount && (
           <Button
-            variant="outline"
+            variant="card"
             size="sm"
             onClick={() =>
               setActivePage((prev) => Math.min(prev + 1, pageCount))

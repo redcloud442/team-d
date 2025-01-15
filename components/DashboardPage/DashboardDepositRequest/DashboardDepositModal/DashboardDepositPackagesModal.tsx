@@ -121,6 +121,7 @@ const DashboardDepositModalPackages = ({
                 packageName={pkg.package_name}
                 selectedPackage={selectedPackage}
                 packageColor={pkg.package_color || undefined}
+                packageImage={pkg.package_image || undefined}
                 onClick={() => handlePackageSelect(pkg)}
               />
             ))}

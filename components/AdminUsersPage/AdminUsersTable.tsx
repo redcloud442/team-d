@@ -105,7 +105,12 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
       const { usernameFilter, userRole, dateCreated, bannedUser } =
         sanitizedData;
 
-      const startDate = dateCreated ? new Date(dateCreated) : undefined;
+      let startDate = dateCreated ? new Date(dateCreated) : undefined;
+
+      if (startDate) {
+        startDate.setDate(startDate.getDate() + 1);
+      }
+
       const { data, totalCount } = await getAdminUserRequest(supabaseClient, {
         teamId: teamMemberProfile.alliance_member_alliance_id,
         teamMemberId: teamMemberProfile.alliance_member_id,
@@ -193,6 +198,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
 
       fetchAdminRequest();
       setIsOpenModal({ memberId: "", role: "", open: false, type: "" });
+
       toast({
         title: `Role Updated`,
         description: `Role Updated Sucessfully`,
@@ -297,12 +303,13 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
               type="submit"
               disabled={isFetchingList}
               size="sm"
-              variant="outline"
+              variant="card"
               className="w-full sm:w-auto"
             >
               <Search />
             </Button>
             <Button
+              variant="card"
               onClick={fetchAdminRequest}
               disabled={isFetchingList}
               size="sm"
@@ -352,7 +359,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
-                        variant="outline"
+                        variant="card"
                         className="w-full sm:w-auto font-normal justify-start"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
@@ -390,7 +397,11 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
                   </>
                 )}
               />
-              <Button onClick={fetchAdminRequest} className="w-full sm:w-auto">
+              <Button
+                variant="card"
+                onClick={fetchAdminRequest}
+                className="w-full sm:w-auto"
+              >
                 Submit
               </Button>
             </div>
@@ -513,7 +524,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
               typeof page === "number" ? (
                 <Button
                   key={page}
-                  variant={activePage === page ? "default" : "outline"}
+                  variant={activePage === page ? "card" : "outline"}
                   size="sm"
                   onClick={() => setActivePage(page)}
                 >
@@ -529,7 +540,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
         </div>
         {activePage < pageCount && (
           <Button
-            variant="outline"
+            variant="card"
             size="sm"
             onClick={() =>
               setActivePage((prev) => Math.min(prev + 1, pageCount))

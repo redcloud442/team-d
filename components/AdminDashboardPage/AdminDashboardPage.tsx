@@ -262,11 +262,19 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
                 readOnly
                 className="flex-0 md:flex-2 lg:flex-1"
               />
-              <Button onClick={handleCopyLink}>Copy Link</Button>
-              <Button onClick={() => router.push("/direct-referral")}>
+              <Button variant="card" onClick={handleCopyLink}>
+                Copy Link
+              </Button>
+              <Button
+                variant="card"
+                onClick={() => router.push("/direct-referral")}
+              >
                 Direct Referral
               </Button>
-              <Button onClick={() => router.push("/indirect-referral")}>
+              <Button
+                variant="card"
+                onClick={() => router.push("/indirect-referral")}
+              >
                 Indirect Referral
               </Button>
             </div>

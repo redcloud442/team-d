@@ -6,7 +6,9 @@ import { ROLE } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
 import { alliance_member_table, user_table } from "@prisma/client";
 import Image from "next/image";
+import { useEffect } from "react";
 import AppSidebar from "../ui/side-bar";
+import { ModeToggle } from "../ui/toggleDarkmode";
 
 type LayoutContentProps = {
   profile: user_table;
@@ -20,6 +22,16 @@ export default function LayoutContent({
   children,
 }: LayoutContentProps) {
   const { role } = useRole();
+  useEffect(() => {
+    const htmlElement = document.documentElement;
+
+    if (role !== ROLE.ADMIN) {
+      localStorage.removeItem("theme");
+      htmlElement.classList.add("dark");
+    } else {
+      htmlElement.classList.remove("dark");
+    }
+  }, [role]);
 
   return (
     <div className="flex min-h-screen w-full overflow-hidden relative">
@@ -60,6 +72,7 @@ export default function LayoutContent({
 
         {/* Mobile Navigation */}
         {role !== ROLE.ADMIN && <MobileNavBar />}
+        {role === ROLE.ADMIN && <ModeToggle />}
       </div>
     </div>
   );

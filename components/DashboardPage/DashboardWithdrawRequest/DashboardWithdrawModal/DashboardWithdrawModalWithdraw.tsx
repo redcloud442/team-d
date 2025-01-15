@@ -36,6 +36,7 @@ type Props = {
   teamMemberProfile: alliance_member_table;
   earnings: alliance_earnings_table | null;
   setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
+  setTransactionOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 const withdrawalFormSchema = z.object({
@@ -65,6 +66,7 @@ const DashboardWithdrawModalWithdraw = ({
   teamMemberProfile,
   earnings,
   setEarnings,
+  setTransactionOpen,
 }: Props) => {
   const [open, setOpen] = useState(false);
   const totalEarnings =
@@ -233,9 +235,17 @@ const DashboardWithdrawModalWithdraw = ({
       <DialogContent className="w-full sm:max-w-[400px]">
         <ScrollArea className="w-full relative sm:max-w-[400px] h-[600px] sm:h-full">
           <DialogHeader className="text-start text-2xl font-bold">
-            <DialogTitle className="text-2xl font-bold mb-4">
+            <DialogTitle className="text-2xl font-bold mb-4 flex gap-4">
               Withdraw
+              <Button
+                className="h-8 bg-pageColor  px-2 text-sm text-white"
+                variant="card"
+                onClick={() => setTransactionOpen(true)}
+              >
+                Transaction History
+              </Button>
             </DialogTitle>
+
             <DialogDescription></DialogDescription>
           </DialogHeader>
 

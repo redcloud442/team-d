@@ -55,7 +55,7 @@ const AvailPackagePage = ({
       .refine((val) => !isNaN(Number(val)), {
         message: "Amount must be a number",
       })
-      .refine((val) => Number(val) <= maxAmount, {
+      .refine((val) => Number(val) >= maxAmount, {
         message: `Amount cannot exceed ${formattedMaxAmount}`,
       }),
     packageId: z.string(),
