@@ -88,7 +88,7 @@ export async function POST(request: Request) {
       !packageId ||
       !teamMemberId ||
       amount === 0 ||
-      integerLength > 1
+      integerLength < 1
     ) {
       return NextResponse.json(
         { error: "Invalid input or amount must be between 1 and 1 digits." },
@@ -153,8 +153,10 @@ export async function POST(request: Request) {
       alliance_combined_earnings,
     } = earningsData;
 
-    // Ensure sufficient balance in the combined wallet
-    if (alliance_combined_earnings < amount) {
+    const combinedEarnings = Math.round(alliance_combined_earnings * 100) / 100; // Normalize to 2 decimal places
+    const requestedAmount = Math.round(amount * 100) / 100; // Normalize to 2 decimal places
+
+    if (combinedEarnings < requestedAmount) {
       return NextResponse.json(
         { error: "Insufficient balance in the combined wallet." },
         { status: 400 }
@@ -169,7 +171,7 @@ export async function POST(request: Request) {
       updatedCombinedWallet,
     } = deductFromWallets(
       amount,
-      alliance_combined_earnings,
+      combinedEarnings,
       alliance_olympus_wallet,
       alliance_olympus_earnings,
       alliance_referral_bounty

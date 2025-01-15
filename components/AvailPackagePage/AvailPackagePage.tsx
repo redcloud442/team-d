@@ -52,10 +52,10 @@ const AvailPackagePage = ({
     amount: z
       .string()
       .min(1, "Minimum amount is 1 pesos")
-      .refine((val) => !isNaN(Number(val)), {
+      .refine((val) => !isNaN(parseFloat(val)), {
         message: "Amount must be a number",
       })
-      .refine((val) => Number(val) <= maxAmount, {
+      .refine((val) => parseFloat(val) <= parseFloat(maxAmount.toFixed(2)), {
         message: `Amount cannot exceed ${formattedMaxAmount}`,
       }),
     packageId: z.string(),
@@ -242,12 +242,6 @@ const AvailPackagePage = ({
                               !value.startsWith("0.")
                             ) {
                               value = value.replace(/^0+/, "");
-                            }
-
-                            if (
-                              Math.floor(Number(value)).toString().length > 1
-                            ) {
-                              value = value.substring(0, 1);
                             }
 
                             field.onChange(value);
