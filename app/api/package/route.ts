@@ -81,13 +81,15 @@ export async function POST(request: Request) {
       );
     }
 
+    const integerLength = Math.floor(amount).toString().length;
+
     if (
       !amount ||
       !packageId ||
       !teamMemberId ||
-      amount <= 0 ||
-      Math.floor(amount.toString().length) > 7 ||
-      Math.floor(amount.toString().length) < 3
+      amount === 0 ||
+      integerLength > 7 ||
+      integerLength < 3
     ) {
       return NextResponse.json(
         { error: "Invalid input or amount must be between 3 and 7 digits." },

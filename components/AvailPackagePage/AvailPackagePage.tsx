@@ -55,7 +55,7 @@ const AvailPackagePage = ({
       .refine((val) => !isNaN(Number(val)), {
         message: "Amount must be a number",
       })
-      .refine((val) => Number(val) >= maxAmount, {
+      .refine((val) => Number(val) <= maxAmount, {
         message: `Amount cannot exceed ${formattedMaxAmount}`,
       }),
     packageId: z.string(),
@@ -179,7 +179,7 @@ const AvailPackagePage = ({
                       readOnly
                       className="text-center"
                       placeholder="Enter amount"
-                      value={`${selectedPackage?.package_percentage} %`}
+                      value={`${selectedPackage?.package_percentage ?? 0} %`}
                     />
                   </div>
                   <div className="flex flex-col items-center justify-center gap-2 w-32">
@@ -191,7 +191,6 @@ const AvailPackagePage = ({
                       id="Days"
                       type="text"
                       className="text-center"
-                      placeholder="Enter amount"
                       value={Number(selectedPackage?.packages_days) || ""}
                       readOnly
                     />
