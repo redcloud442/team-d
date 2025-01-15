@@ -166,28 +166,46 @@ export async function POST(request: Request) {
       alliance_referral_bounty,
       alliance_combined_earnings,
     } = amountMatch;
-    if (Number(amount) > alliance_combined_earnings) {
-      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+
+    const amountValue = Math.round(Number(amount) * 100) / 100;
+    const combinedEarnings =
+      Math.round(Number(alliance_combined_earnings) * 100) / 100;
+
+    if (amountValue > combinedEarnings) {
+      return NextResponse.json(
+        { error: "Insufficient balance." },
+        { status: 400 }
+      );
     }
 
-    let remainingAmount = Number(amount);
+    // Initialize remaining amount to be deducted
+    let remainingAmount = amountValue;
+
+    // Deduct from Olympus Earnings
     const olympusDeduction = Math.min(
       remainingAmount,
-      alliance_olympus_earnings
+      Math.max(0, Math.round(Number(alliance_olympus_earnings) * 100) / 100)
     );
-    remainingAmount -= olympusDeduction;
+    remainingAmount = Math.max(
+      0,
+      Math.round((remainingAmount - olympusDeduction) * 100) / 100
+    );
 
+    // Deduct from Referral Bounty
     const referralDeduction = Math.min(
       remainingAmount,
-      alliance_referral_bounty
+      Math.max(0, Math.round(Number(alliance_referral_bounty) * 100) / 100)
     );
-    remainingAmount -= referralDeduction;
+    remainingAmount = Math.max(
+      0,
+      Math.round((remainingAmount - referralDeduction) * 100) / 100
+    );
 
     if (remainingAmount > 0) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
-
-    const [allianceData] = await prisma.$transaction([
+    await prisma.$transaction([
+      // Create the withdrawal request
       prisma.alliance_withdrawal_request_table.create({
         data: {
           alliance_withdrawal_request_amount: Number(amount),
@@ -209,14 +227,24 @@ export async function POST(request: Request) {
           alliance_withdrawal_request_withdraw_type: earnings,
         },
       }),
+
+      // Update the earnings
       prisma.alliance_earnings_table.update({
         where: { alliance_earnings_member_id: teamMemberId },
         data: {
-          alliance_olympus_earnings: { decrement: olympusDeduction },
-          alliance_referral_bounty: { decrement: referralDeduction },
-          alliance_combined_earnings: { decrement: Number(amount) },
+          alliance_olympus_earnings: {
+            decrement: Math.max(0, Math.round(olympusDeduction * 100) / 100),
+          },
+          alliance_referral_bounty: {
+            decrement: Math.max(0, Math.round(referralDeduction * 100) / 100),
+          },
+          alliance_combined_earnings: {
+            decrement: Math.max(0, Math.round(amountValue * 100) / 100),
+          },
         },
       }),
+
+      // Log the transaction
       prisma.alliance_transaction_table.create({
         data: {
           transaction_amount: Number(
@@ -228,15 +256,6 @@ export async function POST(request: Request) {
         },
       }),
     ]);
-
-    if (!allianceData) {
-      return NextResponse.json(
-        {
-          error: "Failed to create withdrawal request. Please try again later.",
-        },
-        { status: 500 }
-      );
-    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
