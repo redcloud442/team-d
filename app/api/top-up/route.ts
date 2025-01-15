@@ -159,6 +159,7 @@ export async function POST(request: Request) {
           data: {
             transaction_amount: Number(amount),
             transaction_description: "Deposit Pending",
+            transaction_details: `Account Name: ${accountName} | Account Number: ${accountNumber}`,
             transaction_member_id: teamMemberId,
           },
         });

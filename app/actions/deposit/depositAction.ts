@@ -99,6 +99,7 @@ export const depositWalletData = async (params: {
           data: {
             transaction_amount: Number(amount),
             transaction_description: "Deposit Pending",
+            transaction_details: `Account Name: ${accountName} | Account Number: ${accountNumber}`,
             transaction_member_id: teamMemberProfile.alliance_member_id,
           },
         });

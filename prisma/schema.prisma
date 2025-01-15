@@ -207,6 +207,7 @@ model alliance_transaction_table {
   transaction_id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   transaction_date DateTime @default(now())
   transaction_description String
+  transaction_details String?
   transaction_amount Float? 
   transaction_member_id String @db.Uuid
 

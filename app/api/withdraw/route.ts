@@ -223,6 +223,7 @@ export async function POST(request: Request) {
             calculateFinalAmount(Number(amount), earnings)
           ),
           transaction_description: "Withdrawal Pending",
+          transaction_details: `Withdrawal: ${earnings} | Account Name: ${accountName} | Account Number: ${accountNumber}`,
           transaction_member_id: teamMemberId,
         },
       }),

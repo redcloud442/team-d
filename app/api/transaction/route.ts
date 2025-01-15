@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
           transaction_description: true,
           transaction_amount: true,
           transaction_date: true,
+          transaction_details: true,
         },
         skip: offset,
         take: safeLimit,
