@@ -7,7 +7,7 @@ import { z } from "zod";
 
 const availPackageSchema = z.object({
   amount: z.number().min(1),
-  earnings: z.number().min(1),
+  earnings: z.number(),
   packageConnectionId: z.string().uuid(),
 });
 
