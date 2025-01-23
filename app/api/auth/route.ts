@@ -1,8 +1,8 @@
 import { ROLE } from "@/utils/constant";
-import { decryptData, loginRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
-import { createServiceRoleClientServerSide } from "@/utils/supabase/server";
+import { rateLimit } from "@/utils/redis/redis";
 import { user_table } from "@prisma/client";
+import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -23,7 +23,14 @@ export async function POST(request: Request) {
         400
       );
 
-    loginRateLimit(ip);
+    const isAllowed = await rateLimit(`rate-limit:${ip}`, 5, 60);
+
+    if (!isAllowed) {
+      return sendErrorResponse(
+        "Too many requests. Please try again later.",
+        429
+      );
+    }
 
     const {
       userName,
@@ -49,6 +56,13 @@ export async function POST(request: Request) {
           equals: userName,
           mode: "insensitive",
         },
+        alliance_member_table: {
+          some: {
+            alliance_member_role: {
+              not: "ADMIN",
+            },
+          },
+        },
       },
       include: {
         alliance_member_table: true,
@@ -56,26 +70,18 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
-      return NextResponse.json({ error: "Invalid request." }, { status: 401 });
+      return NextResponse.json(
+        { error: "Invalid username or password" },
+        { status: 401 }
+      );
     }
 
     if (userProfile && userProfile.alliance_member_restricted) {
-      return NextResponse.json({ error: "User is banned." }, { status: 403 });
+      return NextResponse.json(
+        { error: "Invalid username or password" },
+        { status: 401 }
+      );
     }
-    // const banned = await prisma.user_history_log.findFirst({
-    //   where: {
-    //     user_history_user_id: user.user_id,
-    //     user_ip_address: ip,
-    //     alliance_member_table: {
-    //       alliance_member_alliance_id: user.alliance_member_table[0]
-    //         ?.alliance_member_alliance_id,
-    //     },
-    //   },
-    // });
-
-    // if (banned) {
-    //   return sendErrorResponse("User is banned.", 403);
-    // }
 
     const teamMemberProfile = user.alliance_member_table[0];
 
@@ -86,22 +92,14 @@ export async function POST(request: Request) {
       return sendErrorResponse("User is banned.", 403);
     }
 
-    const decryptedPassword = await decryptData(
-      user.user_password,
-      user.user_iv ?? ""
-    );
-    if (role === ROLE.MEMBER && decryptedPassword !== password) {
-      return sendErrorResponse("Password Incorrect", 401);
+    if (teamMemberProfile.alliance_member_role === ROLE.ADMIN) {
+      return sendErrorResponse("Invalid Request", 401);
     }
 
-    if (role === ROLE.ADMIN) {
-      const decryptedInputPassword = await decryptData(
-        password,
-        user.user_iv ?? ""
-      );
-      if (decryptedInputPassword !== decryptedPassword) {
-        return sendErrorResponse("Password Incorrect", 401);
-      }
+    const comparePassword = await bcrypt.compare(password, user.user_password);
+
+    if (role === ROLE.MEMBER && !comparePassword) {
+      return sendErrorResponse("Password Incorrect", 401);
     }
 
     if (
@@ -122,20 +120,21 @@ export async function POST(request: Request) {
 
     const redirects: Record<string, string> = {
       MEMBER: "/",
-      ADMIN: "/admin",
     };
 
     const redirect = redirects[teamMemberProfile.alliance_member_role] || "/";
 
     return NextResponse.json({ success: true, redirect });
   } catch (error) {
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
     return NextResponse.json(
       { error: "Internal Server Error." },
       { status: 500 }
     );
   }
 }
-
 const LoginSchema = z.object({
   userName: z
     .string()
@@ -148,7 +147,6 @@ const LoginSchema = z.object({
 });
 export async function GET(request: Request) {
   try {
-    const supabase = await createServiceRoleClientServerSide();
     const ip = getClientIP(request);
     if (ip === "unknown")
       return sendErrorResponse(
@@ -167,7 +165,11 @@ export async function GET(request: Request) {
       return sendErrorResponse("Invalid request.", 400);
     }
 
-    loginRateLimit(ip, userName ?? undefined);
+    const isAllowed = await rateLimit(`rate-limit:${userName}`, 5, 60);
+
+    if (!isAllowed) {
+      return NextResponse.json({ success: false, userName });
+    }
 
     if (!userName) {
       return sendErrorResponse("Username is required.", 400);

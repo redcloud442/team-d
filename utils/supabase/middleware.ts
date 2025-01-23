@@ -1,14 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 import { ensureValidSession } from "../serversideProtection";
 
 export async function updateSession(request: NextRequest) {
+  const cookieStore = await cookies();
   // Check if the session validation has already occurred
   if (request.headers.get("x-session-checked")) {
     return addSecurityHeaders(NextResponse.next());
   }
 
-  let supabaseResponse = NextResponse.next({
+  const supabaseResponse = NextResponse.next({
     request,
   });
 
@@ -18,22 +20,29 @@ export async function updateSession(request: NextRequest) {
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll();
+          return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            request.cookies.set(name, value)
-          );
-          supabaseResponse = NextResponse.next({
-            request,
-          });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
         },
       },
     }
   );
+
+  const isMagicLinkCallback = request.nextUrl.pathname === "/auth/callback";
+
+  if (isMagicLinkCallback) {
+    // Bypass session validation for magic link processing
+    return addSecurityHeaders(NextResponse.next());
+  }
 
   const {
     data: { user },
@@ -51,6 +60,7 @@ export async function updateSession(request: NextRequest) {
     "/auth/login",
     "/auth/register",
     "/api/auth",
+    "/auth/securedPrime",
     "/api/health",
   ];
   const privateRoutes = [

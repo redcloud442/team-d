@@ -59,6 +59,7 @@ const LoginPage = () => {
 
       toast({
         title: "Login Successfully",
+        description: "Redirecting to dashboard...",
       });
 
       setIsSuccess(true);
@@ -152,7 +153,7 @@ const LoginPage = () => {
             }
           }}
         >
-          {isSubmitting || isLoading ? "Signing in..." : "Login"}
+          {isSubmitting || isLoading ? "Processing..." : "Login"}
         </Button>
       </form>
 

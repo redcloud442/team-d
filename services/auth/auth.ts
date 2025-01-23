@@ -1,6 +1,4 @@
 import { registerUser } from "@/app/actions/auth/authAction";
-import { decryptData } from "@/utils/function";
-import { UserRequestdata } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const createTriggerUser = async (params: {
@@ -36,14 +34,12 @@ export const loginValidation = async (
   params: {
     userName: string;
     password: string;
-    role?: string;
-    iv?: string;
-    userProfile?: UserRequestdata;
   }
 ) => {
-  const { userName, password, role, iv } = params;
+  const { userName, password } = params;
 
   const formattedUserName = userName + "@gmail.com";
+
   const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth`, {
     method: "POST",
     headers: {
@@ -54,7 +50,7 @@ export const loginValidation = async (
 
   if (!response.ok) {
     if (response.status === 403) {
-      throw new Error("Something went wrong.");
+      throw new Error("Too many requests. Please try again later.");
     }
 
     try {
@@ -62,30 +58,19 @@ export const loginValidation = async (
       throw new Error(
         result.error || "An error occurred while validating the login."
       );
-    } catch (e) {
-      throw new Error("An unexpected error occurred.");
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      }
+      throw new Error("An unknown error occurred");
     }
   }
 
-  if (role === "ADMIN") {
-    const decryptedPassword = await decryptData(password, iv ?? "");
-
-    const { error: signInError } = await supabaseClient.auth.signInWithPassword(
-      {
-        email: formattedUserName,
-        password: decryptedPassword,
-      }
-    );
-    if (signInError) throw signInError;
-  } else {
-    const { error: signInError } = await supabaseClient.auth.signInWithPassword(
-      {
-        email: formattedUserName,
-        password,
-      }
-    );
-    if (signInError) throw signInError;
-  }
+  const { error: signInError } = await supabaseClient.auth.signInWithPassword({
+    email: formattedUserName,
+    password,
+  });
+  if (signInError) throw signInError;
 
   const result = await response.json();
 

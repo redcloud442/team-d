@@ -33,7 +33,6 @@ model user_table {
   user_last_name        String?
   user_email            String          @unique
   user_password         String
-  user_iv               String?
   user_profile_picture  String?
 
   alliance_member_table alliance_member_table[]

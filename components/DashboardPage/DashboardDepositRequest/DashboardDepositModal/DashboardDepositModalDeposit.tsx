@@ -272,7 +272,7 @@ const DashboardDepositModalDeposit = ({ className }: Props) => {
                       // Enforce max amount
                       const numericValue = Number(inputValue);
 
-                      setValue("amount", numericValue.toString());
+                      setValue("amount", numericValue.toFixed(2).toString());
                     }}
                   />
                 )}
