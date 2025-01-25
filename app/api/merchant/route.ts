@@ -1,15 +1,20 @@
-import { applyRateLimitMember, loginRateLimit } from "@/utils/function";
+import { loginRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
+import { rateLimit } from "@/utils/redis/redis";
 import {
   protectionAdminUser,
   protectionAllUser,
   protectionMerchantUser,
 } from "@/utils/serversideProtection";
 import { NextResponse } from "next/server";
-
+import { z } from "zod";
 function sendErrorResponse(message: string, status: number = 400) {
   return NextResponse.json({ error: message }, { status });
 }
+const updateMerchantBalanceSchema = z.object({
+  amount: z.number().min(1),
+  memberId: z.string().uuid(),
+});
 
 export async function PATCH(request: Request) {
   try {
@@ -23,8 +28,25 @@ export async function PATCH(request: Request) {
         "Unable to determine IP address for rate limiting."
       );
 
-    await protectionAdminUser(ip);
-    loginRateLimit(ip);
+    const updateMerchantBalanceData = updateMerchantBalanceSchema.safeParse(
+      await request.json()
+    );
+
+    if (!updateMerchantBalanceData.success) {
+      return sendErrorResponse("Invalid request.", 400);
+    }
+
+    const { teamMemberProfile } = await protectionAdminUser(ip);
+
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile.user_id}`,
+      5,
+      60
+    );
+
+    if (!isAllowed) {
+      return NextResponse.json({ success: false, ip });
+    }
 
     const { amount, memberId } = await request.json();
 
@@ -54,6 +76,12 @@ export async function PATCH(request: Request) {
   }
 }
 
+const postMerchantSchema = z.object({
+  accountNumber: z.string().min(1),
+  accountType: z.string().min(1),
+  accountName: z.string().min(1),
+});
+
 export async function POST(request: Request) {
   try {
     const ip =
@@ -66,9 +94,23 @@ export async function POST(request: Request) {
         "Unable to determine IP address for rate limiting."
       );
 
-    await protectionMerchantUser(ip);
+    const postMerchantData = postMerchantSchema.safeParse(await request.json());
 
-    applyRateLimitMember(ip);
+    if (!postMerchantData.success) {
+      return sendErrorResponse("Invalid request.", 400);
+    }
+
+    const { teamMemberProfile } = await protectionMerchantUser(ip);
+
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile.user_id}`,
+      5,
+      60
+    );
+
+    if (!isAllowed) {
+      return NextResponse.json({ success: false, ip });
+    }
 
     const { accountNumber, accountType, accountName } = await request.json();
 
@@ -97,6 +139,10 @@ export async function POST(request: Request) {
   }
 }
 
+const deleteMerchantSchema = z.object({
+  merchantId: z.string().uuid(),
+});
+
 export async function DELETE(request: Request) {
   try {
     const ip =
@@ -109,8 +155,25 @@ export async function DELETE(request: Request) {
         "Unable to determine IP address for rate limiting."
       );
 
-    await protectionMerchantUser(ip);
-    loginRateLimit(ip);
+    const deleteMerchantData = deleteMerchantSchema.safeParse(
+      await request.json()
+    );
+
+    if (!deleteMerchantData.success) {
+      return sendErrorResponse("Invalid request.", 400);
+    }
+
+    const { teamMemberProfile } = await protectionMerchantUser(ip);
+
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile.user_id}`,
+      5,
+      60
+    );
+
+    if (!isAllowed) {
+      return NextResponse.json({ success: false, ip });
+    }
 
     const { merchantId } = await request.json();
 

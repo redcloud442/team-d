@@ -1,18 +1,34 @@
-import { applyRateLimit, escapeFormData } from "@/utils/function";
+import { escapeFormData } from "@/utils/function";
+import { rateLimit } from "@/utils/redis/redis";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+
+const getIndirectReferralsSchema = z.object({
+  page: z.string().min(1),
+  limit: z.string().min(1),
+  search: z.string().optional(),
+  columnAccessor: z.string().min(3),
+  isAscendingSort: z.string(),
+});
 
 export const GET = async (request: NextRequest) => {
   try {
-    const ip =
-      request.headers.get("x-forwarded-for") ||
-      request.headers.get("cf-connecting-ip") ||
-      "unknown";
-
     const { teamMemberProfile } = await protectionMemberUser();
 
-    await applyRateLimit(teamMemberProfile?.alliance_member_id || "", ip);
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      10,
+      60
+    );
+
+    if (!isAllowed) {
+      return NextResponse.json(
+        { message: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
 
     const url = new URL(request.url);
 
@@ -21,9 +37,22 @@ export const GET = async (request: NextRequest) => {
     const search = url.searchParams.get("search");
     const columnAccessor = url.searchParams.get("columnAccessor");
     const isAscendingSort = url.searchParams.get("isAscendingSort");
+    const userId = url.searchParams.get("userId");
+
+    const validate = getIndirectReferralsSchema.safeParse({
+      page,
+      limit,
+      search,
+      columnAccessor,
+      isAscendingSort,
+      userId,
+    });
+
+    if (!validate.success) {
+      throw new Error(validate.error.message);
+    }
 
     const supabaseClient = await createClientServerSide();
-
     if (limit !== "10") {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
@@ -34,7 +63,7 @@ export const GET = async (request: NextRequest) => {
       search: search || "",
       columnAccessor: columnAccessor || "",
       isAscendingSort: isAscendingSort === "true",
-      teamMemberId: teamMemberProfile?.alliance_member_id || "",
+      userId: userId || "",
       teamId: teamMemberProfile?.alliance_member_alliance_id || "",
     };
 

@@ -1,13 +1,8 @@
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { formateMonthDateYear } from "@/utils/function";
 import { alliance_transaction_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Info } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 export const TransactionHistoryColumn =
   (): ColumnDef<alliance_transaction_table>[] => {
@@ -35,9 +30,9 @@ export const TransactionHistoryColumn =
           const details = row.original.transaction_details as string;
           const description = row.getValue("transaction_description") as string;
           return (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center">
+              <Popover>
+                <PopoverTrigger>
                   {description}{" "}
                   {description.includes("Deposit") && (
                     <div className="flex items-center justify-center gap-2 text-primaryYellow">
@@ -48,15 +43,16 @@ export const TransactionHistoryColumn =
                   {description.includes("Withdrawal") && (
                     <div className="flex items-center justify-center gap-2 text-primaryYellow">
                       <Info className="w-4 h-4 " />
+                      
                       <p>Details</p>
                     </div>
                   )}
-                </TooltipTrigger>
-                <TooltipContent>
+                </PopoverTrigger>
+                <PopoverContent>
                   <p>{details}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                </PopoverContent>
+              </Popover>
+            </div>
           );
         },
       },

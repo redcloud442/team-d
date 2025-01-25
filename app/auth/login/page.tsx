@@ -4,8 +4,8 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Log in your account",
-  description: "Sign in an account",
+  title: "Pr1me Login",
+  description: "Sign in to your Pr1me account",
   openGraph: {
     url: "/auth/login",
   },

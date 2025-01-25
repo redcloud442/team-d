@@ -266,13 +266,17 @@ const DashboardDepositModalDeposit = ({ className }: Props) => {
                         inputValue = `${parts[0]}.${parts[1].substring(0, 2)}`;
                       }
 
+                      if (inputValue.length > 8) {
+                        inputValue = inputValue.substring(0, 8);
+                      }
+
                       // Update the field value
                       field.onChange(inputValue);
 
                       // Enforce max amount
                       const numericValue = Number(inputValue);
 
-                      setValue("amount", numericValue.toFixed(2).toString());
+                      setValue("amount", numericValue.toString());
                     }}
                   />
                 )}

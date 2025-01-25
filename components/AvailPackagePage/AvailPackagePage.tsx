@@ -216,32 +216,41 @@ const AvailPackagePage = ({
                           onChange={(e) => {
                             let value = e.target.value;
 
-                            // Allow deleting the value
                             if (value === "") {
                               field.onChange("");
                               return;
                             }
 
                             // Allow only numbers and a single decimal point
-                            value = value.replace(/[^0-9.]/g, "");
+                            value = value.replace(/[^0-9]/g, "");
 
-                            // Split the value to check for decimal places
+                            // Prevent multiple decimal points
                             const parts = value.split(".");
                             if (parts.length > 2) {
-                              value = parts[0] + "." + parts[1]; // Keep only the first decimal
+                              value = parts[0] + "." + parts[1]; // Keep only the first decimal part
                             }
 
-                            // Limit to 2 decimal places
-                            if (parts[1]?.length > 2) {
-                              value = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                            }
-
-                            // Remove leading zeros unless it's "0."
+                            // Ensure it doesn't start with multiple zeros (e.g., "00")
                             if (
                               value.startsWith("0") &&
                               !value.startsWith("0.")
                             ) {
-                              value = value.replace(/^0+/, "");
+                              value = value.replace(/^0+/, "0");
+                            }
+
+                            // Limit decimal places to 2 (adjust as needed)
+                            if (value.includes(".")) {
+                              const [integerPart, decimalPart] =
+                                value.split(".");
+                              value = `${integerPart}.${decimalPart.slice(0, 2)}`;
+                            }
+
+                            const amount = maxAmount;
+
+                            // Enforce the maximum amount value
+                            const numericValue = parseFloat(value || "0");
+                            if (!isNaN(numericValue) && numericValue > amount) {
+                              value = amount.toString(); // Adjust precision to match allowed decimals
                             }
 
                             field.onChange(value);

@@ -1,13 +1,20 @@
 import { TOP_UP_STATUS } from "@/utils/constant";
-import { applyRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
+import { rateLimit } from "@/utils/redis/redis";
 import { protectionMerchantUser } from "@/utils/serversideProtection";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 // Helper function for returning error responses
 function sendErrorResponse(message: string, status: number = 400) {
   return NextResponse.json({ error: message }, { status });
 }
+
+const updateTopUpRequestSchema = z.object({
+  status: z.enum(["APPROVED", "REJECTED"]),
+  note: z.string().optional(),
+  requestId: z.string().uuid(),
+});
 
 export async function PUT(
   request: NextRequest,
@@ -30,18 +37,39 @@ export async function PUT(
       return sendErrorResponse("Invalid request.");
     }
 
+    const validate = updateTopUpRequestSchema.safeParse({
+      status,
+      note,
+      requestId,
+    });
+
+    if (!validate.success) {
+      return NextResponse.json(
+        { error: validate.error.message },
+        { status: 400 }
+      );
+    }
+
     const { teamMemberProfile } = await protectionMerchantUser(ip);
 
     if (!teamMemberProfile) {
       return sendErrorResponse("User authentication failed.", 401);
     }
 
-    await applyRateLimit(teamMemberProfile.alliance_member_id, ip);
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      50,
+      60
+    );
 
-    const [existingRequest, merchant] = await Promise.all([
-      prisma.alliance_top_up_request_table.findUnique({
-        where: { alliance_top_up_request_id: requestId },
-      }),
+    if (!isAllowed) {
+      return NextResponse.json(
+        { message: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+
+    const [merchant] = await Promise.all([
       prisma.merchant_member_table.findFirst({
         where: {
           merchant_member_merchant_id: teamMemberProfile.alliance_member_id,
@@ -49,26 +77,25 @@ export async function PUT(
       }),
     ]);
 
-    if (!existingRequest) return sendErrorResponse("Request not found.", 404);
     if (!merchant && teamMemberProfile.alliance_member_role === "MERCHANT")
       return sendErrorResponse("Merchant not found.", 404);
 
-    if (
-      existingRequest.alliance_top_up_request_status !== TOP_UP_STATUS.PENDING
-    ) {
-      return sendErrorResponse("Invalid request.");
-    }
-
-    if (
-      status === TOP_UP_STATUS.APPROVED &&
-      teamMemberProfile.alliance_member_role === "MERCHANT" &&
-      existingRequest.alliance_top_up_request_amount >
-        (merchant?.merchant_member_balance ?? 0)
-    ) {
-      return sendErrorResponse("Insufficient merchant balance.");
-    }
+    if (!merchant && teamMemberProfile.alliance_member_role === "MERCHANT")
+      return sendErrorResponse("Merchant not found.", 404);
 
     const result = await prisma.$transaction(async (tx) => {
+      const existingRequest = await tx.alliance_top_up_request_table.findUnique(
+        {
+          where: {
+            alliance_top_up_request_id: requestId,
+          },
+        }
+      );
+
+      if (!existingRequest) {
+        throw new Error("Request not found.");
+      }
+
       const updatedRequest = await tx.alliance_top_up_request_table.update({
         where: { alliance_top_up_request_id: requestId },
         data: {

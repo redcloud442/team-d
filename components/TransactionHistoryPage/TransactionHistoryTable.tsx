@@ -159,24 +159,6 @@ const TransactionHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
       <ScrollBar orientation="horizontal" />
 
       <div className="flex items-center justify-between gap-x-4 py-4">
-        {/* <div className="flex justify-between items-center px-2 pt-2">
-          <span className="text-sm dark:text-pageColor font-bold ">
-            Rows per page
-          </span>
-          <Select
-            defaultValue="10"
-            onValueChange={(value) => setLimit(Number(value))}
-          >
-            <SelectTrigger className="w-[70px] h-8 dark:bg-transparent space-x-2 dark:text-pageColor font-bold border-none border-b-2 shadow-none border-black">
-              <SelectValue placeholder="10" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="20">20</SelectItem>
-              <SelectItem value="30">30</SelectItem>
-            </SelectContent>
-          </Select>
-        </div> */}
         <div className="flex items-center justify-start gap-x-4">
           {/* Left Arrow */}
           <Button
