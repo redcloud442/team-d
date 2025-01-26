@@ -48,7 +48,6 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
         toast({
           title: `Status Update`,
           description: `${status} Request Successfully`,
-          variant: "success",
         });
         setIsOpenModal({ open: false, requestId: "", status: "" });
       } catch (e) {

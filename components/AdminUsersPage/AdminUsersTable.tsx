@@ -227,7 +227,6 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
       toast({
         title: `Role Updated`,
         description: `Role Updated Sucessfully`,
-        variant: "success",
       });
     } catch (e) {
       if (e instanceof Error) {

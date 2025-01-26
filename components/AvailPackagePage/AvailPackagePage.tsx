@@ -107,7 +107,6 @@ const AvailPackagePage = ({
       toast({
         title: "Enrolled Package",
         description: "You have successfully enrolled in a package",
-        variant: "success",
       });
 
       reset({ amount: "", packageId: selectedPackage?.package_id || "" });

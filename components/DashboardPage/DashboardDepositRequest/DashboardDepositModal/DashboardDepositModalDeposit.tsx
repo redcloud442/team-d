@@ -206,7 +206,6 @@ const DashboardDepositModalDeposit = ({
 
     toast({
       title: "Copied to clipboard",
-      variant: "success",
     });
   };
 

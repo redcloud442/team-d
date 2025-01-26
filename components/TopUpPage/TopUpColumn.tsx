@@ -62,7 +62,6 @@ export const TopUpColumn = (
         toast({
           title: `Status Update`,
           description: `${status} Request Successfully`,
-          variant: "success",
         });
         setIsOpenModal({ open: false, requestId: "", status: "", amount: 0 });
       } catch (e) {
