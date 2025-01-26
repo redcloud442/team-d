@@ -309,10 +309,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Unknown error." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Unknown error." }, { status: 500 });
   }
 }
 

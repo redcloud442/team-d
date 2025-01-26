@@ -183,9 +183,7 @@ export const registerUser = async (params: {
 
     return { success: true };
   } catch (error) {
-    throw new Error(
-      error instanceof Error ? error.message : "An unknown error occurred."
-    );
+    throw new Error("An unknown error occurred.");
   }
 };
 
@@ -300,8 +298,6 @@ export const handleSignInUser = async (params: {
     if (error) throw error;
     return { success: true, url: data.properties };
   } catch (error) {
-    throw new Error(
-      error instanceof Error ? error.message : "An unknown error occurred."
-    );
+    throw new Error("An unknown error occurred.");
   }
 };

@@ -39,7 +39,7 @@ export async function PATCH(request: Request) {
 
     const isAllowed = await rateLimit(
       `rate-limit:${teamMemberProfile?.alliance_member_id}`,
-      5,
+      50,
       60
     );
 
@@ -213,7 +213,7 @@ export async function GET(request: Request) {
 
     const isAllowed = await rateLimit(
       `rate-limit:${teamMemberProfile?.alliance_member_id}`,
-      10,
+      50,
       60
     );
 

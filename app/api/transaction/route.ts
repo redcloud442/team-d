@@ -25,14 +25,14 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const safeLimit = Math.min(Math.max(Number(limit), 1), 100); // Limit between 1 and 100
-    const safePage = Math.max(Number(page), 1); // Ensure page is at least 1
+    const safeLimit = Math.min(Math.max(Number(limit), 1), 100);
+    const safePage = Math.max(Number(page), 1);
 
     const { teamMemberProfile } = await protectionMemberUser();
 
     const isAllowed = await rateLimit(
       `rate-limit:${teamMemberProfile?.alliance_member_id}`,
-      10,
+      50,
       60
     );
 
