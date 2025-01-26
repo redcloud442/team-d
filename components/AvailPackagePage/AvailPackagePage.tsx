@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { createPackageConnection } from "@/services/Package/Member";
+import { usePackageChartData } from "@/store/usePackageChartData";
+import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
+import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { escapeFormData } from "@/utils/function";
-import { ChartDataMember } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   alliance_earnings_table,
@@ -15,15 +17,15 @@ import {
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { v4 as uuidv4 } from "uuid";
 import * as z from "zod";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+
 type Props = {
   earnings: alliance_earnings_table | null;
   pkg: package_table | [];
   teamMemberProfile: alliance_member_table;
-  setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
   setSelectedPackage: Dispatch<SetStateAction<package_table | null>>;
   selectedPackage: package_table | null;
 };
@@ -32,13 +34,14 @@ const AvailPackagePage = ({
   earnings,
   pkg,
   teamMemberProfile,
-  setEarnings,
   setOpen,
-  setChartData,
   setSelectedPackage,
   selectedPackage,
 }: Props) => {
   const { toast } = useToast();
+  const { setEarnings } = useUserEarningsStore();
+  const { chartData, setChartData } = usePackageChartData();
+  const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const [maxAmount, setMaxAmount] = useState(
     earnings?.alliance_combined_earnings ?? 0
   );
@@ -51,9 +54,9 @@ const AvailPackagePage = ({
   const formSchema = z.object({
     amount: z
       .string()
-      .min(1, "Minimum amount is 1 pesos")
-      .refine((val) => !isNaN(parseFloat(val)), {
-        message: "Amount must be a number",
+      .min(3, "Minimum amount is 100 pesos")
+      .refine((val) => Number(val) >= 100, {
+        message: "Minimum amount is 100 pesos",
       })
       .refine((val) => parseFloat(val) <= parseFloat(maxAmount.toFixed(2)), {
         message: `Amount cannot exceed ${formattedMaxAmount}`,
@@ -102,8 +105,9 @@ const AvailPackagePage = ({
       });
 
       toast({
-        title: "Package Enrolled",
+        title: "Enrolled Package",
         description: "You have successfully enrolled in a package",
+        variant: "success",
       });
 
       reset({ amount: "", packageId: selectedPackage?.package_id || "" });
@@ -136,7 +140,7 @@ const AvailPackagePage = ({
 
       setMaxAmount((prev) => prev - result.amount);
 
-      setChartData((prev) => [
+      setChartData([
         {
           package: selectedPackage?.package_name || "",
           completion: 0,
@@ -144,11 +148,29 @@ const AvailPackagePage = ({
           amount: Number(amount),
           is_ready_to_claim: false,
           package_connection_id: selectedPackage?.package_id || "",
-          profit_amount: computation,
+          profit_amount: Number(computation),
           package_color: selectedPackage?.package_color || "",
+          package_date_created: new Date().toISOString(),
+          package_member_id: teamMemberProfile?.alliance_member_id,
+          package_days: Number(selectedPackage?.packages_days || 0),
         },
-        ...prev,
+        ...chartData,
       ]);
+
+      setAddTransactionHistory({
+        data: [
+          {
+            transaction_id: uuidv4(),
+            transaction_date: new Date(),
+            transaction_description: `Package Enrolled: ${selectedPackage?.package_name}`,
+            transaction_details: "",
+            transaction_member_id: teamMemberProfile?.alliance_member_id ?? "",
+            transaction_amount: Number(result.amount),
+          },
+        ],
+        count: 1,
+      });
+
       setSelectedPackage(null);
       setOpen(false);
     } catch (e) {

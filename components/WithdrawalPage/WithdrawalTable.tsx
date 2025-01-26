@@ -175,7 +175,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const handleFilter = async () => {
     try {
-      await fetchRequest();
+      await handleRefresh();
     } catch (e) {}
   };
 
@@ -339,7 +339,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
     setShowFilters(checked);
     if (!checked) {
       reset();
-      handleSubmit(handleFilter)();
+      handleRefresh();
     }
   };
 
@@ -352,7 +352,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
       return;
     }
 
-    await fetchRequest();
+    await handleRefresh();
   };
 
   const rejectNote = watch("rejectNote");
@@ -504,7 +504,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
                 )}
               />
 
-              <Button onClick={fetchRequest}>Submit</Button>
+              <Button onClick={handleRefresh}>Submit</Button>
             </div>
           )}
         </form>

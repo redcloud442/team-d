@@ -9,9 +9,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getAllyBounty } from "@/services/Bounty/Member";
+import { useDirectReferralStore } from "@/store/useDirectReferralStore";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { alliance_member_table, user_table } from "@prisma/client";
+import { alliance_member_table } from "@prisma/client";
 import {
   ColumnFiltersState,
   flexRender,
@@ -45,20 +46,21 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [requestData, setRequestData] = useState<
-    (user_table & { total_bounty_earnings: string })[]
-  >([]);
-  const [requestCount, setRequestCount] = useState(0);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
 
+  const { directReferral, setDirectReferral } = useDirectReferralStore();
   const columnAccessor = sorting?.[0]?.id || "user_date_created";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
 
   const fetchAdminRequest = async () => {
     try {
-      if (!teamMemberProfile || requestData.length > 0) return;
+      if (
+        !teamMemberProfile ||
+        (directReferral.data.length > 0 && activePage === 1)
+      )
+        return;
       setIsFetchingList(true);
 
       const sanitizedData = escapeFormData(getValues());
@@ -71,10 +73,13 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
         columnAccessor: columnAccessor,
         isAscendingSort: isAscendingSort,
         search: emailFilter,
+        teamMemberId: teamMemberProfile.alliance_member_id,
       });
 
-      setRequestData(data || []);
-      setRequestCount(totalCount || 0);
+      setDirectReferral({
+        data: data || [],
+        count: totalCount || 0,
+      });
     } catch (e) {
     } finally {
       setIsFetchingList(false);
@@ -84,7 +89,7 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
   const columns = AllyBountyColumn();
 
   const table = useReactTable({
-    data: requestData,
+    data: directReferral.data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -111,7 +116,7 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
     fetchAdminRequest();
   }, [supabaseClient, teamMemberProfile, activePage, sorting]);
 
-  const pageCount = Math.ceil(requestCount / 10);
+  const pageCount = Math.ceil(directReferral.count / 10);
 
   return (
     <ScrollArea className="w-full overflow-x-auto ">

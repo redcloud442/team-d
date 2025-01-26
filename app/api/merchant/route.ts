@@ -1,4 +1,3 @@
-import { loginRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { rateLimit } from "@/utils/redis/redis";
 import {
@@ -39,7 +38,7 @@ export async function PATCH(request: Request) {
     const { teamMemberProfile } = await protectionAdminUser(ip);
 
     const isAllowed = await rateLimit(
-      `rate-limit:${teamMemberProfile.user_id}`,
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
       5,
       60
     );
@@ -103,8 +102,8 @@ export async function POST(request: Request) {
     const { teamMemberProfile } = await protectionMerchantUser(ip);
 
     const isAllowed = await rateLimit(
-      `rate-limit:${teamMemberProfile.user_id}`,
-      5,
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      50,
       60
     );
 
@@ -166,8 +165,8 @@ export async function DELETE(request: Request) {
     const { teamMemberProfile } = await protectionMerchantUser(ip);
 
     const isAllowed = await rateLimit(
-      `rate-limit:${teamMemberProfile.user_id}`,
-      5,
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      50,
       60
     );
 
@@ -210,9 +209,20 @@ export async function GET(request: Request) {
         "Unable to determine IP address for rate limiting."
       );
 
-    await protectionAllUser(ip);
+    const { teamMemberProfile } = await protectionAllUser(ip);
 
-    loginRateLimit(ip);
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      10,
+      60
+    );
+
+    if (!isAllowed) {
+      return NextResponse.json(
+        { message: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
 
     const merchant = await prisma.$transaction(async (tx) => {
       const merchant = await tx.merchant_table.findMany({

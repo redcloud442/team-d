@@ -7,6 +7,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { usePackageChartData } from "@/store/usePackageChartData";
+import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
+import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { createClientSide } from "@/utils/supabase/client";
 import { LogOut } from "lucide-react";
 import Image from "next/image";
@@ -26,9 +29,15 @@ const MobileNavBar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { setTotalEarnings } = useUserDashboardEarningsStore();
+  const { setEarnings } = useUserEarningsStore();
+  const { setChartData } = usePackageChartData();
 
   const handleSignOut = async () => {
     try {
+      setTotalEarnings(null);
+      setEarnings(null);
+      setChartData([]);
       await supabase.auth.signOut();
       router.push("/auth/login");
     } catch (e) {

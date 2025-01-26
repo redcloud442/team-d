@@ -1,3 +1,4 @@
+import { DashboardEarnings } from "@/utils/types";
 import { alliance_earnings_table } from "@prisma/client";
 
 export const getEarnings = async () => {
@@ -66,4 +67,48 @@ export const getReferralData = async () => {
   } catch (e) {
     return { error: "Internal server error" };
   }
+};
+
+export const getUserEarnings = async (params: { memberId: string }) => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while fetching the earnings."
+    );
+  }
+
+  return result as {
+    totalEarnings: DashboardEarnings;
+    userEarningsData: alliance_earnings_table;
+  };
+};
+
+export const getUserWithdrawalToday = async (params: { userId: string }) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/${params.userId}`,
+    {
+      method: "GET",
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while fetching the withdrawal."
+    );
+  }
+
+  const { isWithdrawalToday } = result;
+
+  return isWithdrawalToday;
 };

@@ -174,7 +174,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const handleFilter = async () => {
     try {
-      await fetchRequest();
+      await handleRefresh();
     } catch (e) {}
   };
 
@@ -335,7 +335,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
     setShowFilters(checked);
     if (!checked) {
       reset();
-      handleSubmit(handleFilter)();
+      handleRefresh();
     }
   };
 
@@ -348,7 +348,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
       return;
     }
 
-    await fetchRequest();
+    await handleRefresh();
   };
 
   const rejectNote = watch("rejectNote");
@@ -476,28 +476,6 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
                           {opt.user_username}
                         </SelectItem>
                       ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-
-              <Controller
-                name="statusFilter"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={(value) =>
-                      field.onChange(value === field.value ? "" : value)
-                    }
-                    value={field.value || ""}
-                  >
-                    <SelectTrigger className="w-full sm:w-auto">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="PENDING">Pending</SelectItem>
-                      <SelectItem value="APPROVED">Approved</SelectItem>
-                      <SelectItem value="REJECTED">Rejected</SelectItem>
                     </SelectContent>
                   </Select>
                 )}

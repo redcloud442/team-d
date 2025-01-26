@@ -1,9 +1,24 @@
 import prisma from "@/utils/prisma";
+import { rateLimit } from "@/utils/redis/redis";
+import { protectionAllUser } from "@/utils/serversideProtection";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const { memberId } = await request.json();
+
+    const { teamMemberProfile } = await protectionAllUser();
+
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      10,
+      60
+    );
+
+    if (!isAllowed) {
+      throw new Error("Too many requests. Please try again later.");
+    }
+
     const user = await prisma.dashboard_earnings_summary.findUnique({
       where: {
         member_id: memberId,

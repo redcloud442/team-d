@@ -17,7 +17,6 @@ const Page = async () => {
   const supabaseClient = await createClientServerSide();
   const {
     redirect: redirectTo,
-    earnings,
     referal,
     teamMemberProfile,
     profile,
@@ -27,7 +26,7 @@ const Page = async () => {
     redirect(redirectTo);
   }
 
-  if (!earnings || !teamMemberProfile) return redirect("/500");
+  if (!teamMemberProfile) return redirect("/500");
 
   const packages = await prisma.package_table.findMany({
     where: {
@@ -75,7 +74,6 @@ const Page = async () => {
       profile={profile}
       teamMemberProfile={teamMemberProfile}
       referal={referal}
-      earnings={earnings}
       packages={packages}
       sponsor={sponsorData || ""}
     />

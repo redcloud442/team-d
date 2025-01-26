@@ -9,8 +9,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getLegionBounty } from "@/services/Bounty/Member";
+import { useIndirectReferralStore } from "@/store/useIndirrectReferralStore";
 import { escapeFormData } from "@/utils/function";
-import { LegionRequestData } from "@/utils/types";
 import { alliance_member_table } from "@prisma/client";
 import {
   ColumnFiltersState,
@@ -43,10 +43,10 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [requestData, setRequestData] = useState<LegionRequestData[]>([]);
-  const [requestCount, setRequestCount] = useState(0);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
+
+  const { indirectReferral, setIndirectReferral } = useIndirectReferralStore();
 
   const columnAccessor = sorting?.[0]?.id || "user_date_created";
   const isAscendingSort =
@@ -54,7 +54,11 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const fetchAdminRequest = async () => {
     try {
-      if (!teamMemberProfile) return;
+      if (
+        !teamMemberProfile ||
+        (indirectReferral.data.length > 0 && activePage === 1)
+      )
+        return;
       setIsFetchingList(true);
 
       const sanitizedData = escapeFormData(getValues());
@@ -70,8 +74,10 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
         search: emailFilter,
       });
 
-      setRequestData(data || []);
-      setRequestCount(totalCount || 0);
+      setIndirectReferral({
+        data: data || [],
+        count: totalCount || 0,
+      });
     } catch (e) {
     } finally {
       setIsFetchingList(false);
@@ -81,7 +87,7 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
   const columns = LegionBountyColumn();
 
   const table = useReactTable({
-    data: requestData,
+    data: indirectReferral.data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -108,7 +114,7 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
     fetchAdminRequest();
   }, [activePage, sorting]);
 
-  const pageCount = Math.ceil(requestCount / 10);
+  const pageCount = Math.ceil(indirectReferral.count / 10);
 
   return (
     <ScrollArea className="w-full overflow-x-auto ">

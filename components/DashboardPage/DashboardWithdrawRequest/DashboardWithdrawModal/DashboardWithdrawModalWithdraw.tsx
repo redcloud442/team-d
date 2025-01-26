@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,6 +11,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -22,20 +28,23 @@ import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
+import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
+import { useUserEarningsStore } from "@/store/useUserEarningsStore";
+import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { calculateFinalAmount, escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_earnings_table, alliance_member_table } from "@prisma/client";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
   earnings: alliance_earnings_table | null;
-  setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
   setTransactionOpen: Dispatch<SetStateAction<boolean>>;
 };
 
@@ -65,10 +74,12 @@ const bankData = ["GCASH", "MAYA", "GOTYME BANK", "UNION BANK", "BDO", "BPI"];
 const DashboardWithdrawModalWithdraw = ({
   teamMemberProfile,
   earnings,
-  setEarnings,
   setTransactionOpen,
 }: Props) => {
   const [open, setOpen] = useState(false);
+  const { setEarnings } = useUserEarningsStore();
+  const { setAddTransactionHistory } = useUserTransactionHistoryStore();
+  const { isWithdrawalToday } = useUserHaveAlreadyWithdraw();
   const totalEarnings =
     (earnings?.alliance_olympus_earnings ?? 0) +
     (earnings?.alliance_referral_bounty ?? 0);
@@ -180,6 +191,21 @@ const DashboardWithdrawModalWithdraw = ({
           break;
       }
 
+      setAddTransactionHistory({
+        data: [
+          {
+            transaction_id: uuidv4(),
+            transaction_date: new Date(),
+            transaction_description: "Withdrawal Pending",
+            transaction_details: `Account Name: ${sanitizedData.accountName} | Account Number: ${sanitizedData.accountNumber}`,
+            transaction_member_id: teamMemberProfile?.alliance_member_id ?? "",
+            transaction_amount: Number(
+              calculateFinalAmount(Number(amount), "TOTAL")
+            ),
+          },
+        ],
+        count: 1,
+      });
       toast({
         title: "Withdrawal Request Successfully",
         description: "Please wait for it to be approved",
@@ -217,19 +243,45 @@ const DashboardWithdrawModalWithdraw = ({
       }}
     >
       <DialogTrigger asChild>
-        <Button
-          className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2"
-          onClick={() => setOpen(true)}
-        >
-          Withdraw
-          <Image
-            src="/assets/withdraw.png"
-            alt="deposit"
-            width={200}
-            height={200}
-            priority
-          />
-        </Button>
+        {!isWithdrawalToday ? (
+          <Button
+            className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2"
+            onClick={() => setOpen(true)}
+          >
+            Withdraw
+            <Image
+              src="/assets/withdraw.png"
+              alt="deposit"
+              width={200}
+              height={200}
+              priority
+            />
+          </Button>
+        ) : (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2">
+                Withdraw
+                <Image
+                  src="/assets/withdraw.png"
+                  alt="deposit"
+                  width={200}
+                  height={200}
+                  priority
+                />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full">
+              <Alert variant={"destructive"}>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Withdrawal Limit</AlertTitle>
+                <AlertDescription>
+                  You can only withdraw once a day
+                </AlertDescription>
+              </Alert>
+            </PopoverContent>
+          </Popover>
+        )}
       </DialogTrigger>
 
       <DialogContent className="w-full sm:max-w-[400px]">

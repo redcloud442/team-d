@@ -38,7 +38,6 @@ const Page = async () => {
         user_first_name: true,
         user_last_name: true,
         user_email: true,
-        user_iv: true,
       },
     }),
     prisma.alliance_member_table.findFirst({
@@ -56,6 +55,7 @@ const Page = async () => {
     ...userData,
     ...allianceData,
   } as UserRequestdata;
+
   return <UserProfilePage userProfile={combinedData} />;
 };
 export default Page;

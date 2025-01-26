@@ -2,9 +2,23 @@
 
 import MobileNavBar from "@/components/ui/MobileNavBar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { getAllyBounty, getLegionBounty } from "@/services/Bounty/Member";
+import { getDashboard } from "@/services/Dasboard/Member";
+import { getTransactionHistory } from "@/services/Transaction/Transaction";
+import { getUserEarnings, getUserWithdrawalToday } from "@/services/User/User";
+import { useDirectReferralStore } from "@/store/useDirectReferralStore";
+import { useIndirectReferralStore } from "@/store/useIndirrectReferralStore";
+import { useUserLoadingStore } from "@/store/useLoadingStore";
+import { usePackageChartData } from "@/store/usePackageChartData";
+import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
+import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
+import { useUserEarningsStore } from "@/store/useUserEarningsStore";
+import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { ROLE } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
+import { createClientSide } from "@/utils/supabase/client";
 import { alliance_member_table, user_table } from "@prisma/client";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useEffect } from "react";
 import AppSidebar from "../ui/side-bar";
@@ -21,16 +35,98 @@ export default function LayoutContent({
   teamMemberProfile,
   children,
 }: LayoutContentProps) {
+  const supabaseClient = createClientSide();
   const { role } = useRole();
-  useEffect(() => {
-    const htmlElement = document.documentElement;
+  const { setTransactionHistory } = useUserTransactionHistoryStore();
+  const { setTotalEarnings } = useUserDashboardEarningsStore();
+  const { setEarnings } = useUserEarningsStore();
+  const { setLoading } = useUserLoadingStore();
+  const { setChartData } = usePackageChartData();
+  const { setDirectReferral } = useDirectReferralStore();
+  const { setIndirectReferral } = useIndirectReferralStore();
+  const { setIsWithdrawalToday } = useUserHaveAlreadyWithdraw();
+  const { setTheme } = useTheme();
 
+  useEffect(() => {
     if (role !== ROLE.ADMIN) {
-      localStorage.removeItem("theme");
-      htmlElement.classList.add("dark");
-    } else {
-      htmlElement.classList.remove("dark");
+      setTheme("dark"); // Default to light mode for other roles
     }
+  }, [role, setTheme]);
+
+  useEffect(() => {
+    const handleFetchTransaction = async () => {
+      if (role === ROLE.ADMIN) return;
+      try {
+        setLoading(true);
+
+        const { totalEarnings, userEarningsData } = await getUserEarnings({
+          memberId: teamMemberProfile.alliance_member_id,
+        });
+
+        setTotalEarnings(totalEarnings);
+
+        setEarnings(userEarningsData);
+
+        const { data } = await getDashboard(supabaseClient, {
+          teamMemberId: teamMemberProfile.alliance_member_id,
+        });
+
+        setChartData(data);
+
+        const { transactionHistory, totalTransactions } =
+          await getTransactionHistory({
+            limit: 10,
+            page: 1,
+          });
+
+        setTransactionHistory({
+          data: transactionHistory,
+          count: totalTransactions,
+        });
+
+        const { data: bountyData, totalCount: bountyTotalCount } =
+          await getAllyBounty({
+            page: 1,
+            limit: 10,
+            teamMemberId: teamMemberProfile.alliance_member_id,
+            columnAccessor: "user_date_created",
+            isAscendingSort: true,
+          });
+
+        setDirectReferral({
+          data: bountyData,
+          count: bountyTotalCount,
+        });
+
+        const { data: legionBountyData, totalCount: legionBountyTotalCount } =
+          await getLegionBounty({
+            page: 1,
+            limit: 10,
+            teamMemberId: teamMemberProfile.alliance_member_id,
+            columnAccessor: "user_date_created",
+            isAscendingSort: true,
+          });
+
+        setIndirectReferral({
+          data: legionBountyData,
+          count: legionBountyTotalCount,
+        });
+
+        const isWithdrawalToday = await getUserWithdrawalToday({
+          userId: teamMemberProfile.alliance_member_id,
+        });
+
+        setIsWithdrawalToday(isWithdrawalToday);
+
+        setLoading(false);
+      } catch (e) {
+        setLoading(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    handleFetchTransaction();
   }, [role]);
 
   return (

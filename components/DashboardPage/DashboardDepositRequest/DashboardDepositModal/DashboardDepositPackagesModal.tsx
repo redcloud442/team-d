@@ -14,7 +14,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getPackageModalData } from "@/services/Package/Member";
 import { createClientSide } from "@/utils/supabase/client";
-import { ChartDataMember } from "@/utils/types";
 import {
   alliance_earnings_table,
   alliance_member_table,
@@ -28,8 +27,6 @@ type Props = {
   teamMemberProfile: alliance_member_table;
   packages: package_table[];
   earnings: alliance_earnings_table | null;
-  setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
-  setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
   setIsActive: Dispatch<SetStateAction<boolean>>;
 };
 
@@ -38,8 +35,6 @@ const DashboardDepositModalPackages = ({
   packages: initialPackage,
   teamMemberProfile,
   earnings,
-  setEarnings,
-  setChartData,
   setIsActive,
 }: Props) => {
   const supabaseClient = createClientSide();
@@ -133,8 +128,6 @@ const DashboardDepositModalPackages = ({
             earnings={earnings}
             pkg={selectedPackage || []}
             teamMemberProfile={teamMemberProfile}
-            setEarnings={setEarnings}
-            setChartData={setChartData}
             selectedPackage={selectedPackage}
           />
 

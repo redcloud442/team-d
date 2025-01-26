@@ -64,8 +64,8 @@ export async function GET(request: Request) {
 }
 
 const topupSchema = z.object({
-  amount: z.number().refine((val) => Number(val) >= 50, {
-    message: "Minimum amount is 50 pesos",
+  amount: z.number().refine((val) => Number(val) >= 100, {
+    message: "Minimum amount is 100 pesos",
   }),
   packageId: z.string().uuid(),
 });
@@ -223,6 +223,7 @@ export async function POST(request: Request) {
           transaction_description: `Package Enrolled: ${packageData.package_name}`,
         },
       });
+
       await tx.alliance_earnings_table.update({
         where: { alliance_earnings_member_id: teamMemberId },
         data: {

@@ -10,10 +10,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ChartDataMember, DashboardEarnings } from "@/utils/types";
-import { alliance_earnings_table } from "@prisma/client";
+import { usePackageChartData } from "@/store/usePackageChartData";
+import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
+import { useUserEarningsStore } from "@/store/useUserEarningsStore";
+import { ChartDataMember } from "@/utils/types";
 import { Loader2 } from "lucide-react";
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
@@ -28,20 +30,11 @@ import {
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 
-type Props = {
-  chartData: ChartDataMember[];
-  setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
-  setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
-  setTotalEarnings: Dispatch<SetStateAction<DashboardEarnings | null>>;
-};
-
-const DashboardPackages = ({
-  chartData,
-  setChartData,
-  setEarnings,
-  setTotalEarnings,
-}: Props) => {
+const DashboardPackages = () => {
   const { toast } = useToast();
+  const { earnings, setEarnings } = useUserEarningsStore();
+  const { chartData, setChartData } = usePackageChartData();
+  const { totalEarnings, setTotalEarnings } = useUserDashboardEarningsStore();
   const [openDialogId, setOpenDialogId] = useState<string | null>(null); // Track which dialog is open
   const [isLoading, setIsLoading] = useState<string | null>(null); // Track loading state for specific packages
 
@@ -63,33 +56,33 @@ const DashboardPackages = ({
         });
 
         // Update chart data to remove the claimed package
-        setChartData((prev) =>
-          prev.filter(
+        setChartData(
+          chartData.filter(
             (data) => data.package_connection_id !== package_connection_id
           )
         );
 
+        const newEarnings = amount + profit_amount;
         // Update earnings
-        setEarnings((prev) => {
-          if (!prev) return null;
-          const newEarnings = amount + profit_amount;
-          return {
-            ...prev,
+        if (earnings) {
+          setEarnings({
+            ...earnings,
+            alliance_earnings_id: earnings.alliance_earnings_id || "",
+            alliance_olympus_wallet: earnings.alliance_olympus_wallet || 0,
             alliance_olympus_earnings:
-              prev.alliance_olympus_earnings + newEarnings,
+              earnings.alliance_olympus_earnings + newEarnings,
+            alliance_referral_bounty: earnings.alliance_referral_bounty || 0,
             alliance_combined_earnings:
-              prev.alliance_combined_earnings + newEarnings,
-          };
-        });
+              earnings.alliance_combined_earnings + newEarnings,
+            alliance_earnings_member_id:
+              earnings.alliance_earnings_member_id || "",
+          });
+        }
 
         // Update total earnings
-        setTotalEarnings((prev) => {
-          if (!prev) return null;
-          const newEarnings = amount + profit_amount;
-          return {
-            ...prev,
-            totalEarnings: prev.totalEarnings + newEarnings,
-          };
+        setTotalEarnings({
+          ...totalEarnings!,
+          totalEarnings: totalEarnings!.totalEarnings + newEarnings,
         });
       }
     } catch (error) {
@@ -194,9 +187,9 @@ const DashboardPackages = ({
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle className="text-bold mb-4">
-                        Claim Package
+                        Collect Package
                       </DialogTitle>
-                      Are you sure you want to claim this package?
+                      Are you sure you want to collect this package?
                     </DialogHeader>
                     <DialogFooter>
                       <Button
@@ -208,10 +201,10 @@ const DashboardPackages = ({
                         {isLoading === data.package_connection_id ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            {"Claiming ..."}
+                            {"Collecting ..."}
                           </>
                         ) : (
-                          "Claim"
+                          "Collect"
                         )}
                       </Button>
                     </DialogFooter>

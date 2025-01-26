@@ -63,6 +63,7 @@ export const GET = async (request: NextRequest) => {
       search: search || "",
       columnAccessor: columnAccessor || "",
       isAscendingSort: isAscendingSort === "true",
+      teamMemberId: teamMemberProfile?.alliance_member_id,
       userId: userId || "",
       teamId: teamMemberProfile?.alliance_member_alliance_id || "",
     };

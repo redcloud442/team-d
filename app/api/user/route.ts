@@ -1,8 +1,10 @@
-import { applyRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
+import { rateLimit } from "@/utils/redis/redis";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
+import { alliance_earnings_table } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 export async function PUT(request: Request) {
   try {
@@ -21,7 +23,15 @@ export async function PUT(request: Request) {
 
     const { teamMemberProfile: profile } = await protectionMemberUser();
 
-    applyRateLimit(profile?.alliance_member_id || "", ip);
+    const isAllowed = await rateLimit(
+      `rate-limit:${profile?.alliance_member_id}`,
+      10,
+      60
+    );
+
+    if (!isAllowed) {
+      throw new Error("Too many requests. Please try again later.");
+    }
 
     const { email, password, userId } = await request.json();
 
@@ -96,7 +106,15 @@ export async function GET(request: Request) {
 
     const supabase = await createClientServerSide();
 
-    applyRateLimit(teamMemberProfile?.alliance_member_id || "", ip);
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      10,
+      60
+    );
+
+    if (!isAllowed) {
+      throw new Error("Too many requests. Please try again later.");
+    }
 
     const { data, error } = await supabase.rpc("get_earnings_modal_data", {
       input_data: {
@@ -113,3 +131,76 @@ export async function GET(request: Request) {
     );
   }
 }
+
+const getUserEarningsSchema = z.object({
+  memberId: z.string().uuid(),
+});
+
+export const POST = async (request: Request) => {
+  try {
+    const { memberId } = await request.json();
+
+    const validate = getUserEarningsSchema.safeParse({ memberId });
+
+    if (!validate.success) {
+      throw new Error(validate.error.message);
+    }
+
+    const { teamMemberProfile } = await protectionMemberUser();
+
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      50,
+      60
+    );
+
+    if (!isAllowed) {
+      throw new Error("Too many requests. Please try again later.");
+    }
+
+    const user = await prisma.dashboard_earnings_summary.findUnique({
+      where: {
+        member_id: memberId,
+      },
+      select: {
+        direct_referral_amount: true,
+        indirect_referral_amount: true,
+        total_earnings: true,
+        total_withdrawals: true,
+        direct_referral_count: true,
+        indirect_referral_count: true,
+      },
+    });
+
+    const userEarnings = await prisma.alliance_earnings_table.findUnique({
+      where: {
+        alliance_earnings_member_id: memberId,
+      },
+      select: {
+        alliance_olympus_wallet: true,
+        alliance_olympus_earnings: true,
+        alliance_combined_earnings: true,
+        alliance_referral_bounty: true,
+      },
+    });
+
+    const totalEarnings = {
+      directReferralAmount: user?.direct_referral_amount,
+      indirectReferralAmount: user?.indirect_referral_amount,
+      totalEarnings: user?.total_earnings,
+      withdrawalAmount: user?.total_withdrawals,
+      directReferralCount: user?.direct_referral_count,
+      indirectReferralCount: user?.indirect_referral_count,
+    };
+
+    return NextResponse.json({
+      totalEarnings,
+      userEarningsData: userEarnings as unknown as alliance_earnings_table,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unknown error." },
+      { status: 500 }
+    );
+  }
+};

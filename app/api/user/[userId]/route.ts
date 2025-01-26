@@ -1,9 +1,9 @@
 import { WITHDRAWAL_STATUS } from "@/utils/constant";
-import { loginRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { rateLimit } from "@/utils/redis/redis";
 import {
   protectionAdminUser,
+  protectionAllUser,
   protectionMemberUser,
 } from "@/utils/serversideProtection";
 import { createServiceRoleClientServerSide } from "@/utils/supabase/server";
@@ -145,9 +145,18 @@ export async function PATCH(
       );
     }
 
-    await protectionAdminUser(ip);
+    const { teamMemberProfile } = await protectionAdminUser(ip);
 
-    loginRateLimit(ip);
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      10,
+      60
+    );
+
+    if (!isAllowed) {
+      throw new Error("Too many requests. Please try again later.");
+    }
+
     const { userId } = await context.params;
     if (!userId) {
       return NextResponse.json({ error: "There is no user" }, { status: 400 });
@@ -270,6 +279,18 @@ export const GET = async (
         { error: validate.error.message },
         { status: 400 }
       );
+    }
+
+    const { teamMemberProfile } = await protectionAllUser();
+
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      50,
+      60
+    );
+
+    if (!isAllowed) {
+      throw new Error("Too many requests. Please try again later.");
     }
 
     let isWithdrawalToday = false;

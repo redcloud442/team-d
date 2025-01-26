@@ -84,8 +84,6 @@ const DashboardDepositRequest = ({
                 packages={packages}
                 earnings={earnings}
                 teamMemberProfile={teamMemberProfile}
-                setEarnings={setEarnings}
-                setChartData={setChartData}
                 setIsActive={setIsActive}
               />
 

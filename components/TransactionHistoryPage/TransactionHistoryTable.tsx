@@ -10,11 +10,9 @@ import {
 } from "@/components/ui/table";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getTransactionHistory } from "@/services/Transaction/Transaction";
+import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { createClientSide } from "@/utils/supabase/client";
-import {
-  alliance_member_table,
-  alliance_transaction_table,
-} from "@prisma/client";
+import { alliance_member_table } from "@prisma/client";
 import {
   ColumnFiltersState,
   flexRender,
@@ -40,32 +38,35 @@ const TransactionHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [requestData, setRequestData] = useState<alliance_transaction_table[]>(
-    []
-  );
-  const [requestCount, setRequestCount] = useState(0);
+
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
+  const { transactionHistory, setTransactionHistory } =
+    useUserTransactionHistoryStore();
 
   const fetchRequest = async () => {
     try {
-      if (!teamMemberProfile) return;
+      if (!teamMemberProfile || (transactionHistory && activePage === 1))
+        return;
       setIsFetchingList(true);
 
-      const { transactionHistory, totalTransactions } =
+      const { transactionHistory: transactionHistoryData, totalTransactions } =
         await getTransactionHistory({
           page: activePage,
           limit: 10,
         });
 
-      setRequestData(transactionHistory || []);
-      setRequestCount(totalTransactions || 0);
+      setTransactionHistory({
+        data: transactionHistoryData,
+        count: totalTransactions,
+      });
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
           errorMessage: e.message,
           stackTrace: e.stack,
-          stackPath: "components/TopUpHistoryPage/TopUpHistoryTable.tsx",
+          stackPath:
+            "components/TransactionHistoryPage/TransactionHistoryTable.tsx",
         });
       }
     } finally {
@@ -76,7 +77,7 @@ const TransactionHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   const columns = TransactionHistoryColumn();
 
   const table = useReactTable({
-    data: requestData,
+    data: transactionHistory.data,
     columns,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -95,7 +96,7 @@ const TransactionHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
     fetchRequest();
   }, [supabaseClient, teamMemberProfile, activePage]);
 
-  const pageCount = Math.ceil(requestCount / 10);
+  const pageCount = Math.ceil(transactionHistory.count / 10);
 
   return (
     <ScrollArea className="w-full overflow-x-auto ">
