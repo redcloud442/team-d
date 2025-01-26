@@ -80,10 +80,7 @@ export async function PUT(
     if (!merchant && teamMemberProfile.alliance_member_role === "MERCHANT")
       return sendErrorResponse("Merchant not found.", 404);
 
-    if (!merchant && teamMemberProfile.alliance_member_role === "MERCHANT")
-      return sendErrorResponse("Merchant not found.", 404);
-
-    const result = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       const existingRequest = await tx.alliance_top_up_request_table.findUnique(
         {
           where: {
@@ -117,12 +114,20 @@ export async function PUT(
       });
 
       if (status === TOP_UP_STATUS.APPROVED) {
-        const updatedEarnings = await tx.alliance_earnings_table.update({
+        const updatedEarnings = await tx.alliance_earnings_table.upsert({
           where: {
             alliance_earnings_member_id:
               updatedRequest.alliance_top_up_request_member_id,
           },
-          data: {
+          create: {
+            alliance_earnings_member_id:
+              updatedRequest.alliance_top_up_request_member_id,
+            alliance_olympus_wallet:
+              updatedRequest.alliance_top_up_request_amount,
+            alliance_combined_earnings:
+              updatedRequest.alliance_top_up_request_amount,
+          },
+          update: {
             alliance_olympus_wallet: {
               increment: updatedRequest.alliance_top_up_request_amount,
             },
@@ -155,7 +160,7 @@ export async function PUT(
       return { updatedRequest };
     });
 
-    return NextResponse.json({ success: true, result });
+    return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(
       {
