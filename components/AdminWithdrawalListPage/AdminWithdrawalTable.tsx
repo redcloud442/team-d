@@ -48,7 +48,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Separator } from "../ui/separator";
 import { Switch } from "../ui/switch";
 import TableLoading from "../ui/tableLoading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
@@ -524,7 +523,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
       </div>
       <ScrollArea className="w-full overflow-x-auto ">
         {isFetchingList && <TableLoading />}
-        <Separator />
+
         <Tabs defaultValue="PENDING" onValueChange={handleTabChange}>
           <TabsList className="mb-4">
             <TabsTrigger value="PENDING">

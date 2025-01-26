@@ -26,10 +26,12 @@ export async function PATCH(request: Request) {
       return sendErrorResponse(
         "Unable to determine IP address for rate limiting."
       );
+    const { amount, memberId } = await request.json();
 
-    const updateMerchantBalanceData = updateMerchantBalanceSchema.safeParse(
-      await request.json()
-    );
+    const updateMerchantBalanceData = updateMerchantBalanceSchema.safeParse({
+      amount,
+      memberId,
+    });
 
     if (!updateMerchantBalanceData.success) {
       return sendErrorResponse("Invalid request.", 400);
@@ -46,8 +48,6 @@ export async function PATCH(request: Request) {
     if (!isAllowed) {
       return NextResponse.json({ success: false, ip });
     }
-
-    const { amount, memberId } = await request.json();
 
     const result = await prisma.$transaction(async (tx) => {
       const merchant = await tx.merchant_member_table.findFirst({
@@ -93,7 +93,13 @@ export async function POST(request: Request) {
         "Unable to determine IP address for rate limiting."
       );
 
-    const postMerchantData = postMerchantSchema.safeParse(await request.json());
+    const { accountNumber, accountType, accountName } = await request.json();
+
+    const postMerchantData = postMerchantSchema.safeParse({
+      accountNumber,
+      accountType,
+      accountName,
+    });
 
     if (!postMerchantData.success) {
       return sendErrorResponse("Invalid request.", 400);
@@ -110,8 +116,6 @@ export async function POST(request: Request) {
     if (!isAllowed) {
       return NextResponse.json({ success: false, ip });
     }
-
-    const { accountNumber, accountType, accountName } = await request.json();
 
     const result = await prisma.$transaction(async (tx) => {
       const merchant = await tx.merchant_table.findFirst({

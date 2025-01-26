@@ -144,7 +144,6 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
       toast({
         title: "Link copied!",
         description: "Link copied to clipboard",
-        variant: "success",
       });
     } catch (err) {}
   };

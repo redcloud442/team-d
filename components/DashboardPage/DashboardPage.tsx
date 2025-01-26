@@ -152,13 +152,15 @@ const DashboardPage = ({
               ) : (
                 <p className="text-sm">
                   {"₱ "}
-                  {earnings?.alliance_combined_earnings?.toLocaleString(
-                    "en-US",
-                    {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }
-                  )}
+                  {earnings?.alliance_combined_earnings
+                    ? earnings.alliance_combined_earnings.toLocaleString(
+                        "en-US",
+                        {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }
+                      )
+                    : 0}
                 </p>
               )}
             </div>
@@ -269,7 +271,7 @@ const DashboardPage = ({
 
         {chartData.length > 0 && (
           <div className=" gap-6">
-            <DashboardPackages />
+            <DashboardPackages teamMemberProfile={teamMemberProfile} />
           </div>
         )}
 

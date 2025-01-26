@@ -2,7 +2,6 @@
 
 import MobileNavBar from "@/components/ui/MobileNavBar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { getAllyBounty, getLegionBounty } from "@/services/Bounty/Member";
 import { getDashboard } from "@/services/Dasboard/Member";
 import { getTransactionHistory } from "@/services/Transaction/Transaction";
 import { getUserEarnings, getUserWithdrawalToday } from "@/services/User/User";
@@ -82,34 +81,6 @@ export default function LayoutContent({
         setTransactionHistory({
           data: transactionHistory,
           count: totalTransactions,
-        });
-
-        const { data: bountyData, totalCount: bountyTotalCount } =
-          await getAllyBounty({
-            page: 1,
-            limit: 10,
-            teamMemberId: teamMemberProfile.alliance_member_id,
-            columnAccessor: "user_date_created",
-            isAscendingSort: true,
-          });
-
-        setDirectReferral({
-          data: bountyData,
-          count: bountyTotalCount,
-        });
-
-        const { data: legionBountyData, totalCount: legionBountyTotalCount } =
-          await getLegionBounty({
-            page: 1,
-            limit: 10,
-            teamMemberId: teamMemberProfile.alliance_member_id,
-            columnAccessor: "user_date_created",
-            isAscendingSort: true,
-          });
-
-        setIndirectReferral({
-          data: legionBountyData,
-          count: legionBountyTotalCount,
         });
 
         const isWithdrawalToday = await getUserWithdrawalToday({

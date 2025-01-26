@@ -132,7 +132,6 @@ const EditPackagesModal = ({
       toast({
         title: "Package Updated Successfully",
         description: "Please wait",
-        variant: "success",
       });
       setOpen(false);
       reset();

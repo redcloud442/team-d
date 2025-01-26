@@ -355,7 +355,7 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
                     variant="card"
                     onClick={() => router.push("/withdraw")}
                   >
-                    Merchant
+                    Withdrawal
                   </Button>
                 </div>
               )}

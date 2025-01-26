@@ -41,7 +41,6 @@ export const useMerchantColumn = (handleFetch: () => void) => {
       toast({
         title: "Merchant Deleted",
         description: "Merchant has been deleted successfully",
-        variant: "success",
       });
       setIsDeleteModal({ merchantId: "", isOpen: false });
       handleFetch();

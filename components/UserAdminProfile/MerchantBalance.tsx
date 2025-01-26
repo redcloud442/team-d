@@ -61,7 +61,6 @@ const MerchantBalance = ({ userProfile }: Props) => {
       }));
       toast({
         title: "Merchant Balance Updated Successfully",
-        variant: "success",
       });
       reset();
     } catch (e) {

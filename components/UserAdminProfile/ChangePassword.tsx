@@ -82,7 +82,6 @@ const ChangePassword = ({ userProfile, setUserProfile }: Props) => {
       }
       toast({
         title: "Password Change Successfully",
-        variant: "success",
       });
     } catch (e) {
       if (e instanceof Error) {

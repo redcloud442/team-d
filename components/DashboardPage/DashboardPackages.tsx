@@ -11,11 +11,14 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { usePackageChartData } from "@/store/usePackageChartData";
+import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { ChartDataMember } from "@/utils/types";
+import { alliance_member_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
@@ -30,11 +33,16 @@ import {
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 
-const DashboardPackages = () => {
+type DashboardPackagesProps = {
+  teamMemberProfile: alliance_member_table;
+};
+
+const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
   const { toast } = useToast();
   const { earnings, setEarnings } = useUserEarningsStore();
   const { chartData, setChartData } = usePackageChartData();
   const { totalEarnings, setTotalEarnings } = useUserDashboardEarningsStore();
+  const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const [openDialogId, setOpenDialogId] = useState<string | null>(null); // Track which dialog is open
   const [isLoading, setIsLoading] = useState<string | null>(null); // Track loading state for specific packages
 
@@ -78,6 +86,20 @@ const DashboardPackages = () => {
               earnings.alliance_earnings_member_id || "",
           });
         }
+
+        setAddTransactionHistory({
+          data: [
+            {
+              transaction_id: uuidv4(),
+              transaction_date: new Date(),
+              transaction_description: ` ${packageData.package} Package Claimed`,
+              transaction_details: "",
+              transaction_amount: newEarnings,
+              transaction_member_id: teamMemberProfile.alliance_member_id,
+            },
+          ],
+          count: 1,
+        });
 
         // Update total earnings
         setTotalEarnings({
