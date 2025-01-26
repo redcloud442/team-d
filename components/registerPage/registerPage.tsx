@@ -12,14 +12,12 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircleIcon, XCircleIcon } from "lucide-react";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { useController, useForm } from "react-hook-form";
 import { z } from "zod";
 import NavigationLoader from "../ui/NavigationLoader";
 import { PasswordInput } from "../ui/passwordInput";
-import Text from "../ui/text";
 
 const RegisterSchema = z
   .object({
@@ -321,14 +319,7 @@ const RegisterPage = ({ referralLink }: Props) => {
           </div>
         </form>
       </CardContent>
-      <CardFooter>
-        <Text>
-          Already have an account?{" "}
-          <Link href="/auth/login" className="text-blue-500">
-            Login
-          </Link>
-        </Text>
-      </CardFooter>
+      <CardFooter></CardFooter>
     </Card>
   );
 };
