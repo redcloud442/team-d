@@ -167,9 +167,7 @@ const DashboardWithdrawModalWithdraw = ({
             );
             remainingAmount -= referralDeduction;
 
-            // Ensure no remaining amount (sanity check)
             if (remainingAmount > 0) {
-              console.error("Insufficient funds to update state.");
               break;
             }
 

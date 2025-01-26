@@ -109,7 +109,6 @@ const CreatePackageModal = ({ fetchPackages }: Props) => {
       toast({
         title: "Package Created Successfully",
         description: "Please wait",
-        variant: "success",
       });
       setOpen(false);
       reset();

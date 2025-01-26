@@ -56,11 +56,7 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const fetchAdminRequest = async () => {
     try {
-      if (
-        !teamMemberProfile ||
-        (directReferral.data.length > 0 && activePage === 1)
-      )
-        return;
+      if (!teamMemberProfile) return;
       setIsFetchingList(true);
 
       const sanitizedData = escapeFormData(getValues());

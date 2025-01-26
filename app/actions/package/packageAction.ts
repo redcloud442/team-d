@@ -55,6 +55,19 @@ export const claimPackage = async (params: {
         throw new Error("Invalid request.");
       }
 
+      const packageDetails = await tx.package_table.findUnique({
+        where: {
+          package_id: packageConnection.package_member_package_id,
+        },
+        select: {
+          package_name: true,
+        },
+      });
+
+      if (!packageDetails) {
+        throw new Error("Invalid request.");
+      }
+
       // if (!packageConnection.package_member_is_ready_to_claim) {
       //   throw new Error("Invalid request. Package is not ready to claim.");
       // }
@@ -62,6 +75,7 @@ export const claimPackage = async (params: {
       const totalClaimedAmount =
         packageConnection.package_member_amount +
         packageConnection.package_amount_earnings;
+
       const totalAmountToBeClaimed = amount + earnings;
 
       if (totalClaimedAmount !== totalAmountToBeClaimed) {
@@ -87,7 +101,7 @@ export const claimPackage = async (params: {
         data: {
           transaction_member_id: teamMemberProfile.alliance_member_id,
           transaction_amount: totalClaimedAmount,
-          transaction_description: "Package Claimed",
+          transaction_description: ` ${packageDetails.package_name} Package Claimed`,
         },
       });
 

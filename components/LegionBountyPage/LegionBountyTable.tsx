@@ -54,11 +54,7 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const fetchAdminRequest = async () => {
     try {
-      if (
-        !teamMemberProfile ||
-        (indirectReferral.data.length > 0 && activePage === 1)
-      )
-        return;
+      if (!teamMemberProfile) return;
       setIsFetchingList(true);
 
       const sanitizedData = escapeFormData(getValues());
@@ -87,7 +83,7 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
   const columns = LegionBountyColumn();
 
   const table = useReactTable({
-    data: indirectReferral.data,
+    data: indirectReferral.data || [],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -122,7 +118,7 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
 
       <Table className="w-full border-collapse border border-black font-bold">
         <TableHeader className="border-b border-black dark:text-pageColor font-bold">
-          {table.getHeaderGroups().map((headerGroup) => (
+          {table?.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}
               className="border-b border-black  dark:text-pageColor font-bold"
@@ -145,8 +141,8 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
         </TableHeader>
 
         <TableBody>
-          {table.getRowModel().rows.length ? (
-            table.getRowModel().rows.map((row) => (
+          {table?.getRowModel().rows.length ? (
+            table?.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
