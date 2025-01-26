@@ -420,7 +420,7 @@ export const protectionAllUser = async (ip?: string) => {
 
     if (
       !teamMember?.alliance_member_alliance_id ||
-      !["MEMBER", "MERCHANT", "ACCOUNTING"].includes(
+      !["MEMBER", "MERCHANT", "ACCOUNTING", "ADMIN"].includes(
         teamMember.alliance_member_role
       )
     ) {

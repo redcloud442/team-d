@@ -144,7 +144,7 @@ export const registerUser = async (params: {
 
     const isAllowed = await rateLimit(
       `rate-limit:${teamMemberProfile?.alliance_member_id}`,
-      10,
+      50,
       60
     );
 
