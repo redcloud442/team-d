@@ -23,6 +23,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getMerchantOptions } from "@/services/Options/Options";
+import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,6 +33,7 @@ import Image from "next/image";
 import { NextResponse } from "next/server";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 
 type Props = {
@@ -64,10 +66,14 @@ const topUpFormSchema = z.object({
 
 export type TopUpFormValues = z.infer<typeof topUpFormSchema>;
 
-const DashboardDepositModalDeposit = ({ className }: Props) => {
+const DashboardDepositModalDeposit = ({
+  className,
+  teamMemberProfile,
+}: Props) => {
   const supabaseClient = createClientSide();
   const [topUpOptions, setTopUpOptions] = useState<merchant_table[]>([]);
   const { toast } = useToast();
+  const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const [open, setOpen] = useState(false);
   const {
     control,
@@ -144,6 +150,20 @@ const DashboardDepositModalDeposit = ({ className }: Props) => {
 
       setOpen(false);
       reset();
+
+      setAddTransactionHistory({
+        data: [
+          {
+            transaction_id: uuidv4(),
+            transaction_date: new Date(),
+            transaction_description: "Deposit Pending",
+            transaction_details: `Account Name: ${sanitizedData.accountName} | Account Number: ${sanitizedData.accountNumber}`,
+            transaction_member_id: teamMemberProfile?.alliance_member_id ?? "",
+            transaction_amount: Number(sanitizedData.amount),
+          },
+        ],
+        count: 1,
+      });
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
@@ -266,13 +286,17 @@ const DashboardDepositModalDeposit = ({ className }: Props) => {
                         inputValue = `${parts[0]}.${parts[1].substring(0, 2)}`;
                       }
 
+                      if (inputValue.length > 8) {
+                        inputValue = inputValue.substring(0, 8);
+                      }
+
                       // Update the field value
                       field.onChange(inputValue);
 
                       // Enforce max amount
                       const numericValue = Number(inputValue);
 
-                      setValue("amount", numericValue.toFixed(2).toString());
+                      setValue("amount", numericValue.toString());
                     }}
                   />
                 )}

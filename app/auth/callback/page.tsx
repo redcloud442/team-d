@@ -24,7 +24,7 @@ const AuthCallback = () => {
       if (error || !data?.session) {
         setStatus("error");
         setTimeout(() => {
-          router.push("/login");
+          router.push("/auth/login");
         }, 3000);
         return;
       }

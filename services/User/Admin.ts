@@ -2,7 +2,7 @@ import { escapeFormData } from "@/utils/function";
 import { UserLog, UserRequestdata } from "@/utils/types";
 import { user_table } from "@prisma/client";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { loginValidation } from "../auth/auth";
+import { z } from "zod";
 
 export const getAdminUserRequest = async (
   supabaseClient: SupabaseClient,
@@ -85,31 +85,9 @@ export const getHistoryLog = async (
     totalCount: 0;
   };
 };
-
-export const handleSignInUser = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    userName: string;
-    password: string;
-    role: string;
-    iv: string;
-    userProfile?: UserRequestdata;
-  }
-) => {
-  if (params.userProfile?.alliance_member_restricted) {
-    throw new Error("User is banned.");
-  }
-  const sanitizedData = escapeFormData(params);
-
-  const response = await loginValidation(supabaseClient, {
-    userName: sanitizedData.userName,
-    password: sanitizedData.password,
-    role: sanitizedData.role,
-    iv: sanitizedData.iv,
-    userProfile: sanitizedData.userProfile,
-  });
-  return response;
-};
+const signInUserSchema = z.object({
+  formattedUserName: z.string().email(),
+});
 
 export const handleUpdateRole = async (params: {
   role: string;

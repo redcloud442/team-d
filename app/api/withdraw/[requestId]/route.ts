@@ -1,12 +1,18 @@
 import { WITHDRAWAL_STATUS } from "@/utils/constant";
-import { applyRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
+import { rateLimit } from "@/utils/redis/redis";
 import { protectionAccountingUser } from "@/utils/serversideProtection";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 function sendErrorResponse(message: string, status: number = 400) {
   return NextResponse.json({ error: message }, { status });
 }
+const updateWithdrawalRequestSchema = z.object({
+  status: z.string().min(3),
+  note: z.string().optional(),
+  requestId: z.string().uuid(),
+});
 
 export async function PUT(
   request: NextRequest,
@@ -25,6 +31,19 @@ export async function PUT(
     const { status, note }: { status: string; note?: string | null } =
       await request.json();
 
+    const validate = updateWithdrawalRequestSchema.safeParse({
+      status,
+      note,
+      requestId,
+    });
+
+    if (!validate.success) {
+      return NextResponse.json(
+        { error: validate.error.message },
+        { status: 400 }
+      );
+    }
+
     if (!status || !Object.values(WITHDRAWAL_STATUS).includes(status)) {
       return sendErrorResponse("Invalid or missing status.");
     }
@@ -34,7 +53,18 @@ export async function PUT(
     if (!teamMemberProfile)
       return sendErrorResponse("User authentication failed.", 401);
 
-    await applyRateLimit(teamMemberProfile.alliance_member_id, ip);
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      50,
+      60
+    );
+
+    if (!isAllowed) {
+      return NextResponse.json(
+        { message: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
 
     const result = await prisma.$transaction(async (tx) => {
       const existingRequest =
@@ -42,8 +72,8 @@ export async function PUT(
           where: { alliance_withdrawal_request_id: requestId },
         });
 
-      if (existingRequest?.alliance_withdrawal_request_status !== "PENDING") {
-        throw new Error("Request has already been processed.");
+      if (!existingRequest) {
+        throw new Error("Request not found.");
       }
 
       const updatedRequest = await tx.alliance_withdrawal_request_table.update({

@@ -1,7 +1,17 @@
-import { applyRateLimit, escapeFormData } from "@/utils/function";
+import { escapeFormData } from "@/utils/function";
+import { rateLimit } from "@/utils/redis/redis";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+
+const getDirectReferralsSchema = z.object({
+  page: z.string().min(1),
+  limit: z.string().min(1),
+  search: z.string().optional(),
+  columnAccessor: z.string().min(3),
+  isAscendingSort: z.string(),
+});
 
 export const GET = async (request: NextRequest) => {
   try {
@@ -12,7 +22,18 @@ export const GET = async (request: NextRequest) => {
 
     const { teamMemberProfile } = await protectionMemberUser();
 
-    await applyRateLimit(teamMemberProfile?.alliance_member_id || "", ip);
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      50,
+      60
+    );
+
+    if (!isAllowed) {
+      return NextResponse.json(
+        { message: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
 
     const url = new URL(request.url);
 
@@ -23,6 +44,21 @@ export const GET = async (request: NextRequest) => {
     const isAscendingSort = url.searchParams.get("isAscendingSort");
 
     const supabaseClient = await createClientServerSide();
+
+    const validate = getDirectReferralsSchema.safeParse({
+      page,
+      limit,
+      search,
+      columnAccessor,
+      isAscendingSort,
+    });
+
+    if (!validate.success) {
+      return NextResponse.json(
+        { error: validate.error.message },
+        { status: 400 }
+      );
+    }
 
     if (limit !== "10") {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });

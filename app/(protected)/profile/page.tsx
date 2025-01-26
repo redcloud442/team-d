@@ -25,12 +25,10 @@ const Page = async () => {
 
   if (!teamMemberProfile || !profile) redirect("/500");
 
-  if (teamMemberProfile) return redirect("/");
-
   const [userData, allianceData] = await prisma.$transaction([
     prisma.user_table.findFirst({
       where: {
-        user_id: "",
+        user_id: profile.user_id,
       },
       select: {
         user_id: true,
@@ -38,15 +36,15 @@ const Page = async () => {
         user_first_name: true,
         user_last_name: true,
         user_email: true,
-        user_iv: true,
       },
     }),
     prisma.alliance_member_table.findFirst({
       where: {
-        alliance_member_user_id: "",
+        alliance_member_user_id: profile.user_id,
       },
       select: {
         alliance_member_id: true,
+
         alliance_member_role: true,
       },
     }),
@@ -56,6 +54,7 @@ const Page = async () => {
     ...userData,
     ...allianceData,
   } as UserRequestdata;
+
   return <UserProfilePage userProfile={combinedData} />;
 };
 export default Page;

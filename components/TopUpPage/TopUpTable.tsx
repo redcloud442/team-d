@@ -345,7 +345,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
     setShowFilters(checked);
     if (!checked) {
       reset();
-      handleSubmit(handleFilter)();
+      handleRefresh();
     }
   };
 
@@ -358,7 +358,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
       return;
     }
 
-    await fetchRequest();
+    await handleRefresh();
   };
 
   const rejectNote = watch("rejectNote");

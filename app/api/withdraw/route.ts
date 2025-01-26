@@ -1,12 +1,15 @@
 import { WITHDRAWAL_STATUS } from "@/utils/constant";
 import {
-  applyRateLimit,
   calculateFee,
   calculateFinalAmount,
   escapeFormData,
 } from "@/utils/function";
 import prisma from "@/utils/prisma";
-import { protectionMemberUser } from "@/utils/serversideProtection";
+import { rateLimit } from "@/utils/redis/redis";
+import {
+  protectionAdminUser,
+  protectionMemberUser,
+} from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -18,9 +21,17 @@ export async function GET(request: Request) {
       request.headers.get("cf-connecting-ip") ||
       "unknown";
 
-    const { teamMemberProfile } = await protectionMemberUser();
+    const { teamMemberProfile } = await protectionAdminUser(ip);
 
-    await applyRateLimit(teamMemberProfile?.alliance_member_id || "", ip);
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      10,
+      60
+    );
+
+    if (!isAllowed) {
+      throw new Error("Too many requests. Please try again later.");
+    }
 
     const supabaseClient = await createClientServerSide();
 
@@ -65,6 +76,7 @@ export async function GET(request: Request) {
     );
   }
 }
+
 const withdrawalFormSchema = z.object({
   earnings: z.string(),
   amount: z
@@ -115,38 +127,47 @@ export async function POST(request: Request) {
     }
 
     const { teamMemberProfile } = await protectionMemberUser(ip);
-    // const today = new Date().toISOString().slice(0, 10); // Get the current date in YYYY-MM-DD format
 
-    // const existingWithdrawal =
-    //   await prisma.alliance_withdrawal_request_table.findFirst({
-    //     where: {
-    //       alliance_withdrawal_request_member_id: teamMemberId,
-    //       AND: [
-    //         {
-    //           alliance_withdrawal_request_date: {
-    //             gte: new Date(`${today}T00:00:00Z`), // Start of the day
-    //           },
-    //         },
-    //         {
-    //           alliance_withdrawal_request_date: {
-    //             lte: new Date(`${today}T23:59:59Z`), // End of the day
-    //           },
-    //         },
-    //       ],
-    //     },
-    //   });
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      50,
+      60
+    );
 
-    // if (existingWithdrawal) {
-    //   return NextResponse.json(
-    //     {
-    //       error:
-    //         "You have already made a withdrawal today. Please try again tomorrow.",
-    //     },
-    //     { status: 400 }
-    //   );
-    // }
+    if (!isAllowed) {
+      throw new Error("Too many requests. Please try again later.");
+    }
 
-    await applyRateLimit(teamMemberId, ip);
+    const today = new Date().toISOString().slice(0, 10);
+
+    const existingWithdrawal =
+      await prisma.alliance_withdrawal_request_table.findFirst({
+        where: {
+          alliance_withdrawal_request_member_id: teamMemberId,
+          AND: [
+            {
+              alliance_withdrawal_request_date: {
+                gte: new Date(`${today}T00:00:00Z`), // Start of the day
+              },
+            },
+            {
+              alliance_withdrawal_request_date: {
+                lte: new Date(`${today}T23:59:59Z`), // End of the day
+              },
+            },
+          ],
+        },
+      });
+
+    if (existingWithdrawal) {
+      return NextResponse.json(
+        {
+          error:
+            "You have already made a withdrawal today. Please try again tomorrow.",
+        },
+        { status: 400 }
+      );
+    }
 
     const amountMatch = await prisma.alliance_earnings_table.findUnique({
       where: { alliance_earnings_member_id: teamMemberId },
@@ -178,32 +199,23 @@ export async function POST(request: Request) {
       );
     }
 
-    // Initialize remaining amount to be deducted
-    let remainingAmount = amountValue;
-
-    // Deduct from Olympus Earnings
+    let remainingAmount = Number(amount);
     const olympusDeduction = Math.min(
       remainingAmount,
-      Math.max(0, Math.round(Number(alliance_olympus_earnings) * 100) / 100)
+      Number(alliance_olympus_earnings)
     );
-    remainingAmount = Math.max(
-      0,
-      Math.round((remainingAmount - olympusDeduction) * 100) / 100
-    );
+    remainingAmount -= olympusDeduction;
 
-    // Deduct from Referral Bounty
     const referralDeduction = Math.min(
       remainingAmount,
-      Math.max(0, Math.round(Number(alliance_referral_bounty) * 100) / 100)
+      Number(alliance_referral_bounty)
     );
-    remainingAmount = Math.max(
-      0,
-      Math.round((remainingAmount - referralDeduction) * 100) / 100
-    );
+    remainingAmount -= referralDeduction;
 
     if (remainingAmount > 0) {
       return NextResponse.json({ error: "Invalid request." }, { status: 400 });
     }
+
     await prisma.$transaction([
       // Create the withdrawal request
       prisma.alliance_withdrawal_request_table.create({
@@ -233,13 +245,13 @@ export async function POST(request: Request) {
         where: { alliance_earnings_member_id: teamMemberId },
         data: {
           alliance_olympus_earnings: {
-            decrement: Math.max(0, Math.round(olympusDeduction * 100) / 100),
+            decrement: olympusDeduction,
           },
           alliance_referral_bounty: {
-            decrement: Math.max(0, Math.round(referralDeduction * 100) / 100),
+            decrement: referralDeduction,
           },
           alliance_combined_earnings: {
-            decrement: Math.max(0, Math.round(amountValue * 100) / 100),
+            decrement: Number(amount),
           },
         },
       }),
@@ -251,7 +263,7 @@ export async function POST(request: Request) {
             calculateFinalAmount(Number(amount), earnings)
           ),
           transaction_description: "Withdrawal Pending",
-          transaction_details: `Withdrawal: ${earnings} | Account Name: ${accountName} | Account Number: ${accountNumber}`,
+          transaction_details: `Account Name: ${accountName} | Account Number: ${accountNumber}`,
           transaction_member_id: teamMemberId,
         },
       }),
@@ -259,9 +271,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Unknown error." }, { status: 500 });
   }
 }

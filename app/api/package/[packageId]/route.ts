@@ -1,14 +1,25 @@
-import { applyRateLimit } from "@/utils/function";
-import prisma from "@/utils/prisma";
+import { prisma } from "@/lib/db";
+import { rateLimit } from "@/utils/redis/redis";
 import { protectionAdminUser } from "@/utils/serversideProtection";
+import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-
+import { z } from "zod";
 // Helper functions for responses
 const errorResponse = (message: string, status: number) =>
   NextResponse.json({ error: message }, { status });
 
 const successResponse = (data: object = {}) =>
   NextResponse.json({ success: true, ...data });
+
+const updatePackageSchema = z.object({
+  packageName: z.string().min(3),
+  packageDescription: z.string().min(3),
+  packagePercentage: z.string().min(1),
+  packageDays: z.string().min(1),
+  packageIsDisabled: z.boolean(),
+  packageColor: z.string().nullable().optional(),
+  package_image: z.string().nullable().optional(),
+});
 
 export async function PUT(
   request: NextRequest,
@@ -24,6 +35,13 @@ export async function PUT(
     if (!packageId) return errorResponse("Package ID is required.", 400);
 
     const { packageData, teamMemberId } = await request.json();
+
+    const validate = updatePackageSchema.safeParse(packageData);
+
+    if (!validate.success) {
+      throw new Error(validate.error.message);
+    }
+
     const {
       packageName,
       packageDescription,
@@ -57,22 +75,35 @@ export async function PUT(
       );
     }
 
-    await applyRateLimit(teamMemberProfile.alliance_member_id, ip);
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile.alliance_member_id}`,
+      50,
+      60
+    );
 
-    const updatedPackage = await prisma.$transaction(async (tx) => {
-      return await tx.package_table.update({
-        where: { package_id: packageId },
-        data: {
-          package_name: packageName,
-          package_description: packageDescription,
-          package_percentage: parseFloat(packagePercentage),
-          packages_days: parseInt(packageDays),
-          package_is_disabled: packageIsDisabled,
-          package_color: packageColor,
-          package_image: package_image ? package_image : undefined,
-        },
-      });
-    });
+    if (!isAllowed) {
+      return NextResponse.json(
+        { message: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+
+    const updatedPackage = await prisma.$transaction(
+      async (tx: Prisma.TransactionClient) => {
+        return await tx.package_table.update({
+          where: { package_id: packageId },
+          data: {
+            package_name: packageName,
+            package_description: packageDescription,
+            package_percentage: parseFloat(packagePercentage),
+            packages_days: parseInt(packageDays),
+            package_is_disabled: packageIsDisabled,
+            package_color: packageColor,
+            package_image: package_image ? package_image : undefined,
+          },
+        });
+      }
+    );
 
     return successResponse(updatedPackage);
   } catch (error) {

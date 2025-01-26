@@ -5,6 +5,7 @@ export const getAllyBounty = async (params: {
   page: number;
   limit: number;
   search?: string;
+  teamMemberId: string;
   columnAccessor: string;
   isAscendingSort: boolean;
 }) => {
@@ -14,6 +15,7 @@ export const getAllyBounty = async (params: {
     search: params.search || "",
     columnAccessor: params.columnAccessor,
     isAscendingSort: params.isAscendingSort.toString(),
+    teamMemberId: params.teamMemberId,
   };
 
   const response = await fetch(

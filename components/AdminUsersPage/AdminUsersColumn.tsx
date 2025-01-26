@@ -16,7 +16,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import TableLoading from "../ui/tableLoading";
 
-export const AdminUsersColumn = () => {
+export const AdminUsersColumn = (
+  handleCopyAccountUrl: (userName: string) => void
+) => {
   const supabaseClient = createClientSide();
   const router = useRouter();
 
@@ -118,6 +120,26 @@ export const AdminUsersColumn = () => {
           {row.getValue("user_username")}
         </div>
       ),
+    },
+    {
+      accessorKey: "alliance_member_id",
+      header: () => (
+        <Button variant="ghost">
+          Access Account Link <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const userName = row.original.user_username as string;
+        return (
+          <Button
+            variant="card"
+            onClick={() => handleCopyAccountUrl(userName)}
+            className="rounded-md"
+          >
+            Access Account Link
+          </Button>
+        );
+      },
     },
     {
       accessorKey: "alliance_member_role",

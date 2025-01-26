@@ -1,13 +1,8 @@
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { formateMonthDateYear } from "@/utils/function";
 import { alliance_transaction_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Info } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 export const TransactionHistoryColumn =
   (): ColumnDef<alliance_transaction_table>[] => {
@@ -25,38 +20,45 @@ export const TransactionHistoryColumn =
           );
         },
       },
-
       {
         accessorKey: "transaction_description",
         header: () => (
-          <div className="text-center  text-lg  font-bold">Category</div>
+          <div className="text-wrap text-lg font-bold">Category</div>
         ),
         cell: ({ row }) => {
           const details = row.original.transaction_details as string;
           const description = row.getValue("transaction_description") as string;
+
           return (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger className="flex items-center justify-center gap-2">
-                  {description}{" "}
-                  {description.includes("Deposit") && (
-                    <div className="flex items-center justify-center gap-2 text-primaryYellow">
-                      <Info className="w-4 h-4 " />
+            <div className="flex items-center gap-4">
+              <span>{description}</span>
+              {description.includes("Deposit") && (
+                <div className="flex items-center gap-2 text-yellow-700">
+                  <Info className="w-4 h-4" />
+                  <Popover>
+                    <PopoverTrigger>
                       <p>Details</p>
-                    </div>
-                  )}
-                  {description.includes("Withdrawal") && (
-                    <div className="flex items-center justify-center gap-2 text-primaryYellow">
-                      <Info className="w-4 h-4 " />
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <p>{details}</p>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+              {description.includes("Withdrawal") && (
+                <div className="flex items-center gap-2 text-yellow-700">
+                  <Info className="w-4 h-4" />
+                  <Popover>
+                    <PopoverTrigger>
                       <p>Details</p>
-                    </div>
-                  )}
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{details}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <p>{details}</p>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+            </div>
           );
         },
       },

@@ -1,13 +1,13 @@
 "use client";
 
-import { getUserEarnings } from "@/app/actions/user/userAction";
-import { getDashboard, getDashboardEarnings } from "@/services/Dasboard/Member";
 import { logError } from "@/services/Error/ErrorLogs";
-import { useRole } from "@/utils/context/roleContext";
+import { getUserEarnings } from "@/services/User/User";
+import { useUserLoadingStore } from "@/store/useLoadingStore";
+import { usePackageChartData } from "@/store/usePackageChartData";
+import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
+import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { createClientSide } from "@/utils/supabase/client";
-import { ChartDataMember, DashboardEarnings } from "@/utils/types";
 import {
-  alliance_earnings_table,
   alliance_member_table,
   alliance_referral_link_table,
   package_table,
@@ -33,7 +33,6 @@ import DashboardPackages from "./DashboardPackages";
 import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
 
 type Props = {
-  earnings: alliance_earnings_table;
   teamMemberProfile: alliance_member_table;
   referal: alliance_referral_link_table;
   packages: package_table[];
@@ -42,7 +41,6 @@ type Props = {
 };
 
 const DashboardPage = ({
-  earnings: initialEarnings,
   referal,
   teamMemberProfile,
   packages,
@@ -50,75 +48,26 @@ const DashboardPage = ({
   sponsor,
 }: Props) => {
   const supabaseClient = createClientSide();
+  const { loading } = useUserLoadingStore();
+  const { earnings, setEarnings } = useUserEarningsStore();
+  const { totalEarnings, setTotalEarnings } = useUserDashboardEarningsStore();
+  const { chartData } = usePackageChartData();
 
-  const [chartData, setChartData] = useState<ChartDataMember[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [earnings, setEarnings] = useState<alliance_earnings_table | null>(
-    initialEarnings
-  );
   const [isActive, setIsActive] = useState(
     teamMemberProfile.alliance_member_is_active
   );
   const [activeSlide, setActiveSlide] = useState(0);
-  const [totalEarnings, setTotalEarnings] = useState<DashboardEarnings | null>(
-    null
-  );
+
   const [open, setOpen] = useState(false);
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
   const [refresh, setRefresh] = useState(false);
-  const { role } = useRole();
-
-  const getDasboardEarningsData = async () => {
-    try {
-      const dashboardEarnings = await getDashboardEarnings(supabaseClient, {
-        teamMemberId: teamMemberProfile.alliance_member_id,
-      });
-
-      setTotalEarnings(dashboardEarnings);
-    } catch (e) {
-      if (e instanceof Error) {
-        await logError(supabaseClient, {
-          errorMessage: e.message,
-        });
-      }
-    }
-  };
-
-  const getPackagesData = async () => {
-    try {
-      setIsLoading(true);
-      const { data } = await getDashboard(supabaseClient, {
-        teamMemberId: teamMemberProfile.alliance_member_id,
-      });
-      setChartData(data);
-
-      await getDasboardEarningsData();
-
-      // if (totalCompletedAmount !== 0) {
-      //   setTotalEarnings((prev) => ({
-      //     ...prev,
-      //     totalEarnings:
-      //       Number(prev?.totalEarnings) + Number(totalCompletedAmount),
-      //   }));
-      // }
-    } catch (e) {
-      if (e instanceof Error) {
-        await logError(supabaseClient, {
-          errorMessage: e.message,
-          stackTrace: e.stack,
-          stackPath: "components/DashboardPage/DashboardPage.tsx",
-        });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleRefresh = async () => {
     try {
       setRefresh(true);
+
       const { totalEarnings, userEarningsData } = await getUserEarnings({
         memberId: teamMemberProfile.alliance_member_id,
       });
@@ -134,24 +83,7 @@ const DashboardPage = ({
         indirectReferralCount: totalEarnings.indirectReferralCount ?? 0,
       });
 
-      setEarnings((prev) => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          alliance_combined_earnings:
-            userEarningsData.alliance_combined_earnings ??
-            prev.alliance_combined_earnings,
-          alliance_olympus_earnings:
-            userEarningsData.alliance_olympus_earnings ??
-            prev.alliance_olympus_earnings,
-          alliance_olympus_wallet:
-            userEarningsData.alliance_olympus_wallet ??
-            prev.alliance_olympus_wallet,
-          alliance_referral_bounty:
-            userEarningsData.alliance_referral_bounty ??
-            prev.alliance_referral_bounty,
-        };
-      });
+      setEarnings(userEarningsData);
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
@@ -162,10 +94,6 @@ const DashboardPage = ({
       setRefresh(false);
     }
   };
-
-  useEffect(() => {
-    getPackagesData();
-  }, [role]);
 
   useEffect(() => {
     if (!api) {
@@ -183,15 +111,15 @@ const DashboardPage = ({
   }, [api]);
 
   const carouselItems = [
-    { label: "Direct Income", value: totalEarnings?.directReferralAmount },
-    { label: "Multiple Income", value: totalEarnings?.indirectReferralAmount },
     { label: "Total Earnings", value: totalEarnings?.totalEarnings },
     { label: "Total Withdrawal", value: totalEarnings?.withdrawalAmount },
+    { label: "Direct Income", value: totalEarnings?.directReferralAmount },
+    { label: "Multiple Income", value: totalEarnings?.indirectReferralAmount },
   ];
 
   return (
     <div className="relative min-h-screen h-full mx-auto py-4">
-      {isLoading && <TableLoading />}
+      {loading && <TableLoading />}
 
       <div className="w-full space-y-4 md:px-10">
         <div className="flex justify-between items-center gap-4">
@@ -327,7 +255,6 @@ const DashboardPage = ({
               setTransactionOpen={setOpen}
               teamMemberProfile={teamMemberProfile}
               earnings={earnings}
-              setEarnings={setEarnings}
             />
           </div>
         </div>
@@ -335,8 +262,6 @@ const DashboardPage = ({
         <DashboardDepositModalPackages
           packages={packages}
           earnings={earnings}
-          setEarnings={setEarnings}
-          setChartData={setChartData}
           setIsActive={setIsActive}
           teamMemberProfile={teamMemberProfile}
           className="w-full"
@@ -344,12 +269,7 @@ const DashboardPage = ({
 
         {chartData.length > 0 && (
           <div className=" gap-6">
-            <DashboardPackages
-              chartData={chartData}
-              setChartData={setChartData}
-              setEarnings={setEarnings}
-              setTotalEarnings={setTotalEarnings}
-            />
+            <DashboardPackages />
           </div>
         )}
 

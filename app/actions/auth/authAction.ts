@@ -144,7 +144,7 @@ export const registerUser = async (params: {
 
     const isAllowed = await rateLimit(
       `rate-limit:${teamMemberProfile?.alliance_member_id}`,
-      10,
+      50,
       60
     );
 
@@ -183,9 +183,7 @@ export const registerUser = async (params: {
 
     return { success: true };
   } catch (error) {
-    throw new Error(
-      error instanceof Error ? error.message : "An unknown error occurred."
-    );
+    throw new Error("An unknown error occurred.");
   }
 };
 
@@ -257,6 +255,48 @@ export const handleSigninAdmin = async (params: {
     }
 
     return { success: true, user };
+  } catch (error) {
+    throw new Error("An unknown error occurred.");
+  }
+};
+
+const signInUserSchema = z.object({
+  formattedUserName: z.string().email(),
+});
+
+export const handleSignInUser = async (params: {
+  formattedUserName: string;
+}) => {
+  try {
+    const supabaseClient = await createServiceRoleClientServerSide();
+
+    const validate = signInUserSchema.safeParse(params);
+
+    if (!validate.success) {
+      throw new Error(validate.error.message);
+    }
+
+    const { formattedUserName } = params;
+
+    const { teamMemberProfile } = await protectionAdminUser();
+
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      10,
+      60
+    );
+
+    if (!isAllowed) {
+      throw new Error("Too many requests. Please try again later.");
+    }
+
+    const { data, error } = await supabaseClient.auth.admin.generateLink({
+      type: "magiclink",
+      email: formattedUserName,
+    });
+
+    if (error) throw error;
+    return { success: true, url: data.properties };
   } catch (error) {
     throw new Error("An unknown error occurred.");
   }

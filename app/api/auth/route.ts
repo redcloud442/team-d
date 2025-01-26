@@ -1,7 +1,6 @@
 import { ROLE } from "@/utils/constant";
 import prisma from "@/utils/prisma";
 import { rateLimit } from "@/utils/redis/redis";
-import { user_table } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -23,7 +22,9 @@ export async function POST(request: Request) {
         400
       );
 
-    const isAllowed = await rateLimit(`rate-limit:${ip}`, 5, 60);
+    const { userName, password } = await request.json();
+
+    const isAllowed = await rateLimit(`rate-limit:${userName}`, 5, 60);
 
     if (!isAllowed) {
       return sendErrorResponse(
@@ -32,12 +33,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const {
-      userName,
-      password,
-      role = "MEMBER",
-      userProfile,
-    } = await request.json();
     if (!userName || !password)
       return sendErrorResponse("Email and password are required.", 400);
 
@@ -76,13 +71,6 @@ export async function POST(request: Request) {
       );
     }
 
-    if (userProfile && userProfile.alliance_member_restricted) {
-      return NextResponse.json(
-        { error: "Invalid username or password" },
-        { status: 401 }
-      );
-    }
-
     const teamMemberProfile = user.alliance_member_table[0];
 
     if (!teamMemberProfile)
@@ -98,7 +86,7 @@ export async function POST(request: Request) {
 
     const comparePassword = await bcrypt.compare(password, user.user_password);
 
-    if (role === ROLE.MEMBER && !comparePassword) {
+    if (!comparePassword) {
       return sendErrorResponse("Password Incorrect", 401);
     }
 
@@ -135,6 +123,7 @@ export async function POST(request: Request) {
     );
   }
 }
+
 const LoginSchema = z.object({
   userName: z
     .string()
@@ -145,6 +134,7 @@ const LoginSchema = z.object({
       "Username can only contain letters, numbers, and underscores"
     ),
 });
+
 export async function GET(request: Request) {
   try {
     const ip = getClientIP(request);
@@ -162,7 +152,7 @@ export async function GET(request: Request) {
     });
 
     if (!loginData.success) {
-      return sendErrorResponse("Invalid request.", 400);
+      return NextResponse.json({ success: false, userName });
     }
 
     const isAllowed = await rateLimit(`rate-limit:${userName}`, 5, 60);
@@ -171,11 +161,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, userName });
     }
 
-    if (!userName) {
-      return sendErrorResponse("Username is required.", 400);
-    }
-
-    const existingUser: user_table | null = await prisma.user_table.findFirst({
+    const user = await prisma.user_table.findFirst({
       where: {
         user_username: {
           equals: userName,
@@ -184,20 +170,40 @@ export async function GET(request: Request) {
       },
     });
 
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "Username already taken." },
-        { status: 409 }
-      );
+    const teamMember = await prisma.alliance_member_table.findFirst({
+      where: {
+        alliance_member_user_id: user?.user_id,
+        alliance_member_role: {
+          not: "ADMIN",
+        },
+      },
+      select: {
+        alliance_member_role: true,
+        alliance_member_restricted: true,
+      },
+    });
+
+    if (
+      teamMember?.alliance_member_role === ROLE.ADMIN ||
+      teamMember?.alliance_member_restricted
+    ) {
+      return NextResponse.json({
+        success: false,
+        message: "Not Allowed",
+      });
+    }
+
+    if (user) {
+      return NextResponse.json({
+        success: false,
+        message: "Username already exists",
+      });
     }
 
     return NextResponse.json({ success: true, userName });
   } catch (error) {
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Internal Server Error.",
-      },
+      { error: "Internal Server Error." },
       { status: 500 }
     );
   }

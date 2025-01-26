@@ -19,6 +19,7 @@ import {
   InputOTPSlot,
 } from "../ui/input-otp";
 import { Label } from "../ui/label";
+import { PasswordInput } from "../ui/passwordInput";
 
 // Zod Schema for Login Form
 export const LoginSchema = z.object({
@@ -209,10 +210,9 @@ const Pr1meSecured = () => {
             )}
           </div>
           <div className="w-full">
-            <Input
+            <PasswordInput
               variant="non-card"
               id="password"
-              type="password"
               placeholder="Password"
               {...register("password")}
             />
@@ -237,7 +237,9 @@ const Pr1meSecured = () => {
           )}
         >
           <div className="w-full justify-center items-center flex flex-col gap-2">
-            <Label htmlFor="otp">Enter OTP</Label>
+            <Label className="dark:text-white" htmlFor="otp">
+              Enter OTP
+            </Label>
             <InputOTP
               maxLength={6}
               value={watch("otp")}
@@ -261,6 +263,9 @@ const Pr1meSecured = () => {
               </p>
             )}
           </div>
+          <Button disabled={isSubmitting || isLoading} type="submit">
+            {isSubmitting || isLoading ? "Verifying OTP..." : "Verify OTP"}
+          </Button>
         </form>
       )}
       <Image

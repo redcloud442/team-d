@@ -1,12 +1,11 @@
+import { handleSignInUser } from "@/app/actions/auth/authAction";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
-import { handleSignInUser } from "@/services/User/Admin";
 import { getUserSponsor } from "@/services/User/User";
-import { useRole } from "@/utils/context/roleContext";
+import { userNameToEmail } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -20,23 +19,29 @@ type Props = {
 };
 const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
   const supabaseClient = createClientSide();
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [userSponsor, setUserSponsor] = useState<{
     user_username: string;
   } | null>(null);
-  const { setRole } = useRole();
   const { toast } = useToast();
+
   const handleSignIn = async () => {
     try {
       setIsLoading(true);
-      await handleSignInUser(supabaseClient, {
-        userName: userProfile.user_username ?? "",
-        password: userProfile.user_password,
-        role: type,
-        iv: userProfile.user_iv ?? "",
-        userProfile: userProfile,
+      const data = await handleSignInUser({
+        formattedUserName: userNameToEmail(userProfile.user_username ?? ""),
       });
+
+      navigator.clipboard.writeText(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback?hashed_token=${data.url.hashed_token}`
+      );
+
+      toast({
+        title: "Copied to clipboard",
+        description: `You may now access the user's account by accessing the link.`,
+      });
+
+      return data;
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
@@ -92,18 +97,6 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
               variant="outline"
               onClick={async () => {
                 await handleSignIn();
-                if (userProfile.alliance_member_restricted) {
-                  return toast({
-                    title: "User is banned.",
-                    description: "Cannot sign in as banned user.",
-                    variant: "destructive",
-                  });
-                }
-                setRole({
-                  role: userProfile.alliance_member_role,
-                  userName: userProfile.user_username ?? "",
-                });
-                await router.push("/");
               }}
             >
               Sign In as {userProfile.user_username}

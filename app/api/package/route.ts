@@ -1,6 +1,5 @@
-import { DIRECTYPE } from "@/utils/constant";
-import { applyRateLimit } from "@/utils/function";
 import prisma from "@/utils/prisma";
+import { rateLimit } from "@/utils/redis/redis";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
 import { Prisma } from "@prisma/client";
@@ -16,7 +15,18 @@ export async function GET(request: Request) {
 
     const { teamMemberProfile } = await protectionMemberUser(ip);
 
-    await applyRateLimit(teamMemberProfile?.alliance_member_id || "", ip);
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      50,
+      60
+    );
+
+    if (!isAllowed) {
+      return NextResponse.json(
+        { message: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
 
     const supabaseClient = await createClientServerSide();
 
@@ -54,12 +64,9 @@ export async function GET(request: Request) {
 }
 
 const topupSchema = z.object({
-  amount: z
-    .number()
-    .min(1, "Minimum amount is 1 pesos")
-    .refine((val) => !isNaN(Number(val)), {
-      message: "Amount must be a number",
-    }),
+  amount: z.number().refine((val) => Number(val) >= 100, {
+    message: "Minimum amount is 100 pesos",
+  }),
   packageId: z.string().uuid(),
 });
 
@@ -72,8 +79,8 @@ export async function POST(request: Request) {
 
     const { amount, packageId, teamMemberId } = await request.json();
 
+    // Validate input data
     const parsedData = topupSchema.safeParse({ amount, packageId });
-
     if (!parsedData.success) {
       return NextResponse.json(
         { error: parsedData.error.message },
@@ -81,15 +88,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const integerLength = Math.floor(amount).toString().length;
-
-    if (
-      !amount ||
-      !packageId ||
-      !teamMemberId ||
-      amount === 0 ||
-      integerLength < 1
-    ) {
+    if (!amount || !packageId || !teamMemberId || amount === 0) {
       return NextResponse.json(
         { error: "Invalid input or amount must be between 1 and 1 digits." },
         { status: 400 }
@@ -97,15 +96,22 @@ export async function POST(request: Request) {
     }
 
     const { teamMemberProfile } = await protectionMemberUser(ip);
-    await applyRateLimit(teamMemberId, ip);
 
-    const decimalAmount = new Prisma.Decimal(amount);
+    const isAllowed = await rateLimit(`rate-limit:${teamMemberId}`, 50, 60);
+
+    if (!isAllowed) {
+      return NextResponse.json(
+        { message: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
 
     const [packageData, earningsData, referralData] = await Promise.all([
       prisma.package_table.findUnique({
         where: { package_id: packageId },
         select: {
           package_percentage: true,
+          packages_days: true,
           package_is_disabled: true,
           package_name: true,
         },
@@ -153,36 +159,36 @@ export async function POST(request: Request) {
       alliance_combined_earnings,
     } = earningsData;
 
-    const combinedEarnings = Math.round(alliance_combined_earnings * 100) / 100; // Normalize to 2 decimal places
-    const requestedAmount = Math.round(amount * 100) / 100; // Normalize to 2 decimal places
+    const combinedEarnings = Number(alliance_combined_earnings.toFixed(2));
+    const requestedAmount = Number(amount.toFixed(2));
 
     if (combinedEarnings < requestedAmount) {
       return NextResponse.json(
-        { error: "Insufficient balance in the combined wallet." },
+        { error: "Insufficient balance in the wallet." },
         { status: 400 }
       );
     }
 
-    // Deduct from the wallets
     const {
       olympusWallet,
       olympusEarnings,
       referralWallet,
       updatedCombinedWallet,
     } = deductFromWallets(
-      amount,
+      requestedAmount,
       combinedEarnings,
-      alliance_olympus_wallet,
-      alliance_olympus_earnings,
-      alliance_referral_bounty
+      Number(alliance_olympus_wallet),
+      Number(alliance_olympus_earnings),
+      Number(alliance_referral_bounty)
     );
-    // Calculate earnings
+
     const packagePercentage = new Prisma.Decimal(
-      packageData.package_percentage
+      Number(packageData.package_percentage)
     ).div(100);
-    const packageAmountEarnings = decimalAmount
-      .mul(packagePercentage)
-      .toNumber();
+
+    const packageAmountEarnings = new Prisma.Decimal(requestedAmount).mul(
+      packagePercentage
+    );
 
     // Generate referral chain with a capped depth
     const referralChain = generateReferralChain(
@@ -191,14 +197,30 @@ export async function POST(request: Request) {
       100 // Cap the depth to 100 levels
     );
 
+    let bountyLogs: Prisma.package_ally_bounty_logCreateManyInput[] = [];
+
+    let transactionLogs: Prisma.alliance_transaction_tableCreateManyInput[] =
+      [];
+
     const connectionData = await prisma.$transaction(async (tx) => {
       const connectionData = await tx.package_member_connection_table.create({
         data: {
           package_member_member_id: teamMemberId,
           package_member_package_id: packageId,
-          package_member_amount: amount,
-          package_amount_earnings: packageAmountEarnings,
+          package_member_amount: Number(requestedAmount.toFixed(2)),
+          package_amount_earnings: Number(packageAmountEarnings.toFixed(2)),
           package_member_status: "ACTIVE",
+          package_member_completion_date: new Date(
+            Date.now() + packageData.packages_days * 24 * 60 * 60 * 1000
+          ),
+        },
+      });
+
+      await tx.alliance_transaction_table.create({
+        data: {
+          transaction_member_id: teamMemberId,
+          transaction_amount: Number(requestedAmount.toFixed(2)),
+          transaction_description: `Package Enrolled: ${packageData.package_name}`,
         },
       });
 
@@ -212,103 +234,85 @@ export async function POST(request: Request) {
         },
       });
 
-      await tx.alliance_transaction_table.create({
-        data: {
-          transaction_member_id: teamMemberId,
-          transaction_amount: amount,
-          transaction_description: `Package ${packageData.package_name} Registration`,
-        },
-      });
+      if (referralChain.length > 0) {
+        const batchSize = 100;
+        const limitedReferralChain = [];
+        for (let i = 0; i < referralChain.length; i++) {
+          if (referralChain[i].level > 10) break;
+          limitedReferralChain.push(referralChain[i]);
+        }
+
+        for (let i = 0; i < limitedReferralChain.length; i += batchSize) {
+          const batch = limitedReferralChain.slice(i, i + batchSize);
+
+          bountyLogs = batch.map((ref) => {
+            // Calculate earnings based on ref.percentage and round to the nearest integer
+            const calculatedEarnings =
+              (Number(amount) * Number(ref.percentage)) / 100;
+
+            return {
+              package_ally_bounty_member_id: ref.referrerId,
+              package_ally_bounty_percentage: ref.percentage,
+              package_ally_bounty_earnings: calculatedEarnings,
+              package_ally_bounty_type: ref.level === 1 ? "DIRECT" : "INDIRECT",
+              package_ally_bounty_connection_id:
+                connectionData.package_member_connection_id,
+              package_ally_bounty_from: teamMemberId,
+            };
+          });
+
+          transactionLogs = batch.map((ref) => {
+            const calculatedEarnings =
+              (Number(amount) * Number(ref.percentage)) / 100;
+
+            return {
+              transaction_member_id: ref.referrerId,
+              transaction_amount: calculatedEarnings,
+              transaction_description: "Refer & Earn",
+            };
+          });
+
+          await Promise.all(
+            batch.map((ref) =>
+              tx.alliance_earnings_table.update({
+                where: { alliance_earnings_member_id: ref.referrerId },
+                data: {
+                  alliance_referral_bounty: Number(packageAmountEarnings),
+                  alliance_combined_earnings: Number(packageAmountEarnings),
+                },
+              })
+            )
+          );
+        }
+      }
+
       return connectionData;
     });
 
-    let bountyLogs: Prisma.package_ally_bounty_logCreateManyInput[] = [];
-    let transactionLogs: Prisma.alliance_transaction_tableCreateManyInput[] =
-      [];
-
-    if (referralChain.length > 0) {
-      const batchSize = 100;
-      const limitedReferralChain = [];
-      for (let i = 0; i < referralChain.length; i++) {
-        if (referralChain[i].level > 10) break;
-        limitedReferralChain.push(referralChain[i]);
-      }
-
-      for (let i = 0; i < limitedReferralChain.length; i += batchSize) {
-        const batch = limitedReferralChain.slice(i, i + batchSize);
-
-        bountyLogs = batch.map((ref) => ({
-          package_ally_bounty_member_id: ref.referrerId,
-          package_ally_bounty_percentage: ref.percentage,
-          package_ally_bounty_earnings: decimalAmount
-            .mul(ref.percentage)
-            .div(100)
-            .toNumber(),
-          package_ally_bounty_type:
-            ref.level === 1 ? DIRECTYPE.DIRECT : DIRECTYPE.INDIRECT,
-          package_ally_bounty_connection_id:
-            connectionData.package_member_connection_id,
-          package_ally_bounty_from: teamMemberId,
-        }));
-
-        transactionLogs = batch.map((ref) => ({
-          transaction_member_id: ref.referrerId,
-          transaction_amount: decimalAmount
-            .mul(ref.percentage)
-            .div(100)
-            .toNumber(),
-          transaction_description: "Refer & Earn",
-        }));
-
-        await Promise.all(
-          batch.map((ref) =>
-            prisma.alliance_earnings_table.update({
-              where: { alliance_earnings_member_id: ref.referrerId },
-              data: {
-                alliance_referral_bounty: {
-                  increment: decimalAmount
-                    .mul(ref.percentage)
-                    .div(100)
-                    .toNumber(),
-                },
-                alliance_combined_earnings: {
-                  increment: decimalAmount
-                    .mul(ref.percentage)
-                    .div(100)
-                    .toNumber(),
-                },
-              },
-            })
-          )
-        );
-      }
+    if (connectionData) {
+      await Promise.all([
+        prisma.package_ally_bounty_log.createMany({ data: bountyLogs }),
+        prisma.alliance_transaction_table.createMany({
+          data: transactionLogs,
+        }),
+      ]);
     }
-
-    await Promise.all([
-      prisma.package_ally_bounty_log.createMany({ data: bountyLogs }),
-      prisma.alliance_transaction_table.createMany({
-        data: transactionLogs,
-      }),
-    ]);
 
     if (!teamMemberProfile?.alliance_member_is_active) {
       await prisma.alliance_member_table.update({
         where: { alliance_member_id: teamMemberId },
         data: {
           alliance_member_is_active: true,
-          alliance_member_date_updated: new Date(),
         },
       });
     }
 
-    return NextResponse.json({ success: true, transaction: connectionData });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error." },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: true });
+  } catch (e) {
+    return NextResponse.json({ error: "Unknown error." }, { status: 500 });
   }
 }
+
 function generateReferralChain(
   hierarchy: string | null,
   teamMemberId: string,

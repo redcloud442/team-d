@@ -1,7 +1,7 @@
 "use server";
 
-import { applyRateLimitMember } from "@/utils/function";
 import prisma from "@/utils/prisma";
+import { rateLimit } from "@/utils/redis/redis";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { z } from "zod";
 
@@ -30,39 +30,44 @@ export const claimPackage = async (params: {
     }
 
     const { teamMemberProfile } = await protectionMemberUser();
+
     if (!teamMemberProfile) {
       throw new Error("User authentication failed.");
     }
 
-    await applyRateLimitMember(teamMemberProfile.alliance_member_id);
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      50,
+      60
+    );
 
-    const packageConnection =
-      await prisma.package_member_connection_table.findUnique({
-        where: { package_member_connection_id: packageConnectionId },
-      });
-
-    if (!packageConnection) {
-      throw new Error("Package connection not found.");
-    }
-
-    if (packageConnection.package_member_status === "ENDED") {
-      throw new Error("Invalid request. Package already ended.");
-    }
-
-    // if (!packageConnection.package_member_is_ready_to_claim) {
-    //   throw new Error("Invalid request. Package is not ready to claim.");
-    // }
-
-    const totalClaimedAmount =
-      packageConnection.package_member_amount +
-      packageConnection.package_amount_earnings;
-    const totalAmountToBeClaimed = amount + earnings;
-
-    if (totalClaimedAmount !== totalAmountToBeClaimed) {
-      throw new Error("Invalid request");
+    if (!isAllowed) {
+      throw new Error("Too many requests. Please try again later.");
     }
 
     await prisma.$transaction(async (tx) => {
+      const packageConnection =
+        await tx.package_member_connection_table.findUnique({
+          where: { package_member_connection_id: packageConnectionId },
+        });
+
+      if (!packageConnection) {
+        throw new Error("Invalid request.");
+      }
+
+      // if (!packageConnection.package_member_is_ready_to_claim) {
+      //   throw new Error("Invalid request. Package is not ready to claim.");
+      // }
+
+      const totalClaimedAmount =
+        packageConnection.package_member_amount +
+        packageConnection.package_amount_earnings;
+      const totalAmountToBeClaimed = amount + earnings;
+
+      if (totalClaimedAmount !== totalAmountToBeClaimed) {
+        throw new Error("Invalid request");
+      }
+
       await tx.package_member_connection_table.update({
         where: { package_member_connection_id: packageConnectionId },
         data: { package_member_status: "ENDED" },
@@ -101,7 +106,7 @@ export const claimPackage = async (params: {
       });
     });
 
-    return { success: true, totalClaimedAmount };
+    return { success: true };
   } catch (error) {
     throw new Error("Internal server error");
   }

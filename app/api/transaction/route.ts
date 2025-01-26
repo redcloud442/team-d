@@ -1,17 +1,47 @@
 import prisma from "@/utils/prisma";
+import { rateLimit } from "@/utils/redis/redis";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+
+const createTransactionSchema = z.object({
+  limit: z.number().min(1),
+  page: z.number().min(1),
+});
 
 export async function POST(request: NextRequest) {
   try {
     // Extract `limit` and `page` from the request body
     const { limit = 10, page = 1 } = await request.json();
 
-    // Validate `limit` and `page` to avoid misuse
-    const safeLimit = Math.min(Math.max(Number(limit), 1), 100); // Limit between 1 and 100
-    const safePage = Math.max(Number(page), 1); // Ensure page is at least 1
+    const validate = createTransactionSchema.safeParse({
+      limit,
+      page,
+    });
+
+    if (!validate.success) {
+      return NextResponse.json(
+        { error: validate.error.message },
+        { status: 400 }
+      );
+    }
+    const safeLimit = Math.min(Math.max(Number(limit), 1), 100);
+    const safePage = Math.max(Number(page), 1);
 
     const { teamMemberProfile } = await protectionMemberUser();
+
+    const isAllowed = await rateLimit(
+      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
+      50,
+      60
+    );
+
+    if (!isAllowed) {
+      return NextResponse.json(
+        { message: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
 
     if (!teamMemberProfile) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
