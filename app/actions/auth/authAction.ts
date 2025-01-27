@@ -10,7 +10,7 @@ import {
   createClientServerSide,
   createServiceRoleClientServerSide,
 } from "@/utils/supabase/server";
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 import { z } from "zod";
 
 const changeUserPasswordSchema = z.object({
@@ -62,7 +62,7 @@ export const changeUserPassword = async (params: {
     throw new Error("User not found.");
   }
 
-  const userCompare = await bcrypt.compare(password, user.user_password);
+  const userCompare = await bcryptjs.compare(password, user.user_password);
 
   if (userCompare) {
     throw new Error("Do not use the same password.");
@@ -83,7 +83,7 @@ export const changeUserPassword = async (params: {
     throw new Error("Access restricted or incomplete profile.");
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcryptjs.hash(password, 10);
 
   await prisma.$transaction(async (tx) => {
     await tx.user_table.update({
@@ -157,7 +157,7 @@ export const registerUser = async (params: {
 
     const formatUsername = userName + "@gmail.com";
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcryptjs.hash(password, 10);
 
     const { data: userData, error: userError } =
       await supabaseClient.auth.signUp({ email: formatUsername, password });
@@ -211,13 +211,7 @@ export const handleSigninAdmin = async (params: {
 
     const { userName, password } = params;
 
-    const { teamMemberProfile } = await protectionAdminUser();
-
-    const isAllowed = await rateLimit(
-      `rate-limit:${teamMemberProfile?.alliance_member_id}`,
-      3,
-      60
-    );
+    const isAllowed = await rateLimit(`rate-limit:${userName}`, 3, 60);
 
     if (!isAllowed) {
       throw new Error("Too many requests. Please try again later.");
@@ -237,7 +231,10 @@ export const handleSigninAdmin = async (params: {
       throw new Error("User not found");
     }
 
-    const comparePassword = await bcrypt.compare(password, user.user_password);
+    const comparePassword = await bcryptjs.compare(
+      password,
+      user.user_password
+    );
 
     if (!comparePassword) {
       throw new Error("Password incorrect");

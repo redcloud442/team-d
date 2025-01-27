@@ -3,8 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { loginValidation } from "@/services/auth/auth";
 import { logError } from "@/services/Error/ErrorLogs";
-import { escapeFormData, userNameToEmail } from "@/utils/function";
+import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
@@ -51,15 +52,11 @@ const LoginPage = () => {
 
       const { userName, password } = sanitizedData;
 
-      //   const result = await loginValidation(supabase, {
-      //     userName,
-      //     password,
-      //   });
-
-      await supabase.auth.signInWithPassword({
-        email: userNameToEmail(userName),
-        password: password,
+      await loginValidation(supabase, {
+        userName,
+        password,
       });
+
       toast({
         title: "Login Successfully",
         description: "Redirecting to dashboard...",
