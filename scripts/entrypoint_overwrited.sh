@@ -22,9 +22,6 @@ if [ -f /run/secrets/redisToken  ]; then
   export UPSTASH_REDIS_REST_TOKEN=$(cat /run/secrets/redisToken )
 fi
 
-if [ -f /run/secrets/tunnelKey ]; then
-  export TUNNEL_TOKEN=$(cat /run/secrets/tunnelKey)
-fi
 
 # Start the application
 exec "$@"
