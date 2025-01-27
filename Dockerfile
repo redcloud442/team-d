@@ -24,6 +24,7 @@ COPY . .
 COPY /scripts/entrypoint_overwrited.sh /usr/src/app/entrypoint.sh
 
 # Ensure the script is executable
+RUN dos2unix /usr/src/app/entrypoint.sh
 RUN chmod +x /usr/src/app/entrypoint.sh
 
 
@@ -33,15 +34,15 @@ ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 ARG NEXT_PUBLIC_BASE_URL
 ARG NEXT_PUBLIC_CRYPTO_SECRET_KEY
 ARG SUPABASE_SERVICE_ROLE_KEY
-ARG DATABASE_URL
+ARG DATABASE_URL="postgresql://postgres.mromobfjpmxcrgyrjpbn:[YOUR-PASSWORD]@aws-0-us-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
 ARG DIRECT_URL
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
 ENV CRYPTO_SECRET_KEY=$NEXT_PUBLIC_CRYPTO_SECRET_KEY
-ENV SUPABASE_SERVICE_ROLE_KEY=/run/secrets/serviceRoleKey
-ENV DATABASE_URL=/run/secrets/databaseUrl
-ENV DIRECT_URL=/run/secrets/directUrl
+ENV SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY
+ENV DATABASE_URL=$DATABASE_URL
+ENV DIRECT_URL=$DIRECT_URL
 RUN npm run build
 
 
