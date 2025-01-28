@@ -22,6 +22,21 @@ if [ -f /run/secrets/redisToken  ]; then
   export UPSTASH_REDIS_REST_TOKEN=$(cat /run/secrets/redisToken )
 fi
 
+if [ -f /run/secrets/supabaseUrl  ]; then
+  export SUPABASE_URL=$(cat /run/secrets/supabaseUrl )
+fi
+
+if [ -f /run/secrets/anonKey  ]; then
+  export SUPABASE_ANON_KEY=$(cat /run/secrets/anonKey )
+fi
+
+if [ -f /run/secrets/serviceRoleKey  ]; then
+  export SUPABASE_SERVICE_ROLE_KEY=$(cat /run/secrets/serviceRoleKey )
+fi
+
+if [ -f /run/secrets/tunnelKey ]; then
+  export TUNNEL_TOKEN=$(cat /run/secrets/tunnelKey)
+fi
 
 # Start the application
 exec "$@"
