@@ -1,4 +1,3 @@
-import { changeUserPassword } from "@/app/actions/auth/authAction";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import TableLoading from "@/components/ui/tableLoading";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
+import { changeUserPassword, updateUserProfile } from "@/services/User/User";
 import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData, userNameToEmail } from "@/utils/function";
@@ -82,11 +82,14 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
     try {
       const formData = escapeFormData(data);
 
-      await changeUserPassword({
-        userId: profile.user_id,
-        email: userNameToEmail(profile?.user_username || ""),
-        password: formData.password,
-      });
+      await changeUserPassword(
+        {
+          userId: profile.user_id,
+          email: userNameToEmail(profile?.user_username || ""),
+          password: formData.password,
+        },
+        supabaseClient
+      );
 
       reset();
       toast({
@@ -138,16 +141,13 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
         );
       }
 
-      // Update user profile with new avatar URL
-      const { error: updateError } = await supabaseClient
-        .schema("user_schema")
-        .from("user_table")
-        .update({ user_profile_picture: publicUrlData.publicUrl })
-        .eq("user_id", profile.user_id);
-
-      if (updateError) {
-        throw new Error(`Failed to update profile: ${updateError.message}`);
-      }
+      await updateUserProfile(
+        {
+          userId: profile.user_id,
+          profilePicture: publicUrlData.publicUrl,
+        },
+        supabaseClient
+      );
 
       setAvatarUrl(publicUrlData.publicUrl);
 

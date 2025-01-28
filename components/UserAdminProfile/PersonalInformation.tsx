@@ -1,7 +1,6 @@
-import { handleSignInUser } from "@/app/actions/auth/authAction";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
-import { getUserSponsor } from "@/services/User/User";
+import { getUserSponsor, handleGenerateLink } from "@/services/User/User";
 import { userNameToEmail } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
@@ -28,9 +27,12 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
   const handleSignIn = async () => {
     try {
       setIsLoading(true);
-      const data = await handleSignInUser({
-        formattedUserName: userNameToEmail(userProfile.user_username ?? ""),
-      });
+      const data = await handleGenerateLink(
+        {
+          formattedUserName: userNameToEmail(userProfile.user_username ?? ""),
+        },
+        supabaseClient
+      );
 
       navigator.clipboard.writeText(
         `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback?hashed_token=${data.url.hashed_token}`
@@ -59,9 +61,12 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
     if (!userProfile.user_id) return;
     const fetchUserSponsor = async () => {
       try {
-        const userSponsor = await getUserSponsor({
-          userId: userProfile.user_id,
-        });
+        const userSponsor = await getUserSponsor(
+          {
+            userId: userProfile.user_id,
+          },
+          supabaseClient
+        );
 
         setUserSponsor(userSponsor);
       } catch (e) {

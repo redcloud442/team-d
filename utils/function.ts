@@ -1,3 +1,4 @@
+import { SupabaseClient } from "@supabase/supabase-js";
 import crypto from "crypto";
 import { LRUCache } from "lru-cache";
 import { RegisterFormData } from "./types";
@@ -243,4 +244,14 @@ export const calculateFee = (
 
 export const userNameToEmail = (userName: string) => {
   return `${userName}@gmail.com`;
+};
+
+export const getToken = async (supabaseClient: SupabaseClient) => {
+  const { data, error } = await supabaseClient.auth.getSession();
+
+  if (error) throw error;
+
+  if (!data) throw new Error("User not found");
+
+  return data.session?.access_token;
 };

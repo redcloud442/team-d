@@ -25,7 +25,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { ChevronLeft, ChevronRight, RefreshCw, Search } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
@@ -54,10 +54,10 @@ const TopUpHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   const [requestCount, setRequestCount] = useState(0);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
-  const searchParams = useSearchParams();
   const columnAccessor = sorting?.[0]?.id || "alliance_top_up_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
+  const searchParams = useParams();
 
   const fetchRequest = async () => {
     try {
@@ -68,15 +68,18 @@ const TopUpHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const { referenceId } = sanitizedData;
 
-      const { data, totalCount } = await getMemberTopUpRequest({
-        page: activePage,
-        limit: 10,
-        columnAccessor: columnAccessor,
-        isAscendingSort: isAscendingSort,
-        search: referenceId,
-        userId: searchParams.get("userId") || "",
-        teamMemberId: teamMemberProfile.alliance_member_id,
-      });
+      const { data, totalCount } = await getMemberTopUpRequest(
+        {
+          page: activePage,
+          limit: 10,
+          columnAccessor: columnAccessor,
+          isAscendingSort: isAscendingSort,
+          search: referenceId,
+          userId: searchParams?.userId?.toString() || "",
+          teamMemberId: teamMemberProfile.alliance_member_id,
+        },
+        supabaseClient
+      );
 
       setRequestData(data || []);
       setRequestCount(totalCount || 0);

@@ -63,14 +63,17 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const { emailFilter } = sanitizedData;
 
-      const { data, totalCount } = await getAllyBounty({
-        page: activePage,
-        limit: 10,
-        columnAccessor: columnAccessor,
-        isAscendingSort: isAscendingSort,
-        search: emailFilter,
-        teamMemberId: teamMemberProfile.alliance_member_id,
-      });
+      const { data, totalCount } = await getAllyBounty(
+        {
+          page: activePage,
+          limit: 10,
+          columnAccessor: columnAccessor,
+          isAscendingSort: isAscendingSort,
+          search: emailFilter,
+          teamMemberId: teamMemberProfile.alliance_member_id,
+        },
+        supabaseClient
+      );
 
       setDirectReferral({
         data: data || [],

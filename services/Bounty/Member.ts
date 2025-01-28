@@ -1,14 +1,21 @@
+import { getToken } from "@/utils/function";
 import { LegionRequestData } from "@/utils/types";
 import { user_table } from "@prisma/client";
+import { SupabaseClient } from "@supabase/supabase-js";
 
-export const getAllyBounty = async (params: {
-  page: number;
-  limit: number;
-  search?: string;
-  teamMemberId: string;
-  columnAccessor: string;
-  isAscendingSort: boolean;
-}) => {
+export const getAllyBounty = async (
+  params: {
+    page: number;
+    limit: number;
+    search?: string;
+    teamMemberId: string;
+    columnAccessor: string;
+    isAscendingSort: boolean;
+  },
+  supabaseClient: SupabaseClient
+) => {
+  const token = await getToken(supabaseClient);
+
   const urlParams = {
     page: params.page.toString(),
     limit: params.limit.toString(),
@@ -19,9 +26,14 @@ export const getAllyBounty = async (params: {
   };
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/referrals/direct?${new URLSearchParams(urlParams)}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/referral/direct`,
     {
-      method: "GET",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(urlParams),
     }
   );
 
@@ -29,22 +41,25 @@ export const getAllyBounty = async (params: {
 
   if (!response.ok) throw new Error(result.error);
 
-  const { data } = result;
-
-  return data as {
+  return result as {
     data: (user_table & { total_bounty_earnings: string })[];
     totalCount: 0;
   };
 };
 
-export const getLegionBounty = async (params: {
-  page: number;
-  limit: number;
-  search?: string;
-  teamMemberId: string;
-  columnAccessor: string;
-  isAscendingSort: boolean;
-}) => {
+export const getLegionBounty = async (
+  params: {
+    page: number;
+    limit: number;
+    search?: string;
+    teamMemberId: string;
+    columnAccessor: string;
+    isAscendingSort: boolean;
+  },
+  supabaseClient: SupabaseClient
+) => {
+  const token = await getToken(supabaseClient);
+
   const urlParams = {
     page: params.page.toString(),
     limit: params.limit.toString(),
@@ -53,20 +68,20 @@ export const getLegionBounty = async (params: {
     isAscendingSort: params.isAscendingSort.toString(),
   };
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/referrals/indirect?${new URLSearchParams(urlParams)}`,
-    {
-      method: "GET",
-    }
-  );
+  const response = await fetch(`/api/v1/referral/indirect`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(urlParams),
+  });
 
   const result = await response.json();
 
   if (!response.ok) throw new Error(result.error);
 
-  const { data } = result;
-
-  return data as {
+  return result as {
     data: LegionRequestData[];
     totalCount: 0;
   };

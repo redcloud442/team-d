@@ -11,6 +11,7 @@ import {
 import { getLegionBounty } from "@/services/Bounty/Member";
 import { useIndirectReferralStore } from "@/store/useIndirrectReferralStore";
 import { escapeFormData } from "@/utils/function";
+import { createClientSide } from "@/utils/supabase/client";
 import { alliance_member_table } from "@prisma/client";
 import {
   ColumnFiltersState,
@@ -39,6 +40,7 @@ type FilterFormValues = {
 };
 
 const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
+  const supabaseClient = createClientSide();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -61,14 +63,17 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const { emailFilter } = sanitizedData;
 
-      const { data, totalCount } = await getLegionBounty({
-        teamMemberId: teamMemberProfile.alliance_member_id,
-        page: activePage,
-        limit: 10,
-        columnAccessor: columnAccessor,
-        isAscendingSort: isAscendingSort,
-        search: emailFilter,
-      });
+      const { data, totalCount } = await getLegionBounty(
+        {
+          teamMemberId: teamMemberProfile.alliance_member_id,
+          page: activePage,
+          limit: 10,
+          columnAccessor: columnAccessor,
+          isAscendingSort: isAscendingSort,
+          search: emailFilter,
+        },
+        supabaseClient
+      );
 
       setIndirectReferral({
         data: data || [],

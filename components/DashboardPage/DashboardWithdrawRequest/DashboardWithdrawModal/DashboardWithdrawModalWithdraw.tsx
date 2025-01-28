@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
-import { getEarnings } from "@/services/User/User";
+import { getUserEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
@@ -53,7 +53,7 @@ const withdrawalFormSchema = z.object({
   amount: z
     .string()
     .min(3, "Minimum amount is required atleast 200 pesos")
-    .refine((amount) => parseInt(amount, 10) > 200, {
+    .refine((amount) => parseInt(amount, 10) >= 200, {
       message: "Amount must be at least 200 pesos",
     }),
   bank: z.string().min(1, "Please select a bank"),
@@ -77,6 +77,7 @@ const DashboardWithdrawModalWithdraw = ({
   setTransactionOpen,
 }: Props) => {
   const [open, setOpen] = useState(false);
+  const supabaseClient = createClientSide();
   const { setEarnings } = useUserEarningsStore();
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const { isWithdrawalToday } = useUserHaveAlreadyWithdraw();
@@ -112,8 +113,13 @@ const DashboardWithdrawModalWithdraw = ({
   const fetchEarnings = async () => {
     try {
       if (!open) return;
-      const earnings = await getEarnings();
-      setEarnings(earnings);
+      const { userEarningsData } = await getUserEarnings(
+        {
+          memberId: teamMemberProfile.alliance_member_id,
+        },
+        supabaseClient
+      );
+      setEarnings(userEarningsData);
     } catch (e) {
       const errorMessage =
         e instanceof Error ? e.message : "An unexpected error occurred.";
@@ -142,10 +148,13 @@ const DashboardWithdrawModalWithdraw = ({
     try {
       const sanitizedData = escapeFormData(data);
 
-      await createWithdrawalRequest({
-        WithdrawFormValues: sanitizedData,
-        teamMemberId: teamMemberProfile.alliance_member_id,
-      });
+      await createWithdrawalRequest(
+        {
+          WithdrawFormValues: sanitizedData,
+          teamMemberId: teamMemberProfile.alliance_member_id,
+        },
+        supabaseClient
+      );
 
       switch (selectedEarnings) {
         case "TOTAL":

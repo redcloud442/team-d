@@ -1,3 +1,4 @@
+import { getToken } from "@/utils/function";
 import { AdminWithdrawaldata } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
@@ -31,20 +32,25 @@ export const getAdminWithdrawalRequest = async (
   return data as AdminWithdrawaldata;
 };
 
-export const updateWithdrawalStatus = async (params: {
-  status: string;
-  requestId: string;
-  note?: string;
-}) => {
+export const updateWithdrawalStatus = async (
+  params: {
+    status: string;
+    requestId: string;
+    note?: string;
+  },
+  supabaseClient: SupabaseClient
+) => {
   const { requestId } = params;
+  const token = await getToken(supabaseClient);
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/withdraw/` + requestId,
-    {
-      method: "PUT",
-      body: JSON.stringify(params),
-    }
-  );
+  const response = await fetch(`/api/v1/withdraw/` + requestId, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(params),
+  });
 
   const result = await response.json();
 

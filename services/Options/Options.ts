@@ -1,3 +1,4 @@
+import { getToken } from "@/utils/function";
 import { merchant_table, user_table } from "@prisma/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 
@@ -40,20 +41,16 @@ export const getUserOptions = async (
   return data as user_table[];
 };
 
-export const getMerchantOptions = async () => {
-  // const { data, error } = await supabaseClient.rpc("get_merchant_option", {
-  //   input_data: params,
-  // });
-  // if (error) {
-  //   throw error;
-  // }
+export const getMerchantOptions = async (supabaseClient: SupabaseClient) => {
+  const token = await getToken(supabaseClient);
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/merchant`,
-    {
-      method: "GET",
-    }
-  );
+  const response = await fetch(`/api/v1/merchant`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   if (!response.ok) {
     throw new Error("Failed to fetch merchant options");

@@ -8,6 +8,7 @@ import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { escapeFormData } from "@/utils/function";
+import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   alliance_earnings_table,
@@ -38,6 +39,7 @@ const AvailPackagePage = ({
   setSelectedPackage,
   selectedPackage,
 }: Props) => {
+  const supabaseClient = createClientSide();
   const { toast } = useToast();
   const { setEarnings } = useUserEarningsStore();
   const { chartData, setChartData } = usePackageChartData();
@@ -96,13 +98,16 @@ const AvailPackagePage = ({
           (selectedPackage?.packages_days ?? 0) * 24 * 60 * 60 * 1000
       );
 
-      await createPackageConnection({
-        packageData: {
-          amount: Number(result.amount),
-          packageId: selectedPackage?.package_id || "",
+      await createPackageConnection(
+        {
+          packageData: {
+            amount: Number(result.amount),
+            packageId: selectedPackage?.package_id || "",
+          },
+          teamMemberId: teamMemberProfile.alliance_member_id,
         },
-        teamMemberId: teamMemberProfile.alliance_member_id,
-      });
+        supabaseClient
+      );
 
       toast({
         title: "Enrolled Package",
@@ -146,7 +151,7 @@ const AvailPackagePage = ({
           completion_date: completionDate.toISOString(),
           amount: Number(amount),
           is_ready_to_claim: false,
-          package_connection_id: selectedPackage?.package_id || "",
+          package_connection_id: uuidv4(),
           profit_amount: Number(computation),
           package_color: selectedPackage?.package_color || "",
           package_date_created: new Date().toISOString(),

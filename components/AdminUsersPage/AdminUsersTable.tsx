@@ -1,6 +1,5 @@
 "use client";
 
-import { handleSignInUser } from "@/app/actions/auth/authAction";
 import {
   Table,
   TableBody,
@@ -16,6 +15,7 @@ import {
   handleUpdateRole,
   handleUpdateUserRestriction,
 } from "@/services/User/Admin";
+import { handleGenerateLink } from "@/services/User/User";
 import { escapeFormData, userNameToEmail } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
@@ -148,9 +148,12 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const handleCopyAccountUrl = async (userName: string) => {
     try {
-      const data = await handleSignInUser({
-        formattedUserName: userNameToEmail(userName),
-      });
+      const data = await handleGenerateLink(
+        {
+          formattedUserName: userNameToEmail(userName),
+        },
+        supabaseClient
+      );
 
       navigator.clipboard.writeText(
         `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback?hashed_token=${data.url.hashed_token}`
@@ -219,7 +222,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
   const handlePromoteUser = async (memberId: string, role: string) => {
     try {
       setIsLoading(true);
-      await handleUpdateRole({ userId: memberId, role });
+      await handleUpdateRole({ userId: memberId, role }, supabaseClient);
 
       fetchAdminRequest();
       setIsOpenModal({ memberId: "", role: "", open: false, type: "" });
@@ -244,7 +247,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
   const handleBanUser = async (memberId: string) => {
     try {
       setIsLoading(true);
-      await handleUpdateUserRestriction({ userId: memberId });
+      await handleUpdateUserRestriction({ userId: memberId }, supabaseClient);
       fetchAdminRequest();
       setIsOpenModal({ memberId: "", role: "", open: false, type: "" });
       toast({

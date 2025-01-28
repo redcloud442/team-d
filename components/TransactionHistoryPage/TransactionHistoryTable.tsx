@@ -46,15 +46,17 @@ const TransactionHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const fetchRequest = async () => {
     try {
-      if (!teamMemberProfile || (transactionHistory && activePage === 1))
-        return;
+      if (!teamMemberProfile) return;
       setIsFetchingList(true);
 
       const { transactionHistory: transactionHistoryData, totalTransactions } =
-        await getTransactionHistory({
-          page: activePage,
-          limit: 10,
-        });
+        await getTransactionHistory(
+          {
+            page: activePage,
+            limit: 10,
+          },
+          supabaseClient
+        );
 
       setTransactionHistory({
         data: transactionHistoryData,

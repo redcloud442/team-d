@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { updateWithdrawalStatus } from "@/services/Withdrawal/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
+import { createClientSide } from "@/utils/supabase/client";
 import { WithdrawalRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
@@ -25,6 +26,7 @@ const statusColorMap: Record<string, string> = {
 };
 
 export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
+  const supabaseClient = createClientSide();
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +40,10 @@ export const AdminWithdrawalHistoryColumn = (handleFetch: () => void) => {
     async (status: string, requestId: string, note?: string) => {
       try {
         setIsLoading(true);
-        await updateWithdrawalStatus({ status, requestId, note });
+        await updateWithdrawalStatus(
+          { status, requestId, note },
+          supabaseClient
+        );
         handleFetch();
         toast({
           title: `Status Update`,

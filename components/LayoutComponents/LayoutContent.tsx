@@ -5,8 +5,6 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { getDashboard } from "@/services/Dasboard/Member";
 import { getTransactionHistory } from "@/services/Transaction/Transaction";
 import { getUserEarnings, getUserWithdrawalToday } from "@/services/User/User";
-import { useDirectReferralStore } from "@/store/useDirectReferralStore";
-import { useIndirectReferralStore } from "@/store/useIndirrectReferralStore";
 import { useUserLoadingStore } from "@/store/useLoadingStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
@@ -41,8 +39,6 @@ export default function LayoutContent({
   const { setEarnings } = useUserEarningsStore();
   const { setLoading } = useUserLoadingStore();
   const { setChartData } = usePackageChartData();
-  const { setDirectReferral } = useDirectReferralStore();
-  const { setIndirectReferral } = useIndirectReferralStore();
   const { setIsWithdrawalToday } = useUserHaveAlreadyWithdraw();
   const { setTheme } = useTheme();
 
@@ -58,9 +54,12 @@ export default function LayoutContent({
       try {
         setLoading(true);
 
-        const { totalEarnings, userEarningsData } = await getUserEarnings({
-          memberId: teamMemberProfile.alliance_member_id,
-        });
+        const { totalEarnings, userEarningsData } = await getUserEarnings(
+          {
+            memberId: teamMemberProfile.alliance_member_id,
+          },
+          supabaseClient
+        );
 
         setTotalEarnings(totalEarnings);
 
@@ -73,19 +72,20 @@ export default function LayoutContent({
         setChartData(data);
 
         const { transactionHistory, totalTransactions } =
-          await getTransactionHistory({
-            limit: 10,
-            page: 1,
-          });
+          await getTransactionHistory(
+            {
+              limit: 10,
+              page: 1,
+            },
+            supabaseClient
+          );
 
         setTransactionHistory({
           data: transactionHistory,
           count: totalTransactions,
         });
 
-        const isWithdrawalToday = await getUserWithdrawalToday({
-          userId: teamMemberProfile.alliance_member_id,
-        });
+        const isWithdrawalToday = await getUserWithdrawalToday(supabaseClient);
 
         setIsWithdrawalToday(isWithdrawalToday);
 

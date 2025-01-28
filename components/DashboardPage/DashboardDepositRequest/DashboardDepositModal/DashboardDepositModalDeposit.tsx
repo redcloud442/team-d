@@ -1,4 +1,3 @@
-import { depositWalletData } from "@/app/actions/deposit/depositAction";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,6 +22,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getMerchantOptions } from "@/services/Options/Options";
+import { handleDepositRequest } from "@/services/TopUp/Member";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
@@ -97,7 +97,7 @@ const DashboardDepositModalDeposit = ({
     const getOptions = async () => {
       try {
         if (!open) return;
-        const options = await getMerchantOptions();
+        const options = await getMerchantOptions(supabaseClient);
         setTopUpOptions(options);
       } catch (e) {
         if (e instanceof Error) {
@@ -138,10 +138,13 @@ const DashboardDepositModalDeposit = ({
         .from("REQUEST_ATTACHMENTS")
         .getPublicUrl(filePath);
 
-      await depositWalletData({
-        TopUpFormValues: sanitizedData,
-        publicUrl,
-      });
+      await handleDepositRequest(
+        {
+          TopUpFormValues: sanitizedData,
+          publicUrl,
+        },
+        supabaseClient
+      );
 
       toast({
         title: "Deposit Request Successfully",

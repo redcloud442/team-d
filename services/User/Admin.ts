@@ -1,8 +1,7 @@
-import { escapeFormData } from "@/utils/function";
+import { escapeFormData, getToken } from "@/utils/function";
 import { UserLog, UserRequestdata } from "@/utils/types";
 import { user_table } from "@prisma/client";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { z } from "zod";
 
 export const getAdminUserRequest = async (
   supabaseClient: SupabaseClient,
@@ -29,7 +28,6 @@ export const getAdminUserRequest = async (
 
   return data as {
     data: UserRequestdata[];
-
     totalCount: 0;
   };
 };
@@ -85,54 +83,60 @@ export const getHistoryLog = async (
     totalCount: 0;
   };
 };
-const signInUserSchema = z.object({
-  formattedUserName: z.string().email(),
-});
 
-export const handleUpdateRole = async (params: {
-  role: string;
-  userId: string;
-}) => {
+export const handleUpdateRole = async (
+  params: {
+    role: string;
+    userId: string;
+  },
+  supabaseClient: SupabaseClient
+) => {
+  const token = await getToken(supabaseClient);
+
   const sanitizedData = escapeFormData(params);
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/` + sanitizedData.userId,
-    {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "updateRole", role: sanitizedData.role }),
-    }
-  );
+  const response = await fetch(`/api/v1/user/` + sanitizedData.userId, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ action: "updateRole", role: sanitizedData.role }),
+  });
 
   const result = await response.json();
 
   if (!response.ok) {
     throw new Error(
-      result.error || "An error occurred while creating the top-up request."
+      result.error || "An error occurred while updating the role."
     );
   }
 
   return response;
 };
 
-export const handleUpdateUserRestriction = async (params: {
-  userId: string;
-}) => {
+export const handleUpdateUserRestriction = async (
+  params: {
+    userId: string;
+  },
+  supabaseClient: SupabaseClient
+) => {
+  const token = await getToken(supabaseClient);
   const { userId } = params;
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/` + userId,
-    {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "banUser" }),
-    }
-  );
+  const response = await fetch(`/api/v1/user/` + userId, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ action: "banUser" }),
+  });
 
   const result = await response.json();
 
   if (!response.ok) {
     throw new Error(
-      result.error || "An error occurred while creating the top-up request."
+      result.error || "An error occurred while banning the user."
     );
   }
 

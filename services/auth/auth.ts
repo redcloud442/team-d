@@ -1,5 +1,16 @@
-import { registerUser } from "@/app/actions/auth/authAction";
+import { createClientSide } from "@/utils/supabase/client";
 import { SupabaseClient } from "@supabase/supabase-js";
+import bcryptjs from "bcryptjs";
+import { z } from "zod";
+
+const registerUserSchema = z.object({
+  userName: z.string().min(6),
+  password: z.string().min(6),
+  firstName: z.string().min(2),
+  lastName: z.string().min(2),
+  referalLink: z.string().min(2),
+  url: z.string().min(2),
+});
 
 export const createTriggerUser = async (params: {
   userName: string;
@@ -10,21 +21,52 @@ export const createTriggerUser = async (params: {
   url: string;
 }) => {
   const { userName, password, referalLink, url, firstName, lastName } = params;
+  const supabase = createClientSide();
+
+  const validate = registerUserSchema.safeParse(params);
 
   const checkUserNameResult = await checkUserName({ userName });
 
-  if (!checkUserNameResult.success) {
+  if (!checkUserNameResult.ok) {
     throw new Error("Username already taken.");
   }
 
-  await registerUser({
-    userName,
+  if (!validate.success) {
+    throw new Error(validate.error.message);
+  }
+
+  const formatUsername = userName + "@gmail.com";
+
+  const hashedPassword = await bcryptjs.hash(password, 10);
+
+  const { data: userData, error: userError } = await supabase.auth.signUp({
+    email: formatUsername,
     password,
+  });
+
+  if (userError) throw userError;
+
+  const userParams = {
+    userName,
+    password: hashedPassword,
+    userId: userData.user?.id,
     firstName,
     lastName,
-    referalLink: referalLink ?? "",
+    referalLink,
     url,
+  };
+
+  const response = await fetch(`/api/v1/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userParams),
   });
+
+  if (!response.ok) {
+    throw new Error("Username already taken.");
+  }
 
   return { success: true };
 };
@@ -40,7 +82,7 @@ export const loginValidation = async (
 
   const formattedUserName = userName + "@gmail.com";
 
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth`, {
+  const response = await fetch(`/api/v1/auth`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -78,16 +120,15 @@ export const loginValidation = async (
 };
 
 export const checkUserName = async (params: { userName: string }) => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/?userName=${params.userName}`,
-    {
-      method: "GET",
-    }
-  );
+  const response = await fetch(`/api/v1/auth?userName=${params.userName}`, {
+    method: "GET",
+  });
 
-  const result = await response.json();
+  if (!response.ok) {
+    throw new Error("Username already taken.");
+  }
 
-  return result;
+  return response;
 };
 
 export const changeUserPassword = async (params: {
@@ -102,13 +143,10 @@ export const changeUserPassword = async (params: {
     clientpass: password,
   };
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/` + userId,
-    {
-      method: "PUT",
-      body: JSON.stringify(inputData),
-    }
-  );
+  const response = await fetch(`/api/user/` + userId, {
+    method: "PUT",
+    body: JSON.stringify(inputData),
+  });
 
   if (!response.ok) {
     const contentType = response.headers.get("content-type");
@@ -128,4 +166,20 @@ export const changeUserPassword = async (params: {
   if (!result) throw new Error();
 
   return result;
+};
+
+export const handleSignInAdmin = async (params: {
+  userName: string;
+  password: string;
+}) => {
+  const response = await fetch(`/api/v1/auth/admin`, {
+    method: "POST",
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    throw new Error("Invalid username or password");
+  }
+
+  return response;
 };

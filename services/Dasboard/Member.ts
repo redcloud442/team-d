@@ -1,4 +1,5 @@
-import { ChartDataMember, DashboardEarnings } from "@/utils/types";
+import { getToken } from "@/utils/function";
+import { ChartDataMember } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const getDashboard = async (
@@ -7,28 +8,26 @@ export const getDashboard = async (
     teamMemberId: string;
   }
 ) => {
-  const { data, error } = await supabaseClient.rpc("get_dashboard_data", {
-    input_data: params,
+  const token = await getToken(supabaseClient);
+
+  const response = await fetch(`/api/v1/package/list`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(params),
   });
 
-  if (error) throw error;
+  const result = await response.json();
 
-  return data as {
-    data: ChartDataMember[];
-    totalCompletedAmount: number;
-  };
-};
-
-export const getDashboardEarnings = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    teamMemberId: string;
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while fetching the dashboard data."
+    );
   }
-) => {
-  const { data, error } = await supabaseClient.rpc("get_dashboard_earnings", {
-    input_data: params,
-  });
-  if (error) throw error;
 
-  return data as DashboardEarnings;
+  return result as {
+    data: ChartDataMember[];
+  };
 };

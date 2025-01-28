@@ -103,19 +103,23 @@ const RegisterPage = ({ referralLink }: Props) => {
       if (!value) return;
 
       setIsUsernameLoading(true);
+      setIsUsernameValidated(false); // Reset validation state while loading
 
       try {
         const result = await checkUserName({ userName: value });
-        if (result.error) {
-          setError("userName", { message: result.error });
-        } else {
+
+        if (result.status === 400) {
+          setError("userName", { message: "Username already taken." });
+        } else if (result.status === 200) {
           clearErrors("userName");
           setIsUsernameValidated(true);
         }
       } catch (e) {
-        setError("userName", { message: "Validation failed. Try again." });
+        setError("userName", {
+          message: "Username already taken.",
+        });
       } finally {
-        setIsUsernameLoading(false);
+        setIsUsernameLoading(false); // Ensure loading is reset
       }
     }, 3000),
     [clearErrors, setError]

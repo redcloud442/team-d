@@ -1,9 +1,9 @@
 "use client";
 
-import { handleSigninAdmin } from "@/app/actions/auth/authAction";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { handleSignInAdmin } from "@/services/auth/auth";
 import { escapeFormData, userNameToEmail } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -81,9 +81,9 @@ const Pr1meSecured = () => {
 
       const { userName, password } = sanitizedData;
 
-      const result = await handleSigninAdmin({ userName, password });
+      const result = await handleSignInAdmin({ userName, password });
 
-      if (!result.success) {
+      if (!result.ok) {
         toast({
           title: "Not Allowed",
           variant: "destructive",

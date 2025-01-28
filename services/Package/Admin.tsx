@@ -24,16 +24,13 @@ export const updatePackagesData = async (params: {
 }) => {
   const { packageId } = params;
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/package/` + packageId,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(params),
-    }
-  );
+  const response = await fetch(`/api/package/` + packageId, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  });
 
   const result = await response.json();
 
@@ -54,16 +51,13 @@ export const createPackage = async (params: {
   packageImage: string;
   packageColor: string;
 }) => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/package/create`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(params),
-    }
-  );
+  const response = await fetch(`/api/package/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  });
 
   const result = await response.json();
 

@@ -1,19 +1,24 @@
+import { getToken } from "@/utils/function";
 import { merchant_table } from "@prisma/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 
-export const handleUpdateBalance = async (params: {
-  amount: number;
-  memberId: string;
-}) => {
-  const { amount, memberId } = params;
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/merchant/`,
-    {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: amount, memberId: memberId }),
-    }
-  );
+export const handleUpdateBalance = async (
+  params: {
+    amount: number;
+    memberId: string;
+  },
+  supabaseClient: SupabaseClient
+) => {
+  const token = await getToken(supabaseClient);
+
+  const response = await fetch(`/api/merchant`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ amount: params.amount, memberId: params.memberId }),
+  });
 
   const result = await response.json();
 
@@ -53,14 +58,11 @@ export const handleCreateMerchantData = async (params: {
   accountType: string;
   accountName: string;
 }) => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/merchant/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(params),
-    }
-  );
+  const response = await fetch(`/api/merchant/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });
 
   const result = await response.json();
 
@@ -73,17 +75,22 @@ export const handleCreateMerchantData = async (params: {
   return response;
 };
 
-export const handleUpdateMerchantData = async (params: {
-  merchantId: string;
-}) => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/merchant/`,
-    {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(params),
-    }
-  );
+export const handleUpdateMerchantData = async (
+  params: {
+    merchantId: string;
+  },
+  supabaseClient: SupabaseClient
+) => {
+  const token = await getToken(supabaseClient);
+
+  const response = await fetch(`/api/v1/merchant`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(params),
+  });
 
   const result = await response.json();
 

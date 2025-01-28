@@ -1,6 +1,5 @@
 "use client";
 
-import { claimPackage } from "@/app/actions/package/packageAction";
 import {
   Card,
   CardContent,
@@ -10,10 +9,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { ClaimPackageHandler } from "@/services/Package/Member";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
+import { createClientSide } from "@/utils/supabase/client";
 import { ChartDataMember } from "@/utils/types";
 import { alliance_member_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
@@ -38,26 +39,30 @@ type DashboardPackagesProps = {
 };
 
 const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
+  const supabaseClient = createClientSide();
   const { toast } = useToast();
   const { earnings, setEarnings } = useUserEarningsStore();
   const { chartData, setChartData } = usePackageChartData();
   const { totalEarnings, setTotalEarnings } = useUserDashboardEarningsStore();
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
-  const [openDialogId, setOpenDialogId] = useState<string | null>(null); // Track which dialog is open
-  const [isLoading, setIsLoading] = useState<string | null>(null); // Track loading state for specific packages
+  const [openDialogId, setOpenDialogId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<string | null>(null);
 
   const handleClaimPackage = async (packageData: ChartDataMember) => {
     const { amount, profit_amount, package_connection_id } = packageData;
 
     try {
-      setIsLoading(package_connection_id); // Indicate the specific package is being claimed
-      const response = await claimPackage({
-        packageConnectionId: package_connection_id,
-        amount,
-        earnings: profit_amount,
-      });
+      setIsLoading(package_connection_id);
+      const response = await ClaimPackageHandler(
+        {
+          packageConnectionId: package_connection_id,
+          earnings: profit_amount,
+          amount,
+        },
+        supabaseClient
+      );
 
-      if (response.success) {
+      if (response.ok) {
         toast({
           title: "Package claimed successfully",
           description: "You have successfully claimed the package",
@@ -134,7 +139,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
             <CardHeader>
               <CardTitle className="flex justify-end items-end">
                 <div className="text-xs rounded-full bg-black p-2">
-                  {data.completion.toFixed(2)}%
+                  {data.completion}%
                 </div>
               </CardTitle>
               <CardDescription className="space-y-2">

@@ -1,3 +1,4 @@
+import { getToken } from "@/utils/function";
 import { AdminTopUpRequestData } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
@@ -29,20 +30,26 @@ export const getAdminTopUpRequest = async (
   return data as AdminTopUpRequestData;
 };
 
-export const updateTopUpStatus = async (params: {
-  status: string;
-  requestId: string;
-  note?: string;
-}) => {
+export const updateTopUpStatus = async (
+  params: {
+    status: string;
+    requestId: string;
+    note?: string;
+  },
+  supabaseClient: SupabaseClient
+) => {
   const { requestId } = params;
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/top-up/` + requestId,
-    {
-      method: "PUT",
-      body: JSON.stringify(params),
-    }
-  );
+  const token = await getToken(supabaseClient);
+
+  const response = await fetch(`/api/v1/deposit/` + requestId, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(params),
+  });
 
   const result = await response.json();
 
