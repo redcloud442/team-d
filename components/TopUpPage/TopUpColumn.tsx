@@ -44,11 +44,14 @@ export const TopUpColumn = (
     async (status: string, requestId: string, note?: string) => {
       try {
         setIsLoading(true);
-        await updateTopUpStatus({
-          status,
-          requestId,
-          note,
-        });
+        await updateTopUpStatus(
+          {
+            status,
+            requestId,
+            note,
+          },
+          supabaseClient
+        );
 
         toast({
           title: `Status Update`,

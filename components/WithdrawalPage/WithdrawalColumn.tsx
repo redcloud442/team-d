@@ -39,7 +39,10 @@ export const WithdrawalColumn = (handleFetch: () => void) => {
     async (status: string, requestId: string, note?: string) => {
       try {
         setIsLoading(true);
-        await updateWithdrawalStatus({ status, requestId, note });
+        await updateWithdrawalStatus(
+          { status, requestId, note },
+          supabaseClient
+        );
         handleFetch();
         toast({
           title: `Status Update`,

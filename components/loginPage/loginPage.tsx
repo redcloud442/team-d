@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { loginValidation } from "@/services/auth/auth";
+import { loginValidation } from "@/services/Auth/auth";
 import { logError } from "@/services/Error/ErrorLogs";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";

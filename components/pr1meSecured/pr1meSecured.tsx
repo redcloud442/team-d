@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { handleSignInAdmin } from "@/services/auth/auth";
+import { handleSignInAdmin } from "@/services/Auth/auth";
 import { escapeFormData, userNameToEmail } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";

@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { checkUserName, createTriggerUser } from "@/services/auth/auth";
+import { checkUserName, createTriggerUser } from "@/services/Auth/auth";
 import { logError } from "@/services/Error/ErrorLogs";
 import { BASE_URL } from "@/utils/constant";
 import { escapeFormData } from "@/utils/function";

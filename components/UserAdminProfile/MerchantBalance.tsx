@@ -1,6 +1,6 @@
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
-import { handleUpdateBalance } from "@/services/merchant/Merchant";
+import { handleUpdateBalance } from "@/services/Merchant/Merchant";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
@@ -49,10 +49,13 @@ const MerchantBalance = ({ userProfile }: Props) => {
 
       const sanitizedData = escapeFormData(data);
 
-      await handleUpdateBalance({
-        amount: Number(sanitizedData.balance),
-        memberId: userProfile.merchant_member_id,
-      });
+      await handleUpdateBalance(
+        {
+          amount: Number(sanitizedData.balance),
+          memberId: userProfile.merchant_member_id,
+        },
+        supabaseClient
+      );
 
       setMerchantData((prev) => ({
         ...prev,
