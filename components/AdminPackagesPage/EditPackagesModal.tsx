@@ -50,7 +50,8 @@ const PackagesSchema = z.object({
         ["image/jpeg", "image/png", "image/jpg"].includes(file.type) &&
         file.size <= 12 * 1024 * 1024, // 12MB limit
       { message: "File must be a valid image and less than 12MB." }
-    ),
+    )
+    .optional(),
 });
 
 export type PackagesFormValues = z.infer<typeof PackagesSchema>;
@@ -99,36 +100,45 @@ const EditPackagesModal = ({
   const onSubmit = async (data: PackagesFormValues) => {
     try {
       const sanitizedData = escapeFormData(data);
-
+      let url = "";
       const file = data.file;
 
-      const filePath = `uploads/${Date.now()}_${file.name}`;
+      if (file) {
+        const filePath = `uploads/${Date.now()}_${file.name}`;
 
-      const { error: uploadError } = await supabaseClient.storage
-        .from("PACKAGE_IMAGES")
-        .upload(filePath, file, { upsert: true });
+        const { error: uploadError } = await supabaseClient.storage
+          .from("PACKAGE_IMAGES")
+          .upload(filePath, file, { upsert: true });
 
-      if (uploadError) {
-        return toast({
-          title: "Error",
-          description: "File upload failed.",
-          variant: "destructive",
-        });
+        if (uploadError) {
+          return toast({
+            title: "Error",
+            description: "File upload failed.",
+            variant: "destructive",
+          });
+        }
+
+        const {
+          data: { publicUrl },
+        } = supabaseClient.storage
+          .from("PACKAGE_IMAGES")
+          .getPublicUrl(filePath);
+
+        url = publicUrl;
       }
-
-      const {
-        data: { publicUrl },
-      } = supabaseClient.storage.from("PACKAGE_IMAGES").getPublicUrl(filePath);
 
       const packageData = {
         ...sanitizedData,
-        package_image: publicUrl,
+        package_image: url,
       };
-      await updatePackagesData({
-        packageData: packageData,
-        teamMemberId: teamMemberProfile.alliance_member_id,
-        packageId: selectedPackage?.package_id ?? "",
-      });
+      await updatePackagesData(
+        {
+          packageData: packageData,
+          teamMemberId: teamMemberProfile.alliance_member_id,
+          packageId: selectedPackage?.package_id ?? "",
+        },
+        supabaseClient
+      );
       toast({
         title: "Package Updated Successfully",
         description: "Please wait",

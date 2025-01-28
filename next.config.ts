@@ -18,7 +18,7 @@ const nextConfig = {
     return [
       {
         source: "/api/v1/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/:path*`,
+        destination: `${process.env.NODE_ENV === "development" ? "http://localhost:8000" : "https://loadbalancer.primepinas.com"}/api/v1/:path*`,
       },
     ];
   },
@@ -39,7 +39,6 @@ const nextConfig = {
             key: "Access-Control-Allow-Origin",
             value: "*",
           },
-
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload", // Enforce HTTPS for 2 years

@@ -11,7 +11,7 @@ export const handleUpdateBalance = async (
 ) => {
   const token = await getToken(supabaseClient);
 
-  const response = await fetch(`/api/merchant`, {
+  const response = await fetch(`/api/v1/merchant`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",

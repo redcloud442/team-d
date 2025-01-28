@@ -41,23 +41,6 @@ export const AdminUsersColumn = (
         memberId: alliance_member_alliance_id,
         type: "PROMOTE",
       });
-
-      // await handleUpdateRole({ userId: alliance_member_alliance_id, role });
-
-      // if (role === "ADMIN") {
-      //   const supabase = createServiceRoleClient();
-      //   const { data, error } = await supabase.auth.admin.updateUserById(
-      //     userId,
-      //     {
-      //       password: newPassword,
-      //     }
-      //   );
-      // }
-      // toast({
-      //   title: `Role Updated`,
-      //   description: `Role Updated Sucessfully`,
-      //   variant: "success",
-      // });
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {

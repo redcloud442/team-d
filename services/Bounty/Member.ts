@@ -25,17 +25,14 @@ export const getAllyBounty = async (
     teamMemberId: params.teamMemberId,
   };
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/referral/direct`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(urlParams),
-    }
-  );
+  const response = await fetch(`/api/v1/referral/direct`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(urlParams),
+  });
 
   const result = await response.json();
 

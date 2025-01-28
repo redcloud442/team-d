@@ -91,32 +91,17 @@ export const loginValidation = async (
   });
 
   if (!response.ok) {
-    if (response.status === 403) {
-      throw new Error("Too many requests. Please try again later.");
-    }
-
-    try {
-      const result = await response.json();
-      throw new Error(
-        result.error || "An error occurred while validating the login."
-      );
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        throw new Error(e.message);
-      }
-      throw new Error("An unknown error occurred");
-    }
+    throw new Error("Invalid username or password");
   }
 
   const { error: signInError } = await supabaseClient.auth.signInWithPassword({
     email: formattedUserName,
     password,
   });
+
   if (signInError) throw signInError;
 
-  const result = await response.json();
-
-  return result.redirect || "/";
+  return;
 };
 
 export const checkUserName = async (params: { userName: string }) => {
@@ -174,6 +159,9 @@ export const handleSignInAdmin = async (params: {
 }) => {
   const response = await fetch(`/api/v1/auth/admin`, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(params),
   });
 
