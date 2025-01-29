@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
-import { handleUpdateMerchantData } from "@/services/Merchant/Merchant";
+import { handleUpdateMerchantData } from "@/services/merchant/Merchant";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { merchant_table } from "@prisma/client";
