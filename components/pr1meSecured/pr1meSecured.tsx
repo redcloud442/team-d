@@ -184,8 +184,7 @@ const Pr1meSecured = () => {
           className="w-full sm:hidden"
         />
       </div>
-
-      <div className="absolute top-[20%] sm:top-[35%] flex items-center justify-center w-full">
+      <div className="absolute top-[20%] left-2 sm:top-[30%] flex items-center justify-center w-full">
         <Image src="/app-logo.svg" alt="logo" width={120} height={120} />
       </div>
 
