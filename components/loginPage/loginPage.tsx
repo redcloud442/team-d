@@ -15,6 +15,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import NavigationLoader from "../ui/NavigationLoader";
+import { PasswordInput } from "../ui/passwordInput";
 
 // Zod Schema for Login Form
 export const LoginSchema = z.object({
@@ -132,10 +133,9 @@ const LoginPage = () => {
           )}
         </div>
         <div className="w-full">
-          <Input
+          <PasswordInput
             variant="non-card"
             id="password"
-            type="password"
             placeholder="Password"
             {...register("password")}
           />

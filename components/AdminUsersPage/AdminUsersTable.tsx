@@ -146,6 +146,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
 
   const handleCopyAccountUrl = async (userName: string) => {
     try {
+      setIsLoading(true);
       const data = await handleGenerateLink(
         {
           formattedUserName: userNameToEmail(userName),
@@ -168,6 +169,8 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
           e instanceof Error ? e.message : "An unexpected error occurred.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 

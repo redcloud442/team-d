@@ -238,7 +238,7 @@ const Pr1meSecured = () => {
           )}
         >
           <div className="w-full justify-center items-center flex flex-col gap-2">
-            <Label className="dark:text-white" htmlFor="otp">
+            <Label className="dark:text-white text-white" htmlFor="otp">
               Enter OTP
             </Label>
             <InputOTP
