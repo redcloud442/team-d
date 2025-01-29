@@ -8,8 +8,6 @@ export const getAdminTopUpRequest = async (
     page: number;
     limit: number;
     search?: string;
-    teamMemberId: string;
-    teamId: string;
     columnAccessor: string;
     isAscendingSort: boolean;
     merchantFilter?: string;
@@ -21,11 +19,24 @@ export const getAdminTopUpRequest = async (
     };
   }
 ) => {
-  const { data, error } = await supabaseClient.rpc("get_admin_top_up_history", {
-    input_data: params,
+  const token = await getToken(supabaseClient);
+
+  const response = await fetch(`/api/v1/deposit/list`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(params),
   });
 
-  if (error) throw error;
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.error || "An error occurred while creating the top-up request."
+    );
+  }
 
   return data as AdminTopUpRequestData;
 };

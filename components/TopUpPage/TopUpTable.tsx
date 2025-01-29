@@ -304,7 +304,6 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
           const userData = await getUserOptions(supabaseClient, {
             page: currentUserPage,
             limit: pageLimit,
-            teamMemberId: teamMemberProfile.alliance_member_id,
           });
 
           if (!userData?.length) {
