@@ -1,3 +1,4 @@
+import { getToken } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 import bcryptjs from "bcryptjs";
@@ -12,14 +13,17 @@ const registerUserSchema = z.object({
   url: z.string().min(2),
 });
 
-export const createTriggerUser = async (params: {
-  userName: string;
-  firstName: string;
-  lastName: string;
-  password: string;
-  referalLink?: string;
-  url: string;
-}) => {
+export const createTriggerUser = async (
+  params: {
+    userName: string;
+    firstName: string;
+    lastName: string;
+    password: string;
+    referalLink?: string;
+    url: string;
+  },
+  supabaseClient: SupabaseClient
+) => {
   const { userName, password, referalLink, url, firstName, lastName } = params;
   const supabase = createClientSide();
 
@@ -56,10 +60,14 @@ export const createTriggerUser = async (params: {
     url,
   };
 
+  const token = await getToken(supabaseClient);
+
   const response = await fetch(`/api/v1/auth/register`, {
     method: "POST",
+
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(userParams),
   });

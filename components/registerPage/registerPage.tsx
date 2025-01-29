@@ -138,19 +138,23 @@ const RegisterPage = ({ referralLink }: Props) => {
     const { userName, password, firstName, lastName } = sanitizedData;
 
     try {
-      await createTriggerUser({
-        userName: userName,
-        password: password,
-        firstName,
-        lastName,
-        referalLink: referralLink,
-        url,
-      });
+      await createTriggerUser(
+        {
+          userName: userName,
+          password: password,
+          firstName,
+          lastName,
+          referalLink: referralLink,
+          url,
+        },
+        supabase
+      );
       setIsSuccess(true);
 
       toast({
         title: "Registration Successful",
       });
+
       router.push("/");
     } catch (e) {
       setIsSuccess(false);
