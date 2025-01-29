@@ -1,6 +1,6 @@
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
-import { handleUpdateBalance } from "@/services/Merchant/Merchant";
+import { handleUpdateBalance } from "@/services/merchant/Merchant";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";

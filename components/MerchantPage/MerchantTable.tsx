@@ -13,7 +13,7 @@ import { logError } from "@/services/Error/ErrorLogs";
 import {
   getMerchantData,
   handleCreateMerchantData,
-} from "@/services/Merchant/Merchant";
+} from "@/services/merchant/Merchant";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
