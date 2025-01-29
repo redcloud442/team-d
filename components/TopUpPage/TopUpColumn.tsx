@@ -7,7 +7,8 @@ import { createClientSide } from "@/utils/supabase/client";
 import { MerchantTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import Image from "next/image";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Badge } from "../ui/badge";
 import {
   Dialog,
@@ -26,7 +27,6 @@ const statusColorMap: Record<string, string> = {
 };
 
 export const TopUpColumn = (
-  handleFetch: () => void,
   setRequestData: Dispatch<SetStateAction<MerchantTopUpRequestData | null>>,
   reset: () => void
 ) => {
@@ -40,92 +40,96 @@ export const TopUpColumn = (
     amount: 0,
   });
 
-  const handleUpdateStatus = useCallback(
-    async (status: string, requestId: string, note?: string) => {
-      try {
-        setIsLoading(true);
+  const handleUpdateStatus = async (
+    status: string,
+    requestId: string,
+    note?: string
+  ) => {
+    try {
+      setIsLoading(true);
 
-        await updateTopUpStatus(
-          {
-            status,
-            requestId,
-            note,
-          },
-          supabaseClient
+      await updateTopUpStatus(
+        {
+          status,
+          requestId,
+          note,
+        },
+        supabaseClient
+      );
+
+      setRequestData((prev) => {
+        if (!prev) return prev;
+
+        const pendingData = prev.data["PENDING"]?.data ?? [];
+        const updatedItem = pendingData.find(
+          (item) => item.alliance_top_up_request_id === requestId
         );
+        const newPendingList = pendingData.filter(
+          (item) => item.alliance_top_up_request_id !== requestId
+        );
+        const currentStatusData = prev.data[status as keyof typeof prev.data];
+        const hasExistingData = currentStatusData?.data?.length > 0;
 
-        setRequestData((prev) => {
-          if (!prev) return prev;
+        const merchantBalance =
+          status === "APPROVED"
+            ? prev.merchantBalance -
+              (updatedItem?.alliance_top_up_request_amount ?? 0)
+            : prev.merchantBalance;
 
-          const pendingData = prev.data["PENDING"]?.data ?? [];
-          const updatedItem = pendingData.find(
-            (item) => item.alliance_top_up_request_id === requestId
-          );
-          const newPendingList = pendingData.filter(
-            (item) => item.alliance_top_up_request_id !== requestId
-          );
-          const currentStatusData = prev.data[status as keyof typeof prev.data];
-          const hasExistingData = currentStatusData?.data?.length > 0;
+        if (!updatedItem) return prev;
 
-          if (!updatedItem) return prev;
-
-          return {
-            ...prev,
-            data: {
-              ...prev.data,
-              PENDING: {
-                ...prev.data["PENDING"],
-                data: newPendingList,
-                count: Number(prev.data["PENDING"]?.count) - 1,
-              },
-              [status as keyof typeof prev.data]: {
-                ...currentStatusData,
-                data: hasExistingData
-                  ? [
-                      {
-                        ...updatedItem,
-                        alliance_top_up_request_status: status,
-                      },
-                      ...currentStatusData.data,
-                    ]
-                  : [],
-                count: Number(currentStatusData?.count || 0) + 1,
-                merchantBalance:
-                  prev.merchantBalance -
-                  updatedItem.alliance_top_up_request_amount,
-              },
+        return {
+          ...prev,
+          data: {
+            ...prev.data,
+            PENDING: {
+              ...prev.data["PENDING"],
+              data: newPendingList,
+              count: Number(prev.data["PENDING"]?.count) - 1,
             },
-          };
-        });
+            [status as keyof typeof prev.data]: {
+              ...currentStatusData,
+              data: hasExistingData
+                ? [
+                    {
+                      ...updatedItem,
+                      alliance_top_up_request_status: status,
+                    },
+                    ...currentStatusData.data,
+                  ]
+                : [],
+              count: Number(currentStatusData?.count || 0) + 1,
+            },
+          },
+          merchantBalance: merchantBalance,
+        };
+      });
+      toast({
+        title: `Status Update`,
+        description: `${status} Request Successfully`,
+        variant: "success",
+      });
 
+      setIsOpenModal({ open: false, requestId: "", status: "", amount: 0 });
+      reset();
+    } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath:
+            "components/AdminTopUpApprovalPage/AdminTopUpApprovalColumn.tsx",
+        });
         toast({
-          title: `Status Update`,
-          description: `${status} Request Successfully`,
-          variant: "success",
+          title: `Invalid Request`,
+          description: `${e.message}`,
+          variant: "destructive",
         });
-
-        setIsOpenModal({ open: false, requestId: "", status: "", amount: 0 });
-        reset();
-      } catch (e) {
-        if (e instanceof Error) {
-          await logError(supabaseClient, {
-            errorMessage: e.message,
-            stackTrace: e.stack,
-            stackPath:
-              "components/AdminTopUpApprovalPage/AdminTopUpApprovalColumn.tsx",
-          });
-          toast({
-            title: `Invalid Request`,
-            description: `${e.message}`,
-            variant: "destructive",
-          });
-        }
-      } finally {
-        setIsLoading(false);
       }
-    },
-    [handleFetch, toast]
-  );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const columns: ColumnDef<TopUpRequestData>[] = [
     {
@@ -270,10 +274,11 @@ export const TopUpColumn = (
                 <DialogTitle>Attachment</DialogTitle>
               </DialogHeader>
               <div className="flex justify-center items-center">
-                <img
+                <Image
                   src={attachmentUrl || ""}
                   alt="Attachment Preview"
-                  className="object-contain w-full h-full"
+                  width={400}
+                  height={400}
                 />
               </div>
               <DialogClose asChild>

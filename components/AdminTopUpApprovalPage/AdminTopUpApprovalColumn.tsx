@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -17,9 +16,9 @@ import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useCallback, useState } from "react";
-import { AspectRatio } from "../ui/aspect-ratio";
 import TableLoading from "../ui/tableLoading";
 import { Textarea } from "../ui/textarea";
 const statusColorMap: Record<string, string> = {
@@ -296,18 +295,16 @@ export const useAdminTopUpApprovalColumns = (
               <Button variant="outline">View Attachment</Button>
             </DialogTrigger>
             <DialogContent type="table">
-              <DialogDescription></DialogDescription>
               <DialogHeader>
                 <DialogTitle>Attachment</DialogTitle>
               </DialogHeader>
-              <div className="flex justify-center items-center border-2">
-                <AspectRatio ratio={16 / 9} className="w-full">
-                  <img
-                    src={attachmentUrl || ""}
-                    alt="Attachment Preview"
-                    className="object-contain w-full h-full"
-                  />
-                </AspectRatio>
+              <div className="flex justify-center items-center">
+                <Image
+                  src={attachmentUrl || ""}
+                  alt="Attachment Preview"
+                  width={400}
+                  height={400}
+                />
               </div>
               <DialogClose asChild>
                 <Button variant="secondary">Close</Button>

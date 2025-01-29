@@ -270,7 +270,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = TopUpColumn(handleRefresh, setRequestData, reset);
+  } = TopUpColumn(setRequestData, reset);
   const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
 
   const table = useReactTable({
