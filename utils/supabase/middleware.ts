@@ -1,13 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
-import { ensureValidSession } from "../serversideProtection";
 
 export async function updateSession(request: NextRequest) {
   const cookieStore = await cookies();
   // Check if the session validation has already occurred
   if (request.headers.get("x-session-checked")) {
     return addSecurityHeaders(NextResponse.next());
+  }
+
+  if (request.nextUrl.pathname === "/api/v1/auth/register") {
+    return NextResponse.next();
   }
 
   const supabaseResponse = NextResponse.next({
@@ -40,21 +43,12 @@ export async function updateSession(request: NextRequest) {
   const isMagicLinkCallback = request.nextUrl.pathname === "/auth/callback";
 
   if (isMagicLinkCallback) {
-    // Bypass session validation for magic link processing
     return addSecurityHeaders(NextResponse.next());
   }
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const result = await ensureValidSession();
-
-  if (!result && user) {
-    const response = NextResponse.redirect(new URL("/auth/login", request.url));
-    response.headers.set("x-session-checked", "true");
-    return addSecurityHeaders(response);
-  }
 
   const publicRoutes = [
     "/auth/login",
