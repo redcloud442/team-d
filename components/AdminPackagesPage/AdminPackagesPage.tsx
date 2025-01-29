@@ -49,10 +49,10 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
   };
 
   return (
-    <div className="container mx-auto p-0 md:p-10">
+    <div className="container mx-auto p- md:p-10 space-y-6 ">
       <div className="flex justify-between items-center">
         <h1 className="Title">List of Packages</h1>
-        <CreatePackageModal fetchPackages={fetchPackages} />
+        <CreatePackageModal setPackages={setPackages} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {packages.map((pkg) => (
@@ -98,10 +98,10 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
 
             {!pkg.package_is_disabled && (
               <EditPackagesModal
+                setPackages={setPackages}
                 teamMemberProfile={teamMemberProfile}
                 selectedPackage={selectedPackage}
                 handleSelectPackage={() => handleSelectPackage(pkg)}
-                fetchPackages={fetchPackages}
               />
             )}
 

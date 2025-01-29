@@ -135,7 +135,7 @@ export default function LayoutContent({
         )}
 
         {/* Content Section */}
-        <div className="pb-24 p-4 relative z-50 flex-grow">{children}</div>
+        <div className="pb-24 p-4 relative z-50 grow">{children}</div>
 
         {/* Mobile Navigation */}
         {role !== ROLE.ADMIN && <MobileNavBar />}

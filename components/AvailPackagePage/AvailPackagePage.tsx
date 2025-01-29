@@ -237,7 +237,7 @@ const AvailPackagePage = ({
                           type="text"
                           placeholder="Enter amount"
                           {...field}
-                          className="w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-lg shadow-xs px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
                           value={field.value || ""}
                           onChange={(e) => {
                             let value = e.target.value;

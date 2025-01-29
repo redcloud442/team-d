@@ -417,7 +417,7 @@ const DashboardWithdrawModalWithdraw = ({
                     <Input
                       type="text"
                       id="amount"
-                      className="w-full flex-grow"
+                      className="w-full grow"
                       placeholder="Enter amount"
                       {...field}
                       value={field.value}
@@ -530,7 +530,7 @@ const DashboardWithdrawModalWithdraw = ({
               <div className="flex items-center justify-between w-full gap-2">
                 <Input
                   id="amount"
-                  className="w-full flex-grow"
+                  className="w-full grow"
                   readOnly
                   value={calculateFinalAmount(
                     Number(amount || 0),

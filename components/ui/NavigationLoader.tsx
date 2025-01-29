@@ -7,7 +7,7 @@ type Props = {
 const NavigationLoader = ({ visible }: Props) => {
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex bg-pageColor dark:bg-zinc-800 flex-col items-center justify-center duration-300 ${
+      className={`fixed inset-0 z-9999 flex bg-pageColor dark:bg-zinc-800 flex-col items-center justify-center duration-300 ${
         visible ? "" : "opacity-0 pointer-events-none"
       }`}
     >

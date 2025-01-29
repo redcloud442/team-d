@@ -44,6 +44,7 @@ export const TopUpColumn = (
     async (status: string, requestId: string, note?: string) => {
       try {
         setIsLoading(true);
+
         await updateTopUpStatus(
           {
             status,
@@ -53,12 +54,55 @@ export const TopUpColumn = (
           supabaseClient
         );
 
+        setRequestData((prev) => {
+          if (!prev) return prev;
+
+          const pendingData = prev.data["PENDING"]?.data ?? [];
+          const updatedItem = pendingData.find(
+            (item) => item.alliance_top_up_request_id === requestId
+          );
+          const newPendingList = pendingData.filter(
+            (item) => item.alliance_top_up_request_id !== requestId
+          );
+          const currentStatusData = prev.data[status as keyof typeof prev.data];
+          const hasExistingData = currentStatusData?.data?.length > 0;
+
+          if (!updatedItem) return prev;
+
+          return {
+            ...prev,
+            data: {
+              ...prev.data,
+              PENDING: {
+                ...prev.data["PENDING"],
+                data: newPendingList,
+                count: Number(prev.data["PENDING"]?.count) - 1,
+              },
+              [status as keyof typeof prev.data]: {
+                ...currentStatusData,
+                data: hasExistingData
+                  ? [
+                      {
+                        ...updatedItem,
+                        alliance_top_up_request_status: status,
+                      },
+                      ...currentStatusData.data,
+                    ]
+                  : [],
+                count: Number(currentStatusData?.count || 0) + 1,
+                merchantBalance:
+                  prev.merchantBalance -
+                  updatedItem.alliance_top_up_request_amount,
+              },
+            },
+          };
+        });
+
         toast({
           title: `Status Update`,
           description: `${status} Request Successfully`,
           variant: "success",
         });
-        handleFetch();
 
         setIsOpenModal({ open: false, requestId: "", status: "", amount: 0 });
         reset();

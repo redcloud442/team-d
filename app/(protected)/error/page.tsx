@@ -13,7 +13,7 @@ export default function Custom500() {
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 p-4 overflow-hidden">
+    <div className="relative flex items-center justify-center min-h-screen bg-linear-to-br from-gray-50 to-gray-200 p-4 overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-10 -left-10 w-40 h-40 bg-red-200 rounded-full blur-3xl opacity-30 animate-pulse"></div>

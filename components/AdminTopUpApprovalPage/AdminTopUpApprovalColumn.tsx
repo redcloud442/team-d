@@ -14,11 +14,11 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { TopUpRequestData } from "@/utils/types";
+import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { AspectRatio } from "../ui/aspect-ratio";
 import TableLoading from "../ui/tableLoading";
 import { Textarea } from "../ui/textarea";
@@ -28,7 +28,10 @@ const statusColorMap: Record<string, string> = {
   REJECTED: "bg-red-600 dark:bg-red-700 dark:text-white",
 };
 
-export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
+export const useAdminTopUpApprovalColumns = (
+  handleFetch: () => void,
+  setRequestData: Dispatch<SetStateAction<AdminTopUpRequestData | null>>
+) => {
   const { toast } = useToast();
   const router = useRouter();
   const supabaseClient = createClientSide();
@@ -44,7 +47,49 @@ export const useAdminTopUpApprovalColumns = (handleFetch: () => void) => {
       try {
         setIsLoading(true);
         await updateTopUpStatus({ status, requestId, note }, supabaseClient);
-        handleFetch();
+
+        setRequestData((prev) => {
+          if (!prev) return prev;
+
+          // Extract PENDING data and filter out the item being updated
+          const pendingData = prev.data["PENDING"]?.data ?? [];
+          const updatedItem = pendingData.find(
+            (item) => item.alliance_top_up_request_id === requestId
+          );
+          const newPendingList = pendingData.filter(
+            (item) => item.alliance_top_up_request_id !== requestId
+          );
+          const currentStatusData = prev.data[status as keyof typeof prev.data];
+          const hasExistingData = currentStatusData?.data?.length > 0;
+
+          if (!updatedItem) return prev;
+
+          return {
+            ...prev,
+            data: {
+              ...prev.data,
+              PENDING: {
+                ...prev.data["PENDING"],
+                data: newPendingList,
+                count: Number(prev.data["PENDING"]?.count) - 1,
+              },
+              [status as keyof typeof prev.data]: {
+                ...currentStatusData,
+                data: hasExistingData
+                  ? [
+                      {
+                        ...updatedItem,
+                        alliance_top_up_request_status: status,
+                      },
+                      ...currentStatusData.data,
+                    ]
+                  : [],
+                count: Number(currentStatusData?.count || 0) + 1,
+              },
+            },
+          };
+        });
+
         toast({
           title: `Status Update`,
           description: `${status} Request Successfully`,

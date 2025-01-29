@@ -17,14 +17,15 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { package_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import FileUpload from "../ui/dropZone";
 
 type Props = {
-  fetchPackages: () => void;
+  setPackages: Dispatch<SetStateAction<package_table[]>>;
 };
 
 const PackagesSchema = z.object({
@@ -50,7 +51,7 @@ const PackagesSchema = z.object({
 
 export type PackagesFormValues = z.infer<typeof PackagesSchema>;
 
-const CreatePackageModal = ({ fetchPackages }: Props) => {
+const CreatePackageModal = ({ setPackages }: Props) => {
   const supabaseClient = createClientSide();
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
@@ -97,7 +98,7 @@ const CreatePackageModal = ({ fetchPackages }: Props) => {
         data: { publicUrl },
       } = supabaseClient.storage.from("PACKAGE_IMAGES").getPublicUrl(filePath);
 
-      await createPackage(
+      const response = await createPackage(
         {
           packageName: sanitizedData.packageName,
           packageDescription: sanitizedData.packageDescription,
@@ -109,14 +110,14 @@ const CreatePackageModal = ({ fetchPackages }: Props) => {
         supabaseClient
       );
 
+      setPackages((prev) => [...prev, response]);
+
       toast({
         title: "Package Created Successfully",
         description: "Please wait",
       });
       setOpen(false);
       reset();
-
-      fetchPackages();
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {

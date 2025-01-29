@@ -1,6 +1,57 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-pageColor: #1e1e1e;
+  --color-cardColor: #d9d9d9;
+  --color-inputColor: #1e1e1e;
+  --color-primaryRed: #a30000;
+  --color-primaryYellow: #f6db4e;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@utility animate-tracing-border {
+  animation: tracing-border 2s linear infinite;
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 0.5rem;
+}
+
 @layer base {
   :root {
     --radius: 0.5rem;
@@ -62,21 +113,5 @@
         inset -2px 0 0 2px #3b82f6,
         inset 0 -2px 0 2px #3b82f6;
     }
-  }
-
-  .animate-tracing-border {
-    animation: tracing-border 2s linear infinite;
-    border-width: 2px;
-    border-style: solid;
-    border-radius: 0.5rem;
-  }
-  .Title {
-    @apply scroll-m-20 text-3xl font-bold tracking-tight pb-4 lg:text-4xl;
-  }
-  .Text {
-    @apply scroll-m-20 text-2xl font-bold tracking-tight pb-4 lg:text-2xl;
-  }
-  .Container {
-    @apply flex flex-col justify-center items-center mx-auto px-4 py-8;
   }
 }

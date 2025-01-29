@@ -230,7 +230,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
           </Button>
         </form>
       </div>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap flex-col gap-6">
         <div>
           <AdminDashboardCard
             adminDashboardDataByDate={adminDashboardByDate!}
@@ -254,7 +254,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap w-full  items-center gap-4">
+            <div className="flex wrap w-full  items-center gap-4">
               <Input
                 type="text"
                 value={referral.alliance_referral_link}

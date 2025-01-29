@@ -47,7 +47,9 @@ export const updatePackagesData = async (
     );
   }
 
-  return response;
+  const { data } = result;
+
+  return data;
 };
 
 export const createPackage = async (
@@ -80,5 +82,7 @@ export const createPackage = async (
     );
   }
 
-  return response;
+  const { data } = result;
+
+  return data;
 };

@@ -19,7 +19,7 @@ import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, package_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import FileUpload from "../ui/dropZone";
@@ -28,7 +28,7 @@ type Props = {
   teamMemberProfile: alliance_member_table;
   selectedPackage: package_table | null;
   handleSelectPackage: () => void;
-  fetchPackages: () => void;
+  setPackages: Dispatch<SetStateAction<package_table[]>>;
 };
 
 const PackagesSchema = z.object({
@@ -60,7 +60,7 @@ const EditPackagesModal = ({
   teamMemberProfile,
   selectedPackage,
   handleSelectPackage,
-  fetchPackages,
+  setPackages,
 }: Props) => {
   const supabaseClient = createClientSide();
   const [open, setOpen] = useState(false);
@@ -131,7 +131,7 @@ const EditPackagesModal = ({
         ...sanitizedData,
         package_image: url,
       };
-      await updatePackagesData(
+      const response = await updatePackagesData(
         {
           packageData: packageData,
           teamMemberId: teamMemberProfile.alliance_member_id,
@@ -139,14 +139,20 @@ const EditPackagesModal = ({
         },
         supabaseClient
       );
+
+      setPackages((prev) =>
+        prev.map((item) =>
+          item.package_id === selectedPackage?.package_id
+            ? { ...item, ...response }
+            : item
+        )
+      );
       toast({
         title: "Package Updated Successfully",
         description: "Please wait",
       });
       setOpen(false);
       reset();
-
-      fetchPackages();
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {

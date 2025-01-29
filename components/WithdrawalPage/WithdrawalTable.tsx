@@ -76,7 +76,6 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
   const [requestData, setRequestData] = useState<AdminWithdrawaldata | null>(
     null
   );
-  const [requestCount, setRequestCount] = useState(0);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -257,7 +256,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = WithdrawalColumn(handleRefresh);
+  } = WithdrawalColumn(handleRefresh, setRequestData);
 
   const { register, handleSubmit, watch, getValues, control, reset, setValue } =
     useForm<FilterFormValues>({
@@ -333,7 +332,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
     fetchRequest();
   }, [supabaseClient, teamMemberProfile, activePage, sorting]);
 
-  const pageCount = Math.ceil(requestCount / 10);
+  const pageCount = Math.ceil(requestData?.data?.[status]?.count || 0 / 10);
 
   const handleSwitchChange = (checked: boolean) => {
     setShowFilters(checked);

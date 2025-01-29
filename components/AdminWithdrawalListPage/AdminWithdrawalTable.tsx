@@ -252,7 +252,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = AdminWithdrawalHistoryColumn(fetchRequest);
+  } = AdminWithdrawalHistoryColumn(fetchRequest, setRequestData);
 
   const { register, handleSubmit, watch, getValues, control, reset, setValue } =
     useForm<FilterFormValues>({
