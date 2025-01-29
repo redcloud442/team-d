@@ -224,7 +224,12 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
       setIsLoading(true);
       await handleUpdateRole({ userId: memberId, role }, supabaseClient);
 
-      fetchAdminRequest();
+      setRequestData((prev) =>
+        prev.map((item) =>
+          item.user_id === memberId ? { ...item, user_role: role } : item
+        )
+      );
+
       setIsOpenModal({ memberId: "", role: "", open: false, type: "" });
 
       toast({
@@ -248,7 +253,11 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
     try {
       setIsLoading(true);
       await handleUpdateUserRestriction({ userId: memberId }, supabaseClient);
-      fetchAdminRequest();
+      setRequestData((prev) =>
+        prev.map((item) =>
+          item.user_id === memberId ? { ...item, user_restricted: true } : item
+        )
+      );
       setIsOpenModal({ memberId: "", role: "", open: false, type: "" });
       toast({
         title: `User Banned`,
