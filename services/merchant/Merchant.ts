@@ -36,15 +36,23 @@ export const getMerchantData = async (
   params: {
     page: number;
     limit: number;
-    teamMemberId: string;
   }
 ) => {
-  const { data, error } = await supabaseClient.rpc("get_merchant_data", {
-    input_data: params,
+  const token = await getToken(supabaseClient);
+
+  const response = await fetch(`/api/v1/merchant/bank`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(params),
   });
 
-  if (error) {
-    throw error;
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch merchant data");
   }
 
   return data as {

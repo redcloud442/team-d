@@ -113,8 +113,6 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
       }
 
       const { data, totalCount } = await getAdminUserRequest(supabaseClient, {
-        teamId: teamMemberProfile.alliance_member_alliance_id,
-        teamMemberId: teamMemberProfile.alliance_member_id,
         page: activePage,
         limit: 10,
         columnAccessor: columnAccessor,

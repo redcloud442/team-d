@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { loginValidation } from "@/services/Auth/auth";
+import { loginValidation } from "@/services/Auth/Auth";
 import { logError } from "@/services/Error/ErrorLogs";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
@@ -112,10 +112,9 @@ const LoginPage = () => {
         />
       </div>
 
-      <div className="fixed top-[16%]  left-54 sm:relative sm:top-0 sm:left-0 ">
+      <div className="absolute top-[20%] sm:top-[35%] flex items-center justify-center w-full">
         <Image src="/app-logo.svg" alt="logo" width={120} height={120} />
       </div>
-
       <form
         className="flex flex-col items-center gap-6 w-full max-w-lg m-4 z-40"
         onSubmit={handleSubmit(handleSignIn)}

@@ -1,16 +1,24 @@
+import { getToken } from "@/utils/function";
 import { SupabaseClient } from "@supabase/supabase-js";
 
-export const getTotalReferral = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    teamMemberId: string;
-  }
-) => {
-  const { data, error } = await supabaseClient.rpc("get_total_referral", {
-    input_data: params,
+export const getTotalReferral = async (supabaseClient: SupabaseClient) => {
+  const token = await getToken(supabaseClient);
+
+  const response = await fetch(`/api/v1/referral`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
   });
 
-  if (error) throw error;
+  const responseData = await response.json();
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch total referral");
+  }
+
+  const { data } = responseData;
 
   return data as number;
 };

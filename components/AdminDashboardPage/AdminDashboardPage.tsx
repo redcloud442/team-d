@@ -95,7 +95,6 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
         : "";
 
       const data = await getAdminDashboardByDate(supabaseClient, {
-        teamMemberId: teamMemberProfile.alliance_member_id,
         dateFilter: {
           start: formattedStartDate,
           end: formattedEndDate,
@@ -104,11 +103,46 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
 
       setAdminDashboardByDate(data);
 
-      const totalReferral = await getTotalReferral(supabaseClient, {
-        teamMemberId: teamMemberProfile.alliance_member_id,
-      });
+      const totalReferral = await getTotalReferral(supabaseClient);
 
       setTotalReferral(totalReferral);
+    } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/AdminDashboardPage/AdminDashboardPage.tsx",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFetchAdminDashboardData = async () => {
+    try {
+      if (!teamMemberProfile) return;
+      setIsLoading(true);
+      const { dateFilter } = getValues();
+
+      const startDate = dateFilter.start
+        ? new Date(dateFilter.start)
+        : undefined;
+      const formattedStartDate = startDate ? formatDateToLocal(startDate) : "";
+
+      const endDate = dateFilter.end ? new Date(dateFilter.end) : undefined;
+      const formattedEndDate = endDate
+        ? formatDateToLocal(new Date(endDate.setHours(23, 59, 59, 999)))
+        : "";
+
+      const data = await getAdminDashboardByDate(supabaseClient, {
+        dateFilter: {
+          start: formattedStartDate,
+          end: formattedEndDate,
+        },
+      });
+
+      setAdminDashboardByDate(data);
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
@@ -129,9 +163,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
   useEffect(() => {
     const fetchAdminDashboardData = async () => {
       if (!teamMemberProfile) return;
-      const data = await getAdminDashboard(supabaseClient, {
-        teamMemberId: teamMemberProfile.alliance_member_id,
-      });
+      const data = await getAdminDashboard(supabaseClient);
 
       setAdminDashboard(data);
     };
@@ -151,12 +183,12 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
   const endDate = watch("dateFilter.end");
 
   return (
-    <div className="mx-auto md:p-10 space-y-6">
+    <div className="mx-auto w-full md:p-10 space-y-6">
       {isLoading && <TableLoading />}
-      <div className="flex flex-col md:flex-row items-center justify-between">
+      <div className="flex flex-wrap flex-col md:flex-row items-center justify-between">
         <h1 className="Title">Admin Dashboard</h1>
         <form
-          onSubmit={handleSubmit(fetchAdminDashboardData)}
+          onSubmit={handleSubmit(handleFetchAdminDashboardData)}
           className="flex flex-wrap items-center gap-4"
         >
           <Controller
@@ -254,12 +286,12 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex wrap w-full  items-center gap-4">
+            <div className="flex flex-wrap w-full items-center gap-4">
               <Input
                 type="text"
                 value={referral.alliance_referral_link}
                 readOnly
-                className="flex-0 md:flex-2 lg:flex-1"
+                className="flex-1 md:flex-2 lg:flex-1"
               />
               <Button variant="card" onClick={handleCopyLink}>
                 Copy Link
@@ -279,7 +311,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
             </div>
           </CardContent>
         </Card>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-1 xl:grid-cols-4 gap-6">
           <CardAmountAdmin
             title="Total Registered User"
             value={

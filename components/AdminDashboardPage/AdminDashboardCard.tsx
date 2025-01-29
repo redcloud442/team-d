@@ -13,7 +13,7 @@ type Props = {
 
 const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-5 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-1 xl:grid-cols-4 gap-6">
       <CardAmountAdmin
         title="Total Package"
         value={
@@ -25,7 +25,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               }
-            )}
+            ) ?? 0}
           </>
         }
         description=""
@@ -42,7 +42,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               }
-            )}
+            ) ?? 0}
           </>
         }
         description=""
@@ -59,7 +59,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               }
-            )}
+            ) ?? 0}
           </>
         }
         description=""
@@ -76,7 +76,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               }
-            )}
+            ) ?? 0}
           </>
         }
         description=""
@@ -93,7 +93,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               }
-            )}
+            ) ?? 0}
           </>
         }
         description=""
@@ -104,7 +104,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
         value={
           <>
             <Package />
-            {adminDashboardDataByDate?.activePackageWithinTheDay}
+            {adminDashboardDataByDate?.activePackageWithinTheDay ?? 0}
           </>
         }
         description=""
@@ -115,7 +115,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
         value={
           <>
             <UserCheck2Icon />
-            {adminDashboardDataByDate?.activePackageWithinTheDay}
+            {adminDashboardDataByDate?.activePackageWithinTheDay ?? 0}
           </>
         }
         description=""
@@ -126,7 +126,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
         value={
           <>
             <CreditCard />
-            {adminDashboardDataByDate?.totalApprovedWithdrawal}
+            {adminDashboardDataByDate?.totalApprovedWithdrawal ?? 0}
           </>
         }
         description=""

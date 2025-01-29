@@ -9,8 +9,6 @@ export const getAdminUserRequest = async (
     page: number;
     limit: number;
     search?: string;
-    teamMemberId: string;
-    teamId: string;
     columnAccessor: string;
     isAscendingSort: boolean;
     userRole?: string;
@@ -19,16 +17,26 @@ export const getAdminUserRequest = async (
   }
 ) => {
   const sanitizedData = escapeFormData(params);
+  const token = await getToken(supabaseClient);
 
-  const { data, error } = await supabaseClient.rpc("get_admin_user_data", {
-    input_data: sanitizedData,
+  const response = await fetch(`/api/v1/user/list`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(sanitizedData),
   });
 
-  if (error) throw error;
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch user data");
+  }
 
   return data as {
     data: UserRequestdata[];
-    totalCount: 0;
+    totalCount: number;
   };
 };
 
