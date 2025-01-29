@@ -113,7 +113,7 @@ const LoginPage = () => {
         />
       </div>
 
-      <div className="absolute top-[20%] left-2 sm:top-[30%] flex items-center justify-center w-full">
+      <div className="fixed top-[20%]  sm:top-[30%] flex items-center justify-center w-full">
         <Image src="/app-logo.svg" alt="logo" width={120} height={120} />
       </div>
       <form
