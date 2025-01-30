@@ -166,7 +166,7 @@ export const WithdrawalColumn = (
           row.getValue("alliance_withdrawal_request_amount")
         );
         const fee = row.original.alliance_withdrawal_request_fee;
-        console.log(fee);
+
         const formatted = new Intl.NumberFormat("en-PH", {
           style: "currency",
           currency: "PHP",

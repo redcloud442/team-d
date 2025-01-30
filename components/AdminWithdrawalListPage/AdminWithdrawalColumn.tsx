@@ -109,47 +109,8 @@ export const AdminWithdrawalHistoryColumn = (
   );
 
   const columns: ColumnDef<WithdrawalRequestData>[] = [
-    // {
-    //   accessorKey: "alliance_withdrawal_request_id",
-
-    //   header: ({ column }) => (
-    //     <Button
-    //       variant="ghost"
-    //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-    //     >
-    //       Reference ID <ArrowUpDown />
-    //     </Button>
-    //   ),
-    //   cell: ({ row }) => {
-    //     const id = row.getValue("alliance_withdrawal_request_id") as string;
-    //     const maxLength = 15;
-
-    //     const handleCopy = async () => {
-    //       if (id) {
-    //         await navigator.clipboard.writeText(id);
-    //       }
-    //     };
-
-    //     return (
-    //       <div className="flex items-center space-x-2">
-    //         <div
-    //           className="truncate"
-    //           title={id.length > maxLength ? id : undefined}
-    //         >
-    //           {id.length > maxLength ? `${id.slice(0, maxLength)}...` : id}
-    //         </div>
-    //         {id && (
-    //           <Button variant="ghost" size="sm" onClick={handleCopy}>
-    //             <Copy />
-    //           </Button>
-    //         )}
-    //       </div>
-    //     );
-    //   },
-    // },
     {
       accessorKey: "user_username",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -169,7 +130,6 @@ export const AdminWithdrawalHistoryColumn = (
     },
     {
       accessorKey: "alliance_withdrawal_request_status",
-
       header: ({ column }) => (
         <Button
           variant="ghost"

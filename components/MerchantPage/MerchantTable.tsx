@@ -152,7 +152,6 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
       fetchMerchant();
       setIsOpenModal(false);
     } catch (e) {
-      console.log(e);
       if (e instanceof Error) {
         await logError(supabaseClient, {
           errorMessage: e.message,

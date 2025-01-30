@@ -111,11 +111,18 @@ const LoginPage = () => {
           height={300}
           quality={100}
           className="w-full sm:hidden"
+          priority
         />
       </div>
 
       <div className="fixed top-[20%]  sm:top-[30%] flex items-center justify-center w-full">
-        <Image src="/app-logo.svg" alt="logo" width={120} height={120} />
+        <Image
+          src="/app-logo.svg"
+          alt="logo"
+          width={120}
+          height={120}
+          priority
+        />
       </div>
       <form
         className="flex flex-col items-center gap-6 w-full max-w-lg m-4 z-40"
