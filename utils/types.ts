@@ -103,6 +103,7 @@ export type AdminTopUpRequestData = {
     REJECTED: StatusData;
     PENDING: StatusData;
   };
+  merchantBalance?: number;
 };
 
 export type MerchantTopUpRequestData = {

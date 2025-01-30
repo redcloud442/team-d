@@ -8,8 +8,6 @@ export const getAdminWithdrawalRequest = async (
     page: number;
     limit: number;
     search?: string;
-    teamMemberId: string;
-    teamId: string;
     columnAccessor: string;
     isAscendingSort: boolean;
     userFilter?: string;
@@ -20,16 +18,22 @@ export const getAdminWithdrawalRequest = async (
     };
   }
 ) => {
-  const { data, error } = await supabaseClient.rpc(
-    "get_admin_withdrawal_history",
-    {
-      input_data: params,
-    }
-  );
+  const token = await getToken(supabaseClient);
 
-  if (error) throw error;
+  const response = await fetch("/api/v1/withdraw/list", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(params),
+  });
 
-  return data as AdminWithdrawaldata;
+  const result = await response.json();
+
+  if (!response.ok) throw new Error("Failed to fetch withdrawal list");
+
+  return result as AdminWithdrawaldata;
 };
 
 export const updateWithdrawalStatus = async (

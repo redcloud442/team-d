@@ -4,7 +4,7 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { MerchantTopUpRequestData, TopUpRequestData } from "@/utils/types";
+import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import Image from "next/image";
@@ -27,7 +27,7 @@ const statusColorMap: Record<string, string> = {
 };
 
 export const TopUpColumn = (
-  setRequestData: Dispatch<SetStateAction<MerchantTopUpRequestData | null>>,
+  setRequestData: Dispatch<SetStateAction<AdminTopUpRequestData | null>>,
   reset: () => void
 ) => {
   const { toast } = useToast();
@@ -72,7 +72,7 @@ export const TopUpColumn = (
 
         const merchantBalance =
           status === "APPROVED"
-            ? prev.merchantBalance -
+            ? (prev.merchantBalance || 0) -
               (updatedItem?.alliance_top_up_request_amount ?? 0)
             : prev.merchantBalance;
 
