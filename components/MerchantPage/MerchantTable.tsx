@@ -46,13 +46,6 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Separator } from "../ui/separator";
 import TableLoading from "../ui/tableLoading";
 import { useMerchantColumn } from "./MerchantColumn";
@@ -68,8 +61,6 @@ const filterFormValuesSchema = z.object({
 });
 
 type FilterFormValues = z.infer<typeof filterFormValuesSchema>;
-
-const bankData = ["GCASH", "MAYA", "GOTYME", "UNIONBANK", "BDO", "BPI"];
 
 const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
   const supabaseClient = createClientSide();
@@ -263,34 +254,24 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
                   )}
                 />
                 <Label htmlFor="bank">Bank Type</Label>
+
                 <Controller
                   name="accountType"
                   control={control}
+                  rules={{ required: "Account type is required" }}
                   render={({ field, fieldState }) => (
-                    <>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                        }}
-                        value={field.value}
-                      >
-                        <SelectTrigger {...field}>
-                          <SelectValue placeholder="SELECT BANK" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {bankData.map((bank, index) => (
-                            <SelectItem key={index} value={bank}>
-                              {bank}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    <div className="flex flex-col gap-2">
+                      <Label>Account Type</Label>
+                      <Input
+                        placeholder="Enter the account type..."
+                        {...field}
+                      />
                       {fieldState.error && (
                         <span className="text-red-500 text-sm">
                           {fieldState.error.message}
                         </span>
                       )}
-                    </>
+                    </div>
                   )}
                 />
 
