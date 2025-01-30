@@ -202,22 +202,23 @@ export const AdminWithdrawalHistoryColumn = (
         const amount = parseFloat(
           row.getValue("alliance_withdrawal_request_amount")
         );
+        const fee = row.original.alliance_withdrawal_request_fee;
+
         const formatted = new Intl.NumberFormat("en-PH", {
           style: "currency",
           currency: "PHP",
-        }).format(amount);
+        }).format(amount - fee);
         return <div className="font-medium text-center">{formatted}</div>;
       },
     },
     {
       accessorKey: "alliance_withdrawal_request_type",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Bank Type <ArrowUpDown />
+          Bank Account <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
@@ -260,6 +261,7 @@ export const AdminWithdrawalHistoryColumn = (
         </div>
       ),
     },
+
     {
       accessorKey: "alliance_withdrawal_request_date",
 
