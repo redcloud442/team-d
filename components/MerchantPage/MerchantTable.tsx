@@ -253,7 +253,6 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
                     </div>
                   )}
                 />
-                <Label htmlFor="bank">Bank Type</Label>
 
                 <Controller
                   name="accountType"
@@ -261,7 +260,7 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
                   rules={{ required: "Account type is required" }}
                   render={({ field, fieldState }) => (
                     <div className="flex flex-col gap-2">
-                      <Label>Account Type</Label>
+                      <Label htmlFor="bank">Bank Type</Label>
                       <Input
                         placeholder="Enter the account type..."
                         {...field}
