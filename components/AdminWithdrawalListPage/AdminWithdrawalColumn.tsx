@@ -109,47 +109,8 @@ export const AdminWithdrawalHistoryColumn = (
   );
 
   const columns: ColumnDef<WithdrawalRequestData>[] = [
-    // {
-    //   accessorKey: "alliance_withdrawal_request_id",
-
-    //   header: ({ column }) => (
-    //     <Button
-    //       variant="ghost"
-    //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-    //     >
-    //       Reference ID <ArrowUpDown />
-    //     </Button>
-    //   ),
-    //   cell: ({ row }) => {
-    //     const id = row.getValue("alliance_withdrawal_request_id") as string;
-    //     const maxLength = 15;
-
-    //     const handleCopy = async () => {
-    //       if (id) {
-    //         await navigator.clipboard.writeText(id);
-    //       }
-    //     };
-
-    //     return (
-    //       <div className="flex items-center space-x-2">
-    //         <div
-    //           className="truncate"
-    //           title={id.length > maxLength ? id : undefined}
-    //         >
-    //           {id.length > maxLength ? `${id.slice(0, maxLength)}...` : id}
-    //         </div>
-    //         {id && (
-    //           <Button variant="ghost" size="sm" onClick={handleCopy}>
-    //             <Copy />
-    //           </Button>
-    //         )}
-    //       </div>
-    //     );
-    //   },
-    // },
     {
       accessorKey: "user_username",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -169,7 +130,6 @@ export const AdminWithdrawalHistoryColumn = (
     },
     {
       accessorKey: "alliance_withdrawal_request_status",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -202,22 +162,23 @@ export const AdminWithdrawalHistoryColumn = (
         const amount = parseFloat(
           row.getValue("alliance_withdrawal_request_amount")
         );
+        const fee = row.original.alliance_withdrawal_request_fee;
+
         const formatted = new Intl.NumberFormat("en-PH", {
           style: "currency",
           currency: "PHP",
-        }).format(amount);
+        }).format(amount - fee);
         return <div className="font-medium text-center">{formatted}</div>;
       },
     },
     {
       accessorKey: "alliance_withdrawal_request_type",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Bank Type <ArrowUpDown />
+          Bank Account <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
@@ -260,6 +221,7 @@ export const AdminWithdrawalHistoryColumn = (
         </div>
       ),
     },
+
     {
       accessorKey: "alliance_withdrawal_request_date",
 

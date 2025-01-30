@@ -165,10 +165,12 @@ export const WithdrawalColumn = (
         const amount = parseFloat(
           row.getValue("alliance_withdrawal_request_amount")
         );
+        const fee = row.original.alliance_withdrawal_request_fee;
+
         const formatted = new Intl.NumberFormat("en-PH", {
           style: "currency",
           currency: "PHP",
-        }).format(amount);
+        }).format(amount - fee);
         return <div className="font-medium text-center">{formatted}</div>;
       },
     },
@@ -180,7 +182,8 @@ export const WithdrawalColumn = (
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Bank Name <ArrowUpDown />
+          Bank Type
+          <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
@@ -203,6 +206,23 @@ export const WithdrawalColumn = (
       cell: ({ row }) => (
         <div className="text-center">
           {row.getValue("alliance_withdrawal_request_account")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "alliance_withdrawal_request_bank_name",
+
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Bank Name <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.getValue("alliance_withdrawal_request_bank_name")}
         </div>
       ),
     },

@@ -29,6 +29,7 @@ import DashboardDepositModalPackages from "./DashboardDepositRequest/DashboardDe
 import DashboardDepositProfile from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositProfile";
 import DashboardDepositModalRefer from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositRefer";
 import DashboardTransactionHistory from "./DashboardDepositRequest/DashboardDepositModal/DashboardTransactionHistory";
+import DashboardEarningsModal from "./DashboardDepositRequest/EarningsModal/EarningsModal";
 import DashboardPackages from "./DashboardPackages";
 import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
 
@@ -141,7 +142,13 @@ const DashboardPage = ({
           </div>
 
           <div className="flex items-center justify-center gap-2">
-            <Image src="/app-logo.png" alt="logo" width={55} height={55} />
+            <Image
+              src="/app-logo.png"
+              alt="logo"
+              width={55}
+              height={55}
+              priority
+            />
             <div>
               <p className="text-sm font-medium">Balance</p>
               {refresh ? (
@@ -172,9 +179,7 @@ const DashboardPage = ({
         <div className="flex flex-col gap-4 justify-center">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Button className="w-full max-w-[140px] min-w-[120px] h-7">
-                {carouselItems[activeSlide]?.label}{" "}
-              </Button>
+              <DashboardEarningsModal />
               <Button
                 disabled={refresh}
                 className="h-7 px-2"
@@ -188,46 +193,57 @@ const DashboardPage = ({
             </Button>
           </div>
 
-          <Carousel
-            opts={{
-              loop: true,
-              align: "start",
-              slidesToScroll: 1,
-            }}
-            setApi={setApi}
-          >
-            <CarouselContent>
-              {carouselItems.map((item, index) => (
-                <CarouselItem key={index}>
-                  <div className="text-3xl font-bold text-center">
-                    {refresh ? (
-                      <div className="flex space-x-2 justify-center items-center pt-4">
-                        {/* Loader circles */}
-                        <p className="h-4 w-4 bg-cardColor rounded-full animate-bounce [animation-delay:-0.3s]"></p>
-                        <p className="h-4 w-4 bg-cardColor rounded-full animate-bounce [animation-delay:-0.15s]"></p>
-                        <p className="h-4 w-4 bg-cardColor rounded-full animate-bounce"></p>
-                      </div>
-                    ) : (
-                      "₱ " +
-                      (item.value ?? 0).toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })
-                    )}
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+          <div className="flex items-center justify-center space-x-4">
+            {/* Left Button */}
+            <button
+              onClick={() => api?.scrollPrev()} // Hook this up to your carousel
+              className="w-0 h-0 border-y-[10px] border-y-transparent border-r-[12px] border-r-white hover:border-r-gray-500 cursor-pointer"
+            ></button>
+
+            <Carousel
+              opts={{
+                loop: true,
+                align: "start",
+              }}
+              setApi={setApi}
+              className="w-56 flex justify-center items-center  text-center"
+            >
+              <CarouselContent>
+                {carouselItems.map((item, index) => (
+                  <CarouselItem
+                    key={index}
+                    className="w-full min-w-24 flex justify-center items-center max-w-full "
+                  >
+                    <div className="text-3xl font-bold text-center">
+                      {refresh ? (
+                        <div className="flex space-x-2 justify-center items-center pt-4">
+                          <p className="h-4 w-4 bg-cardColor rounded-full animate-bounce [animation-delay:-0.3s]"></p>
+                          <p className="h-4 w-4 bg-cardColor rounded-full animate-bounce [animation-delay:-0.15s]"></p>
+                          <p className="h-4 w-4 bg-cardColor rounded-full animate-bounce"></p>
+                        </div>
+                      ) : (
+                        "₱ " +
+                        (item.value ?? 0).toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })
+                      )}
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+
+            {/* Right Button */}
+            <button
+              onClick={() => api?.scrollNext()} // Hook this up to your carousel
+              className="w-0 h-0 border-y-[10px] border-y-transparent border-l-[12px] border-l-white hover:border-l-gray-500 cursor-pointer"
+            ></button>
+          </div>
           <div className="flex justify-center items-center gap-2 py-2">
-            {Array.from({ length: count }).map((_, index) => (
-              <button
-                key={index}
-                className={`h-2 w-2 rounded-full ${
-                  current === index + 1 ? "bg-gray-500" : "bg-gray-200"
-                }`}
-              />
-            ))}
+            <Button className="w-full max-w-[140px] min-w-[120px] h-7">
+              {carouselItems[activeSlide]?.label}{" "}
+            </Button>
           </div>
         </div>
 
