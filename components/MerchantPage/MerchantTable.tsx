@@ -145,20 +145,23 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
   const handleCreateMerchant = async (data: FilterFormValues) => {
     try {
       const sanitizedData = escapeFormData(data);
-      await handleCreateMerchantData({
-        accountNumber: sanitizedData.accountNumber,
-        accountType: sanitizedData.accountType,
-        accountName: sanitizedData.bankName,
-      });
+      await handleCreateMerchantData(
+        {
+          accountNumber: sanitizedData.accountNumber,
+          accountType: sanitizedData.accountType,
+          accountName: sanitizedData.bankName,
+        },
+        supabaseClient
+      );
 
       toast({
         title: "Merchant Created",
         description: "Merchant has been created successfully",
-        variant: "success",
       });
       fetchMerchant();
       setIsOpenModal(false);
     } catch (e) {
+      console.log(e);
       if (e instanceof Error) {
         await logError(supabaseClient, {
           errorMessage: e.message,

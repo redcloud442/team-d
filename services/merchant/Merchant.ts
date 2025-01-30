@@ -49,11 +49,13 @@ export const getMerchantData = async (
     body: JSON.stringify(params),
   });
 
-  const data = await response.json();
+  const responseData = await response.json();
 
   if (!response.ok) {
     throw new Error("Failed to fetch merchant data");
   }
+
+  const { data } = responseData;
 
   return data as {
     data: merchant_table[];
@@ -61,23 +63,26 @@ export const getMerchantData = async (
   };
 };
 
-export const handleCreateMerchantData = async (params: {
-  accountNumber: string;
-  accountType: string;
-  accountName: string;
-}) => {
-  const response = await fetch(`/api/merchant/`, {
+export const handleCreateMerchantData = async (
+  params: {
+    accountNumber: string;
+    accountType: string;
+    accountName: string;
+  },
+  supabaseClient: SupabaseClient
+) => {
+  const token = await getToken(supabaseClient);
+  const response = await fetch(`/api/v1/merchant`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify(params),
   });
 
-  const result = await response.json();
-
   if (!response.ok) {
-    throw new Error(
-      result.error || "An error occurred while creating the merchant."
-    );
+    throw new Error("An error occurred while creating the merchant.");
   }
 
   return response;

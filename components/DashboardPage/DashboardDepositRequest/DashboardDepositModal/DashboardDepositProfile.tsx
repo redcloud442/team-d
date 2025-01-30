@@ -334,7 +334,7 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
                     variant="card"
                     onClick={() => router.push("/merchant")}
                   >
-                    Merchant
+                    Create MOP
                   </Button>
                   <Button
                     type="button"
@@ -342,7 +342,7 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
                     variant="card"
                     onClick={() => router.push("/deposit")}
                   >
-                    Deposit
+                    Orders
                   </Button>
                 </div>
               )}
