@@ -75,11 +75,13 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
         const newAmount =
           data.current_amount + (finalAmount - data.current_amount) * progress;
 
+        const currentPercentage = newPercentage.toFixed(2);
+
         setLiveData((prev: ChartDataMember[]) => {
           const updated = [...prev];
           updated[index] = {
             ...data,
-            currentPercentage: newPercentage,
+            currentPercentage: Number(currentPercentage),
             current_amount: newAmount,
           };
           return updated;
@@ -190,7 +192,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
             <CardHeader>
               <CardTitle className="flex justify-end items-end">
                 <div className="text-xs rounded-full bg-black p-2">
-                  {data.completion}%
+                  {data.currentPercentage}%
                 </div>
               </CardTitle>
               <CardDescription className="space-y-2">
