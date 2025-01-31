@@ -64,7 +64,7 @@ const DashboardGuidesModal = () => {
             {Array.from({ length: 7 }).map((_, index) => (
               <CarouselItem key={index}>
                 <Image
-                  src={`/guides/guide${index}.png`}
+                  src={`/guides/guide${index + 1}.png`}
                   alt="guide"
                   width={1200}
                   height={1200}
