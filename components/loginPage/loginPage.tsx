@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { loginValidation } from "@/services/Auth/Auth";
-import { logError } from "@/services/Error/ErrorLogs";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -67,14 +66,6 @@ const LoginPage = () => {
       setIsSuccess(true);
       router.push("/");
     } catch (e) {
-      if (e instanceof Error) {
-        await logError(supabase, {
-          errorMessage: e.message,
-          stackTrace: e.stack,
-          stackPath:
-            "components/AdminTopUpApprovalPage/AdminTopUpApprovalColumn.tsx",
-        });
-      }
       toast({
         title: "Check user credentials",
         description: "Invalid username or password",

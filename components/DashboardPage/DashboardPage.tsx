@@ -182,7 +182,15 @@ const DashboardPage = ({
                 <RefreshCw />
               </Button>
             </div>
-            <Button className="w-full max-w-[120px] h-7 text-white bg-blue-700">
+            <Button
+              onClick={() =>
+                window.open(
+                  "https://www.facebook.com/groups/pr1meofficialgroup/",
+                  "_blank"
+                )
+              }
+              className="w-full max-w-[120px] h-7 text-white bg-blue-700 cursor-pointer"
+            >
               facebook
             </Button>
           </div>

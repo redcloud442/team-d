@@ -2474,7 +2474,16 @@ DROP POLICY IF EXISTS "Allow UPDATE for authenticated users with ADMIN role" ON 
 CREATE POLICY "Allow UPDATE for authenticated users with ADMIN role" ON alliance_schema.alliance_earnings_table
 AS PERMISSIVE FOR UPDATE
 TO authenticated
-USING (true);
+USING (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_table at
+    JOIN alliance_schema.alliance_member_table ab
+      ON ab.alliance_member_alliance_id = at.alliance_id 
+    WHERE ab.alliance_member_user_id = auth.uid()
+    AND ab.alliance_member_role IN ('ADMIN', 'ACCOUNTING', 'MERCHANT', 'MEMBER')
+  )
+);
 
 ALTER TABLE alliance_schema.alliance_referral_link_table ENABLE ROW LEVEL SECURITY;
 

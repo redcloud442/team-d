@@ -228,11 +228,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
                   Total Amount
                 </Badge>
                 <span className="text-2xl font-extrabold text-black">
-                  ₱{" "}
-                  {data.current_amount.toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  ₱ {Math.trunc(data.current_amount).toLocaleString("en-US")}
                 </span>
                 <span className="text-xl text-black font-extrabold">
                   {data.package} Plan

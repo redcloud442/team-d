@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { checkUserName, createTriggerUser } from "@/services/Auth/Auth";
-import { logError } from "@/services/Error/ErrorLogs";
 import { BASE_URL } from "@/utils/constant";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
@@ -158,13 +157,7 @@ const RegisterPage = ({ referralLink }: Props) => {
       router.push("/");
     } catch (e) {
       setIsSuccess(false);
-      if (e instanceof Error) {
-        await logError(supabase, {
-          errorMessage: e.message,
-          stackTrace: e.stack,
-          stackPath: "components/registerPage/registerPage.tsx",
-        });
-      }
+
       toast({
         title: "Error",
         description: "Check your account details and try again",
