@@ -58,11 +58,8 @@ const DashboardPage = ({
     teamMemberProfile.alliance_member_is_active
   );
   const [activeSlide, setActiveSlide] = useState(0);
-
   const [open, setOpen] = useState(false);
   const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
   const [refresh, setRefresh] = useState(false);
 
   const handleRefresh = async () => {
@@ -103,12 +100,9 @@ const DashboardPage = ({
       return;
     }
 
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap() + 1);
     setActiveSlide(api.selectedScrollSnap() + 1 - 1);
 
     api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1);
       setActiveSlide(api.selectedScrollSnap() + 1 - 1);
     });
   }, [api]);

@@ -27,7 +27,7 @@ export const getDashboard = async (
     );
   }
 
-  return result as {
-    data: ChartDataMember[];
-  };
+  const { data } = result;
+
+  return data as ChartDataMember[];
 };

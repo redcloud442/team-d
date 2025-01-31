@@ -90,20 +90,24 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
       const formattedStartDate = startDate ? formatDateToLocal(startDate) : "";
 
       const endDate = dateFilter.end ? new Date(dateFilter.end) : undefined;
+
       const formattedEndDate = endDate
         ? formatDateToLocal(new Date(endDate.setHours(23, 59, 59, 999)))
         : "";
 
-      const data = await getAdminDashboardByDate(supabaseClient, {
-        dateFilter: {
-          start: formattedStartDate,
-          end: formattedEndDate,
-        },
-      });
+      const [data, totalReferral] = await Promise.all([
+        getAdminDashboardByDate(supabaseClient, {
+          dateFilter: {
+            start: formattedStartDate,
+            end: formattedEndDate,
+          },
+        }),
+        getTotalReferral(supabaseClient),
+      ]);
 
       setAdminDashboardByDate(data);
 
-      const totalReferral = await getTotalReferral(supabaseClient);
+      setAdminDashboardByDate(data);
 
       setTotalReferral(totalReferral);
     } catch (e) {

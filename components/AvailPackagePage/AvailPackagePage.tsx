@@ -157,6 +157,8 @@ const AvailPackagePage = ({
           package_date_created: new Date().toISOString(),
           package_member_id: teamMemberProfile?.alliance_member_id,
           package_days: Number(selectedPackage?.packages_days || 0),
+          current_amount: Number(amount),
+          currentPercentage: Number(0),
         },
         ...chartData,
       ]);

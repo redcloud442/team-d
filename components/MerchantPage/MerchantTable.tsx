@@ -292,11 +292,13 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
                     </div>
                   )}
                 />
-                <div className="flex justify-end gap-2 mt-4">
-                  <DialogClose asChild>
-                    <Button variant="secondary">Cancel</Button>
-                  </DialogClose>
-                  <Button disabled={formState.isSubmitting} type="submit">
+                <div className="flex flex-col gap-2 mt-4">
+                  <Button
+                    disabled={formState.isSubmitting}
+                    type="submit"
+                    className="w-full"
+                    variant="card"
+                  >
                     {formState.isSubmitting ? (
                       <div className="flex items-center gap-2">
                         <Loader2 className="animate-spin" /> Creating ...
@@ -305,6 +307,11 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
                       "Create"
                     )}
                   </Button>
+                  <DialogClose asChild>
+                    <Button className="w-full dark:border-black border-2">
+                      Cancel
+                    </Button>
+                  </DialogClose>
                 </div>
               </form>
             </DialogContent>

@@ -44,7 +44,7 @@ const DashboardEarningsModal = () => {
             className="object-cover"
           />
           {/* Overlay */}
-          {/* <div className="absolute inset-0 bg-zinc-900/80 dark:bg-zinc-900/90"></div> */}
+          <div className="absolute inset-0 bg-zinc-900/80 dark:bg-zinc-900/50"></div>
         </div>
         <Label className="text-center text-white">Total Earnings</Label>
 
