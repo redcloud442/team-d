@@ -57,6 +57,7 @@ import AdminWithdrawalTabs from "./AdminWithdrawalTabs";
 
 type DataTableProps = {
   teamMemberProfile: alliance_member_table;
+  profile: user_table;
 };
 
 type FilterFormValues = {
@@ -67,7 +68,10 @@ type FilterFormValues = {
   dateFilter: { start: string; end: string };
 };
 
-const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
+const AdminWithdrawalHistoryTable = ({
+  teamMemberProfile,
+  profile,
+}: DataTableProps) => {
   const supabaseClient = createClientSide();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -252,7 +256,7 @@ const AdminWithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = AdminWithdrawalHistoryColumn(fetchRequest, setRequestData);
+  } = AdminWithdrawalHistoryColumn(fetchRequest, profile, setRequestData);
 
   const { register, handleSubmit, watch, getValues, control, reset, setValue } =
     useForm<FilterFormValues>({

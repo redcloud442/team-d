@@ -83,7 +83,6 @@ export const WithdrawalHistoryColumn =
 
       {
         accessorKey: "alliance_withdrawal_request_amount",
-
         header: () => <Button variant="ghost">Amount</Button>,
         cell: ({ row }) => {
           const amount = parseFloat(
@@ -140,8 +139,47 @@ export const WithdrawalHistoryColumn =
         ),
       },
       {
+        accessorKey: "approver_username",
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            className="p-1"
+            onClick={() =>
+              column.toggleSorting(column.getIsSorted() === "desc")
+            }
+          >
+            Approver <ArrowUpDown />
+          </Button>
+        ),
+        cell: ({ row }) => (
+          <div className="text-wrap">{row.getValue("approver_username")}</div>
+        ),
+      },
+      {
+        accessorKey: "alliance_withdrawal_request_date_updated",
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            className="p-1"
+            onClick={() =>
+              column.toggleSorting(column.getIsSorted() === "desc")
+            }
+          >
+            Date Updated <ArrowUpDown />
+          </Button>
+        ),
+        cell: ({ row }) => (
+          <div className="text-wrap">
+            {row.getValue("alliance_withdrawal_request_date_updated")
+              ? formatDateToYYYYMMDD(
+                  row.getValue("alliance_withdrawal_request_date_updated")
+                )
+              : ""}
+          </div>
+        ),
+      },
+      {
         accessorKey: "alliance_withdrawal_request_reject_note",
-
         header: () => <div>Rejection Note</div>,
         cell: ({ row }) => {
           const rejectionNote = row.getValue(

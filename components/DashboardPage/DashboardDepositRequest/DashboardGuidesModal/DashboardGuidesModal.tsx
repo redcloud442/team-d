@@ -61,10 +61,10 @@ const DashboardGuidesModal = () => {
           setApi={setApi}
         >
           <CarouselContent>
-            {Array.from({ length: 5 }).map((_, index) => (
+            {Array.from({ length: 7 }).map((_, index) => (
               <CarouselItem key={index}>
                 <Image
-                  src={`/guides/guide${index + 1}.png`}
+                  src={`/guides/guide${index}.png`}
                   alt="guide"
                   width={1200}
                   height={1200}
@@ -78,7 +78,7 @@ const DashboardGuidesModal = () => {
 
         {/* Dots for pagination */}
         <div className="flex justify-center space-x-2 mt-4">
-          {Array.from({ length: 5 }).map((_, index) => (
+          {Array.from({ length: 7 }).map((_, index) => (
             <div
               key={index}
               className={`w-3 h-3 rounded-full cursor-pointer transition ${

@@ -174,18 +174,14 @@ const Pr1meSecured = () => {
         />
       </div>
 
-      <div className="fixed -top-12 z-10">
+      <div className="fixed top-[20%]  sm:top-[30%] flex items-center justify-center w-full">
         <Image
-          src="/assets/lightning.svg"
-          alt="thunder"
-          width={300}
-          height={300}
-          quality={100}
-          className="w-full sm:hidden"
+          src="/app-logo.svg"
+          alt="logo"
+          width={120}
+          height={120}
+          priority
         />
-      </div>
-      <div className="absolute top-[20%] left-2 sm:top-[30%] flex items-center justify-center w-full">
-        <Image src="/app-logo.svg" alt="logo" width={120} height={120} />
       </div>
 
       {step === "login" ? (

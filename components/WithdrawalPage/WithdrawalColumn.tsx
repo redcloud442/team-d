@@ -253,6 +253,27 @@ export const WithdrawalColumn = (
       ),
     },
     {
+      accessorKey: "alliance_withdrawal_request_date_updated",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Date Updated <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.getValue("alliance_withdrawal_request_date_updated")
+            ? formatDateToYYYYMMDD(
+                row.getValue("alliance_withdrawal_request_date_updated")
+              )
+            : ""}
+        </div>
+      ),
+    },
+    {
       accessorKey: "alliance_withdrawal_request_reject_note",
 
       header: () => (

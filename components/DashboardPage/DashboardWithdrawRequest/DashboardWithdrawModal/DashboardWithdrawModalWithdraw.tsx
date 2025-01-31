@@ -80,7 +80,8 @@ const DashboardWithdrawModalWithdraw = ({
   const supabaseClient = createClientSide();
   const { setEarnings } = useUserEarningsStore();
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
-  const { isWithdrawalToday } = useUserHaveAlreadyWithdraw();
+  const { isWithdrawalToday, setIsWithdrawalToday } =
+    useUserHaveAlreadyWithdraw();
   const totalEarnings =
     (earnings?.alliance_olympus_earnings ?? 0) +
     (earnings?.alliance_referral_bounty ?? 0);
@@ -213,6 +214,8 @@ const DashboardWithdrawModalWithdraw = ({
         ],
         count: 1,
       });
+
+      setIsWithdrawalToday(true);
       toast({
         title: "Withdrawal Request Successfully",
         description: "Please wait for it to be approved",

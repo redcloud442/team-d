@@ -79,6 +79,7 @@ export const useAdminTopUpApprovalColumns = (
                       {
                         ...updatedItem,
                         alliance_top_up_request_status: status,
+                        alliance_top_up_request_date_updated: new Date(),
                       },
                       ...currentStatusData.data,
                     ]
@@ -250,8 +251,28 @@ export const useAdminTopUpApprovalColumns = (
       ),
     },
     {
+      accessorKey: "alliance_top_up_request_date_updated",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
+        >
+          Date Updated <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-wrap">
+          {row.getValue("alliance_top_up_request_date_updated")
+            ? formatDateToYYYYMMDD(
+                row.getValue("alliance_top_up_request_date_updated")
+              )
+            : ""}
+        </div>
+      ),
+    },
+    {
       accessorKey: "alliance_top_up_request_attachment",
-
       header: () => <div>Attachment</div>,
       cell: ({ row }) => {
         const attachmentUrl = row.getValue(

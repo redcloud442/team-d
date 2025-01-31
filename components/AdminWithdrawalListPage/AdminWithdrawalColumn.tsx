@@ -4,6 +4,7 @@ import { updateWithdrawalStatus } from "@/services/Withdrawal/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminWithdrawaldata, WithdrawalRequestData } from "@/utils/types";
+import { user_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -27,6 +28,7 @@ const statusColorMap: Record<string, string> = {
 
 export const AdminWithdrawalHistoryColumn = (
   handleFetch: () => void,
+  profile: user_table,
   setRequestData: Dispatch<SetStateAction<AdminWithdrawaldata | null>>
 ) => {
   const supabaseClient = createClientSide();
@@ -80,6 +82,8 @@ export const AdminWithdrawalHistoryColumn = (
                       {
                         ...updatedItem,
                         alliance_withdrawal_request_status: status,
+                        approver_username: profile.user_username,
+                        alliance_withdrawal_request_date_updated: new Date(),
                       },
                       ...currentStatusData.data,
                     ]
@@ -248,7 +252,6 @@ export const AdminWithdrawalHistoryColumn = (
         </div>
       ),
     },
-
     {
       accessorKey: "approver_username",
       header: ({ column }) => (
@@ -262,6 +265,27 @@ export const AdminWithdrawalHistoryColumn = (
       ),
       cell: ({ row }) => (
         <div className="text-wrap">{row.getValue("approver_username")}</div>
+      ),
+    },
+    {
+      accessorKey: "alliance_withdrawal_request_date_updated",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
+        >
+          Date Updated <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-wrap">
+          {row.getValue("alliance_withdrawal_request_date_updated")
+            ? formatDateToYYYYMMDD(
+                row.getValue("alliance_withdrawal_request_date_updated")
+              )
+            : ""}
+        </div>
       ),
     },
     {

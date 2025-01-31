@@ -94,6 +94,7 @@ export const TopUpColumn = (
                     {
                       ...updatedItem,
                       alliance_top_up_request_status: status,
+                      alliance_top_up_request_date_updated: new Date(),
                     },
                     ...currentStatusData.data,
                   ]
@@ -257,6 +258,28 @@ export const TopUpColumn = (
       cell: ({ row }) => (
         <div className="text-wrap">
           {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "alliance_top_up_request_date_updated",
+
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Date Updated <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-wrap">
+          {row.getValue("alliance_top_up_request_date_updated")
+            ? formatDateToYYYYMMDD(
+                row.getValue("alliance_top_up_request_date_updated")
+              )
+            : ""}
         </div>
       ),
     },
