@@ -1,6 +1,6 @@
 import { WithdrawalFormValues } from "@/components/DashboardPage/DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
 import { getToken } from "@/utils/function";
-import { AdminWithdrawaldata, WithdrawalRequestData } from "@/utils/types";
+import { WithdrawalRequestData } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const createWithdrawalRequest = async (
@@ -44,11 +44,9 @@ export const getMemberWithdrawalRequest = async (
     page: number;
     limit: number;
     search?: string;
-    teamMemberId: string;
-    userId: string;
-    teamId: string;
     columnAccessor: string;
     isAscendingSort: boolean;
+    userId?: string;
   },
   supabaseClient: SupabaseClient
 ) => {
@@ -75,34 +73,4 @@ export const getMemberWithdrawalRequest = async (
     data: WithdrawalRequestData[];
     totalCount: 0;
   };
-};
-
-export const getWithdrawalRequestAccountant = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    page: number;
-    limit: number;
-    search?: string;
-    teamMemberId: string;
-    teamId: string;
-    columnAccessor: string;
-    isAscendingSort: boolean;
-    userFilter?: string;
-    statusFilter?: string;
-    dateFilter?: {
-      start: string | undefined;
-      end: string | undefined;
-    };
-  }
-) => {
-  const { data, error } = await supabaseClient.rpc(
-    "get_accountant_withdrawal_history",
-    {
-      input_data: params,
-    }
-  );
-
-  if (error) throw error;
-
-  return data as AdminWithdrawaldata;
 };

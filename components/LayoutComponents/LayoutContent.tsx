@@ -2,6 +2,7 @@
 
 import MobileNavBar from "@/components/ui/MobileNavBar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useToast } from "@/hooks/use-toast";
 import { getDashboard } from "@/services/Dasboard/Member";
 import { getTransactionHistory } from "@/services/Transaction/Transaction";
 import { getUserEarnings, getUserWithdrawalToday } from "@/services/User/User";
@@ -41,6 +42,7 @@ export default function LayoutContent({
   const { setChartData } = usePackageChartData();
   const { setIsWithdrawalToday } = useUserHaveAlreadyWithdraw();
   const { setTheme } = useTheme();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (role !== ROLE.ADMIN) {
@@ -51,47 +53,42 @@ export default function LayoutContent({
   useEffect(() => {
     const handleFetchTransaction = async () => {
       if (role === ROLE.ADMIN) return;
+
       try {
         setLoading(true);
 
-        const { totalEarnings, userEarningsData } = await getUserEarnings(
-          {
-            memberId: teamMemberProfile.alliance_member_id,
-          },
-          supabaseClient
-        );
+        // Run independent queries in parallel
+        const [
+          { totalEarnings, userEarningsData },
+          dashboardData,
+          { transactionHistory, totalTransactions },
+          isWithdrawalToday,
+        ] = await Promise.all([
+          getUserEarnings(
+            { memberId: teamMemberProfile.alliance_member_id },
+            supabaseClient
+          ),
+          getDashboard(supabaseClient, {
+            teamMemberId: teamMemberProfile.alliance_member_id,
+          }),
+          getTransactionHistory({ limit: 10, page: 1 }, supabaseClient),
+          getUserWithdrawalToday(supabaseClient),
+        ]);
 
         setTotalEarnings(totalEarnings);
-
         setEarnings(userEarningsData);
-
-        const { data } = await getDashboard(supabaseClient, {
-          teamMemberId: teamMemberProfile.alliance_member_id,
-        });
-
-        setChartData(data);
-
-        const { transactionHistory, totalTransactions } =
-          await getTransactionHistory(
-            {
-              limit: 10,
-              page: 1,
-            },
-            supabaseClient
-          );
-
+        setChartData(dashboardData);
         setTransactionHistory({
           data: transactionHistory,
           count: totalTransactions,
         });
-
-        const isWithdrawalToday = await getUserWithdrawalToday(supabaseClient);
-
         setIsWithdrawalToday(isWithdrawalToday);
-
-        setLoading(false);
       } catch (e) {
-        setLoading(false);
+        toast({
+          title: "Error fetching transactions",
+          description: "Please try again later",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }

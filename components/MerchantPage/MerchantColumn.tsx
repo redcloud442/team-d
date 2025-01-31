@@ -72,6 +72,7 @@ export const useMerchantColumn = (handleFetch: () => void) => {
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-0"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Account Name <ArrowUpDown />
@@ -87,6 +88,7 @@ export const useMerchantColumn = (handleFetch: () => void) => {
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-0"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Account Number <ArrowUpDown />
@@ -106,6 +108,7 @@ export const useMerchantColumn = (handleFetch: () => void) => {
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-0"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Account Type <ArrowUpDown />

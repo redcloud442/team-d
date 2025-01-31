@@ -15,6 +15,7 @@ import { LogOut } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import DashboardGuidesModal from "../DashboardPage/DashboardDepositRequest/DashboardGuidesModal/DashboardGuidesModal";
 import { Button } from "./button";
 import { DialogFooter, DialogHeader } from "./dialog";
 
@@ -100,16 +101,8 @@ const MobileNavBar = () => {
           ))}
         </ul>
 
-        <div className="fixed -bottom-3 -left-24 transform translate-x-1/2 z-10 flex items-center justify-center">
-          <Image
-            src="/assets/guide.png"
-            alt="Logo"
-            width={160}
-            height={160}
-            className="z-10"
-            priority
-            onClick={() => setIsModalOpen(true)}
-          />
+        <div className="fixed -bottom-9 -left-24 transform translate-x-1/2 z-10 flex items-center justify-center">
+          <DashboardGuidesModal />
         </div>
 
         {/* Centered Image */}

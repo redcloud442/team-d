@@ -114,7 +114,8 @@ export const AdminWithdrawalHistoryColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Requestor Name <ArrowUpDown />
         </Button>
@@ -133,7 +134,8 @@ export const AdminWithdrawalHistoryColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Status <ArrowUpDown />
         </Button>
@@ -153,7 +155,8 @@ export const AdminWithdrawalHistoryColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Amount <ArrowUpDown />
         </Button>
@@ -168,7 +171,7 @@ export const AdminWithdrawalHistoryColumn = (
           style: "currency",
           currency: "PHP",
         }).format(amount - fee);
-        return <div className="font-medium text-center">{formatted}</div>;
+        return <div className="font-medium text-wrap">{formatted}</div>;
       },
     },
     {
@@ -176,13 +179,14 @@ export const AdminWithdrawalHistoryColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Bank Account <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_withdrawal_request_type")}
         </div>
       ),
@@ -193,13 +197,14 @@ export const AdminWithdrawalHistoryColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Bank Name <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_withdrawal_request_bank_name")}
         </div>
       ),
@@ -210,13 +215,14 @@ export const AdminWithdrawalHistoryColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Bank Account <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_withdrawal_request_account")}
         </div>
       ),
@@ -228,13 +234,14 @@ export const AdminWithdrawalHistoryColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Date Created <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {formatDateToYYYYMMDD(
             row.getValue("alliance_withdrawal_request_date")
           )}
@@ -247,13 +254,14 @@ export const AdminWithdrawalHistoryColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Approver <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">{row.getValue("approver_username")}</div>
+        <div className="text-wrap">{row.getValue("approver_username")}</div>
       ),
     },
     {

@@ -116,51 +116,14 @@ export const useAdminTopUpApprovalColumns = (
   );
 
   const columns: ColumnDef<TopUpRequestData>[] = [
-    // {
-    //   accessorKey: "alliance_top_up_request_id",
-
-    //   header: ({ column }) => (
-    //     <Button
-    //       variant="ghost"
-    //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-    //     >
-    //       Reference ID <ArrowUpDown />
-    //     </Button>
-    //   ),
-    //   cell: ({ row }) => {
-    //     const id = row.getValue("alliance_top_up_request_id") as string;
-    //     const maxLength = 15;
-
-    //     const handleCopy = async () => {
-    //       if (id) {
-    //         await navigator.clipboard.writeText(id);
-    //       }
-    //     };
-
-    //     return (
-    //       <div className="flex items-center space-x-2">
-    //         <div
-    //           className="truncate"
-    //           title={id.length > maxLength ? id : undefined}
-    //         >
-    //           {id.length > maxLength ? `${id.slice(0, maxLength)}...` : id}
-    //         </div>
-    //         {id && (
-    //           <Button variant="ghost" size="sm" onClick={handleCopy}>
-    //             <Copy />
-    //           </Button>
-    //         )}
-    //       </div>
-    //     );
-    //   },
-    // },
     {
       accessorKey: "user_username",
 
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Requestor Username <ArrowUpDown />
         </Button>
@@ -180,7 +143,8 @@ export const useAdminTopUpApprovalColumns = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Status <ArrowUpDown />
         </Button>
@@ -198,7 +162,8 @@ export const useAdminTopUpApprovalColumns = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Amount <ArrowUpDown />
         </Button>
@@ -220,7 +185,8 @@ export const useAdminTopUpApprovalColumns = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Bank Name <ArrowUpDown />
         </Button>
@@ -237,13 +203,14 @@ export const useAdminTopUpApprovalColumns = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Bank Account <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_account")}
         </div>
       ),
@@ -254,13 +221,14 @@ export const useAdminTopUpApprovalColumns = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Date Created <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))}
         </div>
       ),
@@ -271,13 +239,14 @@ export const useAdminTopUpApprovalColumns = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Approver <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">{row.getValue("approver_username")}</div>
+        <div className="text-wrap">{row.getValue("approver_username")}</div>
       ),
     },
     {

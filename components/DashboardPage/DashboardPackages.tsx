@@ -18,7 +18,7 @@ import { createClientSide } from "@/utils/supabase/client";
 import { ChartDataMember } from "@/utils/types";
 import { alliance_member_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -47,6 +47,58 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const [openDialogId, setOpenDialogId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [liveData, setLiveData] = useState(() => {
+    return chartData.map((data) => ({
+      ...data,
+      currentPercentage: data.completion,
+      current_amount: data.current_amount,
+    }));
+  });
+
+  useEffect(() => {
+    const animationFrames: { [key: string]: number } = {};
+
+    chartData.forEach((data: ChartDataMember, index: number) => {
+      const startPercentage = data.completion;
+      const finalAmount = data.amount + data.profit_amount;
+      const startTime = performance.now();
+
+      const baseDuration =
+        new Date(data.completion_date).getTime() - new Date().getTime();
+
+      const animateProgress = (currentTime: number) => {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / baseDuration, 1);
+
+        const newPercentage =
+          startPercentage + (100 - startPercentage) * progress;
+        const newAmount =
+          data.current_amount + (finalAmount - data.current_amount) * progress;
+
+        setLiveData((prev: ChartDataMember[]) => {
+          const updated = [...prev];
+          updated[index] = {
+            ...data,
+            currentPercentage: newPercentage,
+            current_amount: newAmount,
+          };
+          return updated;
+        });
+
+        if (progress < 1) {
+          animationFrames[data.package_connection_id] =
+            requestAnimationFrame(animateProgress);
+        }
+      };
+
+      animationFrames[data.package_connection_id] =
+        requestAnimationFrame(animateProgress);
+    });
+
+    return () => {
+      Object.values(animationFrames).forEach(cancelAnimationFrame);
+    };
+  }, [chartData]);
 
   const handleClaimPackage = async (packageData: ChartDataMember) => {
     const { amount, profit_amount, package_connection_id } = packageData;
@@ -68,7 +120,6 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
           description: "You have successfully claimed the package",
         });
 
-        // Update chart data to remove the claimed package
         setChartData(
           chartData.filter(
             (data) => data.package_connection_id !== package_connection_id
@@ -126,7 +177,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
   return (
     <ScrollArea className="w-full pb-10">
       <div className="flex grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {chartData.map((data) => (
+        {liveData.map((data) => (
           <Card
             key={data.package_connection_id}
             style={{
@@ -178,7 +229,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
                 </Badge>
                 <span className="text-2xl font-extrabold text-black">
                   ₱{" "}
-                  {(data.amount + data.profit_amount).toLocaleString("en-US", {
+                  {data.current_amount.toLocaleString("en-US", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}

@@ -4,7 +4,7 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { MerchantTopUpRequestData, TopUpRequestData } from "@/utils/types";
+import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import Image from "next/image";
@@ -27,7 +27,7 @@ const statusColorMap: Record<string, string> = {
 };
 
 export const TopUpColumn = (
-  setRequestData: Dispatch<SetStateAction<MerchantTopUpRequestData | null>>,
+  setRequestData: Dispatch<SetStateAction<AdminTopUpRequestData | null>>,
   reset: () => void
 ) => {
   const { toast } = useToast();
@@ -72,7 +72,7 @@ export const TopUpColumn = (
 
         const merchantBalance =
           status === "APPROVED"
-            ? prev.merchantBalance -
+            ? (prev.merchantBalance || 0) -
               (updatedItem?.alliance_top_up_request_amount ?? 0)
             : prev.merchantBalance;
 
@@ -138,13 +138,14 @@ export const TopUpColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Requestor Username <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("user_username")}</div>
+        <div className="text-wrap p-0">{row.getValue("user_username")}</div>
       ),
     },
     {
@@ -153,6 +154,7 @@ export const TopUpColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Status <ArrowUpDown />
@@ -161,16 +163,16 @@ export const TopUpColumn = (
       cell: ({ row }) => {
         const status = row.getValue("alliance_top_up_request_status") as string;
         const color = statusColorMap[status.toUpperCase()] || "gray"; // Default to gray if status is undefined
-        return <Badge className={`${color}`}>{status}</Badge>;
+        return <Badge className={`${color} text-wrap`}>{status}</Badge>;
       },
     },
 
     {
       accessorKey: "alliance_top_up_request_amount",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Amount <ArrowUpDown />
@@ -184,7 +186,7 @@ export const TopUpColumn = (
           style: "currency",
           currency: "PHP",
         }).format(amount);
-        return <div className="font-medium text-center">{formatted}</div>;
+        return <div className="font-medium text-wrap">{formatted}</div>;
       },
     },
     {
@@ -193,13 +195,14 @@ export const TopUpColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Bank Name <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_type")}
         </div>
       ),
@@ -210,30 +213,31 @@ export const TopUpColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Name <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_name")}
         </div>
       ),
     },
     {
       accessorKey: "alliance_top_up_request_account",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Bank Account <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_account")}
         </div>
       ),
@@ -244,20 +248,20 @@ export const TopUpColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Date Created <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))}
         </div>
       ),
     },
     {
       accessorKey: "alliance_top_up_request_attachment",
-
       header: () => <div>Attachment</div>,
       cell: ({ row }) => {
         const attachmentUrl = row.getValue(

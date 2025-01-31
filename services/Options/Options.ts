@@ -7,17 +7,23 @@ export const getUserOptionsMerchant = async (
   params: {
     page: number;
     limit: number;
-    teamMemberId: string;
   }
 ) => {
-  const { data, error } = await supabaseClient.rpc(
-    "get_user_options_merchant",
-    {
-      input_data: params,
-    }
-  );
-  if (error) {
-    throw error;
+  const token = await getToken(supabaseClient);
+
+  const response = await fetch(`/api/v1/options/merchant-options`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(params),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch user options");
   }
 
   return data as user_table[];
@@ -28,14 +34,23 @@ export const getUserOptions = async (
   params: {
     page: number;
     limit: number;
-    teamMemberId: string;
   }
 ) => {
-  const { data, error } = await supabaseClient.rpc("get_user_options", {
-    input_data: params,
+  const token = await getToken(supabaseClient);
+
+  const response = await fetch(`/api/v1/options/user-options`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(params),
   });
-  if (error) {
-    throw error;
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch user options");
   }
 
   return data as user_table[];

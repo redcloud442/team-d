@@ -111,8 +111,6 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const endDate = startDate ? new Date(startDate) : undefined;
       const requestData = await getAdminTopUpRequest(supabaseClient, {
-        teamId: teamMemberProfile.alliance_member_alliance_id,
-        teamMemberId: teamMemberProfile.alliance_member_id,
         page: activePage,
         limit: 10,
         columnAccessor: columnAccessor,
@@ -124,8 +122,11 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
         dateFilter: {
           start:
             startDate && !isNaN(startDate.getTime())
-              ? startDate.toISOString()
+              ? new Date(
+                  startDate.setDate(startDate.getDate() + 1)
+                ).toISOString()
               : undefined,
+
           end:
             endDate && !isNaN(endDate.getTime())
               ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
@@ -177,7 +178,8 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
         await logError(supabaseClient, {
           errorMessage: e.message,
           stackTrace: e.stack,
-          stackPath: "components/TopUpPage/TopUpTable.tsx",
+          stackPath:
+            "components/AdminTopUpApprovalPage/AdminTopUpApprovalTable.tsx",
         });
       }
     } finally {
@@ -233,35 +235,38 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
         statusFilter,
         dateFilter,
       } = sanitizedData;
+
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
+
       const endDate = startDate ? new Date(startDate) : undefined;
 
-      for (const status of statuses) {
-        const requestData = await getAdminTopUpRequest(supabaseClient, {
-          teamId: teamMemberProfile.alliance_member_alliance_id,
-          teamMemberId: teamMemberProfile.alliance_member_id,
-          page: 1,
-          limit: 10,
-          columnAccessor,
-          isAscendingSort,
-          search: emailFilter,
-          merchantFilter,
-          userFilter,
-          statusFilter: statusFilter ?? "PENDING",
-          dateFilter: {
-            start:
-              startDate && !isNaN(startDate.getTime())
-                ? startDate.toISOString()
-                : undefined,
-            end:
-              endDate && !isNaN(endDate.getTime())
-                ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
-                : undefined,
-          },
-        });
+      const requestData = await getAdminTopUpRequest(supabaseClient, {
+        page: 1,
+        limit: 10,
+        columnAccessor,
+        isAscendingSort,
+        search: emailFilter,
+        merchantFilter,
+        userFilter,
+        statusFilter: statusFilter ?? "PENDING",
+        dateFilter: {
+          start:
+            startDate && !isNaN(startDate.getTime())
+              ? new Date(
+                  startDate.setDate(startDate.getDate() + 1)
+                ).toISOString()
+              : undefined,
 
+          end:
+            endDate && !isNaN(endDate.getTime())
+              ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
+              : undefined,
+        },
+      });
+
+      for (const status of statuses) {
         updatedData.data[status] = requestData?.data?.[status] || {
           data: [],
           count: 0,
@@ -321,7 +326,6 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
           const merchantData = await getUserOptionsMerchant(supabaseClient, {
             page: currentMerchantPage,
             limit: pageLimit,
-            teamMemberId: teamMemberProfile.alliance_member_id,
           });
 
           if (!merchantData?.length) {
@@ -347,7 +351,6 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
           const userData = await getUserOptions(supabaseClient, {
             page: currentUserPage,
             limit: pageLimit,
-            teamMemberId: teamMemberProfile.alliance_member_id,
           });
 
           if (!userData?.length) {

@@ -70,8 +70,6 @@ const WithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const { data, totalCount } = await getMemberWithdrawalRequest(
         {
-          teamId: teamMemberProfile.alliance_member_alliance_id,
-          teamMemberId: teamMemberProfile.alliance_member_id,
           page: activePage,
           userId: searchParams?.userId?.toString() || "",
           limit: 10,

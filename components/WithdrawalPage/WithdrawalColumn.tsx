@@ -123,6 +123,7 @@ export const WithdrawalColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Requestor Username <ArrowUpDown />
@@ -137,6 +138,7 @@ export const WithdrawalColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Status <ArrowUpDown />
@@ -156,6 +158,7 @@ export const WithdrawalColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Amount <ArrowUpDown />
@@ -180,6 +183,7 @@ export const WithdrawalColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Bank Type
@@ -198,6 +202,7 @@ export const WithdrawalColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Bank Account <ArrowUpDown />
@@ -215,6 +220,7 @@ export const WithdrawalColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Bank Name <ArrowUpDown />
@@ -232,6 +238,7 @@ export const WithdrawalColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Date Created <ArrowUpDown />
@@ -248,7 +255,11 @@ export const WithdrawalColumn = (
     {
       accessorKey: "alliance_withdrawal_request_reject_note",
 
-      header: () => <div>Rejection Note</div>,
+      header: () => (
+        <Button variant="ghost" className="p-1">
+          Rejection Note
+        </Button>
+      ),
       cell: ({ row }) => {
         const rejectionNote = row.getValue(
           "alliance_withdrawal_request_reject_note"

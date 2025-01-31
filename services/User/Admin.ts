@@ -52,15 +52,22 @@ export const getUserWithActiveBalance = async (
   }
 ) => {
   const sanitizedData = escapeFormData(params);
+  const token = await getToken(supabaseClient);
 
-  const { data, error } = await supabaseClient.rpc(
-    "get_user_with_active_balance",
-    {
-      input_data: sanitizedData,
-    }
-  );
+  const response = await fetch(`/api/v1/user/active-list`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(sanitizedData),
+  });
 
-  if (error) throw error;
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch user data");
+  }
 
   return data as {
     data: user_table[];

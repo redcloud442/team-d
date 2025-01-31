@@ -9,7 +9,7 @@ export async function updateSession(request: NextRequest) {
     return addSecurityHeaders(NextResponse.next());
   }
 
-  if (request.nextUrl.pathname === "/api/v1/auth/register") {
+  if (request.nextUrl.pathname.startsWith("/api/v1/auth/register")) {
     return NextResponse.next();
   }
 

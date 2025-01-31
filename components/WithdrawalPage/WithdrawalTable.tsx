@@ -2,7 +2,7 @@
 
 import { logError } from "@/services/Error/ErrorLogs";
 import { getUserOptions } from "@/services/Options/Options";
-import { getWithdrawalRequestAccountant } from "@/services/Withdrawal/Member";
+import { getAdminWithdrawalRequest } from "@/services/Withdrawal/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminWithdrawaldata } from "@/utils/types";
@@ -98,9 +98,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
         ? new Date(dateFilter.start)
         : undefined;
       const endDate = startDate ? new Date(startDate) : undefined;
-      const requestData = await getWithdrawalRequestAccountant(supabaseClient, {
-        teamId: teamMemberProfile.alliance_member_alliance_id,
-        teamMemberId: teamMemberProfile.alliance_member_id,
+      const requestData = await getAdminWithdrawalRequest(supabaseClient, {
         page: activePage,
         limit: 10,
         columnAccessor: columnAccessor,
@@ -204,32 +202,27 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
         : undefined;
       const endDate = startDate ? new Date(startDate) : undefined;
 
-      for (const status of statuses) {
-        const requestData = await getWithdrawalRequestAccountant(
-          supabaseClient,
-          {
-            teamId: teamMemberProfile.alliance_member_alliance_id,
-            teamMemberId: teamMemberProfile.alliance_member_id,
-            page: activePage,
-            limit: 10,
-            columnAccessor: columnAccessor,
-            isAscendingSort: isAscendingSort,
-            search: referenceId,
-            userFilter,
-            statusFilter: statusFilter,
-            dateFilter: {
-              start:
-                startDate && !isNaN(startDate.getTime())
-                  ? startDate.toISOString()
-                  : undefined,
-              end:
-                endDate && !isNaN(endDate.getTime())
-                  ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
-                  : undefined,
-            },
-          }
-        );
+      const requestData = await getAdminWithdrawalRequest(supabaseClient, {
+        page: activePage,
+        limit: 10,
+        columnAccessor: columnAccessor,
+        isAscendingSort: isAscendingSort,
+        search: referenceId,
+        userFilter,
+        statusFilter: statusFilter,
+        dateFilter: {
+          start:
+            startDate && !isNaN(startDate.getTime())
+              ? startDate.toISOString()
+              : undefined,
+          end:
+            endDate && !isNaN(endDate.getTime())
+              ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
+              : undefined,
+        },
+      });
 
+      for (const status of statuses) {
         updatedData.data[status] = requestData?.data?.[status] || {
           data: [],
           count: 0,
@@ -305,7 +298,6 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
           const userData = await getUserOptions(supabaseClient, {
             page: currentUserPage,
             limit: pageLimit,
-            teamMemberId: teamMemberProfile.alliance_member_id,
           });
 
           if (!userData?.length) {

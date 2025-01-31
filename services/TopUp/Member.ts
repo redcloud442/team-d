@@ -1,6 +1,6 @@
 import { TopUpFormValues } from "@/components/DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit";
 import { getToken } from "@/utils/function";
-import { MerchantTopUpRequestData, TopUpRequestData } from "@/utils/types";
+import { TopUpRequestData } from "@/utils/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const getMemberTopUpRequest = async (
@@ -60,36 +60,6 @@ export const updateTopUpStatus = async (params: {
   }
 
   return response;
-};
-
-export const getMerchantTopUpRequest = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    page: number;
-    limit: number;
-    search?: string;
-    teamMemberId: string;
-    teamId: string;
-    columnAccessor: string;
-    isAscendingSort: boolean;
-    userFilter?: string;
-    statusFilter?: string;
-    dateFilter?: {
-      start: string | undefined;
-      end: string | undefined;
-    };
-  }
-) => {
-  const { data, error } = await supabaseClient.rpc(
-    "get_merchant_top_up_history",
-    {
-      input_data: params,
-    }
-  );
-
-  if (error) throw error;
-
-  return data as MerchantTopUpRequestData;
 };
 
 export const handleDepositRequest = async (
