@@ -19,6 +19,7 @@ import MerchantBalanceModal from "./MerchantBalanceModal/MerchantBalanceModal";
 
 type Props = {
   userProfile: UserRequestdata;
+  profile: UserRequestdata;
 };
 
 //test
@@ -31,7 +32,7 @@ const schema = z.object({
 });
 type Data = z.infer<typeof schema>;
 
-const MerchantBalance = ({ userProfile }: Props) => {
+const MerchantBalance = ({ userProfile, profile }: Props) => {
   const { toast } = useToast();
   const supabaseClient = createClientSide();
   const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +65,7 @@ const MerchantBalance = ({ userProfile }: Props) => {
         {
           amount: Number(sanitizedData.balance),
           memberId: userProfile.merchant_member_id,
-          userName: userProfile.user_username || "",
+          userName: profile.user_username || "",
         },
         supabaseClient
       );
