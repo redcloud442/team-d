@@ -424,11 +424,12 @@ const DashboardDepositModalDeposit = ({
                   />
                 )}
               />
-              {uploadedFile && (
+              {uploadedFile && !errors.file && (
                 <p className="text-md font-bold text-green-700">
                   {"File Uploaded Successfully"}
                 </p>
               )}
+
               {errors.file && (
                 <p className="text-primaryRed text-sm mt-1">
                   {errors.file?.message}
