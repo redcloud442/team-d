@@ -115,7 +115,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
         value={
           <>
             <UserCheck2Icon />
-            {adminDashboardDataByDate?.activePackageWithinTheDay ?? 0}
+            {adminDashboardDataByDate?.totalActivatedUserByDate ?? 0}
           </>
         }
         description=""

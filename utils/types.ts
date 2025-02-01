@@ -84,6 +84,7 @@ export type DashboardEarnings = {
 
 export type AdminDashboardDataByDate = {
   activePackageWithinTheDay: number;
+  totalActivatedUserByDate: number;
   totalEarnings: number;
   totalWithdraw: number;
   directLoot: number;
