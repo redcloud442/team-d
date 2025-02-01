@@ -243,7 +243,12 @@ export const calculateFee = (
 };
 
 export const userNameToEmail = (userName: string) => {
-  return `${userName}@gmail.com`;
+  // Trim whitespace and sanitize username
+  const sanitizedUserName = userName
+    .trim() // Remove leading/trailing spaces
+    .replace(/[^a-zA-Z0-9._-]/g, ""); // Allow only letters, digits, dots, underscores, and hyphens
+
+  return `${sanitizedUserName}@gmail.com`;
 };
 
 export const getToken = async (supabaseClient: SupabaseClient) => {

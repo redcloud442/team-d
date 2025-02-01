@@ -97,14 +97,17 @@ export const changeUserPassword = async (
 ) => {
   const token = await getToken(supabaseClient);
 
-  const response = await fetch(`/api/v1/user`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(params),
-  });
+  const response = await fetch(
+    `/api/v1/user/` + params.userId + `/change-password`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(params),
+    }
+  );
 
   const result = await response.json();
 

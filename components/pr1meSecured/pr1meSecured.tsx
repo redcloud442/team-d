@@ -96,8 +96,9 @@ const Pr1meSecured = () => {
 
       setEmail(userEmail);
 
+      const sanitizedEmail = userEmail.trim().replace(/["\\]/g, "");
       const { error } = await supabase.auth.signInWithOtp({
-        email: userEmail,
+        email: sanitizedEmail,
       });
 
       if (error) throw new Error("Invalid username or password");
