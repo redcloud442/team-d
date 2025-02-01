@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
   const { userId } = await params;
 
-  const { teamMemberProfile } = await protectionAdminUser();
+  const { teamMemberProfile, profile } = await protectionAdminUser();
 
   if (!teamMemberProfile) return redirect("/auth/login");
 
@@ -47,7 +47,7 @@ const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
 
   if (!combinedData) return redirect("/auth/login");
 
-  return <UserAdminProfile userProfile={combinedData} />;
+  return <UserAdminProfile profile={profile} userProfile={combinedData} />;
 };
 
 export default Page;

@@ -5,7 +5,7 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { merchant_balance_log } from "@prisma/client";
+import { merchant_balance_log, user_table } from "@prisma/client";
 import { PhilippinePeso } from "lucide-react";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -16,10 +16,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 import TableLoading from "../ui/tableLoading";
 import MerchantBalanceModal from "./MerchantBalanceModal/MerchantBalanceModal";
-
 type Props = {
   userProfile: UserRequestdata;
-  profile: UserRequestdata;
+  profile: user_table;
 };
 
 //test

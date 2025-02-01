@@ -1,6 +1,7 @@
 "use client";
 
 import { UserRequestdata } from "@/utils/types";
+import { user_table } from "@prisma/client";
 import { useState } from "react";
 import TopUpHistoryTable from "../TopUpHistoryPage/TopUpHistoryTable";
 import WithdrawalHistoryTable from "../WithrawalHistoryPage/WithdrawalHistoryTable";
@@ -10,9 +11,10 @@ import PersonalInformation from "./PersonalInformation";
 
 type Props = {
   userProfile: UserRequestdata;
+  profile: user_table;
 };
 
-const UserAdminProfile = ({ userProfile: initialData }: Props) => {
+const UserAdminProfile = ({ userProfile: initialData, profile }: Props) => {
   const [userProfileData, setUserProfileData] =
     useState<UserRequestdata>(initialData);
   return (
@@ -28,7 +30,7 @@ const UserAdminProfile = ({ userProfile: initialData }: Props) => {
 
         <PersonalInformation userProfile={userProfileData} />
         {userProfileData.alliance_member_role === "MERCHANT" && (
-          <MerchantBalance userProfile={userProfileData} />
+          <MerchantBalance profile={profile} userProfile={userProfileData} />
         )}
 
         <ChangePassword userProfile={userProfileData} />
