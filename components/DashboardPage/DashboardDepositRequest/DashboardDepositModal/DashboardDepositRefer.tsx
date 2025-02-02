@@ -89,44 +89,43 @@ const DashboardDepositModalRefer = ({
 
           <div className="flex flex-col items-end space-y-4">
             {/* Referral Link and Code */}
-            {isActive && (
-              <Card className="dark:bg-cardColor border-none w-full">
-                <CardHeader>
-                  <CardTitle className="text-black text-2xl">
-                    Refer & Earn
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-end gap-2">
-                    <div className="flex flex-col gap-2">
-                      <Label
-                        htmlFor="referral_link"
-                        className="font-bold dark:text-black"
-                      >
-                        Referral Link
-                      </Label>
-                      <Input
-                        variant="default"
-                        id="referral_link"
-                        type="text"
-                        readOnly
-                        className="text-center"
-                        value={referal.alliance_referral_link}
-                      />
-                    </div>
 
-                    <Button
-                      onClick={() =>
-                        copyToClipboard(referal.alliance_referral_link)
-                      }
-                      className="bg-pageColor text-white h-12"
+            <Card className="dark:bg-cardColor border-none w-full">
+              <CardHeader>
+                <CardTitle className="text-black text-2xl">
+                  Refer & Earn
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-end gap-2">
+                  <div className="flex flex-col gap-2">
+                    <Label
+                      htmlFor="referral_link"
+                      className="font-bold dark:text-black"
                     >
-                      Copy
-                    </Button>
+                      Referral Link
+                    </Label>
+                    <Input
+                      variant="default"
+                      id="referral_link"
+                      type="text"
+                      readOnly
+                      className="text-center"
+                      value={referal.alliance_referral_link}
+                    />
                   </div>
-                </CardContent>
-              </Card>
-            )}
+
+                  <Button
+                    onClick={() =>
+                      copyToClipboard(referal.alliance_referral_link)
+                    }
+                    className="bg-pageColor text-white h-12"
+                  >
+                    Copy
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
             <Card className="dark:bg-cardColor border-none w-full">
               <CardHeader>

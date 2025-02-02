@@ -1,4 +1,5 @@
 import DashboardPage from "@/components/DashboardPage/DashboardPage";
+import { getUserSponsor } from "@/services/User/User";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
@@ -45,21 +46,16 @@ const Page = async () => {
   });
 
   let sponsorData = null;
-
   try {
-    const { data: sponsor, error } = await supabaseClient.rpc(
-      "get_user_sponsor",
-      {
-        input_data: { userId: profile.user_id },
-      }
+    const sponsor = await getUserSponsor(
+      { userId: profile.user_id },
+      supabaseClient
     );
 
-    const { data } = sponsor;
-
-    if (error) {
-      sponsorData = null;
+    if (sponsor) {
+      sponsorData = sponsor || "";
     } else {
-      sponsorData = data?.user_username || "";
+      sponsorData = "";
     }
   } catch (err) {
     sponsorData = null;

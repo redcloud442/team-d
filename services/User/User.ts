@@ -9,14 +9,17 @@ export const getUserSponsor = async (
 ) => {
   const token = await getToken(supabaseClient);
 
-  const response = await fetch(`/api/v1/user/sponsor`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(params),
-  });
+  const response = await fetch(
+    `${process.env.NODE_ENV === "development" ? "http://localhost:8000" : "https://loadbalancer.primepinas.com"}/api/v1/user/sponsor`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(params),
+    }
+  );
 
   const result = await response.json();
 
@@ -26,11 +29,7 @@ export const getUserSponsor = async (
     );
   }
 
-  const { data } = result;
-
-  return data as {
-    user_username: string;
-  };
+  return result as string;
 };
 
 export const getUserEarnings = async (

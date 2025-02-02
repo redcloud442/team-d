@@ -68,7 +68,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
           supabaseClient
         );
 
-        setUserSponsor(userSponsor);
+        setUserSponsor({ user_username: userSponsor });
       } catch (e) {
         if (e instanceof Error) {
           await logError(supabaseClient, {
