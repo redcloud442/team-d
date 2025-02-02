@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { updateWithdrawalStatus } from "@/services/Withdrawal/Admin";
-import { formatDateToYYYYMMDD } from "@/utils/function";
+import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminWithdrawaldata, WithdrawalRequestData } from "@/utils/types";
 import { user_table } from "@prisma/client";
@@ -249,6 +249,7 @@ export const AdminWithdrawalHistoryColumn = (
           {formatDateToYYYYMMDD(
             row.getValue("alliance_withdrawal_request_date")
           )}
+          , {formatTime(row.getValue("alliance_withdrawal_request_date"))}
         </div>
       ),
     },
@@ -285,6 +286,8 @@ export const AdminWithdrawalHistoryColumn = (
                 row.getValue("alliance_withdrawal_request_date_updated")
               )
             : ""}
+          ,{" "}
+          {formatTime(row.getValue("alliance_withdrawal_request_date_updated"))}
         </div>
       ),
     },

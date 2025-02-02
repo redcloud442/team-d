@@ -2485,6 +2485,39 @@ USING (
   )
 );
 
+DROP POLICY IF EXISTS "Allow Read for authenticated users with ADMIN role" ON merchant_schema.merchant_balance_log;
+CREATE POLICY "Allow Read for authenticated users with ADMIN role" ON merchant_schema.merchant_balance_log
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_table at
+    JOIN alliance_schema.alliance_member_table ab
+      ON ab.alliance_member_alliance_id = at.alliance_id 
+    WHERE ab.alliance_member_user_id = auth.uid()
+    AND ab.alliance_member_role IN ('ADMIN')
+  )
+);
+
+DROP POLICY IF EXISTS "Allow Insert for authenticated users with ADMIN role" ON merchant_schema.merchant_balance_log;
+CREATE POLICY "Allow Insert for authenticated users with ADMIN role" ON merchant_schema.merchant_balance_log
+AS PERMISSIVE FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_table at
+    JOIN alliance_schema.alliance_member_table ab
+      ON ab.alliance_member_alliance_id = at.alliance_id 
+    WHERE ab.alliance_member_user_id = auth.uid()
+    AND ab.alliance_member_role IN ('ADMIN')
+  )
+);
+
+
+
+
 ALTER TABLE alliance_schema.alliance_referral_link_table ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Allow READ for authenticated users" ON alliance_schema.alliance_referral_link_table;

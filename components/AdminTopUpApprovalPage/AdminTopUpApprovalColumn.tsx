@@ -11,7 +11,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { updateTopUpStatus } from "@/services/TopUp/Admin";
-import { formatDateToYYYYMMDD } from "@/utils/function";
+import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
@@ -230,7 +230,8 @@ export const useAdminTopUpApprovalColumns = (
       ),
       cell: ({ row }) => (
         <div className="text-wrap">
-          {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))}
+          {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))},{" "}
+          {formatTime(row.getValue("alliance_top_up_request_date"))}
         </div>
       ),
     },
@@ -268,6 +269,7 @@ export const useAdminTopUpApprovalColumns = (
                 row.getValue("alliance_top_up_request_date_updated")
               )
             : ""}
+          , {formatTime(row.getValue("alliance_top_up_request_date_updated"))}
         </div>
       ),
     },

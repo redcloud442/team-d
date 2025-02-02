@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { formatDateToYYYYMMDD } from "@/utils/function";
+import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
 import { WithdrawalRequestData } from "@/utils/types";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Copy } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { Badge } from "../ui/badge";
 import {
   Dialog,
@@ -24,44 +24,6 @@ export const WithdrawalHistoryColumn =
   (): ColumnDef<WithdrawalRequestData>[] => {
     return [
       {
-        accessorKey: "alliance_withdrawal_request_id",
-
-        header: ({ column }) => (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Reference ID <ArrowUpDown />
-          </Button>
-        ),
-        cell: ({ row }) => {
-          const id = row.getValue("alliance_withdrawal_request_id") as string;
-          const maxLength = 15;
-
-          const handleCopy = async () => {
-            if (id) {
-              await navigator.clipboard.writeText(id);
-            }
-          };
-
-          return (
-            <div className="flex items-center space-x-2">
-              <div
-                className="truncate"
-                title={id.length > maxLength ? id : undefined}
-              >
-                {id.length > maxLength ? `${id.slice(0, maxLength)}...` : id}
-              </div>
-              {id && (
-                <Button variant="ghost" size="sm" onClick={handleCopy}>
-                  <Copy />
-                </Button>
-              )}
-            </div>
-          );
-        },
-      },
-      {
         accessorKey: "alliance_withdrawal_request_status",
 
         header: ({ column }) => (
@@ -80,7 +42,6 @@ export const WithdrawalHistoryColumn =
           return <Badge className={`${color} text-white`}>{status}</Badge>;
         },
       },
-
       {
         accessorKey: "alliance_withdrawal_request_amount",
         header: () => <Button variant="ghost">Amount</Button>,
@@ -88,17 +49,27 @@ export const WithdrawalHistoryColumn =
           const amount = parseFloat(
             row.getValue("alliance_withdrawal_request_amount")
           );
+          const fee = row.original.alliance_withdrawal_request_fee;
           const formatted = new Intl.NumberFormat("en-PH", {
             style: "currency",
             currency: "PHP",
-          }).format(amount);
+          }).format(amount - fee);
           return <div className="font-medium text-center">{formatted}</div>;
         },
       },
       {
         accessorKey: "alliance_withdrawal_request_type",
 
-        header: () => <Button variant="ghost">Bank Name</Button>,
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            className="p-1"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Bank Type
+            <ArrowUpDown />
+          </Button>
+        ),
         cell: ({ row }) => (
           <div className="text-center">
             {row.getValue("alliance_withdrawal_request_type")}
@@ -108,14 +79,36 @@ export const WithdrawalHistoryColumn =
       {
         accessorKey: "alliance_withdrawal_request_account",
 
-        header: () => (
-          <Button variant="ghost">
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            className="p-1"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
             Bank Account <ArrowUpDown />
           </Button>
         ),
         cell: ({ row }) => (
           <div className="text-center">
             {row.getValue("alliance_withdrawal_request_account")}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "alliance_withdrawal_request_bank_name",
+
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            className="p-1"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Bank Name <ArrowUpDown />
+          </Button>
+        ),
+        cell: ({ row }) => (
+          <div className="text-center">
+            {row.getValue("alliance_withdrawal_request_bank_name")}
           </div>
         ),
       },
@@ -135,6 +128,7 @@ export const WithdrawalHistoryColumn =
             {formatDateToYYYYMMDD(
               row.getValue("alliance_withdrawal_request_date")
             )}
+            , {formatTime(row.getValue("alliance_withdrawal_request_date"))}
           </div>
         ),
       },
@@ -172,6 +166,10 @@ export const WithdrawalHistoryColumn =
           <div className="text-wrap">
             {row.getValue("alliance_withdrawal_request_date_updated")
               ? formatDateToYYYYMMDD(
+                  row.getValue("alliance_withdrawal_request_date_updated")
+                ) +
+                "," +
+                formatTime(
                   row.getValue("alliance_withdrawal_request_date_updated")
                 )
               : ""}

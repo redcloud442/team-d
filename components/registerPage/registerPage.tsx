@@ -149,7 +149,6 @@ const RegisterPage = ({ referralLink }: Props) => {
         supabase
       );
       setIsSuccess(true);
-
       toast({
         title: "Registration Successful",
       });

@@ -210,6 +210,22 @@ export const formateMonthDateYear = (date: Date | string): string => {
   return `${month}/${day}/${year}`;
 };
 
+export const formatTime = (date: Date | string): string => {
+  const inputDate = typeof date === "string" ? new Date(date) : date;
+
+  if (isNaN(inputDate.getTime())) {
+    return "Invalid date"; // Handle invalid dates gracefully
+  }
+
+  let hours = inputDate.getHours(); // Get hours (0-23)
+  const minutes = String(inputDate.getMinutes()).padStart(2, "0"); // Get minutes with leading zero
+  const ampm = hours >= 12 ? "PM" : "AM"; // Determine AM or PM
+
+  hours = hours % 12 || 12; // Convert 24-hour format to 12-hour format (0 becomes 12)
+
+  return `${hours}:${minutes} ${ampm}`;
+};
+
 export const calculateFinalAmount = (
   amount: number,
   selectedEarnings: string

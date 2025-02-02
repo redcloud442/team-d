@@ -189,7 +189,7 @@ const DashboardPage = ({
                   "_blank"
                 )
               }
-              className="w-full max-w-[120px] h-7 text-white bg-blue-700 cursor-pointer"
+              className="w-full max-w-[120px] h-7 text-white bg-blue-700"
             >
               facebook
             </Button>
