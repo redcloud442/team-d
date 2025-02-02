@@ -69,7 +69,7 @@ const withdrawalFormSchema = z.object({
 
 export type WithdrawalFormValues = z.infer<typeof withdrawalFormSchema>;
 
-const bankData = ["GCASH", "MAYA", "GOTYME BANK", "UNION BANK", "BDO", "BPI"];
+const bankData = ["Gotyme", "Gcash", "BPI", "Bybit"];
 
 const DashboardWithdrawModalWithdraw = ({
   teamMemberProfile,
