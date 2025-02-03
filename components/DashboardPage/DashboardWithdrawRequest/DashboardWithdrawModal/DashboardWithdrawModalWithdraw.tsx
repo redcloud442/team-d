@@ -282,7 +282,7 @@ const DashboardWithdrawModalWithdraw = ({
       }}
     >
       <DialogTrigger asChild>
-        {/* {!isWithdrawalToday.package || !isWithdrawalToday.referral ? (
+        {!isWithdrawalToday.package || !isWithdrawalToday.referral ? (
           <Button
             className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2"
             onClick={() => setOpen(true)}
@@ -296,31 +296,32 @@ const DashboardWithdrawModalWithdraw = ({
               priority
             />
           </Button>
-        ) : ( */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2">
-              Withdraw
-              <Image
-                src="/assets/withdraw.png"
-                alt="deposit"
-                width={200}
-                height={200}
-                priority
-              />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full">
-            <Alert variant={"destructive"}>
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Withdrawal</AlertTitle>
-              <AlertDescription>
-                Withdrawal is not available. Please check back later.
-              </AlertDescription>
-            </Alert>
-          </PopoverContent>
-        </Popover>
-        {/* )} */}
+        ) : (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2">
+                Withdraw
+                <Image
+                  src="/assets/withdraw.png"
+                  alt="deposit"
+                  width={200}
+                  height={200}
+                  priority
+                />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full">
+              <Alert variant={"destructive"}>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Withdrawal Limit</AlertTitle>
+                <AlertDescription>
+                  You can only withdraw once per type of available balance a
+                  day. Please check back tomorrow.
+                </AlertDescription>
+              </Alert>
+            </PopoverContent>
+          </Popover>
+        )}
       </DialogTrigger>
 
       <DialogContent className="w-full sm:max-w-[400px]">
