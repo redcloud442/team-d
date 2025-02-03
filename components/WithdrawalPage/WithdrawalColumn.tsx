@@ -42,10 +42,7 @@ export const WithdrawalColumn = (
     async (status: string, requestId: string, note?: string) => {
       try {
         setIsLoading(true);
-        await updateWithdrawalStatus(
-          { status, requestId, note },
-          supabaseClient
-        );
+        await updateWithdrawalStatus({ status, requestId, note });
 
         setRequestData((prev) => {
           if (!prev) return prev;

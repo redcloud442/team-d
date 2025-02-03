@@ -1,22 +1,14 @@
-import { getToken } from "@/utils/function";
 import { merchant_balance_log, merchant_table } from "@prisma/client";
-import { SupabaseClient } from "@supabase/supabase-js";
 
-export const handleUpdateBalance = async (
-  params: {
-    amount: number;
-    memberId: string;
-    userName: string;
-  },
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
-
+export const handleUpdateBalance = async (params: {
+  amount: number;
+  memberId: string;
+  userName: string;
+}) => {
   const response = await fetch(`/api/v1/merchant`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(params),
   });
@@ -32,20 +24,14 @@ export const handleUpdateBalance = async (
   return response;
 };
 
-export const getMerchantData = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    page: number;
-    limit: number;
-  }
-) => {
-  const token = await getToken(supabaseClient);
-
+export const getMerchantData = async (params: {
+  page: number;
+  limit: number;
+}) => {
   const response = await fetch(`/api/v1/merchant/bank`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(params),
   });
@@ -64,20 +50,15 @@ export const getMerchantData = async (
   };
 };
 
-export const handleCreateMerchantData = async (
-  params: {
-    accountNumber: string;
-    accountType: string;
-    accountName: string;
-  },
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
+export const handleCreateMerchantData = async (params: {
+  accountNumber: string;
+  accountType: string;
+  accountName: string;
+}) => {
   const response = await fetch(`/api/v1/merchant`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(params),
   });
@@ -89,19 +70,13 @@ export const handleCreateMerchantData = async (
   return response;
 };
 
-export const handleUpdateMerchantData = async (
-  params: {
-    merchantId: string;
-  },
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
-
+export const handleUpdateMerchantData = async (params: {
+  merchantId: string;
+}) => {
   const response = await fetch(`/api/v1/merchant`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(params),
   });
@@ -117,20 +92,14 @@ export const handleUpdateMerchantData = async (
   return response;
 };
 
-export const getMerchantBalanceHistory = async (
-  params: {
-    page: number;
-    limit: number;
-  },
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
-
+export const getMerchantBalanceHistory = async (params: {
+  page: number;
+  limit: number;
+}) => {
   const response = await fetch(`/api/v1/merchant/balance-history`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(params),
   });

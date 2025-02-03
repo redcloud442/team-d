@@ -112,7 +112,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
         startDate.setDate(startDate.getDate() + 1);
       }
 
-      const { data, totalCount } = await getAdminUserRequest(supabaseClient, {
+      const { data, totalCount } = await getAdminUserRequest({
         page: activePage,
         limit: 10,
         columnAccessor: columnAccessor,
@@ -147,12 +147,9 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
   const handleCopyAccountUrl = async (userName: string) => {
     try {
       setIsLoading(true);
-      const data = await handleGenerateLink(
-        {
-          formattedUserName: userNameToEmail(userName),
-        },
-        supabaseClient
-      );
+      const data = await handleGenerateLink({
+        formattedUserName: userNameToEmail(userName),
+      });
 
       navigator.clipboard.writeText(
         `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback?hashed_token=${data.url.hashed_token}`
@@ -223,7 +220,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
   const handlePromoteUser = async (memberId: string, role: string) => {
     try {
       setIsLoading(true);
-      await handleUpdateRole({ userId: memberId, role }, supabaseClient);
+      await handleUpdateRole({ userId: memberId, role });
 
       setRequestData((prev) =>
         prev.map((item) =>
@@ -255,7 +252,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
   const handleBanUser = async (memberId: string) => {
     try {
       setIsLoading(true);
-      await handleUpdateUserRestriction({ userId: memberId }, supabaseClient);
+      await handleUpdateUserRestriction({ userId: memberId });
       setRequestData((prev) =>
         prev.map((item) =>
           item.user_id === memberId ? { ...item, user_restricted: true } : item

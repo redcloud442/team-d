@@ -34,12 +34,9 @@ export const useMerchantColumn = (handleFetch: () => void) => {
     try {
       setIsLoading(true);
       const sanitizedData = escapeFormData({ merchantId });
-      await handleUpdateMerchantData(
-        {
-          merchantId: sanitizedData.merchantId,
-        },
-        supabase
-      );
+      await handleUpdateMerchantData({
+        merchantId: sanitizedData.merchantId,
+      });
 
       toast({
         title: "Merchant Deleted",

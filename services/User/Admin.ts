@@ -1,29 +1,24 @@
-import { escapeFormData, getToken } from "@/utils/function";
+import { escapeFormData } from "@/utils/function";
 import { UserLog, UserRequestdata } from "@/utils/types";
 import { user_table } from "@prisma/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 
-export const getAdminUserRequest = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    page: number;
-    limit: number;
-    search?: string;
-    columnAccessor: string;
-    isAscendingSort: boolean;
-    userRole?: string;
-    dateCreated?: string;
-    bannedUser?: boolean;
-  }
-) => {
+export const getAdminUserRequest = async (params: {
+  page: number;
+  limit: number;
+  search?: string;
+  columnAccessor: string;
+  isAscendingSort: boolean;
+  userRole?: string;
+  dateCreated?: string;
+  bannedUser?: boolean;
+}) => {
   const sanitizedData = escapeFormData(params);
-  const token = await getToken(supabaseClient);
 
   const response = await fetch(`/api/v1/user/list`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(sanitizedData),
   });
@@ -40,25 +35,20 @@ export const getAdminUserRequest = async (
   };
 };
 
-export const getUserWithActiveBalance = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    teamMemberId: string;
-    page: number;
-    limit: number;
-    search?: string;
-    columnAccessor: string;
-    isAscendingSort: boolean;
-  }
-) => {
+export const getUserWithActiveBalance = async (params: {
+  teamMemberId: string;
+  page: number;
+  limit: number;
+  search?: string;
+  columnAccessor: string;
+  isAscendingSort: boolean;
+}) => {
   const sanitizedData = escapeFormData(params);
-  const token = await getToken(supabaseClient);
 
   const response = await fetch(`/api/v1/user/active-list`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(sanitizedData),
   });
@@ -99,22 +89,16 @@ export const getHistoryLog = async (
   };
 };
 
-export const handleUpdateRole = async (
-  params: {
-    role: string;
-    userId: string;
-  },
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
-
+export const handleUpdateRole = async (params: {
+  role: string;
+  userId: string;
+}) => {
   const sanitizedData = escapeFormData(params);
 
   const response = await fetch(`/api/v1/user/` + sanitizedData.userId, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ action: "updateRole", role: sanitizedData.role }),
   });
@@ -130,19 +114,14 @@ export const handleUpdateRole = async (
   return response;
 };
 
-export const handleUpdateUserRestriction = async (
-  params: {
-    userId: string;
-  },
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
+export const handleUpdateUserRestriction = async (params: {
+  userId: string;
+}) => {
   const { userId } = params;
   const response = await fetch(`/api/v1/user/` + userId, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ action: "banUser" }),
   });

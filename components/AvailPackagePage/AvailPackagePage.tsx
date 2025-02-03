@@ -98,16 +98,13 @@ const AvailPackagePage = ({
           (selectedPackage?.packages_days ?? 0) * 24 * 60 * 60 * 1000
       );
 
-      await createPackageConnection(
-        {
-          packageData: {
-            amount: Number(result.amount),
-            packageId: selectedPackage?.package_id || "",
-          },
-          teamMemberId: teamMemberProfile.alliance_member_id,
+      await createPackageConnection({
+        packageData: {
+          amount: Number(result.amount),
+          packageId: selectedPackage?.package_id || "",
         },
-        supabaseClient
-      );
+        teamMemberId: teamMemberProfile.alliance_member_id,
+      });
 
       toast({
         title: "Enrolled Package",

@@ -25,7 +25,7 @@ const AdminPackageList = ({ teamMemberProfile }: Props) => {
     try {
       if (!teamMemberProfile) return;
 
-      const fetchedPackages = await getAdminPackages(supabase);
+      const fetchedPackages = await getAdminPackages();
 
       setPackages(fetchedPackages);
     } catch (e) {

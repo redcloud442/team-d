@@ -82,14 +82,11 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
     try {
       const formData = escapeFormData(data);
 
-      await changeUserPassword(
-        {
-          userId: profile.user_id,
-          email: userNameToEmail(profile?.user_username || ""),
-          password: formData.password,
-        },
-        supabaseClient
-      );
+      await changeUserPassword({
+        userId: profile.user_id,
+        email: userNameToEmail(profile?.user_username || ""),
+        password: formData.password,
+      });
 
       reset();
       toast({
@@ -141,13 +138,10 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
         );
       }
 
-      await updateUserProfile(
-        {
-          userId: profile.user_id,
-          profilePicture: publicUrlData.publicUrl,
-        },
-        supabaseClient
-      );
+      await updateUserProfile({
+        userId: profile.user_id,
+        profilePicture: publicUrlData.publicUrl,
+      });
 
       setAvatarUrl(publicUrlData.publicUrl);
 

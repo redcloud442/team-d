@@ -98,17 +98,14 @@ const CreatePackageModal = ({ setPackages }: Props) => {
         data: { publicUrl },
       } = supabaseClient.storage.from("PACKAGE_IMAGES").getPublicUrl(filePath);
 
-      const response = await createPackage(
-        {
-          packageName: sanitizedData.packageName,
-          packageDescription: sanitizedData.packageDescription,
-          packagePercentage: sanitizedData.packagePercentage,
-          packageDays: sanitizedData.packageDays,
-          packageImage: publicUrl,
-          packageColor: sanitizedData.packageColor || "",
-        },
-        supabaseClient
-      );
+      const response = await createPackage({
+        packageName: sanitizedData.packageName,
+        packageDescription: sanitizedData.packageDescription,
+        packagePercentage: sanitizedData.packagePercentage,
+        packageDays: sanitizedData.packageDays,
+        packageImage: publicUrl,
+        packageColor: sanitizedData.packageColor || "",
+      });
 
       setPackages((prev) => [...prev, response]);
 

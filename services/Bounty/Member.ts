@@ -1,21 +1,14 @@
-import { getToken } from "@/utils/function";
 import { LegionRequestData } from "@/utils/types";
 import { user_table } from "@prisma/client";
-import { SupabaseClient } from "@supabase/supabase-js";
 
-export const getAllyBounty = async (
-  params: {
-    page: number;
-    limit: number;
-    search?: string;
-    teamMemberId: string;
-    columnAccessor: string;
-    isAscendingSort: boolean;
-  },
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
-
+export const getAllyBounty = async (params: {
+  page: number;
+  limit: number;
+  search?: string;
+  teamMemberId: string;
+  columnAccessor: string;
+  isAscendingSort: boolean;
+}) => {
   const urlParams = {
     page: params.page.toString(),
     limit: params.limit.toString(),
@@ -29,7 +22,6 @@ export const getAllyBounty = async (
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(urlParams),
   });
@@ -44,19 +36,14 @@ export const getAllyBounty = async (
   };
 };
 
-export const getLegionBounty = async (
-  params: {
-    page: number;
-    limit: number;
-    search?: string;
-    teamMemberId: string;
-    columnAccessor: string;
-    isAscendingSort: boolean;
-  },
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
-
+export const getLegionBounty = async (params: {
+  page: number;
+  limit: number;
+  search?: string;
+  teamMemberId: string;
+  columnAccessor: string;
+  isAscendingSort: boolean;
+}) => {
   const urlParams = {
     page: params.page.toString(),
     limit: params.limit.toString(),
@@ -69,7 +56,6 @@ export const getLegionBounty = async (
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(urlParams),
   });

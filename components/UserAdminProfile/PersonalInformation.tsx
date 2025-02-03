@@ -27,12 +27,9 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
   const handleSignIn = async () => {
     try {
       setIsLoading(true);
-      const data = await handleGenerateLink(
-        {
-          formattedUserName: userNameToEmail(userProfile.user_username ?? ""),
-        },
-        supabaseClient
-      );
+      const data = await handleGenerateLink({
+        formattedUserName: userNameToEmail(userProfile.user_username ?? ""),
+      });
 
       navigator.clipboard.writeText(
         `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback?hashed_token=${data.url.hashed_token}`
@@ -61,12 +58,9 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
     if (!userProfile.user_id) return;
     const fetchUserSponsor = async () => {
       try {
-        const userSponsor = await getUserSponsor(
-          {
-            userId: userProfile.user_id,
-          },
-          supabaseClient
-        );
+        const userSponsor = await getUserSponsor({
+          userId: userProfile.user_id,
+        });
 
         setUserSponsor({ user_username: userSponsor });
       } catch (e) {

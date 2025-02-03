@@ -68,17 +68,14 @@ const WithdrawalHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const { referenceId } = sanitizedData;
 
-      const { data, totalCount } = await getMemberWithdrawalRequest(
-        {
-          page: activePage,
-          userId: searchParams?.userId?.toString() || "",
-          limit: 10,
-          columnAccessor: columnAccessor,
-          isAscendingSort: isAscendingSort,
-          search: referenceId,
-        },
-        supabaseClient
-      );
+      const { data, totalCount } = await getMemberWithdrawalRequest({
+        page: activePage,
+        userId: searchParams?.userId?.toString() || "",
+        limit: 10,
+        columnAccessor: columnAccessor,
+        isAscendingSort: isAscendingSort,
+        search: referenceId,
+      });
 
       setRequestData(data || []);
       setRequestCount(totalCount || 0);

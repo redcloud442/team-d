@@ -131,14 +131,11 @@ const EditPackagesModal = ({
         ...sanitizedData,
         package_image: url,
       };
-      const response = await updatePackagesData(
-        {
-          packageData: packageData,
-          teamMemberId: teamMemberProfile.alliance_member_id,
-          packageId: selectedPackage?.package_id ?? "",
-        },
-        supabaseClient
-      );
+      const response = await updatePackagesData({
+        packageData: packageData,
+        teamMemberId: teamMemberProfile.alliance_member_id,
+        packageId: selectedPackage?.package_id ?? "",
+      });
 
       setPackages((prev) =>
         prev.map((item) =>

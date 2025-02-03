@@ -102,7 +102,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
             end: formattedEndDate,
           },
         }),
-        getTotalReferral(supabaseClient),
+        getTotalReferral(),
       ]);
 
       setAdminDashboardByDate(data);
@@ -167,7 +167,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
   useEffect(() => {
     const fetchAdminDashboardData = async () => {
       if (!teamMemberProfile) return;
-      const data = await getAdminDashboard(supabaseClient);
+      const data = await getAdminDashboard();
 
       setAdminDashboard(data);
     };

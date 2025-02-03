@@ -48,14 +48,11 @@ export const TopUpColumn = (
     try {
       setIsLoading(true);
 
-      await updateTopUpStatus(
-        {
-          status,
-          requestId,
-          note,
-        },
-        supabaseClient
-      );
+      await updateTopUpStatus({
+        status,
+        requestId,
+        note,
+      });
 
       setRequestData((prev) => {
         if (!prev) return prev;

@@ -68,14 +68,11 @@ const ChangePassword = ({ userProfile, setUserProfile }: Props) => {
 
   const onSubmit = async (data: ChangePasswordFormValues) => {
     try {
-      await changeUserPassword(
-        {
-          userId: userProfile.user_id,
-          email: userProfile.user_email,
-          password: data.password,
-        },
-        supabaseClient
-      );
+      await changeUserPassword({
+        userId: userProfile.user_id,
+        email: userProfile.user_email,
+        password: data.password,
+      });
 
       reset();
       if (setUserProfile) {

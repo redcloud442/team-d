@@ -110,7 +110,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
         : undefined;
 
       const endDate = startDate ? new Date(startDate) : undefined;
-      const requestData = await getAdminTopUpRequest(supabaseClient, {
+      const requestData = await getAdminTopUpRequest({
         page: activePage,
         limit: 10,
         columnAccessor: columnAccessor,
@@ -242,7 +242,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const endDate = startDate ? new Date(startDate) : undefined;
 
-      const requestData = await getAdminTopUpRequest(supabaseClient, {
+      const requestData = await getAdminTopUpRequest({
         page: 1,
         limit: 10,
         columnAccessor,
@@ -323,7 +323,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
         let allMerchantOptions: user_table[] = [];
 
         while (true) {
-          const merchantData = await getUserOptionsMerchant(supabaseClient, {
+          const merchantData = await getUserOptionsMerchant({
             page: currentMerchantPage,
             limit: pageLimit,
           });
@@ -348,7 +348,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
         let allUserOptions: user_table[] = [];
 
         while (true) {
-          const userData = await getUserOptions(supabaseClient, {
+          const userData = await getUserOptions({
             page: currentUserPage,
             limit: pageLimit,
           });

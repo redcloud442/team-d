@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { updateWithdrawalStatus } from "@/services/Withdrawal/Admin";
 import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
-import { createClientSide } from "@/utils/supabase/client";
 import { AdminWithdrawaldata, WithdrawalRequestData } from "@/utils/types";
 import { user_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
@@ -32,7 +31,6 @@ export const AdminWithdrawalHistoryColumn = (
   setRequestData: Dispatch<SetStateAction<AdminWithdrawaldata | null>>,
   reset: () => void
 ) => {
-  const supabaseClient = createClientSide();
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -46,10 +44,7 @@ export const AdminWithdrawalHistoryColumn = (
     async (status: string, requestId: string, note?: string) => {
       try {
         setIsLoading(true);
-        await updateWithdrawalStatus(
-          { status, requestId, note },
-          supabaseClient
-        );
+        await updateWithdrawalStatus({ status, requestId, note });
 
         setRequestData((prev) => {
           if (!prev) return prev;

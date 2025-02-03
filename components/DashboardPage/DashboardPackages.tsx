@@ -107,14 +107,11 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
 
     try {
       setIsLoading(package_connection_id);
-      const response = await ClaimPackageHandler(
-        {
-          packageConnectionId: package_connection_id,
-          earnings: profit_amount,
-          amount,
-        },
-        supabaseClient
-      );
+      const response = await ClaimPackageHandler({
+        packageConnectionId: package_connection_id,
+        earnings: profit_amount,
+        amount,
+      });
 
       if (response.ok) {
         toast({

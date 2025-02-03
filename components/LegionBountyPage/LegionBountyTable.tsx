@@ -63,17 +63,14 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const { emailFilter } = sanitizedData;
 
-      const { data, totalCount } = await getLegionBounty(
-        {
-          teamMemberId: teamMemberProfile.alliance_member_id,
-          page: activePage,
-          limit: 10,
-          columnAccessor: columnAccessor,
-          isAscendingSort: isAscendingSort,
-          search: emailFilter,
-        },
-        supabaseClient
-      );
+      const { data, totalCount } = await getLegionBounty({
+        teamMemberId: teamMemberProfile.alliance_member_id,
+        page: activePage,
+        limit: 10,
+        columnAccessor: columnAccessor,
+        isAscendingSort: isAscendingSort,
+        search: emailFilter,
+      });
 
       setIndirectReferral({
         data: data || [],

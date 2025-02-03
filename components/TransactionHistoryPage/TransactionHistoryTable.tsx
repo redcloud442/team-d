@@ -50,13 +50,10 @@ const TransactionHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
       setIsFetchingList(true);
 
       const { transactionHistory: transactionHistoryData, totalTransactions } =
-        await getTransactionHistory(
-          {
-            page: activePage,
-            limit: 10,
-          },
-          supabaseClient
-        );
+        await getTransactionHistory({
+          page: activePage,
+          limit: 10,
+        });
 
       setTransactionHistory({
         data: transactionHistoryData,

@@ -101,7 +101,7 @@ const AdminWithdrawalHistoryTable = ({
         ? new Date(dateFilter.start)
         : undefined;
       const endDate = startDate ? new Date(startDate) : undefined;
-      const requestData = await getAdminWithdrawalRequest(supabaseClient, {
+      const requestData = await getAdminWithdrawalRequest({
         page: activePage,
         limit: 10,
         columnAccessor: columnAccessor,
@@ -207,7 +207,7 @@ const AdminWithdrawalHistoryTable = ({
         : undefined;
       const endDate = startDate ? new Date(startDate) : undefined;
 
-      const requestData = await getAdminWithdrawalRequest(supabaseClient, {
+      const requestData = await getAdminWithdrawalRequest({
         page: activePage,
         limit: 10,
         columnAccessor: columnAccessor,
@@ -307,7 +307,7 @@ const AdminWithdrawalHistoryTable = ({
         let allUserOptions: user_table[] = [];
 
         while (true) {
-          const userData = await getUserOptions(supabaseClient, {
+          const userData = await getUserOptions({
             page: currentUserPage,
             limit: pageLimit,
           });

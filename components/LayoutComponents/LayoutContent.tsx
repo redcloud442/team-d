@@ -65,15 +65,12 @@ export default function LayoutContent({
           { transactionHistory, totalTransactions },
           dataWithdrawalToday,
         ] = await Promise.all([
-          getUserEarnings(
-            { memberId: teamMemberProfile.alliance_member_id },
-            supabaseClient
-          ),
-          getDashboard(supabaseClient, {
+          getUserEarnings({ memberId: teamMemberProfile.alliance_member_id }),
+          getDashboard({
             teamMemberId: teamMemberProfile.alliance_member_id,
           }),
-          getTransactionHistory({ limit: 10, page: 1 }, supabaseClient),
-          getUserWithdrawalToday(supabaseClient),
+          getTransactionHistory({ limit: 10, page: 1 }),
+          getUserWithdrawalToday(),
         ]);
 
         const { canWithdrawReferral, canWithdrawPackage, canUserDeposit } =

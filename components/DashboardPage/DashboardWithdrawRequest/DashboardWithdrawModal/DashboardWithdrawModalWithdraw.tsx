@@ -113,12 +113,9 @@ const DashboardWithdrawModalWithdraw = ({
   const fetchEarnings = async () => {
     try {
       if (!open) return;
-      const { userEarningsData } = await getUserEarnings(
-        {
-          memberId: teamMemberProfile.alliance_member_id,
-        },
-        supabaseClient
-      );
+      const { userEarningsData } = await getUserEarnings({
+        memberId: teamMemberProfile.alliance_member_id,
+      });
       setEarnings(userEarningsData);
     } catch (e) {
       const errorMessage =
@@ -150,13 +147,10 @@ const DashboardWithdrawModalWithdraw = ({
     try {
       const sanitizedData = escapeFormData(data);
 
-      await createWithdrawalRequest(
-        {
-          WithdrawFormValues: sanitizedData,
-          teamMemberId: teamMemberProfile.alliance_member_id,
-        },
-        supabaseClient
-      );
+      await createWithdrawalRequest({
+        WithdrawFormValues: sanitizedData,
+        teamMemberId: teamMemberProfile.alliance_member_id,
+      });
 
       switch (selectedEarnings) {
         case "PACKAGE":

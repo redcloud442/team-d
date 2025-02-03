@@ -70,13 +70,10 @@ const MerchantBalanceTable = ({
       }
 
       setIsFetchingList(true);
-      const data = await getMerchantBalanceHistory(
-        {
-          page: activePage,
-          limit: 10,
-        },
-        supabaseClient
-      );
+      const data = await getMerchantBalanceHistory({
+        page: activePage,
+        limit: 10,
+      });
 
       const result = {
         data: data.data,

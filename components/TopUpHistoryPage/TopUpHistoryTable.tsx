@@ -68,18 +68,15 @@ const TopUpHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const { referenceId } = sanitizedData;
 
-      const { data, totalCount } = await getMemberTopUpRequest(
-        {
-          page: activePage,
-          limit: 10,
-          columnAccessor: columnAccessor,
-          isAscendingSort: isAscendingSort,
-          search: referenceId,
-          userId: searchParams?.userId?.toString() || "",
-          teamMemberId: teamMemberProfile.alliance_member_id,
-        },
-        supabaseClient
-      );
+      const { data, totalCount } = await getMemberTopUpRequest({
+        page: activePage,
+        limit: 10,
+        columnAccessor: columnAccessor,
+        isAscendingSort: isAscendingSort,
+        search: referenceId,
+        userId: searchParams?.userId?.toString() || "",
+        teamMemberId: teamMemberProfile.alliance_member_id,
+      });
 
       setRequestData(data || []);
       setRequestCount(totalCount || 0);

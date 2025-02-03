@@ -1,25 +1,14 @@
-import { getToken } from "@/utils/function";
 import { DashboardEarnings } from "@/utils/types";
 import { alliance_earnings_table } from "@prisma/client";
-import { SupabaseClient } from "@supabase/supabase-js";
 
-export const getUserSponsor = async (
-  params: { userId: string },
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
-
-  const response = await fetch(
-    `${process.env.NODE_ENV === "development" ? "http://localhost:8000" : "https://loadbalancer.primepinas.com"}/api/v1/user/sponsor`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(params),
-    }
-  );
+export const getUserSponsor = async (params: { userId: string }) => {
+  const response = await fetch(`/api/v1/user/sponsor`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  });
 
   const result = await response.json();
 
@@ -32,17 +21,11 @@ export const getUserSponsor = async (
   return result as string;
 };
 
-export const getUserEarnings = async (
-  params: { memberId: string },
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
-
+export const getUserEarnings = async (params: { memberId: string }) => {
   const response = await fetch(`/api/v1/user`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(params),
   });
@@ -61,16 +44,10 @@ export const getUserEarnings = async (
   };
 };
 
-export const getUserWithdrawalToday = async (
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
-
+export const getUserWithdrawalToday = async () => {
   const response = await fetch(`/api/v1/user`, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: {},
   });
 
   const result = await response.json();
@@ -88,23 +65,17 @@ export const getUserWithdrawalToday = async (
   };
 };
 
-export const changeUserPassword = async (
-  params: {
-    userId: string;
-    email: string;
-    password: string;
-  },
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
-
+export const changeUserPassword = async (params: {
+  userId: string;
+  email: string;
+  password: string;
+}) => {
   const response = await fetch(
     `/api/v1/user/` + params.userId + `/change-password`,
     {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(params),
     }
@@ -121,20 +92,14 @@ export const changeUserPassword = async (
   return result;
 };
 
-export const updateUserProfile = async (
-  params: {
-    userId: string;
-    profilePicture: string;
-  },
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
-
+export const updateUserProfile = async (params: {
+  userId: string;
+  profilePicture: string;
+}) => {
   const response = await fetch(`/api/v1/user/` + params.userId, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(params),
   });
@@ -150,19 +115,13 @@ export const updateUserProfile = async (
   return result;
 };
 
-export const handleGenerateLink = async (
-  params: {
-    formattedUserName: string;
-  },
-  supabaseClient: SupabaseClient
-) => {
-  const token = await getToken(supabaseClient);
-
+export const handleGenerateLink = async (params: {
+  formattedUserName: string;
+}) => {
   const response = await fetch(`/api/v1/user/generate-link`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(params),
   });

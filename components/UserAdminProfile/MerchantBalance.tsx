@@ -60,14 +60,11 @@ const MerchantBalance = ({ userProfile, profile }: Props) => {
 
       const sanitizedData = escapeFormData(data);
 
-      await handleUpdateBalance(
-        {
-          amount: Number(sanitizedData.balance),
-          memberId: userProfile.merchant_member_id,
-          userName: profile.user_username || "",
-        },
-        supabaseClient
-      );
+      await handleUpdateBalance({
+        amount: Number(sanitizedData.balance),
+        memberId: userProfile.merchant_member_id,
+        userName: profile.user_username || "",
+      });
 
       setMerchantData((prev) => ({
         ...prev,

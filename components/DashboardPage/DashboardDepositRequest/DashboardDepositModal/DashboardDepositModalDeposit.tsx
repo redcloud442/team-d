@@ -107,7 +107,7 @@ const DashboardDepositModalDeposit = ({
     const getOptions = async () => {
       try {
         if (!open) return;
-        const options = await getMerchantOptions(supabaseClient);
+        const options = await getMerchantOptions();
         setTopUpOptions(options);
       } catch (e) {
         if (e instanceof Error) {
@@ -148,13 +148,10 @@ const DashboardDepositModalDeposit = ({
         .from("REQUEST_ATTACHMENTS")
         .getPublicUrl(filePath);
 
-      await handleDepositRequest(
-        {
-          TopUpFormValues: sanitizedData,
-          publicUrl,
-        },
-        supabaseClient
-      );
+      await handleDepositRequest({
+        TopUpFormValues: sanitizedData,
+        publicUrl,
+      });
 
       toast({
         title: "Deposit Request Successfully",

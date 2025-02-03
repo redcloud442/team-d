@@ -45,7 +45,7 @@ export const useAdminTopUpApprovalColumns = (
     async (status: string, requestId: string, note?: string) => {
       try {
         setIsLoading(true);
-        await updateTopUpStatus({ status, requestId, note }, supabaseClient);
+        await updateTopUpStatus({ status, requestId, note });
 
         setRequestData((prev) => {
           if (!prev) return prev;

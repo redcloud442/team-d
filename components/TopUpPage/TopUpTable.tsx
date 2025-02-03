@@ -99,7 +99,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
         ? new Date(dateFilter.start)
         : undefined;
       const endDate = startDate ? new Date(startDate) : undefined;
-      const requestData = await getAdminTopUpRequest(supabaseClient, {
+      const requestData = await getAdminTopUpRequest({
         page: activePage,
         limit: 10,
         columnAccessor: columnAccessor,
@@ -206,7 +206,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
         : undefined;
       const endDate = startDate ? new Date(startDate) : undefined;
 
-      const requestData = await getAdminTopUpRequest(supabaseClient, {
+      const requestData = await getAdminTopUpRequest({
         page: activePage,
         limit: 10,
         columnAccessor: columnAccessor,
@@ -300,7 +300,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
         let allUserOptions: user_table[] = [];
 
         while (true) {
-          const userData = await getUserOptions(supabaseClient, {
+          const userData = await getUserOptions({
             page: currentUserPage,
             limit: pageLimit,
           });

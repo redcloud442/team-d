@@ -78,7 +78,7 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
   const fetchMerchant = async () => {
     try {
       setIsFetchingList(true);
-      const { data, totalCount } = await getMerchantData(supabaseClient, {
+      const { data, totalCount } = await getMerchantData({
         page: activePage,
         limit: 10,
       });
@@ -136,14 +136,11 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
   const handleCreateMerchant = async (data: FilterFormValues) => {
     try {
       const sanitizedData = escapeFormData(data);
-      await handleCreateMerchantData(
-        {
-          accountNumber: sanitizedData.accountNumber,
-          accountType: sanitizedData.accountType,
-          accountName: sanitizedData.bankName,
-        },
-        supabaseClient
-      );
+      await handleCreateMerchantData({
+        accountNumber: sanitizedData.accountNumber,
+        accountType: sanitizedData.accountType,
+        accountName: sanitizedData.bankName,
+      });
 
       toast({
         title: "Merchant Created",

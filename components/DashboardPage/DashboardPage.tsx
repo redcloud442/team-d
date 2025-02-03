@@ -65,12 +65,9 @@ const DashboardPage = ({
   const handleRefresh = async () => {
     try {
       setRefresh(true);
-      const { totalEarnings, userEarningsData } = await getUserEarnings(
-        {
-          memberId: teamMemberProfile.alliance_member_id,
-        },
-        supabaseClient
-      );
+      const { totalEarnings, userEarningsData } = await getUserEarnings({
+        memberId: teamMemberProfile.alliance_member_id,
+      });
 
       if (!totalEarnings || !userEarningsData) return;
 
