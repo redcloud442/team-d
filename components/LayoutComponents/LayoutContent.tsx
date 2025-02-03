@@ -92,11 +92,6 @@ export default function LayoutContent({
           package: canWithdrawPackage,
         });
       } catch (e) {
-        toast({
-          title: "Error fetching transactions",
-          description: "Please try again later",
-          variant: "destructive",
-        });
       } finally {
         setLoading(false);
       }
