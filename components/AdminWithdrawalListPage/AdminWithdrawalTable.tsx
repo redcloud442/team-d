@@ -250,14 +250,6 @@ const AdminWithdrawalHistoryTable = ({
     }
   };
 
-  const {
-    columns,
-    isOpenModal,
-    isLoading,
-    setIsOpenModal,
-    handleUpdateStatus,
-  } = AdminWithdrawalHistoryColumn(fetchRequest, profile, setRequestData);
-
   const { register, handleSubmit, watch, getValues, control, reset, setValue } =
     useForm<FilterFormValues>({
       defaultValues: {
@@ -271,6 +263,19 @@ const AdminWithdrawalHistoryTable = ({
         rejectNote: "",
       },
     });
+
+  const {
+    columns,
+    isOpenModal,
+    isLoading,
+    setIsOpenModal,
+    handleUpdateStatus,
+  } = AdminWithdrawalHistoryColumn(
+    fetchRequest,
+    profile,
+    setRequestData,
+    reset
+  );
 
   const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
 
