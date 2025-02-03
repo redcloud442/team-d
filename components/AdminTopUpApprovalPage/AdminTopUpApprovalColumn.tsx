@@ -267,9 +267,10 @@ export const useAdminTopUpApprovalColumns = (
           {row.getValue("alliance_top_up_request_date_updated")
             ? formatDateToYYYYMMDD(
                 row.getValue("alliance_top_up_request_date_updated")
-              )
+              ) +
+              " " +
+              formatTime(row.getValue("alliance_top_up_request_date_updated"))
             : ""}
-          , {formatTime(row.getValue("alliance_top_up_request_date_updated"))}
         </div>
       ),
     },
