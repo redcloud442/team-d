@@ -284,10 +284,12 @@ export const AdminWithdrawalHistoryColumn = (
           {row.getValue("alliance_withdrawal_request_date_updated")
             ? formatDateToYYYYMMDD(
                 row.getValue("alliance_withdrawal_request_date_updated")
+              ) +
+              " " +
+              formatTime(
+                row.getValue("alliance_withdrawal_request_date_updated")
               )
             : ""}
-          ,{" "}
-          {formatTime(row.getValue("alliance_withdrawal_request_date_updated"))}
         </div>
       ),
     },
