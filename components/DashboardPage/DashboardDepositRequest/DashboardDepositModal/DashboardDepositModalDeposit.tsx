@@ -28,7 +28,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getMerchantOptions } from "@/services/Options/Options";
-import { handleDepositRequest } from "@/services/TopUp/Member";
+import { handleDepositRequest, verifyReference } from "@/services/TopUp/Member";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { escapeFormData } from "@/utils/function";
@@ -70,6 +70,10 @@ const topUpFormSchema = z.object({
         file.size <= 12 * 1024 * 1024, // 12MB limit
       { message: "File must be a valid image and less than 12MB." }
     ),
+  reference: z
+    .string()
+    .min(5, "Reference is required")
+    .max(5, "Reference must be 5 digits"),
 });
 
 export type TopUpFormValues = z.infer<typeof topUpFormSchema>;
@@ -126,6 +130,19 @@ const DashboardDepositModalDeposit = ({
 
   const onSubmit = async (data: TopUpFormValues) => {
     try {
+      const isExist = await verifyReference({
+        reference: data.reference,
+      });
+
+      if (isExist) {
+        toast({
+          title: "Reference Number Already Exist",
+          description: "Please try again with a different reference number.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const sanitizedData = escapeFormData(data);
       const file = data.file;
 
@@ -448,6 +465,40 @@ const DashboardDepositModalDeposit = ({
                   </p>
                 )}
               </div>
+            </div>
+
+            <div className="flex-1">
+              <Label htmlFor="reference">Last 5-Digit Reference Number</Label>
+              <div className="flex gap-2">
+                <Controller
+                  name="reference"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      type="text"
+                      className="text-center"
+                      id="reference"
+                      placeholder="5-Digit Reference Number"
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => {
+                        let inputValue = e.target.value;
+
+                        if (inputValue.length > 5) {
+                          inputValue = inputValue.substring(0, 5);
+                        }
+
+                        field.onChange(inputValue);
+                      }}
+                    />
+                  )}
+                />
+              </div>
+              {errors.reference && (
+                <p className="text-primaryRed text-sm mt-1">
+                  {errors.reference.message}
+                </p>
+              )}
             </div>
 
             <div>

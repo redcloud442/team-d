@@ -236,8 +236,27 @@ export const useAdminTopUpApprovalColumns = (
       ),
     },
     {
-      accessorKey: "approver_username",
+      accessorKey: "alliance_top_up_request_reference",
 
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
+        >
+          Reference Number <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-wrap">
+          {row.getValue("alliance_top_up_request_reference")
+            ? row.getValue("alliance_top_up_request_reference")
+            : ""}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "approver_username",
       header: ({ column }) => (
         <Button
           variant="ghost"
