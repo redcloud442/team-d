@@ -10,13 +10,12 @@ export const createWithdrawalRequest = async (
   },
   supabaseClient: SupabaseClient
 ) => {
-  const { WithdrawFormValues, teamMemberId } = params;
+  const { WithdrawFormValues } = params;
 
   const token = await getToken(supabaseClient);
 
   const data = {
     ...WithdrawFormValues,
-    teamMemberId,
   };
 
   const response = await fetch(`/api/v1/withdraw`, {

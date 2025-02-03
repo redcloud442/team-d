@@ -29,7 +29,8 @@ const statusColorMap: Record<string, string> = {
 export const AdminWithdrawalHistoryColumn = (
   handleFetch: () => void,
   profile: user_table,
-  setRequestData: Dispatch<SetStateAction<AdminWithdrawaldata | null>>
+  setRequestData: Dispatch<SetStateAction<AdminWithdrawaldata | null>>,
+  reset: () => void
 ) => {
   const supabaseClient = createClientSide();
   const { toast } = useToast();
@@ -98,6 +99,7 @@ export const AdminWithdrawalHistoryColumn = (
           title: `Status Update`,
           description: `${status} Request Successfully`,
         });
+        reset();
         setIsOpenModal({ open: false, requestId: "", status: "" });
       } catch (e) {
         toast({
@@ -250,6 +252,23 @@ export const AdminWithdrawalHistoryColumn = (
             row.getValue("alliance_withdrawal_request_date")
           )}
           , {formatTime(row.getValue("alliance_withdrawal_request_date"))}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "alliance_withdrawal_request_withdraw_type",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
+        >
+          Type <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-wrap">
+          {row.getValue("alliance_withdrawal_request_withdraw_type")}
         </div>
       ),
     },

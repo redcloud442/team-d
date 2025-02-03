@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,6 +12,11 @@ import {
 import FileUpload from "@/components/ui/dropZone";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -24,11 +30,13 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { getMerchantOptions } from "@/services/Options/Options";
 import { handleDepositRequest } from "@/services/TopUp/Member";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
+import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, merchant_table } from "@prisma/client";
-import { Loader2 } from "lucide-react";
+
+import { AlertCircle, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { NextResponse } from "next/server";
 import { useEffect, useState } from "react";
@@ -72,9 +80,11 @@ const DashboardDepositModalDeposit = ({
 }: Props) => {
   const supabaseClient = createClientSide();
   const [topUpOptions, setTopUpOptions] = useState<merchant_table[]>([]);
+  const { canUserDeposit, setCanUserDeposit } = useUserHaveAlreadyWithdraw();
   const { toast } = useToast();
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const [open, setOpen] = useState(false);
+
   const {
     control,
     handleSubmit,
@@ -167,6 +177,7 @@ const DashboardDepositModalDeposit = ({
         ],
         count: 1,
       });
+      setCanUserDeposit(false);
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
@@ -223,21 +234,50 @@ const DashboardDepositModalDeposit = ({
       }}
     >
       <DialogTrigger asChild className={className}>
-        <Button
-          className=" relative h-60 sm:h-80 flex flex-col gap-8 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl "
-          onClick={() => setOpen(true)}
-        >
-          Deposit
-          <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
-            <Image
-              src="/assets/deposit.png"
-              alt="deposit"
-              width={250}
-              height={250}
-              className="absolute sm:relative bottom-10 sm:bottom-0 sm:left-0 left-2"
-            />
-          </div>
-        </Button>
+        {!canUserDeposit ? (
+          <Button
+            className=" relative h-60 sm:h-80 flex flex-col gap-8 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl "
+            onClick={() => setOpen(true)}
+          >
+            Deposit
+            <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
+              <Image
+                src="/assets/deposit.png"
+                alt="deposit"
+                width={250}
+                height={250}
+                className="absolute sm:relative bottom-10 sm:bottom-0 sm:left-0 left-2"
+              />
+            </div>
+          </Button>
+        ) : (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2">
+                Deposit
+                <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
+                  <Image
+                    src="/assets/deposit.png"
+                    alt="deposit"
+                    width={250}
+                    height={250}
+                    className="absolute sm:relative bottom-10 sm:bottom-0 sm:left-0 left-2"
+                  />
+                </div>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full">
+              <Alert variant={"destructive"}>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Deposit Limit</AlertTitle>
+                <AlertDescription>
+                  Your Deposit Request is under review. Kindly wait for it to be
+                  approved.
+                </AlertDescription>
+              </Alert>
+            </PopoverContent>
+          </Popover>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <ScrollArea className="h-[500px] sm:h-full">

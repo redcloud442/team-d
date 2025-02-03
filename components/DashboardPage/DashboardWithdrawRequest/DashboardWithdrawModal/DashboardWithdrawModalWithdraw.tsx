@@ -82,9 +82,6 @@ const DashboardWithdrawModalWithdraw = ({
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const { isWithdrawalToday, setIsWithdrawalToday } =
     useUserHaveAlreadyWithdraw();
-  const totalEarnings =
-    (earnings?.alliance_olympus_earnings ?? 0) +
-    (earnings?.alliance_referral_bounty ?? 0);
 
   const supabase = createClientSide();
   const { toast } = useToast();
@@ -95,6 +92,8 @@ const DashboardWithdrawModalWithdraw = ({
     setValue,
     watch,
     reset,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<WithdrawalFormValues>({
     mode: "onChange",
@@ -138,8 +137,10 @@ const DashboardWithdrawModalWithdraw = ({
 
   const getMaxAmount = () => {
     switch (selectedEarnings) {
-      case "TOTAL":
-        return totalEarnings;
+      case "PACKAGE":
+        return earnings?.alliance_olympus_earnings ?? 0;
+      case "REFERRAL":
+        return earnings?.alliance_referral_bounty ?? 0;
       default:
         return 0;
     }
@@ -158,24 +159,15 @@ const DashboardWithdrawModalWithdraw = ({
       );
 
       switch (selectedEarnings) {
-        case "TOTAL":
+        case "PACKAGE":
           if (earnings) {
-            // Remaining amount to be deducted
             let remainingAmount = Number(sanitizedData.amount);
 
-            // Calculate Olympus Earnings deduction
             const olympusDeduction = Math.min(
               remainingAmount,
               earnings.alliance_olympus_earnings
             );
             remainingAmount -= olympusDeduction;
-
-            // Calculate Referral Bounty deduction
-            const referralDeduction = Math.min(
-              remainingAmount,
-              earnings.alliance_referral_bounty
-            );
-            remainingAmount -= referralDeduction;
 
             if (remainingAmount > 0) {
               break;
@@ -189,10 +181,48 @@ const DashboardWithdrawModalWithdraw = ({
                 Number(sanitizedData.amount),
               alliance_olympus_earnings:
                 earnings.alliance_olympus_earnings - olympusDeduction,
+            });
+          }
+
+          setIsWithdrawalToday({
+            ...isWithdrawalToday,
+            package: true,
+          });
+          break;
+        case "REFERRAL":
+          if (earnings) {
+            // Remaining amount to be deducted
+
+            let remainingAmount = Number(sanitizedData.amount);
+
+            // Calculate Referral Bounty deduction
+            const referralDeduction = Math.min(
+              remainingAmount,
+              earnings.alliance_referral_bounty
+            );
+
+            remainingAmount -= referralDeduction;
+
+            if (remainingAmount > 0) {
+              break;
+            }
+
+            // Update state with new earnings values
+            setEarnings({
+              ...earnings,
+              alliance_combined_earnings:
+                earnings.alliance_combined_earnings -
+                Number(sanitizedData.amount),
               alliance_referral_bounty:
                 earnings.alliance_referral_bounty - referralDeduction,
             });
           }
+
+          setIsWithdrawalToday({
+            ...isWithdrawalToday,
+            referral: true,
+          });
+
           break;
 
         default:
@@ -215,7 +245,6 @@ const DashboardWithdrawModalWithdraw = ({
         count: 1,
       });
 
-      setIsWithdrawalToday(true);
       toast({
         title: "Withdrawal Request Successfully",
         description: "Please wait for it to be approved",
@@ -253,7 +282,7 @@ const DashboardWithdrawModalWithdraw = ({
       }}
     >
       <DialogTrigger asChild>
-        {!isWithdrawalToday ? (
+        {/* {!isWithdrawalToday.package || !isWithdrawalToday.referral ? (
           <Button
             className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2"
             onClick={() => setOpen(true)}
@@ -267,31 +296,31 @@ const DashboardWithdrawModalWithdraw = ({
               priority
             />
           </Button>
-        ) : (
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2">
-                Withdraw
-                <Image
-                  src="/assets/withdraw.png"
-                  alt="deposit"
-                  width={200}
-                  height={200}
-                  priority
-                />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full">
-              <Alert variant={"destructive"}>
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Withdrawal Limit</AlertTitle>
-                <AlertDescription>
-                  You can only withdraw once a day
-                </AlertDescription>
-              </Alert>
-            </PopoverContent>
-          </Popover>
-        )}
+        ) : ( */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2">
+              Withdraw
+              <Image
+                src="/assets/withdraw.png"
+                alt="deposit"
+                width={200}
+                height={200}
+                priority
+              />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-full">
+            <Alert variant={"destructive"}>
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Withdrawal</AlertTitle>
+              <AlertDescription>
+                Withdrawal is not available. Please check back later.
+              </AlertDescription>
+            </Alert>
+          </PopoverContent>
+        </Popover>
+        {/* )} */}
       </DialogTrigger>
 
       <DialogContent className="w-full sm:max-w-[400px]">
@@ -325,47 +354,68 @@ const DashboardWithdrawModalWithdraw = ({
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
-                      if (value === "TOTAL") {
-                        setValue("amount", totalEarnings.toFixed(2));
+
+                      // Set the withdrawal amount based on the selected type
+                      if (value === "PACKAGE") {
+                        setValue(
+                          "amount",
+                          earnings?.alliance_olympus_earnings.toFixed(2) ?? "0"
+                        );
+                      } else if (value === "REFERRAL") {
+                        setValue(
+                          "amount",
+                          earnings?.alliance_referral_bounty.toFixed(2) ?? "0"
+                        );
                       }
                     }}
                     value={field.value}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select Available Balance">
-                        {" "}
-                        {field.value === "TOTAL"
-                          ? `₱ ${totalEarnings.toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}`
-                          : ""}
+                        {field.value === "PACKAGE"
+                          ? `Package Earnings ₱ ${earnings?.alliance_olympus_earnings.toLocaleString(
+                              "en-US",
+                              {
+                                minimumFractionDigits: 2,
+
+                                maximumFractionDigits: 2,
+                              }
+                            )}`
+                          : `Referral Earnings ₱ ${earnings?.alliance_referral_bounty.toLocaleString(
+                              "en-US",
+                              {
+                                minimumFractionDigits: 2,
+
+                                maximumFractionDigits: 2,
+                              }
+                            )}`}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem className="text-xs" value="TOTAL">
-                        Balance ( ₱{" "}
-                        {earnings?.alliance_olympus_earnings.toLocaleString(
-                          "en-US",
-                          {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }
-                        )}{" "}
-                        Package + ₱{" "}
-                        {earnings?.alliance_referral_bounty.toLocaleString(
-                          "en-US",
-                          {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }
-                        )}{" "}
-                        Referral ) ={" "}
-                        {totalEarnings.toLocaleString("en-US", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </SelectItem>
+                      {!isWithdrawalToday.package && (
+                        <SelectItem className="text-xs" value="PACKAGE">
+                          Package Earnings ₱{" "}
+                          {earnings?.alliance_olympus_earnings.toLocaleString(
+                            "en-US",
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          )}
+                        </SelectItem>
+                      )}
+                      {!isWithdrawalToday.referral && (
+                        <SelectItem className="text-xs" value="REFERRAL">
+                          Referral Earnings ₱{" "}
+                          {earnings?.alliance_referral_bounty.toLocaleString(
+                            "en-US",
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          )}
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 )}
@@ -375,6 +425,11 @@ const DashboardWithdrawModalWithdraw = ({
                   {errors.earnings.message}
                 </p>
               )}
+              <p className="text-sm font-bold text-primaryRed mt-1">
+                {
+                  "Note: You can only withdraw once per type of available balance."
+                }
+              </p>
             </div>
 
             {/* Bank Type Select */}

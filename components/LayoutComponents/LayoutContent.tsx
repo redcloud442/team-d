@@ -40,7 +40,8 @@ export default function LayoutContent({
   const { setEarnings } = useUserEarningsStore();
   const { setLoading } = useUserLoadingStore();
   const { setChartData } = usePackageChartData();
-  const { setIsWithdrawalToday } = useUserHaveAlreadyWithdraw();
+  const { setIsWithdrawalToday, setCanUserDeposit } =
+    useUserHaveAlreadyWithdraw();
   const { setTheme } = useTheme();
   const { toast } = useToast();
 
@@ -62,7 +63,7 @@ export default function LayoutContent({
           { totalEarnings, userEarningsData },
           dashboardData,
           { transactionHistory, totalTransactions },
-          isWithdrawalToday,
+          dataWithdrawalToday,
         ] = await Promise.all([
           getUserEarnings(
             { memberId: teamMemberProfile.alliance_member_id },
@@ -75,14 +76,24 @@ export default function LayoutContent({
           getUserWithdrawalToday(supabaseClient),
         ]);
 
+        const { canWithdrawReferral, canWithdrawPackage, canUserDeposit } =
+          dataWithdrawalToday;
+
         setTotalEarnings(totalEarnings);
         setEarnings(userEarningsData);
         setChartData(dashboardData);
+
         setTransactionHistory({
           data: transactionHistory,
           count: totalTransactions,
         });
-        setIsWithdrawalToday(isWithdrawalToday);
+
+        setCanUserDeposit(canUserDeposit);
+
+        setIsWithdrawalToday({
+          referral: canWithdrawReferral,
+          package: canWithdrawPackage,
+        });
       } catch (e) {
         toast({
           title: "Error fetching transactions",

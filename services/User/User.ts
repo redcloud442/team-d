@@ -81,9 +81,11 @@ export const getUserWithdrawalToday = async (
     );
   }
 
-  const { isWithdrawalToday } = result;
-
-  return isWithdrawalToday;
+  return result as {
+    canWithdrawReferral: boolean;
+    canUserDeposit: boolean;
+    canWithdrawPackage: boolean;
+  };
 };
 
 export const changeUserPassword = async (
