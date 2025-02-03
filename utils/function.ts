@@ -230,12 +230,10 @@ export const calculateFinalAmount = (
   amount: number,
   selectedEarnings: string
 ): number => {
-  if (selectedEarnings === "TOTAL") {
+  if (selectedEarnings === "PACKAGE") {
     const fee = amount * 0.1;
     return amount - fee;
-  } else if (
-    ["DIRECT REFERRAL", "INDIRECT REFERRAL"].includes(selectedEarnings)
-  ) {
+  } else if (["REFERRAL"].includes(selectedEarnings)) {
     const fee = amount * 0.1;
     return amount - fee;
   }
@@ -249,9 +247,7 @@ export const calculateFee = (
   if (selectedEarnings === "TOTAL") {
     const fee = amount * 0.1;
     return fee;
-  } else if (
-    ["DIRECT REFERRAL", "INDIRECT REFERRAL"].includes(selectedEarnings)
-  ) {
+  } else if (["REFERRAL"].includes(selectedEarnings)) {
     const fee = amount * 0.1;
     return fee;
   }

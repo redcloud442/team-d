@@ -82,9 +82,6 @@ const DashboardWithdrawModalWithdraw = ({
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const { isWithdrawalToday, setIsWithdrawalToday } =
     useUserHaveAlreadyWithdraw();
-  const totalEarnings =
-    (earnings?.alliance_olympus_earnings ?? 0) +
-    (earnings?.alliance_referral_bounty ?? 0);
 
   const supabase = createClientSide();
   const { toast } = useToast();
@@ -138,8 +135,10 @@ const DashboardWithdrawModalWithdraw = ({
 
   const getMaxAmount = () => {
     switch (selectedEarnings) {
-      case "TOTAL":
-        return totalEarnings;
+      case "PACKAGE":
+        return earnings?.alliance_olympus_earnings ?? 0;
+      case "REFERRAL":
+        return earnings?.alliance_referral_bounty ?? 0;
       default:
         return 0;
     }
@@ -158,7 +157,7 @@ const DashboardWithdrawModalWithdraw = ({
       );
 
       switch (selectedEarnings) {
-        case "TOTAL":
+        case "PACKAGE":
           if (earnings) {
             // Remaining amount to be deducted
             let remainingAmount = Number(sanitizedData.amount);
@@ -169,13 +168,6 @@ const DashboardWithdrawModalWithdraw = ({
               earnings.alliance_olympus_earnings
             );
             remainingAmount -= olympusDeduction;
-
-            // Calculate Referral Bounty deduction
-            const referralDeduction = Math.min(
-              remainingAmount,
-              earnings.alliance_referral_bounty
-            );
-            remainingAmount -= referralDeduction;
 
             if (remainingAmount > 0) {
               break;
@@ -189,10 +181,36 @@ const DashboardWithdrawModalWithdraw = ({
                 Number(sanitizedData.amount),
               alliance_olympus_earnings:
                 earnings.alliance_olympus_earnings - olympusDeduction,
+            });
+          }
+        case "REFERRAL":
+          if (earnings) {
+            // Remaining amount to be deducted
+            let remainingAmount = Number(sanitizedData.amount);
+
+            // Calculate Referral Bounty deduction
+            const referralDeduction = Math.min(
+              remainingAmount,
+              earnings.alliance_referral_bounty
+            );
+
+            remainingAmount -= referralDeduction;
+
+            if (remainingAmount > 0) {
+              break;
+            }
+
+            // Update state with new earnings values
+            setEarnings({
+              ...earnings,
+              alliance_combined_earnings:
+                earnings.alliance_combined_earnings -
+                Number(sanitizedData.amount),
               alliance_referral_bounty:
                 earnings.alliance_referral_bounty - referralDeduction,
             });
           }
+
           break;
 
         default:
@@ -325,8 +343,16 @@ const DashboardWithdrawModalWithdraw = ({
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
-                      if (value === "TOTAL") {
-                        setValue("amount", totalEarnings.toFixed(2));
+                      if (value === "PACKAGE") {
+                        setValue(
+                          "amount",
+                          earnings?.alliance_olympus_earnings.toFixed(2) ?? "0"
+                        );
+                      } else if (value === "REFERRAL") {
+                        setValue(
+                          "amount",
+                          earnings?.alliance_referral_bounty.toFixed(2) ?? "0"
+                        );
                       }
                     }}
                     value={field.value}
@@ -334,37 +360,44 @@ const DashboardWithdrawModalWithdraw = ({
                     <SelectTrigger>
                       <SelectValue placeholder="Select Available Balance">
                         {" "}
-                        {field.value === "TOTAL"
-                          ? `₱ ${totalEarnings.toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}`
-                          : ""}
+                        {field.value === "PACKAGE"
+                          ? `₱ ${earnings?.alliance_olympus_earnings.toLocaleString(
+                              "en-US",
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }
+                            )}`
+                          : `₱ ${earnings?.alliance_referral_bounty.toLocaleString(
+                              "en-US",
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }
+                            )}`}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem className="text-xs" value="TOTAL">
-                        Balance ( ₱{" "}
+                      <SelectItem className="text-xs" value="PACKAGE">
+                        Package Earnings ₱{" "}
                         {earnings?.alliance_olympus_earnings.toLocaleString(
                           "en-US",
                           {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           }
-                        )}{" "}
-                        Package + ₱{" "}
+                        )}
+                      </SelectItem>
+
+                      <SelectItem className="text-xs" value="REFERRAL">
+                        Referral Earnings ₱{" "}
                         {earnings?.alliance_referral_bounty.toLocaleString(
                           "en-US",
                           {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           }
-                        )}{" "}
-                        Referral ) ={" "}
-                        {totalEarnings.toLocaleString("en-US", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                        )}
                       </SelectItem>
                     </SelectContent>
                   </Select>
