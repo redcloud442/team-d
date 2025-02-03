@@ -486,6 +486,14 @@ const DashboardWithdrawModalWithdraw = ({
                           value = value.substring(0, 7);
                         }
 
+                        if (Number(value) > getMaxAmount()) {
+                          value = getMaxAmount()
+                            .toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })
+                            .toString();
+                        }
                         field.onChange(value);
                       }}
                     />
@@ -503,7 +511,15 @@ const DashboardWithdrawModalWithdraw = ({
                       });
                       return;
                     }
-                    setValue("amount", getMaxAmount().toString());
+                    setValue(
+                      "amount",
+                      getMaxAmount()
+                        .toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })
+                        .toString()
+                    );
                   }}
                 >
                   MAX
