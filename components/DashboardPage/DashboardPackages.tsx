@@ -124,6 +124,12 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
           )
         );
 
+        setLiveData(
+          liveData.filter(
+            (data) => data.package_connection_id !== package_connection_id
+          )
+        );
+
         const newEarnings = amount + profit_amount;
         // Update earnings
         if (earnings) {
@@ -161,6 +167,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
           totalEarnings: totalEarnings!.totalEarnings + newEarnings,
         });
       }
+      setOpenDialogId(null);
     } catch (error) {
       toast({
         title: "Failed to claim package",
