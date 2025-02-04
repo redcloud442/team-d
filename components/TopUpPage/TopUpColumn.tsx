@@ -241,7 +241,7 @@ export const TopUpColumn = (
       ),
     },
     {
-      accessorKey: "alliance_top_up_request_reference",
+      accessorKey: "alliance_top_up_request_reference_number",
 
       header: ({ column }) => (
         <Button
