@@ -368,22 +368,20 @@ const DashboardWithdrawModalWithdraw = ({
                     <SelectTrigger>
                       <SelectValue placeholder="Select Available Balance">
                         {field.value === "PACKAGE"
-                          ? `Package Earnings ₱ ${earnings?.alliance_olympus_earnings.toLocaleString(
-                              "en-US",
-                              {
-                                minimumFractionDigits: 2,
+                          ? `Package Earnings ₱ ${(
+                              earnings?.alliance_olympus_earnings ?? 0
+                            ).toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
 
-                                maximumFractionDigits: 2,
-                              }
-                            )}`
-                          : `Referral Earnings ₱ ${earnings?.alliance_referral_bounty.toLocaleString(
-                              "en-US",
-                              {
-                                minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}`
+                          : `Referral Earnings ₱ ${(
+                              earnings?.alliance_referral_bounty ?? 0
+                            ).toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
 
-                                maximumFractionDigits: 2,
-                              }
-                            )}`}
+                              maximumFractionDigits: 2,
+                            })}`}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -396,9 +394,10 @@ const DashboardWithdrawModalWithdraw = ({
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
                             }
-                          )}
+                          ) ?? 0}
                         </SelectItem>
                       )}
+
                       {!isWithdrawalToday.referral && (
                         <SelectItem className="text-xs" value="REFERRAL">
                           Referral Earnings ₱{" "}
@@ -408,7 +407,7 @@ const DashboardWithdrawModalWithdraw = ({
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
                             }
-                          )}
+                          ) ?? 0}
                         </SelectItem>
                       )}
                     </SelectContent>
