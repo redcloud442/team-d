@@ -254,8 +254,8 @@ export const TopUpColumn = (
       ),
       cell: ({ row }) => (
         <div className="text-wrap">
-          {row.getValue("alliance_top_up_request_reference")
-            ? row.getValue("alliance_top_up_request_reference")
+          {row.getValue("alliance_top_up_request_reference_number")
+            ? row.getValue("alliance_top_up_request_reference_number")
             : ""}
         </div>
       ),

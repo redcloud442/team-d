@@ -14,7 +14,6 @@ import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
-import { createClientSide } from "@/utils/supabase/client";
 import { ChartDataMember } from "@/utils/types";
 import { alliance_member_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
@@ -39,7 +38,6 @@ type DashboardPackagesProps = {
 };
 
 const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
-  const supabaseClient = createClientSide();
   const { toast } = useToast();
   const { earnings, setEarnings } = useUserEarningsStore();
   const { chartData, setChartData } = usePackageChartData();
@@ -81,6 +79,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
           const updated = [...prev];
           updated[index] = {
             ...data,
+            is_ready_to_claim: Number(currentPercentage) === 100,
             currentPercentage: Number(currentPercentage),
             current_amount: newAmount,
           };

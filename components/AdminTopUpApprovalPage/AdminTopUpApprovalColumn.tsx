@@ -236,7 +236,7 @@ export const useAdminTopUpApprovalColumns = (
       ),
     },
     {
-      accessorKey: "alliance_top_up_request_reference",
+      accessorKey: "alliance_top_up_request_reference_number",
 
       header: ({ column }) => (
         <Button
@@ -249,8 +249,8 @@ export const useAdminTopUpApprovalColumns = (
       ),
       cell: ({ row }) => (
         <div className="text-wrap">
-          {row.getValue("alliance_top_up_request_reference")
-            ? row.getValue("alliance_top_up_request_reference")
+          {row.getValue("alliance_top_up_request_reference_number")
+            ? row.getValue("alliance_top_up_request_reference_number")
             : ""}
         </div>
       ),
