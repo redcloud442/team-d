@@ -2,19 +2,22 @@
 
 import MobileNavBar from "@/components/ui/MobileNavBar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useToast } from "@/hooks/use-toast";
 import { getDashboard } from "@/services/Dasboard/Member";
 import { getTransactionHistory } from "@/services/Transaction/Transaction";
-import { getUserEarnings, getUserWithdrawalToday } from "@/services/User/User";
+import {
+  getUserEarnings,
+  getUserSponsor,
+  getUserWithdrawalToday,
+} from "@/services/User/User";
 import { useUserLoadingStore } from "@/store/useLoadingStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
+import { useSponsorStore } from "@/store/useSponsortStore";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { ROLE } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
-import { createClientSide } from "@/utils/supabase/client";
 import { alliance_member_table, user_table } from "@prisma/client";
 import { useTheme } from "next-themes";
 import Image from "next/image";
@@ -33,7 +36,6 @@ export default function LayoutContent({
   teamMemberProfile,
   children,
 }: LayoutContentProps) {
-  const supabaseClient = createClientSide();
   const { role } = useRole();
   const { setTransactionHistory } = useUserTransactionHistoryStore();
   const { setTotalEarnings } = useUserDashboardEarningsStore();
@@ -43,7 +45,7 @@ export default function LayoutContent({
   const { setIsWithdrawalToday, setCanUserDeposit } =
     useUserHaveAlreadyWithdraw();
   const { setTheme } = useTheme();
-  const { toast } = useToast();
+  const { setSponsor } = useSponsorStore();
 
   useEffect(() => {
     if (role !== ROLE.ADMIN) {
@@ -64,6 +66,7 @@ export default function LayoutContent({
           dashboardData,
           { transactionHistory, totalTransactions },
           dataWithdrawalToday,
+          sponsorData,
         ] = await Promise.all([
           getUserEarnings({ memberId: teamMemberProfile.alliance_member_id }),
           getDashboard({
@@ -71,6 +74,7 @@ export default function LayoutContent({
           }),
           getTransactionHistory({ limit: 10, page: 1 }),
           getUserWithdrawalToday(),
+          getUserSponsor({ userId: profile.user_id }),
         ]);
 
         const { canWithdrawReferral, canWithdrawPackage, canUserDeposit } =
@@ -91,6 +95,8 @@ export default function LayoutContent({
           referral: canWithdrawReferral,
           package: canWithdrawPackage,
         });
+
+        setSponsor(sponsorData);
       } catch (e) {
       } finally {
         setLoading(false);

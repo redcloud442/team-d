@@ -4,6 +4,7 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { getUserEarnings } from "@/services/User/User";
 import { useUserLoadingStore } from "@/store/useLoadingStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
+import { useSponsorStore } from "@/store/useSponsortStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { createClientSide } from "@/utils/supabase/client";
@@ -38,7 +39,6 @@ type Props = {
   referal: alliance_referral_link_table;
   packages: package_table[];
   profile: user_table;
-  sponsor: string;
 };
 
 const DashboardPage = ({
@@ -46,13 +46,13 @@ const DashboardPage = ({
   teamMemberProfile,
   packages,
   profile,
-  sponsor,
 }: Props) => {
   const supabaseClient = createClientSide();
   const { loading } = useUserLoadingStore();
   const { earnings, setEarnings } = useUserEarningsStore();
   const { totalEarnings, setTotalEarnings } = useUserDashboardEarningsStore();
   const { chartData } = usePackageChartData();
+  const { sponsor } = useSponsorStore();
 
   const [isActive, setIsActive] = useState(
     teamMemberProfile.alliance_member_is_active

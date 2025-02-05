@@ -1,5 +1,4 @@
 import DashboardPage from "@/components/DashboardPage/DashboardPage";
-import { getUserSponsor } from "@/services/User/User";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import { createClientServerSide } from "@/utils/supabase/server";
@@ -45,19 +44,6 @@ const Page = async () => {
     },
   });
 
-  let sponsorData = null;
-  try {
-    const sponsor = await getUserSponsor({ userId: profile.user_id });
-
-    if (sponsor) {
-      sponsorData = sponsor || "";
-    } else {
-      sponsorData = "";
-    }
-  } catch (err) {
-    sponsorData = null;
-  }
-
   if (teamMemberProfile.alliance_member_role === "ADMIN") {
     return redirect("/admin");
   }
@@ -68,7 +54,6 @@ const Page = async () => {
       teamMemberProfile={teamMemberProfile}
       referal={referal}
       packages={packages}
-      sponsor={sponsorData || ""}
     />
   );
 };
