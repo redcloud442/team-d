@@ -96,7 +96,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
         : "";
 
       const [data, totalReferral] = await Promise.all([
-        getAdminDashboardByDate(supabaseClient, {
+        getAdminDashboardByDate({
           dateFilter: {
             start: formattedStartDate,
             end: formattedEndDate,
@@ -139,7 +139,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
         ? formatDateToLocal(new Date(endDate.setHours(23, 59, 59, 999)))
         : "";
 
-      const data = await getAdminDashboardByDate(supabaseClient, {
+      const data = await getAdminDashboardByDate({
         dateFilter: {
           start: formattedStartDate,
           end: formattedEndDate,

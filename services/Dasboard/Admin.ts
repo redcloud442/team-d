@@ -1,15 +1,11 @@
 import { AdminDashboardData, AdminDashboardDataByDate } from "@/utils/types";
-import { SupabaseClient } from "@supabase/supabase-js";
 
-export const getAdminDashboardByDate = async (
-  supabaseClient: SupabaseClient,
-  params: {
-    dateFilter?: {
-      start: string;
-      end: string;
-    };
-  }
-) => {
+export const getAdminDashboardByDate = async (params: {
+  dateFilter?: {
+    start: string;
+    end: string;
+  };
+}) => {
   const response = await fetch(`/api/v1/dashboard`, {
     method: "POST",
     headers: {

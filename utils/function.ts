@@ -232,7 +232,7 @@ export const calculateFinalAmount = (
   if (selectedEarnings === "PACKAGE") {
     const fee = amount * 0.1;
     return amount - fee;
-  } else if (["REFERRAL"].includes(selectedEarnings)) {
+  } else if (selectedEarnings === "REFERRAL") {
     const fee = amount * 0.1;
     return amount - fee;
   }
@@ -246,7 +246,7 @@ export const calculateFee = (
   if (selectedEarnings === "TOTAL") {
     const fee = amount * 0.1;
     return fee;
-  } else if (["REFERRAL"].includes(selectedEarnings)) {
+  } else if (selectedEarnings === "REFERRAL") {
     const fee = amount * 0.1;
     return fee;
   }
