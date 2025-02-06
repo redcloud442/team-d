@@ -53,7 +53,7 @@ const withdrawalFormSchema = z.object({
   amount: z
     .string()
     .min(3, "Minimum amount is required atleast 200 pesos")
-    .refine((amount) => parseInt(amount, 10) >= 200, {
+    .refine((amount) => parseInt(amount.replace(/,/g, ""), 10) >= 200, {
       message: "Amount must be at least 200 pesos",
     }),
   bank: z.string().min(1, "Please select a bank"),
@@ -601,7 +601,7 @@ const DashboardWithdrawModalWithdraw = ({
                   className="w-full grow"
                   readOnly
                   value={calculateFinalAmount(
-                    Number(amount || 0),
+                    Number(amount.replace(/,/g, "") || 0),
                     selectedEarnings
                   ).toLocaleString("en-US", {
                     minimumFractionDigits: 2,

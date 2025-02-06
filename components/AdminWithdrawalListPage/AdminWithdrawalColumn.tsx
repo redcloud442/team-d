@@ -152,7 +152,6 @@ export const AdminWithdrawalHistoryColumn = (
 
     {
       accessorKey: "alliance_withdrawal_request_amount",
-
       header: ({ column }) => (
         <Button
           variant="ghost"

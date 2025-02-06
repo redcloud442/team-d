@@ -243,7 +243,7 @@ export const calculateFee = (
   amount: number,
   selectedEarnings: string
 ): number => {
-  if (selectedEarnings === "TOTAL") {
+  if (selectedEarnings === "PACKAGE") {
     const fee = amount * 0.1;
     return fee;
   } else if (selectedEarnings === "REFERRAL") {

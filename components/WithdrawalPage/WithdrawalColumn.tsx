@@ -151,7 +151,6 @@ export const WithdrawalColumn = (
     },
     {
       accessorKey: "alliance_withdrawal_request_amount",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
