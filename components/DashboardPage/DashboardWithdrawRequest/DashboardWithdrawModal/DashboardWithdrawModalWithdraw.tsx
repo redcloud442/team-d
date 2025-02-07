@@ -610,11 +610,7 @@ const DashboardWithdrawModalWithdraw = ({
                 />
               </div>
             </div>
-            <p className="text-sm font-bold text-primaryRed">
-              {
-                "Note: 10% withdrawal fee will be deducted to your withdrawal amount."
-              }
-            </p>
+
             {/* Submit Button */}
             <div className="flex items-center justify-center gap-2">
               <Button
