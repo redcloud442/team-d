@@ -125,7 +125,9 @@ const DashboardPage = ({
             />
 
             <div>
-              <p className="text-xs font-medium">{profile.user_username}</p>
+              <p className="text-xs font-medium">
+                Username:{profile.user_username}
+              </p>
               <p className="text-xs">
                 {profile.user_first_name} {profile.user_last_name}
               </p>
