@@ -12,7 +12,7 @@ import { getAllyBounty } from "@/services/Bounty/Member";
 import { useDirectReferralStore } from "@/store/useDirectReferralStore";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { alliance_member_table } from "@prisma/client";
+import { alliance_member_table, user_table } from "@prisma/client";
 import {
   ColumnFiltersState,
   flexRender,
@@ -69,11 +69,13 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
         columnAccessor: columnAccessor,
         isAscendingSort: isAscendingSort,
         search: emailFilter,
-        teamMemberId: teamMemberProfile.alliance_member_id,
       });
 
       setDirectReferral({
-        data: data || [],
+        data: data as unknown as (user_table & {
+          total_bounty_earnings: string;
+          package_ally_bounty_log_date_created: Date;
+        })[],
         count: totalCount || 0,
       });
     } catch (e) {

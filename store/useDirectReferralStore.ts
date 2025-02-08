@@ -3,12 +3,18 @@ import { create } from "zustand";
 
 interface directReferralState {
   directReferral: {
-    data: (user_table & { total_bounty_earnings: string })[];
+    data: (user_table & {
+      total_bounty_earnings: string;
+      package_ally_bounty_log_date_created: Date;
+    })[];
     count: number;
   };
 
   setDirectReferral: (directReferral: {
-    data: (user_table & { total_bounty_earnings: string })[];
+    data: (user_table & {
+      total_bounty_earnings: string;
+      package_ally_bounty_log_date_created: Date;
+    })[];
     count: number;
   }) => void;
 }
