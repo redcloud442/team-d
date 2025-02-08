@@ -172,8 +172,6 @@ model alliance_top_up_request_table {
 
 
   alliance_member_requestor           alliance_member_table @relation("Requestor", fields: [alliance_top_up_request_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
-
-
   alliance_member_approver            alliance_member_table? @relation("Approver", fields: [alliance_top_up_request_approved_by], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("alliance_schema")
@@ -217,6 +215,21 @@ model alliance_transaction_table {
   alliance_member_table alliance_member_table @relation(fields: [transaction_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
 
 
+  @@schema("alliance_schema")
+}
+
+model alliance_wheel_table {
+  alliance_wheel_id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  alliance_wheel_date DateTime @default(now())
+  alliance_wheel_member_id String @db.Uuid
+
+  three_referrals_count Boolean @default(false)
+  two_hundred_referrals_amount Boolean @default(false)
+  five_hundred_referrals_amount Boolean @default(false)
+  ten_direct_referrals_count Boolean @default(false)
+  two_thousand_package_plan Boolean @default(false)
+
+  spin_count Int @default(0)
   @@schema("alliance_schema")
 }
 

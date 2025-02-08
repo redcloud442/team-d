@@ -22,6 +22,7 @@ import { alliance_member_table, user_table } from "@prisma/client";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useEffect } from "react";
+import { SpinWheel } from "../SpinTheWheel/SpinTheWheel";
 import AppSidebar from "../ui/side-bar";
 import { ModeToggle } from "../ui/toggleDarkmode";
 
@@ -144,6 +145,7 @@ export default function LayoutContent({
         <div className="pb-24 p-4 relative z-50 grow">{children}</div>
 
         {/* Mobile Navigation */}
+        <SpinWheel />
         {role !== ROLE.ADMIN && <MobileNavBar />}
         {role === ROLE.ADMIN && <ModeToggle />}
       </div>
