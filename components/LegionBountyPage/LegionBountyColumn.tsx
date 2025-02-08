@@ -1,8 +1,23 @@
+import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
 import { LegionRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const LegionBountyColumn = (): ColumnDef<LegionRequestData>[] => {
   return [
+    {
+      // Index column
+      id: "package_ally_bounty_log_date_created",
+      header: () => <div className="text-center text-lg font-bold">Date</div>,
+      cell: ({ row }) => (
+        <div className="text-center">
+          {formatDateToYYYYMMDD(
+            row.original.package_ally_bounty_log_date_created
+          )}
+          , {formatTime(row.original.package_ally_bounty_log_date_created)}
+        </div>
+      ),
+    },
+
     {
       accessorKey: "user_username",
       header: () => (

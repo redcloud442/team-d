@@ -47,7 +47,10 @@ export type UserRequestdata = user_table &
   merchant_member_table;
 
 export type LegionRequestData = user_table &
-  alliance_member_table & { total_bounty_earnings: string };
+  alliance_member_table & {
+    total_bounty_earnings: string;
+    package_ally_bounty_log_date_created: Date;
+  };
 
 export type UserLog = user_table & user_history_log;
 

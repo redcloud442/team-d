@@ -1,16 +1,28 @@
+import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
 import { user_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const AllyBountyColumn = (): ColumnDef<
-  user_table & { total_bounty_earnings: string }
+  user_table & {
+    total_bounty_earnings: string;
+    package_ally_bounty_log_date_created: Date;
+  }
 >[] => {
   return [
     {
       // Index column
-      id: "index",
-      header: () => <div className="text-center text-lg font-bold"></div>,
-      cell: ({ row }) => <div className="text-center">{row.index + 1}.</div>,
+      id: "package_ally_bounty_log_date_created",
+      header: () => <div className="text-center text-lg font-bold">Date</div>,
+      cell: ({ row }) => (
+        <div className="text-center">
+          {formatDateToYYYYMMDD(
+            row.original.package_ally_bounty_log_date_created
+          )}
+          , {formatTime(row.original.package_ally_bounty_log_date_created)}
+        </div>
+      ),
     },
+
     {
       accessorKey: "user_username",
       header: () => (
