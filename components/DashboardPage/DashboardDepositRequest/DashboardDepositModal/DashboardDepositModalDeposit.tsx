@@ -170,6 +170,7 @@ const DashboardDepositModalDeposit = ({
             transaction_details: `Account Name: ${sanitizedData.accountName} | Account Number: ${sanitizedData.accountNumber}`,
             transaction_member_id: teamMemberProfile?.alliance_member_id ?? "",
             transaction_amount: Number(sanitizedData.amount),
+            transaction_attachment: "",
           },
         ],
         count: 1,

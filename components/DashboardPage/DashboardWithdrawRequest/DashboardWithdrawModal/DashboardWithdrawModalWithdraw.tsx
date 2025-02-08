@@ -234,6 +234,7 @@ const DashboardWithdrawModalWithdraw = ({
             transaction_amount: Number(
               calculateFinalAmount(Number(amount), "TOTAL")
             ),
+            transaction_attachment: "",
           },
         ],
         count: 1,

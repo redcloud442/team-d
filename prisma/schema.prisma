@@ -212,12 +212,13 @@ model alliance_transaction_table {
   transaction_details String?
   transaction_amount Float?
   transaction_member_id String @db.Uuid
+  transaction_attachment String?
 
   alliance_member_table alliance_member_table @relation(fields: [transaction_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
 
+
   @@schema("alliance_schema")
 }
-
 
 model package_table {
   package_id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid

@@ -155,6 +155,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
               transaction_description: ` ${packageData.package} Package Claimed`,
               transaction_details: "",
               transaction_amount: newEarnings,
+              transaction_attachment: "",
               transaction_member_id: teamMemberProfile.alliance_member_id,
             },
           ],

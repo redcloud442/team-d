@@ -169,6 +169,7 @@ const AvailPackagePage = ({
             transaction_details: "",
             transaction_member_id: teamMemberProfile?.alliance_member_id ?? "",
             transaction_amount: Number(result.amount),
+            transaction_attachment: "",
           },
         ],
         count: 1,
