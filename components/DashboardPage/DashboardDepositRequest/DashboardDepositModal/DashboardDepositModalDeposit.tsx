@@ -238,7 +238,7 @@ const DashboardDepositModalDeposit = ({
             className=" relative h-60 sm:h-80 flex flex-col gap-8 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl "
             onClick={() => setOpen(true)}
           >
-            Deposit
+            <p className="text-2xl font-bold">Deposit</p>
             <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
               <Image
                 src="/assets/deposit.png"
@@ -252,7 +252,7 @@ const DashboardDepositModalDeposit = ({
         ) : (
           <Popover>
             <PopoverTrigger asChild>
-              <Button className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2">
+              <Button className=" relative h-60 sm:h-80 flex flex-col gap-8 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl ">
                 Deposit
                 <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
                   <Image
@@ -265,11 +265,11 @@ const DashboardDepositModalDeposit = ({
                 </div>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-full">
+            <PopoverContent className="w-[350px]">
               <Alert variant={"destructive"}>
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Deposit Limit</AlertTitle>
-                <AlertDescription>
+                <AlertDescription className=" text-break">
                   Your Deposit Request is under review. Kindly wait for it to be
                   approved.
                 </AlertDescription>

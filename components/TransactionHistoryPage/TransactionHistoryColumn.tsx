@@ -1,8 +1,17 @@
 import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
 import { alliance_transaction_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import { Info } from "lucide-react";
+import { Info, Receipt } from "lucide-react";
 import Image from "next/image";
+import { Button } from "../ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 export const TransactionHistoryColumn =
@@ -33,10 +42,10 @@ export const TransactionHistoryColumn =
           const attachment = row.original.transaction_attachment as string;
 
           return (
-            <div className="flex flex-col sm:flex-row justify-start items-star gap-4">
+            <div className="flex flex-col sm:flex-row justify-start items-center gap-4">
               <span>{description}</span>
               {description.includes("Deposit") && (
-                <div className="flex items-center gap-2 text-yellow-700">
+                <div className="flex items-center text-sm gap-2 text-yellow-700">
                   <Info className="w-4 h-4" />
                   <Popover>
                     <PopoverTrigger>
@@ -61,25 +70,38 @@ export const TransactionHistoryColumn =
                           </p>
                         </>
                       )}
+                    </PopoverContent>
+                  </Popover>
+                  {attachment && (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button size="icon" variant="destructive">
+                          <Receipt className="w-4 h-4" />
+                        </Button>
+                      </DialogTrigger>
 
-                      {attachment && (
-                        <div className="flex flex-col justify-center items-center ">
-                          Receipt
+                      <DialogContent type="table">
+                        <DialogHeader>
+                          <DialogTitle>Attachment</DialogTitle>
+                        </DialogHeader>
+                        <div className="flex justify-center items-center">
                           <Image
                             src={attachment || ""}
                             alt="Attachment Preview"
-                            width={400}
-                            height={400}
-                            className="p-1 border-2"
+                            width={250}
+                            height={250}
                           />
                         </div>
-                      )}
-                    </PopoverContent>
-                  </Popover>
+                        <DialogClose asChild>
+                          <Button variant="secondary">Close</Button>
+                        </DialogClose>
+                      </DialogContent>
+                    </Dialog>
+                  )}
                 </div>
               )}
               {description.includes("Withdrawal") && (
-                <div className="flex items-center gap-2 text-yellow-700">
+                <div className="flex items-center gap-2 text-sm text-yellow-700">
                   <Info className="w-4 h-4" />
                   <Popover>
                     <PopoverTrigger>

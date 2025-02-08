@@ -134,10 +134,7 @@ const TransactionHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
                 className="border-none font-bold"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    className="border-r border-black px-4 py-2"
-                    key={cell.id}
-                  >
+                  <TableCell className="border-r border-black " key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
