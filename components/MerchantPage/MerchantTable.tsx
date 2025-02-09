@@ -43,6 +43,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import FileUpload from "../ui/dropZone";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
@@ -58,6 +59,16 @@ const filterFormValuesSchema = z.object({
   accountNumber: z.string().min(1, "Account number is required"),
   accountType: z.string().min(1, "Account type is required"),
   bankName: z.string().min(1, "Bank name is required"),
+  file: z
+    .instanceof(File)
+    .refine((file) => !!file, { message: "File is required" })
+    .refine(
+      (file) =>
+        ["image/jpeg", "image/png", "image/jpg"].includes(file.type) &&
+        file.size <= 12 * 1024 * 1024, // 12MB limit
+      { message: "File must be a valid image and less than 12MB." }
+    )
+    .optional(),
 });
 
 type FilterFormValues = z.infer<typeof filterFormValuesSchema>;
@@ -118,16 +129,15 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
   });
   const pageCount = Math.ceil(requestCount / 10);
 
-  const { handleSubmit, reset, control, formState } = useForm<FilterFormValues>(
-    {
+  const { handleSubmit, reset, control, formState, watch } =
+    useForm<FilterFormValues>({
       resolver: zodResolver(filterFormValuesSchema),
       defaultValues: {
         accountNumber: "",
         accountType: "",
         bankName: "",
       },
-    }
-  );
+    });
 
   useEffect(() => {
     fetchMerchant();
@@ -136,10 +146,39 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
   const handleCreateMerchant = async (data: FilterFormValues) => {
     try {
       const sanitizedData = escapeFormData(data);
+      const file = data.file;
+      let attachmentUrl = null;
+
+      if (file) {
+        const filePath = `uploads/${Date.now()}_${file.name}`;
+
+        const { error: uploadError } = await supabaseClient.storage
+          .from("REQUEST_ATTACHMENTS")
+          .upload(filePath, file, { upsert: true });
+
+        if (uploadError) {
+          toast({
+            title: "Error",
+            description: "An error occurred while uploading the file.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const {
+          data: { publicUrl },
+        } = supabaseClient.storage
+          .from("REQUEST_ATTACHMENTS")
+          .getPublicUrl(filePath);
+
+        attachmentUrl = publicUrl;
+      }
+
       await handleCreateMerchantData({
         accountNumber: sanitizedData.accountNumber,
         accountType: sanitizedData.accountType,
         accountName: sanitizedData.bankName,
+        merchantQrAttachment: attachmentUrl ? attachmentUrl : "",
       });
 
       toast({
@@ -163,6 +202,8 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
       });
     }
   };
+
+  const uploadedFile = watch("file");
 
   return (
     <Card className="w-full rounded-sm p-4">
@@ -289,6 +330,29 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
                     </div>
                   )}
                 />
+                <div>
+                  <Controller
+                    name="file"
+                    control={control}
+                    render={({ field }) => (
+                      <FileUpload
+                        label="Upload QR"
+                        onFileChange={(file) => field.onChange(file)}
+                      />
+                    )}
+                  />
+                  {uploadedFile && !formState.errors.file && (
+                    <p className="text-md font-bold text-green-700">
+                      {"File Uploaded Successfully"}
+                    </p>
+                  )}
+
+                  {formState.errors.file && (
+                    <p className="text-primaryRed text-sm mt-1">
+                      {formState.errors.file?.message}
+                    </p>
+                  )}
+                </div>
                 <div className="flex flex-col gap-2 mt-4">
                   <Button
                     disabled={formState.isSubmitting}

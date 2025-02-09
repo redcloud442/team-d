@@ -7,7 +7,16 @@ import { createClientSide } from "@/utils/supabase/client";
 import { merchant_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -101,7 +110,6 @@ export const useMerchantColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "merchant_account_type",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -114,6 +122,41 @@ export const useMerchantColumn = (handleFetch: () => void) => {
       cell: ({ row }) => (
         <div className="text-wrap">{row.getValue("merchant_account_type")}</div>
       ),
+    },
+    {
+      accessorKey: "merchant_qr_attachment",
+      header: "QR Attachment",
+      cell: ({ row }) => {
+        const attachmentUrl = row.getValue("merchant_qr_attachment") as string;
+        return (
+          <>
+            {attachmentUrl ? (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline">View Attachment</Button>
+                </DialogTrigger>
+                <DialogContent type="table">
+                  <DialogHeader>
+                    <DialogTitle>Attachment</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex justify-center items-center">
+                    <Image
+                      src={attachmentUrl || ""}
+                      alt="Attachment Preview"
+                      width={200}
+                      height={200}
+                    />
+                  </div>
+
+                  <DialogClose asChild>
+                    <Button variant="secondary">Close</Button>
+                  </DialogClose>
+                </DialogContent>
+              </Dialog>
+            ) : null}
+          </>
+        );
+      },
     },
     {
       header: "Action",
