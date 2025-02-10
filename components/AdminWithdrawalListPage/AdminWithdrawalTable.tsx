@@ -572,7 +572,10 @@ const AdminWithdrawalHistoryTable = ({
             />
           </TabsContent>
         </Tabs>
-        <ScrollBar orientation="horizontal" />
+        <ScrollBar
+          className="bg-blue-700 dark:bg-blue-700"
+          orientation="horizontal"
+        />
       </ScrollArea>
 
       <div className="flex items-center justify-end gap-x-4 py-4">
