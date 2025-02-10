@@ -2,6 +2,7 @@
 
 import { logError } from "@/services/Error/ErrorLogs";
 import { getUserEarnings } from "@/services/User/User";
+import { useDailyTaskStore } from "@/store/useDailyTaskStore";
 import { useUserLoadingStore } from "@/store/useLoadingStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useSponsorStore } from "@/store/useSponsortStore";
@@ -17,6 +18,7 @@ import {
 import { RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import RoadmapDailyTask from "../SpinTheWheel/RoadmapDailyTask/RoadmapDailyTask";
 import { Button } from "../ui/button";
 import {
   Carousel,
@@ -53,6 +55,7 @@ const DashboardPage = ({
   const { totalEarnings, setTotalEarnings } = useUserDashboardEarningsStore();
   const { chartData } = usePackageChartData();
   const { sponsor } = useSponsorStore();
+  const { dailyTask } = useDailyTaskStore();
 
   const [isActive, setIsActive] = useState(
     teamMemberProfile.alliance_member_is_active
@@ -248,6 +251,7 @@ const DashboardPage = ({
           </div>
         </div>
 
+        <RoadmapDailyTask allianceWheel={dailyTask.dailyTask} />
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
           <div className="flex flex-col gap-4 ">
             <DashboardDepositModalDeposit

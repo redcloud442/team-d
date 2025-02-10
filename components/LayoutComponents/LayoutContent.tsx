@@ -9,6 +9,7 @@ import {
   getUserSponsor,
   getUserWithdrawalToday,
 } from "@/services/User/User";
+import { useDailyTaskStore } from "@/store/useDailyTaskStore";
 import { useUserLoadingStore } from "@/store/useLoadingStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useSponsorStore } from "@/store/useSponsortStore";
@@ -47,6 +48,7 @@ export default function LayoutContent({
     useUserHaveAlreadyWithdraw();
   const { setTheme } = useTheme();
   const { setSponsor } = useSponsorStore();
+  const { setDailyTask } = useDailyTaskStore();
 
   useEffect(() => {
     if (role !== ROLE.ADMIN) {
@@ -78,8 +80,14 @@ export default function LayoutContent({
           getUserSponsor({ userId: profile.user_id }),
         ]);
 
-        const { canWithdrawReferral, canWithdrawPackage, canUserDeposit } =
-          dataWithdrawalToday;
+        const {
+          canWithdrawReferral,
+          canWithdrawPackage,
+          canWithdrawWinning,
+          canUserDeposit,
+        } = dataWithdrawalToday.data;
+
+        setDailyTask(dataWithdrawalToday.response);
 
         setTotalEarnings(totalEarnings);
         setEarnings(userEarningsData);
@@ -95,6 +103,7 @@ export default function LayoutContent({
         setIsWithdrawalToday({
           referral: canWithdrawReferral,
           package: canWithdrawPackage,
+          winning: canWithdrawWinning,
         });
 
         setSponsor(sponsorData);
@@ -140,12 +149,12 @@ export default function LayoutContent({
             <div className="absolute inset-0 bg-zinc-900/80 dark:bg-zinc-900/90"></div>
           </div>
         )}
-
+        <SpinWheel />
         {/* Content Section */}
         <div className="pb-24 p-4 relative z-50 grow">{children}</div>
 
         {/* Mobile Navigation */}
-        <SpinWheel />
+
         {role !== ROLE.ADMIN && <MobileNavBar />}
         {role === ROLE.ADMIN && <ModeToggle />}
       </div>

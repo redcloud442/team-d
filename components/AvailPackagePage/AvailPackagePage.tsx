@@ -128,6 +128,13 @@ const AvailPackagePage = ({
         );
         remainingAmount -= referralDeduction;
 
+        const winningDeduction = Math.min(
+          remainingAmount,
+          earnings.alliance_winning_earnings
+        );
+
+        remainingAmount -= winningDeduction;
+
         setEarnings({
           ...earnings,
           alliance_combined_earnings:
@@ -136,6 +143,8 @@ const AvailPackagePage = ({
             earnings.alliance_olympus_earnings - olympusDeduction,
           alliance_referral_bounty:
             earnings.alliance_referral_bounty - referralDeduction,
+          alliance_winning_earnings:
+            earnings.alliance_winning_earnings - winningDeduction,
         });
       }
 
