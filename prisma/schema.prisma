@@ -28,6 +28,7 @@ enum ReferralType {
 model user_table {
   user_id               String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   user_date_created     DateTime        @default(now())  @db.Timestamptz(3)
+  user_date_created     DateTime        @default(now())  @db.Timestamptz(3)
   user_username         String?
   user_first_name       String?
   user_last_name        String?
@@ -244,6 +245,7 @@ model alliance_wheel_log_table {
   alliance_member_table alliance_member_table @relation(fields: [alliance_wheel_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
   @@schema("alliance_schema")
 }
+
 
 model package_table {
   package_id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid

@@ -203,6 +203,8 @@ const DashboardDepositModalDeposit = ({
     }
   };
 
+  const selectedOption = watch("topUpMode");
+
   const uploadedFile = watch("file");
 
   const handleCopy = (text: string) => {
@@ -221,6 +223,10 @@ const DashboardDepositModalDeposit = ({
       title: "Copied to clipboard",
     });
   };
+
+  const selectedMerchant = topUpOptions.find(
+    (option) => option.merchant_id === selectedOption
+  );
 
   return (
     <Dialog
@@ -386,6 +392,18 @@ const DashboardDepositModalDeposit = ({
                 </p>
               )}
             </div>
+
+            {selectedMerchant?.merchant_qr_attachment && (
+              <div className="flex flex-col gap-2 justify-center items-center">
+                <p className="text-lg font-bold">QR CODE</p>
+                <Image
+                  src={selectedMerchant.merchant_qr_attachment}
+                  alt="QR Code"
+                  width={200}
+                  height={200}
+                />
+              </div>
+            )}
 
             {/* Account Details */}
             <div className="flex flex-col gap-4">

@@ -54,13 +54,16 @@ export const AdminUsersColumn = (
     }
   };
 
-  const handleBanUser = async (alliance_member_alliance_id: string) => {
+  const handleBanUser = async (
+    alliance_member_alliance_id: string,
+    type: string
+  ) => {
     try {
       setIsOpenModal({
         open: true,
         role: "",
         memberId: alliance_member_alliance_id,
-        type: "BAN",
+        type: type,
       });
 
       // await handleUpdateUserRestriction({
@@ -279,11 +282,23 @@ export const AdminUsersColumn = (
                   Promote as Member
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem
-                onClick={() => handleBanUser(data.alliance_member_id)}
-              >
-                Ban User
-              </DropdownMenuItem>
+              {!data.alliance_member_restricted && (
+                <DropdownMenuItem
+                  onClick={() => handleBanUser(data.alliance_member_id, "BAN")}
+                >
+                  Ban User
+                </DropdownMenuItem>
+              )}
+
+              {data.alliance_member_restricted && (
+                <DropdownMenuItem
+                  onClick={() =>
+                    handleBanUser(data.alliance_member_id, "UNBAN")
+                  }
+                >
+                  Unban User
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );

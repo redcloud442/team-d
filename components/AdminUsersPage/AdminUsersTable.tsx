@@ -249,19 +249,33 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
     }
   };
 
-  const handleBanUser = async (memberId: string) => {
+  const handleBanUser = async (memberId: string, type: string) => {
     try {
       setIsLoading(true);
-      await handleUpdateUserRestriction({ userId: memberId });
-      setRequestData((prev) =>
-        prev.map((item) =>
-          item.user_id === memberId ? { ...item, user_restricted: true } : item
-        )
-      );
+      await handleUpdateUserRestriction({ userId: memberId, type });
+      fetchAdminRequest();
       setIsOpenModal({ memberId: "", role: "", open: false, type: "" });
+
+      if (type === "BAN") {
+        setRequestData((prev) =>
+          prev.map((request) =>
+            request.alliance_member_id === memberId
+              ? { ...request, alliance_member_is_restricted: true }
+              : request
+          )
+        );
+      } else if (type === "UNBAN") {
+        setRequestData((prev) =>
+          prev.map((request) =>
+            request.alliance_member_id === memberId
+              ? { ...request, alliance_member_is_restricted: false }
+              : request
+          )
+        );
+      }
       toast({
-        title: `User Banned`,
-        description: `User Banned Sucessfully`,
+        title: `User ${type === "BAN" ? "Banned" : "Unbanned"}`,
+        description: `User ${type === "BAN" ? "Banned" : "Unbanned"} Sucessfully`,
         variant: "success",
       });
     } catch (e) {
@@ -306,7 +320,7 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
                   if (isOpenModal.type === "PROMOTE") {
                     handlePromoteUser(isOpenModal.memberId, isOpenModal.role);
                   } else {
-                    handleBanUser(isOpenModal.memberId);
+                    handleBanUser(isOpenModal.memberId, isOpenModal.type);
                   }
                 }}
                 disabled={isLoading}
@@ -508,7 +522,10 @@ const AdminUsersTable = ({ teamMemberProfile }: DataTableProps) => {
             </TableRow>
           </tfoot>
         </Table>
-        <ScrollBar orientation="horizontal" />
+        <ScrollBar
+          className="bg-blue-700 dark:bg-blue-700"
+          orientation="horizontal"
+        />
       </ScrollArea>
 
       <div className="flex items-center justify-end gap-x-4 py-4">

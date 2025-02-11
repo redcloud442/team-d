@@ -54,6 +54,7 @@ export const handleCreateMerchantData = async (params: {
   accountNumber: string;
   accountType: string;
   accountName: string;
+  merchantQrAttachment: string;
 }) => {
   const response = await fetch(`/api/v1/merchant`, {
     method: "POST",

@@ -241,26 +241,6 @@ export const TopUpColumn = (
       ),
     },
     {
-      accessorKey: "alliance_top_up_request_reference_number",
-
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="p-1"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
-        >
-          Reference Number <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => (
-        <div className="text-wrap">
-          {row.getValue("alliance_top_up_request_reference_number")
-            ? row.getValue("alliance_top_up_request_reference_number")
-            : ""}
-        </div>
-      ),
-    },
-    {
       accessorKey: "alliance_top_up_request_date",
 
       header: ({ column }) => (

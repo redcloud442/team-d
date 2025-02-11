@@ -96,6 +96,8 @@ export type AdminDashboardDataByDate = {
   totalApprovedReceipts: number;
   packageEarnings: number;
   chartData: ChartData[];
+  reinvestorsCount: number;
+  totalReinvestmentAmount: number;
 };
 
 export type AdminDashboardData = {
