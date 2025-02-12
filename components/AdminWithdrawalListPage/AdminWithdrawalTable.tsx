@@ -1,7 +1,6 @@
 "use client";
 
 import { logError } from "@/services/Error/ErrorLogs";
-import { getUserOptions } from "@/services/Options/Options";
 import { getAdminWithdrawalRequest } from "@/services/Withdrawal/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
@@ -41,13 +40,6 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Switch } from "../ui/switch";
 import TableLoading from "../ui/tableLoading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
@@ -297,40 +289,40 @@ const AdminWithdrawalHistoryTable = ({
     },
   });
 
-  useEffect(() => {
-    const fetchOptions = async () => {
-      try {
-        const pageLimit = 500;
+  // useEffect(() => {
+  //   const fetchOptions = async () => {
+  //     try {
+  //       const pageLimit = 500;
 
-        let currentUserPage = 1;
+  //       let currentUserPage = 1;
 
-        let allUserOptions: user_table[] = [];
+  //       let allUserOptions: user_table[] = [];
 
-        while (true) {
-          const userData = await getUserOptions({
-            page: currentUserPage,
-            limit: pageLimit,
-          });
+  //       while (true) {
+  //         const userData = await getUserOptions({
+  //           page: currentUserPage,
+  //           limit: pageLimit,
+  //         });
 
-          if (!userData?.length) {
-            break;
-          }
+  //         if (!userData?.length) {
+  //           break;
+  //         }
 
-          allUserOptions = [...allUserOptions, ...userData];
+  //         allUserOptions = [...allUserOptions, ...userData];
 
-          if (userData.length < pageLimit) {
-            break;
-          }
+  //         if (userData.length < pageLimit) {
+  //           break;
+  //         }
 
-          currentUserPage += 1;
-        }
+  //         currentUserPage += 1;
+  //       }
 
-        setUserOptions(allUserOptions);
-      } catch (e) {}
-    };
+  //       setUserOptions(allUserOptions);
+  //     } catch (e) {}
+  //   };
 
-    fetchOptions();
-  }, [supabaseClient, teamMemberProfile.alliance_member_id]);
+  //   fetchOptions();
+  // }, [supabaseClient, teamMemberProfile.alliance_member_id]);
 
   useEffect(() => {
     fetchRequest();
@@ -464,7 +456,7 @@ const AdminWithdrawalHistoryTable = ({
 
           {showFilters && (
             <div className="flex flex-wrap gap-2 items-center rounded-md ">
-              <Controller
+              {/* <Controller
                 name="userFilter"
                 control={control}
                 render={({ field }) => (
@@ -486,7 +478,7 @@ const AdminWithdrawalHistoryTable = ({
                     </SelectContent>
                   </Select>
                 )}
-              />
+              /> */}
 
               <Controller
                 name="dateFilter.start"

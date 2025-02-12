@@ -1,10 +1,6 @@
 "use client";
 
 import { logError } from "@/services/Error/ErrorLogs";
-import {
-  getUserOptions,
-  getUserOptionsMerchant,
-} from "@/services/Options/Options";
 import { getAdminTopUpRequest } from "@/services/TopUp/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
@@ -45,13 +41,6 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Switch } from "../ui/switch";
 import TableLoading from "../ui/tableLoading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
@@ -313,65 +302,65 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
     },
   });
 
-  useEffect(() => {
-    const fetchOptions = async () => {
-      try {
-        const pageLimit = 500;
+  // useEffect(() => {
+  //   const fetchOptions = async () => {
+  //     try {
+  //       const pageLimit = 500;
 
-        // Fetch Merchant Options
-        let currentMerchantPage = 1;
-        let allMerchantOptions: user_table[] = [];
+  //       // Fetch Merchant Options
+  //       let currentMerchantPage = 1;
+  //       let allMerchantOptions: user_table[] = [];
 
-        while (true) {
-          const merchantData = await getUserOptionsMerchant({
-            page: currentMerchantPage,
-            limit: pageLimit,
-          });
+  //       while (true) {
+  //         const merchantData = await getUserOptionsMerchant({
+  //           page: currentMerchantPage,
+  //           limit: pageLimit,
+  //         });
 
-          if (!merchantData?.length) {
-            break;
-          }
+  //         if (!merchantData?.length) {
+  //           break;
+  //         }
 
-          allMerchantOptions = [...allMerchantOptions, ...merchantData];
+  //         allMerchantOptions = [...allMerchantOptions, ...merchantData];
 
-          if (merchantData.length < pageLimit) {
-            break;
-          }
+  //         if (merchantData.length < pageLimit) {
+  //           break;
+  //         }
 
-          currentMerchantPage += 1;
-        }
+  //         currentMerchantPage += 1;
+  //       }
 
-        setMerchantOptions(allMerchantOptions);
+  //       setMerchantOptions(allMerchantOptions);
 
-        // Fetch User Options
-        let currentUserPage = 1;
-        let allUserOptions: user_table[] = [];
+  //       // Fetch User Options
+  //       let currentUserPage = 1;
+  //       let allUserOptions: user_table[] = [];
 
-        while (true) {
-          const userData = await getUserOptions({
-            page: currentUserPage,
-            limit: pageLimit,
-          });
+  //       while (true) {
+  //         const userData = await getUserOptions({
+  //           page: currentUserPage,
+  //           limit: pageLimit,
+  //         });
 
-          if (!userData?.length) {
-            break;
-          }
+  //         if (!userData?.length) {
+  //           break;
+  //         }
 
-          allUserOptions = [...allUserOptions, ...userData];
+  //         allUserOptions = [...allUserOptions, ...userData];
 
-          if (userData.length < pageLimit) {
-            break;
-          }
+  //         if (userData.length < pageLimit) {
+  //           break;
+  //         }
 
-          currentUserPage += 1;
-        }
+  //         currentUserPage += 1;
+  //       }
 
-        setUserOptions(allUserOptions);
-      } catch (e) {}
-    };
+  //       setUserOptions(allUserOptions);
+  //     } catch (e) {}
+  //   };
 
-    fetchOptions();
-  }, [supabaseClient, teamMemberProfile.alliance_member_id]);
+  //   fetchOptions();
+  // }, [supabaseClient, teamMemberProfile.alliance_member_id]);
 
   useEffect(() => {
     fetchRequest();
@@ -506,7 +495,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
 
           {showFilters && (
             <div className="flex flex-wrap gap-2 items-center rounded-md ">
-              <Controller
+              {/* <Controller
                 name="merchantFilter"
                 control={control}
                 render={({ field }) => (
@@ -528,9 +517,9 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
                     </SelectContent>
                   </Select>
                 )}
-              />
+              /> */}
 
-              <Controller
+              {/* <Controller
                 name="userFilter"
                 control={control}
                 render={({ field }) => (
@@ -552,7 +541,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
                     </SelectContent>
                   </Select>
                 )}
-              />
+              /> */}
 
               <Controller
                 name="dateFilter.start"
