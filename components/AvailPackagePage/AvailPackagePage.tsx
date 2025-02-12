@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { createPackageConnection } from "@/services/Package/Member";
+import { useDailyTaskStore } from "@/store/useDailyTaskStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { escapeFormData } from "@/utils/function";
-import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   alliance_earnings_table,
@@ -39,9 +39,9 @@ const AvailPackagePage = ({
   setSelectedPackage,
   selectedPackage,
 }: Props) => {
-  const supabaseClient = createClientSide();
   const { toast } = useToast();
   const { setEarnings } = useUserEarningsStore();
+  const { dailyTask, setDailyTask } = useDailyTaskStore();
   const { chartData, setChartData } = usePackageChartData();
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const [maxAmount, setMaxAmount] = useState(
@@ -98,7 +98,7 @@ const AvailPackagePage = ({
           (selectedPackage?.packages_days ?? 0) * 24 * 60 * 60 * 1000
       );
 
-      await createPackageConnection({
+      const response = await createPackageConnection({
         packageData: {
           amount: Number(result.amount),
           packageId: selectedPackage?.package_id || "",
@@ -183,6 +183,16 @@ const AvailPackagePage = ({
         ],
         count: 1,
       });
+
+      if (
+        !dailyTask.dailyTask.two_thousand_package_plan &&
+        dailyTask.dailyTask.five_hundred_referrals_amount &&
+        dailyTask.dailyTask.ten_direct_referrals_count &&
+        dailyTask.dailyTask.two_hundred_referrals_amount &&
+        dailyTask.dailyTask.three_referrals_count
+      ) {
+        setDailyTask(response);
+      }
 
       setSelectedPackage(null);
       setOpen(false);

@@ -27,7 +27,7 @@ const roadmapSteps = [
   },
   {
     id: 5,
-    label: "2000 Package Plan + 20 spin",
+    label: "2500 Package Plan + 20 spin",
     key: "two_thousand_package_plan",
   },
 ];
@@ -37,7 +37,6 @@ const RoadmapComponent = ({ allianceWheel }: RoadmapProps) => {
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   useEffect(() => {
-    // Calculate completed steps and update progress
     const completedSteps = roadmapSteps.filter(
       (step) => allianceWheel[step.key as keyof typeof allianceWheel]
     ).length;
@@ -47,8 +46,8 @@ const RoadmapComponent = ({ allianceWheel }: RoadmapProps) => {
 
   return (
     <div className="p-4 sm:p-6 rounded-md shadow-md space-y-6 bg-black/40">
-      <h2 className="text-lg sm:text-xl font-bold text-white pb-14">
-        Daily TaskD Progress
+      <h2 className="text-md sm:text-xl font-bold text-white pb-14">
+        Daily Task Progress
       </h2>
       <div className="relative w-full">
         <Progress value={progress} className="h-3 sm:h-4 bg-gray-600" />
@@ -66,11 +65,11 @@ const RoadmapComponent = ({ allianceWheel }: RoadmapProps) => {
               ></div>
 
               <span
-                className={`absolute text-[10px] sm:text-xs text-center ${
-                  index % 2 === 0 ? "-top-16 sm:-top-12" : "top-8 sm:top-10"
+                className={`absolute text-[9px] sm:text-xs text-center ${
+                  index % 2 === 0 ? "-top-16 sm:-top-16" : "top-8 sm:top-10"
                 } ${
                   index === currentStep
-                    ? "text-yellow-300 font-bold"
+                    ? "text-gray-400 font-bold"
                     : index < currentStep
                       ? "text-yellow-300"
                       : "text-gray-400"
@@ -84,11 +83,11 @@ const RoadmapComponent = ({ allianceWheel }: RoadmapProps) => {
       </div>
       {/* Next Goal Section */}{" "}
       {currentStep < roadmapSteps.length ? (
-        <div className="mt-4 text-yellow-300 font-semibold text-sm sm:text-base pt-10">
+        <div className="mt-4 text-yellow-300 font-semibold text-xs text-center sm:text-sm pt-10">
           <span>Next Goal: {roadmapSteps[currentStep]?.label}</span>
         </div>
       ) : (
-        <div className="mt-4 text-green-500 font-semibold text-sm sm:text-base">
+        <div className="mt-4 text-green-500 font-semibold text-xs sm:text-sm">
           All goals completed!
         </div>
       )}

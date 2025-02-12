@@ -23,13 +23,13 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
 const prizes = [
-  { prize: 25, color: "#FF5733" },
-  { prize: 50, color: "#33A1FF" },
-  { prize: 150, color: "#85FF33" },
-  { prize: 1000, color: "#FFC300" },
-  { prize: 10000, color: "#DAF7A6" },
-  { prize: "RE-SPIN", color: "#C70039" },
-  { prize: "NO REWARD", color: "#581845" },
+  { prize: 25, color: "#FF5733", angle: 20, angley: 20 },
+  { prize: 50, color: "#33A1FF", angle: 70, angley: 70 },
+  { prize: 150, color: "#85FF33", angle: 130, angley: 130 },
+  { prize: 1000, color: "#FFC300", angle: 185, angley: 185 },
+  { prize: 10000, color: "#DAF7A6", angle: 240, angley: 240 },
+  { prize: "RE-SPIN", color: "#C70039", angle: 280, angley: 290 },
+  { prize: "NO REWARD", color: "#581845", angle: 60, angley: 330 },
 ];
 
 const buySpinSchema = z.object({
@@ -40,13 +40,10 @@ type BuySpinFormValues = z.infer<typeof buySpinSchema>;
 
 export const SpinWheel = () => {
   const [spinning, setSpinning] = useState(false);
-  const { dailyTask } = useDailyTaskStore();
+  const { dailyTask, setDailyTask } = useDailyTaskStore();
 
   const [selectedPrize, setSelectedPrize] = useState<string | null>(null);
 
-  const [count, setCount] = useState(
-    dailyTask.wheelLog.alliance_wheel_spin_count
-  ); // Initial 3 spins
   const [rotation, setRotation] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [buySpin, setBuySpin] = useState(false);
@@ -67,11 +64,10 @@ export const SpinWheel = () => {
     },
   });
 
-  console.log(earnings);
   const handleSpin = async () => {
     if (spinning) return;
 
-    if (count <= 0) {
+    if (dailyTask.wheelLog.alliance_wheel_spin_count <= 0) {
       setBuySpin(true);
       return;
     }
@@ -92,9 +88,15 @@ export const SpinWheel = () => {
         setSelectedPrize(String(prizeIndex));
 
         if (prizeIndex === "RE-SPIN") {
-          setCount((prev) => prev);
         } else {
-          setCount((prev) => prev - 1);
+          setDailyTask({
+            ...dailyTask,
+            wheelLog: {
+              ...dailyTask.wheelLog,
+              alliance_wheel_spin_count:
+                dailyTask.wheelLog.alliance_wheel_spin_count - 1,
+            },
+          });
           if (!earnings) return;
 
           setEarnings({
@@ -120,6 +122,7 @@ export const SpinWheel = () => {
         toast({
           title: "Insufficient balance",
           description: "Please add more balance to your account",
+          variant: "destructive",
         });
         return;
       }
@@ -159,7 +162,14 @@ export const SpinWheel = () => {
           earnings.alliance_winning_earnings - winningDeduction,
       });
 
-      setCount(count + data.quantity);
+      setDailyTask({
+        ...dailyTask,
+        wheelLog: {
+          ...dailyTask.wheelLog,
+          alliance_wheel_spin_count:
+            dailyTask.wheelLog.alliance_wheel_spin_count + data.quantity,
+        },
+      });
       setBuySpin(false);
 
       toast({
@@ -182,26 +192,41 @@ export const SpinWheel = () => {
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={() => {
-        setIsOpen(!isOpen);
-        setSelectedPrize(null);
-        setRotation(0);
+      onOpenChange={(value) => {
+        setIsOpen(value); // Properly update the dialog state
+        if (!value) {
+          setSelectedPrize(null);
+          setRotation(0);
+        }
       }}
     >
-      <DialogTrigger>Open</DialogTrigger>
-      <DialogContent>
+      <DialogTrigger asChild>
+        <Image
+          src="/assets/wheel.png"
+          alt="Wheel Logo"
+          width={100}
+          height={100}
+          className="rounded-full cursor-pointer fixed top-36 left-4 animate-pulse z-[9999] pointer-events-auto hover:rotate-180 transition-transform duration-1000"
+          onClick={() => setIsOpen(true)}
+        />
+      </DialogTrigger>
+      <DialogContent className="p-0 sm:p-4">
         <DialogHeader>
           <DialogTitle>
             Prime Wheel | Spin:{" "}
-            <span className="font-bold text-green-800">{count}</span>
+            <span className="font-bold text-green-800">
+              {dailyTask?.wheelLog?.alliance_wheel_spin_count ?? 0}
+            </span>
           </DialogTitle>
-          <DialogDescription>Spin the wheel to earn rewards!</DialogDescription>
+          <DialogDescription>
+            Spin the wheel to earn random rewards!
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col items-center justify-center space-y-6 mt-4">
+        <div className="flex flex-col items-center justify-start space-y-6 mt-4  ">
           <div className="relative">
             <motion.div
-              className={`w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] rounded-full border-[16px] border-black ${
+              className={`w-[350px] h-[350px] sm:w-[400px] sm:h-[400px] rounded-full border-[10px] border-black text-white ${
                 spinning ? "animate-pulse" : ""
               }`}
               animate={{ rotate: rotation }}
@@ -225,16 +250,144 @@ export const SpinWheel = () => {
                   onClick={handleSpin}
                 />
               </div>
-            </motion.div>
+              <div
+                className="absolute top-1/2 left-1/2 origin-[0_-160px] sm:origin-[0_-160px]"
+                style={{
+                  transform: `rotate(70deg)  translateY(-130px) rotate(-70deg)`, // Keeps the label upright
+                }}
+              >
+                <div
+                  className="text-black text-center"
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    transform: `rotate(-10deg)`, // Rotate text vertically
+                  }}
+                >
+                  ₱ {prizes[0].prize}
+                </div>
+              </div>
 
-            <div className="absolute top-[-16px] left-1/2 transform -translate-x-1/2 w-8 h-8 border-t-[20px] border-l-transparent border-r-transparent border-t-black"></div>
+              <div
+                className="absolute top-1/2 left-1/2 origin-[0_-160px]"
+                style={{
+                  transform: `rotate(125deg)  translateY(-130px) rotate(-122deg)`, // Keeps the label upright
+                }}
+              >
+                <div
+                  className="text-black text-center"
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    transform: `rotate(40deg)`, // Rotate text vertically
+                  }}
+                >
+                  ₱ {prizes[1].prize}
+                </div>
+              </div>
+
+              <div
+                className="absolute top-1/2 left-1/2 origin-[0_-160px]"
+                style={{
+                  transform: `rotate(161deg)  translateY(-130px)rotate(-140deg)`, // Keeps the label upright
+                }}
+              >
+                <div
+                  className="text-black text-center"
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    transform: `rotate(70deg)`, // Rotate text vertically
+                  }}
+                >
+                  ₱ {prizes[3].prize}
+                </div>
+              </div>
+
+              <div
+                className="absolute top-1/2 left-1/2 origin-[0_-160px]"
+                style={{
+                  transform: `rotate(-123deg)  translateY(-130px) rotate(127deg)`, // Keeps the label upright
+                }}
+              >
+                <div
+                  className="text-black text-center"
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    transform: `rotate(140deg)`, // Rotate text vertically
+                  }}
+                >
+                  ₱ {prizes[4].prize}
+                </div>
+              </div>
+
+              <div
+                className="absolute top-1/2 left-1/2 origin-[0_-160px]"
+                style={{
+                  transform: `rotate(-72deg)  translateY(-140px) rotate(80deg)`, // Keeps the label upright
+                }}
+              >
+                <div
+                  className="text-black text-center"
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    transform: `rotate(10deg)`, // Rotate text vertically
+                  }}
+                >
+                  {prizes[5].prize}
+                </div>
+              </div>
+
+              <div
+                className="absolute top-1/2 left-1/2 origin-[0_-160px]"
+                style={{
+                  transform: `rotate(-10deg)  translateY(-130px) rotate(30deg)`, // Keeps the label upright
+                }}
+              >
+                <div
+                  className="text-black text-center"
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    transform: `rotate(40deg)`, // Rotate text vertically
+                  }}
+                >
+                  ₱ {prizes[2].prize}
+                </div>
+              </div>
+
+              <div
+                className="absolute top-1/2 left-1/2 origin-[0_-160px]"
+                style={{
+                  transform: `rotate(20deg)  translateY(-130px) rotate(-5deg)`, // Keeps the label upright
+                }}
+              >
+                <div
+                  className="text-black text-center"
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    transform: `rotate(90deg)`, // Rotate text vertically
+                  }}
+                >
+                  {prizes[6].prize}
+                </div>
+              </div>
+            </motion.div>
           </div>
 
           {/* Spin button and spin count */}
-          <div className="flex flex-col justify-start items-start space-y-2 border-2">
-            <Dialog open={buySpin} onOpenChange={() => setBuySpin(false)}>
+          <div className="flex flex-col justify-start items-start space-y-2 border-2 z-index-dialog">
+            <Dialog open={buySpin} onOpenChange={setBuySpin}>
               <DialogTrigger asChild>
-                <Button type="button" variant={"card"} size="sm">
+                <Button
+                  type="button"
+                  onClick={() => setBuySpin(true)}
+                  variant={"card"}
+                  size="sm"
+                >
                   <Plus /> Buy Spin
                 </Button>
               </DialogTrigger>
