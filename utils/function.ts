@@ -258,6 +258,9 @@ export const calculateFinalAmount = (
   } else if (selectedEarnings === "REFERRAL") {
     const fee = amount * 0.1;
     return amount - fee;
+  } else if (selectedEarnings === "WINNING") {
+    const fee = amount * 0.1;
+    return amount - fee;
   }
   return amount;
 };
@@ -272,6 +275,8 @@ export const calculateFee = (
   } else if (selectedEarnings === "REFERRAL") {
     const fee = amount * 0.1;
     return fee;
+  } else if (selectedEarnings === "WINNING") {
+    return 0;
   }
   return 0;
 };

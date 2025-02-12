@@ -3,7 +3,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: `${process.env.NODE_ENV === "development" ? "qkrltxqicdallokpzdif.supabase.co" : "hburgwylodfpwgbtywue.supabase.co"}`,
+        hostname: `${process.env.NODE_ENV === "development" ? "qkrltxqicdallokpzdif.supabase.co" : "qkrltxqicdallokpzdif.supabase.co"}`,
         port: "",
         pathname: "/storage/v1/object/public/**",
       },
@@ -13,7 +13,7 @@ const nextConfig = {
     return [
       {
         source: "/api/v1/:path*",
-        destination: `${process.env.NODE_ENV === "development" ? "http://localhost:9000" : "https://loadbalancer.primepinas.com"}/api/v1/:path*`,
+        destination: `${process.env.NODE_ENV === "development" ? "http://localhost:9000" : "https://server.redful.xyz"}/api/v1/:path*`,
       },
     ];
   },

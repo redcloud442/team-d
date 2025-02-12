@@ -33,12 +33,15 @@ const prizes = [
 ];
 
 const buySpinSchema = z.object({
-  quantity: z.number().min(1).max(100),
+  quantity: z.number().min(1),
 });
 
 type BuySpinFormValues = z.infer<typeof buySpinSchema>;
 
 export const SpinWheel = () => {
+  const winSound = new Audio("/assets/sounds/winning.mp3");
+  const loseSound = new Audio("/assets/sounds/losing.mp3");
+
   const [spinning, setSpinning] = useState(false);
   const { dailyTask, setDailyTask } = useDailyTaskStore();
 
@@ -56,6 +59,7 @@ export const SpinWheel = () => {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<BuySpinFormValues>({
     resolver: zodResolver(buySpinSchema),
@@ -80,7 +84,7 @@ export const SpinWheel = () => {
       const prizeIndex = response.prize as number | string;
       const prizeAmount = typeof prizeIndex === "number" ? prizeIndex : 0;
 
-      const randomRotation = 360 * 15 + 100 * (360 / prizes.length);
+      const randomRotation = 360 * 20 + 500 * (360 / prizes.length);
       setRotation((prevRotation) => prevRotation + randomRotation);
 
       setTimeout(() => {
@@ -88,6 +92,9 @@ export const SpinWheel = () => {
         setSelectedPrize(String(prizeIndex));
 
         if (prizeIndex === "RE-SPIN") {
+          winSound.play();
+        } else if (prizeIndex === "NO REWARD") {
+          loseSound.play();
         } else {
           setDailyTask({
             ...dailyTask,
@@ -106,6 +113,7 @@ export const SpinWheel = () => {
             alliance_combined_earnings:
               earnings.alliance_combined_earnings + Number(prizeAmount),
           });
+          winSound.play();
         }
       }, 3000);
     } catch (error) {
@@ -177,6 +185,7 @@ export const SpinWheel = () => {
         description: `You have purchased ${data.quantity} spins`,
       });
 
+      reset();
       // const response = await handleBuyWheelSpin(data.quantity);
     } catch (error) {
       toast({
@@ -204,13 +213,13 @@ export const SpinWheel = () => {
         <Image
           src="/assets/wheel.png"
           alt="Wheel Logo"
-          width={100}
-          height={100}
-          className="rounded-full cursor-pointer fixed top-36 left-4 animate-pulse z-[9999] pointer-events-auto hover:rotate-180 transition-transform duration-1000"
+          width={60}
+          height={60}
+          className="rounded-full cursor-pointer fixed bottom-18 sm:bottom-24 right-3 animate-pulse z-[9999] pointer-events-auto hover:rotate-180 transition-transform duration-1000"
           onClick={() => setIsOpen(true)}
         />
       </DialogTrigger>
-      <DialogContent className="p-0 sm:p-4">
+      <DialogContent className="p-1 sm:p-4">
         <DialogHeader>
           <DialogTitle>
             Prime Wheel | Spin:{" "}
@@ -257,7 +266,7 @@ export const SpinWheel = () => {
                 }}
               >
                 <div
-                  className="text-black text-center"
+                  className="text-white text-center"
                   style={{
                     fontSize: "14px",
                     fontWeight: "bold",
@@ -275,7 +284,7 @@ export const SpinWheel = () => {
                 }}
               >
                 <div
-                  className="text-black text-center"
+                  className="text-white text-center"
                   style={{
                     fontSize: "14px",
                     fontWeight: "bold",
@@ -293,7 +302,7 @@ export const SpinWheel = () => {
                 }}
               >
                 <div
-                  className="text-black text-center"
+                  className="text-white text-center"
                   style={{
                     fontSize: "14px",
                     fontWeight: "bold",
@@ -311,7 +320,7 @@ export const SpinWheel = () => {
                 }}
               >
                 <div
-                  className="text-black text-center"
+                  className="text-white text-center"
                   style={{
                     fontSize: "14px",
                     fontWeight: "bold",
@@ -329,7 +338,7 @@ export const SpinWheel = () => {
                 }}
               >
                 <div
-                  className="text-black text-center"
+                  className="text-white text-center"
                   style={{
                     fontSize: "14px",
                     fontWeight: "bold",
@@ -347,7 +356,7 @@ export const SpinWheel = () => {
                 }}
               >
                 <div
-                  className="text-black text-center"
+                  className="text-white text-center"
                   style={{
                     fontSize: "14px",
                     fontWeight: "bold",
@@ -365,7 +374,7 @@ export const SpinWheel = () => {
                 }}
               >
                 <div
-                  className="text-black text-center"
+                  className="text-white text-center"
                   style={{
                     fontSize: "14px",
                     fontWeight: "bold",
@@ -400,6 +409,16 @@ export const SpinWheel = () => {
                 </DialogHeader>
                 <form onSubmit={handleSubmit(handleBuySpin)}>
                   <div className="flex flex-col justify-start items-start space-y-2">
+                    <div className="flex flex-col justify-start items-start space-y-2">
+                      Balance: ₱{" "}
+                      {earnings?.alliance_combined_earnings.toLocaleString(
+                        "en-US",
+                        {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }
+                      )}
+                    </div>
                     <Label>Quantity</Label>
 
                     <div className="flex justify-center items-center space-x-2 w-full">
@@ -419,7 +438,6 @@ export const SpinWheel = () => {
                       <Input
                         variant="non-card"
                         type="text"
-                        readOnly
                         className="w-12 text-center p-0"
                         {...register("quantity")}
                       />
@@ -442,8 +460,8 @@ export const SpinWheel = () => {
                     <Label>Amount</Label>
                     <Input
                       type="number"
-                      value={Number(quantityAmount)}
                       readOnly
+                      value={Number(quantityAmount)}
                     />
 
                     <Button

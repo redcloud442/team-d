@@ -88,7 +88,7 @@ const RoadmapComponent = ({ allianceWheel }: RoadmapProps) => {
         </div>
       ) : (
         <div className="mt-4 text-green-500 font-semibold text-xs sm:text-sm">
-          All goals completed!
+          Completed!
         </div>
       )}
     </div>
