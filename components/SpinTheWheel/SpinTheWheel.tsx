@@ -16,6 +16,7 @@ import { motion } from "framer-motion";
 import { Loader2, Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import Confetti from "react-confetti";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
@@ -43,6 +44,7 @@ export const SpinWheel = () => {
   const loseSound = new Audio("/assets/sounds/losing.mp3");
 
   const [spinning, setSpinning] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const { dailyTask, setDailyTask } = useDailyTaskStore();
 
   const [selectedPrize, setSelectedPrize] = useState<string | null>(null);
@@ -92,10 +94,12 @@ export const SpinWheel = () => {
         setSelectedPrize(String(prizeIndex));
 
         if (prizeIndex === "RE-SPIN") {
+          setShowConfetti(true);
           winSound.play();
         } else if (prizeIndex === "NO REWARD") {
           loseSound.play();
         } else {
+          setShowConfetti(true);
           setDailyTask({
             ...dailyTask,
             wheelLog: {
@@ -118,6 +122,8 @@ export const SpinWheel = () => {
       }, 3000);
     } catch (error) {
       setSpinning(false);
+    } finally {
+      setShowConfetti(false);
     }
   };
 
@@ -206,6 +212,7 @@ export const SpinWheel = () => {
         if (!value) {
           setSelectedPrize(null);
           setRotation(0);
+          setShowConfetti(false);
         }
       }}
     >
@@ -231,7 +238,7 @@ export const SpinWheel = () => {
             Spin the wheel to earn random rewards!
           </DialogDescription>
         </DialogHeader>
-
+        {showConfetti && <Confetti width={440} height={600} />}
         <div className="flex flex-col items-center justify-start space-y-6 mt-4  ">
           <div className="relative">
             <motion.div
