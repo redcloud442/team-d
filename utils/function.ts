@@ -188,9 +188,10 @@ export const formatDateToYYYYMMDD = (date: Date | string): string => {
     return "Invalid date"; // Handle invalid dates gracefully
   }
 
-  const year = String(inputDate.getFullYear()); // Full year
-  const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
-  const day = String(inputDate.getDate()).padStart(2, "0");
+  // Extract UTC-based date components
+  const year = String(inputDate.getUTCFullYear());
+  const month = String(inputDate.getUTCMonth() + 1).padStart(2, "0"); // Use `getUTCMonth()`
+  const day = String(inputDate.getUTCDate()).padStart(2, "0"); // Use `getUTCDate()`
 
   return `${year}-${month}-${day}`;
 };
@@ -223,6 +224,28 @@ export const formatTime = (date: Date | string): string => {
   hours = hours % 12 || 12; // Convert 24-hour format to 12-hour format (0 becomes 12)
 
   return `${hours}:${minutes} ${ampm}`;
+};
+
+export const formatDay = (date: Date | string): string => {
+  const inputDate = typeof date === "string" ? new Date(date) : date;
+
+  if (isNaN(inputDate.getTime())) {
+    return "Invalid date"; // Handle invalid dates gracefully
+  }
+
+  // Force UTC-based day extraction
+  const daysOfWeek = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const dayName = daysOfWeek[inputDate.getUTCDay()]; // Use `getUTCDay()` instead of `getDay()`
+
+  return dayName;
 };
 
 export const calculateFinalAmount = (

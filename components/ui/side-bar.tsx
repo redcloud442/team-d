@@ -22,6 +22,7 @@ import {
   BeakerIcon,
   Calendar,
   ChevronUp,
+  File,
   Group,
   HistoryIcon,
   Home,
@@ -114,7 +115,18 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
     { title: "Packages", url: "/admin/packages", icon: Package },
     { title: "Manage Users", url: "/admin/users", icon: User2 },
     { title: "Deposit History", url: "/admin/deposit", icon: HistoryIcon },
-    { title: "Withdrawal History", url: "/admin/withdrawal", icon: BeakerIcon },
+    {
+      title: "Withdrawal History",
+      url: "/admin/withdrawal",
+      icon: BeakerIcon,
+      subItems: [
+        {
+          icon: File,
+          title: "Withdrawal Report",
+          url: "/admin/withdrawal/report",
+        },
+      ],
+    },
     {
       title: "User Monitoring",
       url: "/admin/monitoring",
@@ -159,7 +171,7 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
                   className={`flex cursor-pointer items-center px-4 py-2 rounded-md ${
                     isActive(subItem.url)
                       ? "bg-blue-50 text-blue-500 font-semibold"
-                      : "hover:bg-gray-50 text-gray-700"
+                      : "hover:bg-gray-700 text-white-700"
                   }`}
                 >
                   <subItem.icon className="w-4 h-4" />
