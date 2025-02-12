@@ -225,6 +225,30 @@ export const formatTime = (date: Date | string): string => {
   return `${hours}:${minutes} ${ampm}`;
 };
 
+export const formatDay = (date: Date | string): string => {
+  const inputDate = typeof date === "string" ? new Date(date) : date;
+
+  if (isNaN(inputDate.getTime())) {
+    return "Invalid date"; // Handle invalid dates gracefully
+  }
+
+  // Array of day names
+  const daysOfWeek = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+
+  // Get the day name based on the day index
+  const dayName = daysOfWeek[inputDate.getDay()];
+
+  return dayName;
+};
+
 export const calculateFinalAmount = (
   amount: number,
   selectedEarnings: string
