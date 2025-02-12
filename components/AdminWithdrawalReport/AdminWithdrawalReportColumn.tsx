@@ -121,8 +121,8 @@ export const AdminWithdrawalReportColumn =
         cell: ({ row }) => {
           return (
             <div className="flex items-center gap-2 text-wrap ">
-              {formatDay(row.original.interval_end)},{" "}
-              {formatDateToYYYYMMDD(row.original.interval_end)}
+              {formatDay(row.getValue("interval_end"))},{" "}
+              {formatDateToYYYYMMDD(row.getValue("interval_end"))}
             </div>
           );
         },
