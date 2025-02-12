@@ -156,3 +156,14 @@ export type adminWithdrawalTotalReportData = {
   total_accounting_approved_amount: number;
   total_net_approved_amount: number;
 };
+
+export type adminSalesTotalReportData = {
+  monthlyTotal: number;
+  monthlyCount: number;
+  dailyIncome: adminSalesReportData[];
+};
+
+export type adminSalesReportData = {
+  date: string;
+  amount: number;
+};
