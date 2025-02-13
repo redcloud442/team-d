@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Loader2, Minus, Plus } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Confetti from "react-confetti";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -40,11 +40,16 @@ const buySpinSchema = z.object({
 type BuySpinFormValues = z.infer<typeof buySpinSchema>;
 
 export const SpinWheel = () => {
-  const winSound = new Audio("/assets/sounds/winning.mp3");
-  const loseSound = new Audio("/assets/sounds/losing.mp3");
-
   const [spinning, setSpinning] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [winSound, setWinSound] = useState<HTMLAudioElement | null>(null);
+  const [loseSound, setLoseSound] = useState<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    setWinSound(new Audio("/assets/sounds/winning.mp3"));
+    setLoseSound(new Audio("/assets/sounds/losing.mp3"));
+  }, []);
+
   const { dailyTask, setDailyTask } = useDailyTaskStore();
 
   const [selectedPrize, setSelectedPrize] = useState<string | null>(null);
@@ -95,9 +100,9 @@ export const SpinWheel = () => {
 
         if (prizeIndex === "RE-SPIN") {
           setShowConfetti(true);
-          winSound.play();
+          winSound?.play();
         } else if (prizeIndex === "NO REWARD") {
-          loseSound.play();
+          loseSound?.play();
         } else {
           setShowConfetti(true);
           setDailyTask({
@@ -117,7 +122,7 @@ export const SpinWheel = () => {
             alliance_combined_earnings:
               earnings.alliance_combined_earnings + Number(prizeAmount),
           });
-          winSound.play();
+          winSound?.play();
         }
       }, 3000);
     } catch (error) {
@@ -443,10 +448,16 @@ export const SpinWheel = () => {
                       </Button>
 
                       <Input
+                        type="number" // Ensures numeric input
                         variant="non-card"
-                        type="text"
                         className="w-12 text-center p-0"
-                        {...register("quantity")}
+                        {...register("quantity", {
+                          valueAsNumber: true, // Converts input value to a number
+                          min: {
+                            value: 1,
+                            message: "Quantity must be at least 1",
+                          },
+                        })}
                       />
 
                       <Button

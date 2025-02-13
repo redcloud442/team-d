@@ -149,7 +149,7 @@ export default function LayoutContent({
             <div className="absolute inset-0 bg-zinc-900/80 dark:bg-zinc-900/90"></div>
           </div>
         )}
-        <SpinWheel />
+        {role !== ROLE.ADMIN && <SpinWheel />}
         {/* Content Section */}
         <div className="pb-24 p-4 relative z-50 grow">{children}</div>
 
