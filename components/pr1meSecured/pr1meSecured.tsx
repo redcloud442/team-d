@@ -192,7 +192,7 @@ const Pr1meSecured = () => {
         />
       </div>
 
-      <div className="fixed top-[20%]  sm:top-[30%] flex items-center justify-center w-full">
+      <div className="fixed top-[10%]  sm:top-[10%] flex items-center justify-center w-full">
         <Image
           src="/app-logo.svg"
           alt="logo"
