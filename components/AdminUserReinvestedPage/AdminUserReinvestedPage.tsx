@@ -78,7 +78,7 @@ const AdminUserReinvestedPage = ({ teamMemberProfile }: Props) => {
 
   useEffect(() => {
     handleFetchTotalWithdrawalReport();
-  }, []);
+  }, [page]);
 
   const dateFilter = watch("dateFilter");
 
