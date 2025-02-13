@@ -131,7 +131,7 @@ const AdminSalesReportPage = ({ teamMemberProfile }: Props) => {
                         onValueChange={field.onChange}
                         value={field.value}
                       >
-                        <SelectTrigger className="w-full flex-1 md:max-w-xl text-left">
+                        <SelectTrigger className="w-full flex-1  text-left">
                           <SelectValue placeholder="Select Month" />
                         </SelectTrigger>
                         <SelectContent>
@@ -154,7 +154,7 @@ const AdminSalesReportPage = ({ teamMemberProfile }: Props) => {
                         onValueChange={field.onChange}
                         value={field.value}
                       >
-                        <SelectTrigger className="w-full flex-1 md:max-w-xl text-left">
+                        <SelectTrigger className="w-full flex-1  text-left">
                           <SelectValue placeholder="Select Year" />
                         </SelectTrigger>
                         <SelectContent>
