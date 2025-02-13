@@ -8,14 +8,14 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import NavigationLoader from "../ui/NavigationLoader";
 import { PasswordInput } from "../ui/passwordInput";
-
 // Zod Schema for Login Form
 export const LoginSchema = z.object({
   userName: z
@@ -32,6 +32,8 @@ export const LoginSchema = z.object({
 type LoginFormValues = z.infer<typeof LoginSchema>;
 
 const LoginPage = () => {
+  const captcha = useRef<HCaptcha>(null);
+
   const {
     register,
     handleSubmit,
@@ -45,9 +47,18 @@ const LoginPage = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const handleSignIn = async (data: LoginFormValues) => {
     try {
+      if (!captchaToken) {
+        return toast({
+          title: "Please wait",
+          description: "Captcha is required.",
+          variant: "destructive",
+        });
+      }
+
       setIsLoading(true);
       const sanitizedData = escapeFormData(data);
 
@@ -56,7 +67,12 @@ const LoginPage = () => {
       await loginValidation(supabase, {
         userName,
         password,
+        captchaToken: captchaToken || "",
       });
+
+      if (captcha.current) {
+        captcha.current.resetCaptcha();
+      }
 
       toast({
         title: "Login Successfully",
@@ -80,7 +96,7 @@ const LoginPage = () => {
     <div className="flex w-full flex-col items-center justify-center sm:justify-center min-h-screen h-full p-10">
       <NavigationLoader visible={isSubmitting || isLoading || isSuccess} />
 
-      <div className="fixed top-20 -right-6  z-10 ">
+      <div className="fixed top-0 sm:top-20 -right-6  z-10 ">
         <Image
           src="/assets/lightning-2.svg"
           alt="thunder"
@@ -106,7 +122,7 @@ const LoginPage = () => {
         />
       </div>
 
-      <div className="fixed top-[20%]  sm:top-[30%] flex items-center justify-center w-full">
+      <div className="absolute top-[10%] sm:top-[10%] flex items-center justify-center w-full">
         <Image
           src="/app-logo.svg"
           alt="logo"
@@ -141,7 +157,13 @@ const LoginPage = () => {
             <p className="text-sm text-red-500">{errors.password.message}</p>
           )}
         </div>
-
+        <HCaptcha
+          ref={captcha}
+          sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
+          onVerify={(token) => {
+            setCaptchaToken(token);
+          }}
+        />
         <Button
           disabled={isSubmitting || isLoading}
           type="submit"

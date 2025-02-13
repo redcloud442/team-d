@@ -19,8 +19,19 @@ export const createTriggerUser = async (params: {
   password: string;
   referalLink?: string;
   url: string;
+  captchaToken: string;
+  botField: string;
 }) => {
-  const { userName, password, referalLink, url, firstName, lastName } = params;
+  const {
+    userName,
+    password,
+    referalLink,
+    url,
+    firstName,
+    lastName,
+    captchaToken,
+    botField,
+  } = params;
   const supabase = createClientSide();
 
   const validate = registerUserSchema.safeParse(params);
@@ -42,6 +53,9 @@ export const createTriggerUser = async (params: {
   const { data: userData, error: userError } = await supabase.auth.signUp({
     email: formatUsername,
     password,
+    options: {
+      captchaToken,
+    },
   });
 
   if (userError) throw userError;
@@ -54,6 +68,7 @@ export const createTriggerUser = async (params: {
     lastName,
     referalLink,
     url,
+    botField,
   };
 
   const response = await fetch(`/api/v1/auth/register`, {
@@ -76,9 +91,10 @@ export const loginValidation = async (
   params: {
     userName: string;
     password: string;
+    captchaToken: string;
   }
 ) => {
-  const { userName, password } = params;
+  const { userName, password, captchaToken } = params;
 
   const formattedUserName = userName + "@gmail.com";
 
@@ -97,6 +113,9 @@ export const loginValidation = async (
   const { error: signInError } = await supabaseClient.auth.signInWithPassword({
     email: formattedUserName,
     password,
+    options: {
+      captchaToken,
+    },
   });
 
   if (signInError) throw signInError;
