@@ -188,10 +188,10 @@ export const formatDateToYYYYMMDD = (date: Date | string): string => {
     return "Invalid date"; // Handle invalid dates gracefully
   }
 
-  // Extract UTC-based date components
-  const year = String(inputDate.getUTCFullYear());
-  const month = String(inputDate.getUTCMonth() + 1).padStart(2, "0"); // Use `getUTCMonth()`
-  const day = String(inputDate.getUTCDate()).padStart(2, "0"); // Use `getUTCDate()`
+  // Extract LOCAL time-based date components (adjusted for PH Time)
+  const year = String(inputDate.getFullYear()); // Use `getFullYear()` instead of `getUTCFullYear()`
+  const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Use `getMonth()`
+  const day = String(inputDate.getDate()).padStart(2, "0"); // Use `getDate()`
 
   return `${year}-${month}-${day}`;
 };

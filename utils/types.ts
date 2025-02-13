@@ -167,3 +167,14 @@ export type adminSalesReportData = {
   date: string;
   amount: number;
 };
+
+export type adminUserReinvestedReportData = {
+  package_member_connection_created: string;
+  package_member_amount: number;
+  package_member_connection_id: string;
+  user_username: string;
+  user_id: string;
+  user_profile_picture: string;
+  user_first_name: string;
+  user_last_name: string;
+};

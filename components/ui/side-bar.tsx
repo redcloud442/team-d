@@ -114,7 +114,18 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
     { title: "Admin Dashboard", url: "/admin", icon: Settings },
     { title: "Leaderboards", url: "/admin/leaderboards", icon: Trophy },
     { title: "Packages", url: "/admin/packages", icon: Package },
-    { title: "Manage Users", url: "/admin/users", icon: User2 },
+    {
+      title: "Manage Users",
+      url: "/admin/users",
+      icon: User2,
+      subItems: [
+        {
+          icon: File,
+          title: "User Reinvested",
+          url: "/admin/users/reinvested",
+        },
+      ],
+    },
     { title: "Deposit History", url: "/admin/deposit", icon: HistoryIcon },
     {
       title: "Withdrawal History",
