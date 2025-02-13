@@ -37,7 +37,7 @@ const PackageCard = ({
       }}
       className={`w-full rounded-lg cursor-pointer shadow-lg  flex flex-col items-center justify-center space-y-4 relative overflow-hidden ${
         selectedPackage?.package_id === packageId
-          ? "border-2 dark:border-pageColor shadow-lg"
+          ? "border-2 dark:border-pageColor shadow-lg animate-pulse"
           : "border-none"
       }`}
     >
