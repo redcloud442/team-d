@@ -70,10 +70,6 @@ const LoginPage = () => {
         captchaToken: captchaToken || "",
       });
 
-      if (captcha.current) {
-        captcha.current.resetCaptcha();
-      }
-
       toast({
         title: "Login Successfully",
         description: "Redirecting to dashboard...",
