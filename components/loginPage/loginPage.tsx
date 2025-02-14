@@ -51,28 +51,27 @@ const LoginPage = () => {
 
   const handleSignIn = async (data: LoginFormValues) => {
     try {
-      if (!captchaToken) {
-        return toast({
-          title: "Please wait",
-          description: "Captcha is required.",
-          variant: "destructive",
-        });
-      }
+      //   if (!captchaToken) {
+      //     return toast({
+      //       title: "Please wait",
+      //       description: "Captcha is required.",
+      //       variant: "destructive",
+      //     });
+      //   }
 
       setIsLoading(true);
       const sanitizedData = escapeFormData(data);
 
       const { userName, password } = sanitizedData;
 
-      await loginValidation(supabase, {
+    await loginValidation(supabase, {
         userName,
         password,
-        captchaToken: captchaToken || "",
       });
 
-      if (captcha.current) {
-        captcha.current.resetCaptcha();
-      }
+      //   if (captcha.current) {
+      //     captcha.current.resetCaptcha();
+      //   }
 
       toast({
         title: "Login Successfully",
@@ -157,13 +156,13 @@ const LoginPage = () => {
             <p className="text-sm text-red-500">{errors.password.message}</p>
           )}
         </div>
-        <HCaptcha
+        {/* <HCaptcha
           ref={captcha}
           sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
           onVerify={(token) => {
             setCaptchaToken(token);
           }}
-        />
+        /> */}
         <Button
           disabled={isSubmitting || isLoading}
           type="submit"

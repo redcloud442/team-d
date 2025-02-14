@@ -60,7 +60,7 @@ type Props = {
 const RegisterPage = ({ referralLink }: Props) => {
   const [isUsernameLoading, setIsUsernameLoading] = useState(false);
   const [isUsernameValidated, setIsUsernameValidated] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  //   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const {
     register,
@@ -137,13 +137,13 @@ const RegisterPage = ({ referralLink }: Props) => {
       });
     }
 
-    if (!captchaToken) {
-      return toast({
-        title: "Please wait",
-        description: "Captcha is required.",
-        variant: "destructive",
-      });
-    }
+    // if (!captchaToken) {
+    //   return toast({
+    //     title: "Please wait",
+    //     description: "Captcha is required.",
+    //     variant: "destructive",
+    //   });
+    // }
 
     const sanitizedData = escapeFormData(data);
 
@@ -157,13 +157,13 @@ const RegisterPage = ({ referralLink }: Props) => {
         lastName,
         referalLink: referralLink,
         url,
-        captchaToken: captchaToken || "",
+        // captchaToken: captchaToken || "",
         botField: botField || "",
       });
 
-      if (captcha.current) {
-        captcha.current.resetCaptcha();
-      }
+      //   if (captcha.current) {
+      //     captcha.current.resetCaptcha();
+      //   }
 
       setIsSuccess(true);
       toast({
@@ -331,13 +331,13 @@ const RegisterPage = ({ referralLink }: Props) => {
               />
             </div>
           </div>
-          <HCaptcha
+          {/* <HCaptcha
             ref={captcha}
             sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
             onVerify={(token) => {
               setCaptchaToken(token);
             }}
-          />
+          /> */}
           <div className="w-full flex justify-center">
             <Button
               variant="card"

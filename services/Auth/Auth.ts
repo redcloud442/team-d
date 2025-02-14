@@ -19,7 +19,7 @@ export const createTriggerUser = async (params: {
   password: string;
   referalLink?: string;
   url: string;
-  captchaToken: string;
+  //   captchaToken: string;
   botField: string;
 }) => {
   const {
@@ -29,7 +29,7 @@ export const createTriggerUser = async (params: {
     url,
     firstName,
     lastName,
-    captchaToken,
+
     botField,
   } = params;
   const supabase = createClientSide();
@@ -53,9 +53,9 @@ export const createTriggerUser = async (params: {
   const { data: userData, error: userError } = await supabase.auth.signUp({
     email: formatUsername,
     password,
-    options: {
-      captchaToken,
-    },
+    // options: {
+    //   captchaToken,
+    // },
   });
 
   if (userError) throw userError;
@@ -91,10 +91,9 @@ export const loginValidation = async (
   params: {
     userName: string;
     password: string;
-    captchaToken: string;
   }
 ) => {
-  const { userName, password, captchaToken } = params;
+  const { userName, password } = params;
 
   const formattedUserName = userName + "@gmail.com";
 
@@ -113,9 +112,9 @@ export const loginValidation = async (
   const { error: signInError } = await supabaseClient.auth.signInWithPassword({
     email: formattedUserName,
     password,
-    options: {
-      captchaToken,
-    },
+    // options: {
+    //   captchaToken,
+    // },
   });
 
   if (signInError) throw signInError;
