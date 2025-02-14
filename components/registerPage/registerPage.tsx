@@ -8,12 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 import { checkUserName, createTriggerUser } from "@/services/Auth/Auth";
 import { BASE_URL } from "@/utils/constant";
 import { escapeFormData } from "@/utils/function";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircleIcon, XCircleIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useController, useForm } from "react-hook-form";
+import Turnstile, { BoundTurnstileObject } from "react-turnstile";
 import { z } from "zod";
 import NavigationLoader from "../ui/NavigationLoader";
 import { PasswordInput } from "../ui/passwordInput";
@@ -60,7 +60,7 @@ type Props = {
 const RegisterPage = ({ referralLink }: Props) => {
   const [isUsernameLoading, setIsUsernameLoading] = useState(false);
   const [isUsernameValidated, setIsUsernameValidated] = useState(false);
-  //   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const {
     register,
@@ -88,7 +88,7 @@ const RegisterPage = ({ referralLink }: Props) => {
 
   const router = useRouter();
   const pathName = usePathname();
-  const captcha = useRef<HCaptcha>(null);
+  const captcha = useRef<BoundTurnstileObject>(null);
 
   const { toast } = useToast();
 
@@ -137,13 +137,13 @@ const RegisterPage = ({ referralLink }: Props) => {
       });
     }
 
-    // if (!captchaToken) {
-    //   return toast({
-    //     title: "Please wait",
-    //     description: "Captcha is required.",
-    //     variant: "destructive",
-    //   });
-    // }
+    if (!captchaToken) {
+      return toast({
+        title: "Please wait",
+        description: "Captcha is required.",
+        variant: "destructive",
+      });
+    }
 
     const sanitizedData = escapeFormData(data);
 
@@ -157,13 +157,13 @@ const RegisterPage = ({ referralLink }: Props) => {
         lastName,
         referalLink: referralLink,
         url,
-        // captchaToken: captchaToken || "",
+        captchaToken: captchaToken || "",
         botField: botField || "",
       });
 
-      //   if (captcha.current) {
-      //     captcha.current.resetCaptcha();
-      //   }
+      if (captcha.current) {
+        captcha.current.reset();
+      }
 
       setIsSuccess(true);
       toast({
@@ -173,7 +173,6 @@ const RegisterPage = ({ referralLink }: Props) => {
       router.push("/");
     } catch (e) {
       setIsSuccess(false);
-      console.log(e);
 
       toast({
         title: "Error",
@@ -338,6 +337,16 @@ const RegisterPage = ({ referralLink }: Props) => {
               setCaptchaToken(token);
             }}
           /> */}
+          <div className="w-full flex flex-1 justify-center">
+            <Turnstile
+              size="flexible"
+              sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
+              onVerify={(token) => {
+                setCaptchaToken(token);
+              }}
+            />
+          </div>
+
           <div className="w-full flex justify-center">
             <Button
               variant="card"

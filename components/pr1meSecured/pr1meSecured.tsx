@@ -9,8 +9,9 @@ import { escapeFormData, userNameToEmail } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { FieldErrors, SubmitHandler, useForm } from "react-hook-form";
+import Turnstile, { BoundTurnstileObject } from "react-turnstile";
 import { z } from "zod";
 import NavigationLoader from "../ui/NavigationLoader";
 import {
@@ -50,8 +51,8 @@ const Pr1meSecured = () => {
   const [step, setStep] = useState<"login" | "verify">("login");
   const [email, setEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  //   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  //   const captcha = useRef<HCaptcha>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captcha = useRef<BoundTurnstileObject>(null);
 
   const {
     register,
@@ -69,13 +70,13 @@ const Pr1meSecured = () => {
 
   const handleSignIn = async (data: LoginFormValues) => {
     try {
-      //   if (!captchaToken) {
-      //     return toast({
-      //       title: "Please wait",
-      //       description: "Captcha is required.",
-      //       variant: "destructive",
-      //     });
-      //   }
+      if (!captchaToken) {
+        return toast({
+          title: "Please wait",
+          description: "Captcha is required.",
+          variant: "destructive",
+        });
+      }
       setIsLoading(true);
 
       const sanitizedData = escapeFormData(data);
@@ -109,14 +110,14 @@ const Pr1meSecured = () => {
       const sanitizedEmail = userEmail.trim().replace(/["\\]/g, "");
       const { error } = await supabase.auth.signInWithOtp({
         email: sanitizedEmail,
-        // options: {
-        //   captchaToken: captchaToken || "",
-        // },
+        options: {
+          captchaToken: captchaToken || "",
+        },
       });
 
-      //   if (captcha.current) {
-      //     captcha.current.resetCaptcha();
-      //   }
+      if (captcha.current) {
+        captcha.current.reset();
+      }
       if (error) throw new Error("Invalid username or password");
 
       toast({
@@ -243,6 +244,13 @@ const Pr1meSecured = () => {
               setCaptchaToken(token);
             }}
           /> */}
+          <Turnstile
+            size="flexible"
+            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
+            onVerify={(token) => {
+              setCaptchaToken(token);
+            }}
+          />
           <Button disabled={isSubmitting || isLoading} type="submit">
             {isSubmitting || isLoading ? "Sending OTP..." : "Login"}
           </Button>

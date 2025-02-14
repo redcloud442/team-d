@@ -8,11 +8,11 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import HCaptcha from "@hcaptcha/react-hcaptcha";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import Turnstile, { BoundTurnstileObject } from "react-turnstile";
 import { z } from "zod";
 import NavigationLoader from "../ui/NavigationLoader";
 import { PasswordInput } from "../ui/passwordInput";
@@ -32,7 +32,7 @@ export const LoginSchema = z.object({
 type LoginFormValues = z.infer<typeof LoginSchema>;
 
 const LoginPage = () => {
-  const captcha = useRef<HCaptcha>(null);
+  const captcha = useRef<BoundTurnstileObject>(null);
 
   const {
     register,
@@ -51,27 +51,28 @@ const LoginPage = () => {
 
   const handleSignIn = async (data: LoginFormValues) => {
     try {
-      //   if (!captchaToken) {
-      //     return toast({
-      //       title: "Please wait",
-      //       description: "Captcha is required.",
-      //       variant: "destructive",
-      //     });
-      //   }
+      if (!captchaToken) {
+        return toast({
+          title: "Please wait",
+          description: "Captcha is required.",
+          variant: "destructive",
+        });
+      }
 
       setIsLoading(true);
       const sanitizedData = escapeFormData(data);
 
       const { userName, password } = sanitizedData;
 
-    await loginValidation(supabase, {
+      await loginValidation(supabase, {
         userName,
         password,
+        captchaToken,
       });
 
-      //   if (captcha.current) {
-      //     captcha.current.resetCaptcha();
-      //   }
+      if (captcha.current) {
+        captcha.current.reset();
+      }
 
       toast({
         title: "Login Successfully",
@@ -131,7 +132,7 @@ const LoginPage = () => {
         />
       </div>
       <form
-        className="flex flex-col items-center gap-6 w-full max-w-lg m-4 z-40"
+        className="flex flex-col items-center justify-center gap-6 w-full max-w-lg m-4 z-40"
         onSubmit={handleSubmit(handleSignIn)}
       >
         <div className="w-full">
@@ -163,6 +164,16 @@ const LoginPage = () => {
             setCaptchaToken(token);
           }}
         /> */}
+        <div className="w-full flex items-center justify-center">
+          <Turnstile
+            size="flexible"
+            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
+            onVerify={(token) => {
+              setCaptchaToken(token);
+            }}
+          />
+        </div>
+
         <Button
           disabled={isSubmitting || isLoading}
           type="submit"
