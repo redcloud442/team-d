@@ -324,7 +324,7 @@ const DashboardWithdrawModalWithdraw = ({
         <ScrollArea className="w-full relative sm:max-w-[400px] h-[600px] sm:h-full">
           <DialogHeader className="text-start text-2xl font-bold">
             <DialogTitle className="text-2xl font-bold mb-4 flex gap-4">
-              Withdraw
+              Withdrawal Request
               <Button
                 className="h-8 bg-pageColor  px-2 text-sm text-white"
                 variant="card"

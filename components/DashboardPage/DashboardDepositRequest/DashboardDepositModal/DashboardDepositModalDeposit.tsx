@@ -244,7 +244,7 @@ const DashboardDepositModalDeposit = ({
             className=" relative h-60 sm:h-80 flex flex-col gap-8 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl "
             onClick={() => setOpen(true)}
           >
-            <p className="text-2xl font-bold">Deposit</p>
+            <p className="text-gl sm:text-2xl font-bold">Deposit Here </p>
             <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
               <Image
                 src="/assets/deposit.png"
@@ -259,7 +259,7 @@ const DashboardDepositModalDeposit = ({
           <Popover>
             <PopoverTrigger asChild>
               <Button className=" relative h-60 sm:h-80 flex flex-col gap-8 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl ">
-                Deposit
+                Deposit Here
                 <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
                   <Image
                     src="/assets/deposit.png"
@@ -288,7 +288,7 @@ const DashboardDepositModalDeposit = ({
         <ScrollArea className="h-[500px] sm:h-full">
           <DialogHeader className="text-start text-2xl font-bold">
             <DialogTitle className="text-2xl font-bold mb-4">
-              Deposit
+              Deposit Request
             </DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
