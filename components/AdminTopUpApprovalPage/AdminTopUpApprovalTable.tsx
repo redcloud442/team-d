@@ -5,7 +5,7 @@ import { getAdminTopUpRequest } from "@/services/TopUp/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData } from "@/utils/types";
-import { alliance_member_table, user_table } from "@prisma/client";
+import { alliance_member_table } from "@prisma/client";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import {
   ColumnFiltersState,
@@ -72,13 +72,12 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
   );
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
-  const [merchantOptions, setMerchantOptions] = useState<user_table[]>([]);
+
   const [showFilters, setShowFilters] = useState(false);
 
   const columnAccessor = sorting?.[0]?.id || "alliance_top_up_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
-  const [userOptions, setUserOptions] = useState<user_table[]>([]);
 
   const fetchRequest = async () => {
     try {
@@ -282,7 +281,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = useAdminTopUpApprovalColumns(handleRefresh, setRequestData);
+  } = useAdminTopUpApprovalColumns(reset, setRequestData);
   const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
   const table = useReactTable({
     data: requestData?.data?.[status]?.data || [],

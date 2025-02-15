@@ -75,6 +75,7 @@ export const TopUpColumn = (
 
         if (!updatedItem) return prev;
 
+        setIsOpenModal({ open: false, requestId: "", status: "", amount: 0 });
         return {
           ...prev,
           data: {
@@ -108,7 +109,6 @@ export const TopUpColumn = (
         variant: "success",
       });
 
-      setIsOpenModal({ open: false, requestId: "", status: "", amount: 0 });
       reset();
     } catch (e) {
       if (e instanceof Error) {

@@ -18,7 +18,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import TableLoading from "../ui/tableLoading";
 import { Textarea } from "../ui/textarea";
 const statusColorMap: Record<string, string> = {
@@ -28,7 +28,7 @@ const statusColorMap: Record<string, string> = {
 };
 
 export const useAdminTopUpApprovalColumns = (
-  handleFetch: () => void,
+  reset: () => void,
   setRequestData: Dispatch<SetStateAction<AdminTopUpRequestData | null>>
 ) => {
   const { toast } = useToast();
@@ -41,80 +41,94 @@ export const useAdminTopUpApprovalColumns = (
     status: "",
   });
 
-  const handleUpdateStatus = useCallback(
-    async (status: string, requestId: string, note?: string) => {
-      try {
-        setIsLoading(true);
-        await updateTopUpStatus({ status, requestId, note });
+  const handleUpdateStatus = async (
+    status: string,
+    requestId: string,
+    note?: string
+  ) => {
+    try {
+      setIsLoading(true);
 
-        setRequestData((prev) => {
-          if (!prev) return prev;
+      await updateTopUpStatus({
+        status,
+        requestId,
+        note,
+      });
 
-          // Extract PENDING data and filter out the item being updated
-          const pendingData = prev.data["PENDING"]?.data ?? [];
-          const updatedItem = pendingData.find(
-            (item) => item.alliance_top_up_request_id === requestId
-          );
-          const newPendingList = pendingData.filter(
-            (item) => item.alliance_top_up_request_id !== requestId
-          );
-          const currentStatusData = prev.data[status as keyof typeof prev.data];
-          const hasExistingData = currentStatusData?.data?.length > 0;
+      setRequestData((prev) => {
+        if (!prev) return prev;
 
-          if (!updatedItem) return prev;
+        const pendingData = prev.data["PENDING"]?.data ?? [];
+        const updatedItem = pendingData.find(
+          (item) => item.alliance_top_up_request_id === requestId
+        );
+        const newPendingList = pendingData.filter(
+          (item) => item.alliance_top_up_request_id !== requestId
+        );
+        const currentStatusData = prev.data[status as keyof typeof prev.data];
+        const hasExistingData = currentStatusData?.data?.length > 0;
 
-          return {
-            ...prev,
-            data: {
-              ...prev.data,
-              PENDING: {
-                ...prev.data["PENDING"],
-                data: newPendingList,
-                count: Number(prev.data["PENDING"]?.count) - 1,
-              },
-              [status as keyof typeof prev.data]: {
-                ...currentStatusData,
-                data: hasExistingData
-                  ? [
-                      {
-                        ...updatedItem,
-                        alliance_top_up_request_status: status,
-                        alliance_top_up_request_date_updated: new Date(),
-                      },
-                      ...currentStatusData.data,
-                    ]
-                  : [],
-                count: Number(currentStatusData?.count || 0) + 1,
-              },
-            },
-          };
-        });
+        const merchantBalance =
+          status === "APPROVED"
+            ? (prev.merchantBalance || 0) -
+              (updatedItem?.alliance_top_up_request_amount ?? 0)
+            : prev.merchantBalance;
 
-        toast({
-          title: `Status Update`,
-          description: `${status} Request Successfully`,
-        });
+        if (!updatedItem) return prev;
+
         setIsOpenModal({ open: false, requestId: "", status: "" });
-      } catch (e) {
-        if (e instanceof Error) {
-          await logError(supabaseClient, {
-            errorMessage: e.message,
-            stackTrace: e.stack,
-            stackPath:
-              "components/AdminTopUpApprovalPage/AdminTopUpApprovalColumn.tsx",
-          });
-        }
+        return {
+          ...prev,
+          data: {
+            ...prev.data,
+            PENDING: {
+              ...prev.data["PENDING"],
+              data: newPendingList,
+              count: Number(prev.data["PENDING"]?.count) - 1,
+            },
+            [status as keyof typeof prev.data]: {
+              ...currentStatusData,
+              data: hasExistingData
+                ? [
+                    {
+                      ...updatedItem,
+                      alliance_top_up_request_status: status,
+                      alliance_top_up_request_date_updated: new Date(),
+                    },
+                    ...currentStatusData.data,
+                  ]
+                : [],
+              count: Number(currentStatusData?.count || 0) + 1,
+            },
+          },
+          merchantBalance: merchantBalance,
+        };
+      });
+      toast({
+        title: `Status Update`,
+        description: `${status} Request Successfully`,
+        variant: "success",
+      });
+
+      reset();
+    } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath:
+            "components/AdminTopUpApprovalPage/AdminTopUpApprovalColumn.tsx",
+        });
         toast({
-          title: `Status Failed`,
-          description: `Something went wrong`,
+          title: `Invalid Request`,
+          description: `${e.message}`,
           variant: "destructive",
         });
-      } finally {
-        setIsLoading(false);
       }
-    },
-    [handleFetch, toast]
-  );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const columns: ColumnDef<TopUpRequestData>[] = [
     {
