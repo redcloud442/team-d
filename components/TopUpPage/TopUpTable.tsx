@@ -362,7 +362,18 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
           {isOpenModal && (
             <Dialog
               open={isOpenModal.open}
-              onOpenChange={(open) => setIsOpenModal({ ...isOpenModal, open })}
+              onOpenChange={(open) => {
+                setIsOpenModal({ ...isOpenModal, open });
+                if (!open) {
+                  reset();
+                  setIsOpenModal({
+                    open: false,
+                    requestId: "",
+                    status: "",
+                    amount: 0,
+                  });
+                }
+              }}
             >
               <DialogDescription></DialogDescription>
               <DialogContent>

@@ -262,12 +262,7 @@ const AdminWithdrawalHistoryTable = ({
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = AdminWithdrawalHistoryColumn(
-    fetchRequest,
-    profile,
-    setRequestData,
-    reset
-  );
+  } = AdminWithdrawalHistoryColumn(profile, setRequestData, reset);
 
   const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
 
@@ -361,7 +356,13 @@ const AdminWithdrawalHistoryTable = ({
           {isOpenModal && (
             <Dialog
               open={isOpenModal.open}
-              onOpenChange={(open) => setIsOpenModal({ ...isOpenModal, open })}
+              onOpenChange={(open) => {
+                setIsOpenModal({ ...isOpenModal, open });
+                if (!open) {
+                  reset();
+                  setIsOpenModal({ open: false, requestId: "", status: "" });
+                }
+              }}
             >
               <DialogContent>
                 <DialogHeader>

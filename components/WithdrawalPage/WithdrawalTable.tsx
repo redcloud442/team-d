@@ -5,7 +5,7 @@ import { getAdminWithdrawalRequest } from "@/services/Withdrawal/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminWithdrawaldata } from "@/utils/types";
-import { alliance_member_table, user_table } from "@prisma/client";
+import { alliance_member_table } from "@prisma/client";
 import {
   ColumnFiltersState,
   getCoreRowModel,
@@ -75,7 +75,6 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
   const columnAccessor = sorting?.[0]?.id || "alliance_withdrawal_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
-  const [userOptions, setUserOptions] = useState<user_table[]>([]);
 
   const fetchRequest = async () => {
     try {
@@ -235,14 +234,6 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
     }
   };
 
-  const {
-    columns,
-    isOpenModal,
-    isLoading,
-    setIsOpenModal,
-    handleUpdateStatus,
-  } = WithdrawalColumn(handleRefresh, setRequestData);
-
   const { register, handleSubmit, watch, getValues, control, reset, setValue } =
     useForm<FilterFormValues>({
       defaultValues: {
@@ -256,6 +247,14 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
         rejectNote: "",
       },
     });
+
+  const {
+    columns,
+    isOpenModal,
+    isLoading,
+    setIsOpenModal,
+    handleUpdateStatus,
+  } = WithdrawalColumn(reset, setRequestData);
 
   const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
 
@@ -349,7 +348,13 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
           {isOpenModal && (
             <Dialog
               open={isOpenModal.open}
-              onOpenChange={(open) => setIsOpenModal({ ...isOpenModal, open })}
+              onOpenChange={(open) => {
+                setIsOpenModal({ ...isOpenModal, open });
+                if (!open) {
+                  reset();
+                  setIsOpenModal({ open: false, requestId: "", status: "" });
+                }
+              }}
             >
               <DialogContent>
                 <DialogHeader>
