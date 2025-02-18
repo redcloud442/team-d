@@ -14,7 +14,7 @@ import {
   package_table,
   user_table,
 } from "@prisma/client";
-import { RefreshCw } from "lucide-react";
+import { Download, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
@@ -170,7 +170,7 @@ const DashboardPage = ({
         </div>
 
         <div className="flex flex-col gap-4 justify-center">
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
               <DashboardEarningsModal />
               <Button
@@ -181,17 +181,33 @@ const DashboardPage = ({
                 <RefreshCw />
               </Button>
             </div>
-            <Button
-              onClick={() =>
-                window.open(
-                  "https://www.facebook.com/groups/pr1meofficialgroup/",
-                  "_blank"
-                )
-              }
-              className="w-full max-w-[120px] h-7 text-white bg-blue-700"
-            >
-              facebook
-            </Button>
+            <div className="flex flex-col items-end gap-2">
+              <Button
+                onClick={() =>
+                  window.open(
+                    "https://www.facebook.com/groups/pr1meofficialgroup/",
+                    "_blank"
+                  )
+                }
+                className="w-full max-w-[120px] h-7 text-white bg-blue-700 cursor-pointer"
+              >
+                facebook
+              </Button>
+              <a
+                href="/Primepinas-App.apk"
+                download="Primepinas-App.apk"
+                className="w-full cursor-pointer"
+              >
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full max-w-[120px] h-7 text-white bg-blue-700 cursor-pointer"
+                >
+                  <span className="text-sm">Pr1me App</span>
+                  <Download className="w-4 h-4" />
+                </Button>
+              </a>
+            </div>
           </div>
 
           <div className="flex items-center justify-center space-x-4">
