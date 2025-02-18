@@ -137,8 +137,8 @@ const LoginPage = () => {
         onSubmit={handleSubmit(handleSignIn)}
       >
         <a
-          href="/Primepinas-App.apk"
-          download="Primepinas-App.apk"
+          href="/PrimePinas_v1.0.apk"
+          download="PrimePinas_v1.0.apk"
           className="w-full cursor-pointer"
         >
           <Button
