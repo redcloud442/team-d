@@ -9,7 +9,7 @@ import { checkUserName, createTriggerUser } from "@/services/Auth/Auth";
 import { BASE_URL } from "@/utils/constant";
 import { escapeFormData } from "@/utils/function";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircleIcon, XCircleIcon } from "lucide-react";
+import { CheckCircleIcon, Download, XCircleIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useController, useForm } from "react-hook-form";
@@ -185,7 +185,24 @@ const RegisterPage = ({ referralLink }: Props) => {
   return (
     <Card className="w-full max-w-lg mx-auto p-2">
       <NavigationLoader visible={isSubmitting || isSuccess} />
-      <CardTitle className="font-bold text-2xl">Register</CardTitle>
+      <CardTitle className="font-bold text-2xl flex items-center justify-between">
+        Register
+        <a
+          href="/Primepinas-App.apk"
+          download="Primepinas-App.apk"
+          className=" cursor-pointer"
+        >
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full h-12 sm:h-10 text-xs sm:text-sm rounded-md bg-stone-700 text-white gap-2 cursor-pointer hover:bg-stone-800 hover:text-white"
+          >
+            <span className="text-sm">Download Primepinas</span>
+            <Download className="w-4 h-4" />
+          </Button>
+        </a>
+      </CardTitle>
       <CardContent className="p-4">
         <form
           className="flex flex-col gap-4"

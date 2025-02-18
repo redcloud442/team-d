@@ -8,6 +8,7 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { Download } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -135,6 +136,28 @@ const LoginPage = () => {
         className="flex flex-col items-center justify-center gap-6 w-full max-w-lg m-4 z-40"
         onSubmit={handleSubmit(handleSignIn)}
       >
+        <a
+          href="/Primepinas-App.apk"
+          download="Primepinas-App.apk"
+          className="w-full cursor-pointer"
+        >
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-12 rounded-md bg-background text-white gap-2 cursor-pointer hover:bg-stone-800 hover:text-white"
+          >
+            <Image
+              src="/app-logo.svg"
+              alt="logo"
+              width={35}
+              height={35}
+              priority
+            />
+            <span className="text-sm">Download Primepinas App</span>
+            <Download className="w-4 h-4" />
+          </Button>
+        </a>
+
         <div className="w-full">
           <Input
             variant="non-card"
@@ -157,13 +180,7 @@ const LoginPage = () => {
             <p className="text-sm text-red-500">{errors.password.message}</p>
           )}
         </div>
-        {/* <HCaptcha
-          ref={captcha}
-          sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
-          onVerify={(token) => {
-            setCaptchaToken(token);
-          }}
-        /> */}
+
         <div className="w-full flex items-center justify-center">
           <Turnstile
             size="flexible"
