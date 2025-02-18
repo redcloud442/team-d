@@ -198,7 +198,7 @@ const RegisterPage = ({ referralLink }: Props) => {
             size="sm"
             className="w-full h-12 sm:h-10 text-xs sm:text-sm rounded-md bg-stone-700 text-white gap-2 cursor-pointer hover:bg-stone-800 hover:text-white"
           >
-            <span className="text-sm">Download Primepinas</span>
+            <span className="text-sm">Download Pr1me App</span>
             <Download className="w-4 h-4" />
           </Button>
         </a>
