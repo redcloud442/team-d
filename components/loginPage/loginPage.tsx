@@ -153,7 +153,7 @@ const LoginPage = () => {
               height={35}
               priority
             />
-            <span className="text-sm">Download Primepinas App</span>
+            <span className="text-sm">Download Pr1me App</span>
             <Download className="w-4 h-4" />
           </Button>
         </a>
