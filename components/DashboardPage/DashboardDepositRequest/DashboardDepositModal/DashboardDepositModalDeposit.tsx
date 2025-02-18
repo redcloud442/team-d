@@ -357,7 +357,7 @@ const DashboardDepositModalDeposit = ({
 
             {/* Top-Up Mode */}
             <div>
-              <Label htmlFor="topUpMode">Cashier Bank</Label>
+              <Label htmlFor="topUpMode">Mode of Payment</Label>
               <Controller
                 name="topUpMode"
                 control={control}
@@ -370,7 +370,7 @@ const DashboardDepositModalDeposit = ({
                     value={field.value}
                   >
                     <SelectTrigger className="text-center">
-                      <SelectValue placeholder="Select Cashier Bank" />
+                      <SelectValue placeholder="Select Mode of Payment" />
                     </SelectTrigger>
                     <SelectContent>
                       {topUpOptions.map((option) => (
