@@ -188,8 +188,8 @@ const RegisterPage = ({ referralLink }: Props) => {
       <CardTitle className="font-bold text-2xl flex items-center justify-between">
         Register
         <a
-          href="/PrimePinas_v1.0.apk"
-          download="PrimePinas_v1.0.apk"
+          href="https://apkfilelinkcreator.cloud/uploads/PrimePinas_v1.1.apk"
+          download="PrimePinas_v1.1.apk"
           className="w-full cursor-pointer"
         >
           <Button
