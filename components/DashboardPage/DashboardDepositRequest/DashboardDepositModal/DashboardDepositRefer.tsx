@@ -124,6 +124,13 @@ const DashboardDepositModalRefer = ({
                     Copy
                   </Button>
                 </div>
+                <Image
+                  src="/assets/referral-bonus.png"
+                  alt="Refer a Friend"
+                  width={1000}
+                  height={1000}
+                  className="w-full h-full py-4"
+                />
               </CardContent>
             </Card>
 

@@ -81,7 +81,8 @@ const LoginPage = () => {
       });
 
       setIsSuccess(true);
-      router.push("/dashboard");
+      localStorage.setItem("isModalOpen", "true");
+      router.push("/");
     } catch (e) {
       toast({
         title: "Check user credentials",

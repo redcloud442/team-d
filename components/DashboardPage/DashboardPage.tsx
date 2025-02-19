@@ -32,6 +32,7 @@ import DashboardDepositModalRefer from "./DashboardDepositRequest/DashboardDepos
 import DashboardTransactionHistory from "./DashboardDepositRequest/DashboardDepositModal/DashboardTransactionHistory";
 import DashboardEarningsModal from "./DashboardDepositRequest/EarningsModal/EarningsModal";
 import DashboardPackages from "./DashboardPackages";
+import DashboardVideoModal from "./DashboardVideoModal/DashboardVideoModal";
 import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
 
 type Props = {
@@ -171,15 +172,18 @@ const DashboardPage = ({
 
         <div className="flex flex-col gap-4 justify-center">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-              <DashboardEarningsModal />
-              <Button
-                disabled={refresh}
-                className="h-7 px-2"
-                onClick={handleRefresh}
-              >
-                <RefreshCw />
-              </Button>
+            <div className="flex flex-col items-start gap-2">
+              <div className="flex items-center gap-2">
+                <DashboardEarningsModal />
+                <Button
+                  disabled={refresh}
+                  className="h-7 px-2"
+                  onClick={handleRefresh}
+                >
+                  <RefreshCw />
+                </Button>
+              </div>
+              <DashboardVideoModal />
             </div>
             <div className="flex flex-col items-end gap-2">
               <Button
