@@ -85,6 +85,46 @@
     --chart-2: 340 75% 55%;
   }
 }
+@keyframes trackingLight {
+  0% {
+    background-position: -100%;
+  }
+  100% {
+    background-position: 100%;
+  }
+}
+
+.tracking-light {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: trackingLight 2s linear infinite;
+}
+
+.tracking-light {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: trackingLight 2s linear infinite;
+}
 
 @layer utilities {
   @keyframes tracing-border {

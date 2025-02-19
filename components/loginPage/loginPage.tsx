@@ -81,7 +81,7 @@ const LoginPage = () => {
       });
 
       setIsSuccess(true);
-      router.push("/");
+      router.push("/dashboard");
     } catch (e) {
       toast({
         title: "Check user credentials",

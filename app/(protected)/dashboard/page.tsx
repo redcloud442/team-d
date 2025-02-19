@@ -1,7 +1,6 @@
 import DashboardPage from "@/components/DashboardPage/DashboardPage";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
-import { createClientServerSide } from "@/utils/supabase/server";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -9,12 +8,11 @@ export const metadata: Metadata = {
   title: "Dashboard",
   description: "Pr1me Dashboard",
   openGraph: {
-    url: "/",
+    url: "/dashboard",
   },
 };
 
 const Page = async () => {
-  const supabaseClient = await createClientServerSide();
   const {
     redirect: redirectTo,
     referal,
