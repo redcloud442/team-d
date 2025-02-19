@@ -81,6 +81,7 @@ const LoginPage = () => {
       });
 
       setIsSuccess(true);
+      localStorage.setItem("isModalOpen", "true");
       router.push("/");
     } catch (e) {
       toast({

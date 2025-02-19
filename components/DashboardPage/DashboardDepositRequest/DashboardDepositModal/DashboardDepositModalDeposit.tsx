@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getMerchantOptions } from "@/services/Options/Options";
 import { handleDepositRequest } from "@/services/TopUp/Member";
+import { useDepositStore } from "@/store/useDepositStore";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { escapeFormData } from "@/utils/function";
@@ -83,7 +84,7 @@ const DashboardDepositModalDeposit = ({
   const { canUserDeposit, setCanUserDeposit } = useUserHaveAlreadyWithdraw();
   const { toast } = useToast();
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
-  const [open, setOpen] = useState(false);
+  const { deposit: open, setDeposit: setOpen } = useDepositStore();
 
   const {
     control,
