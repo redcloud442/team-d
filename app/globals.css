@@ -52,6 +52,11 @@
   border-radius: 0.75rem;
 }
 
+.text-shadow-white {
+  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8); /* White shadow */
+  color: green; /* Ensure the text color remains green */
+}
+
 @layer base {
   :root {
     --radius: 0.5rem;
