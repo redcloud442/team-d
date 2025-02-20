@@ -132,6 +132,24 @@
 }
 
 @layer utilities {
+  @keyframes fadeInOut {
+    0% {
+      opacity: 0.1; /* Lower starting opacity for more contrast */
+      transform: scale(0.9); /* Add slight scaling effect */
+    }
+    50% {
+      opacity: 0.6; /* Midway opacity */
+      transform: scale(1); /* Scale to normal size */
+    }
+    100% {
+      opacity: 1; /* Fully visible */
+      transform: scale(1.1); /* Slightly larger */
+    }
+  }
+
+  .animate-fadeInOut {
+    animation: fadeInOut 2s infinite alternate ease-in-out;
+  }
   @keyframes tracing-border {
     0% {
       box-shadow: 0 0 0 0 #f6db4e;

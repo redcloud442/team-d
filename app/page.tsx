@@ -16,9 +16,9 @@ const montserrat = Montserrat({
 
 const Page = async () => {
   return (
-    <main className={montserrat.className}>
+    <div className={montserrat.className}>
       <LandingPage />
-    </main>
+    </div>
   );
 };
 

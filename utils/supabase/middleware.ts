@@ -63,7 +63,7 @@ export async function updateSession(request: NextRequest) {
     "/api/auth",
     "/admin",
     "/api/health",
-    "/",
+    "/dashboard",
   ];
   const currentPath = request.nextUrl.pathname;
 
@@ -84,7 +84,7 @@ export async function updateSession(request: NextRequest) {
   if (user) {
     if (publicRoutes.some((route) => currentPath.startsWith(route))) {
       const homeUrl = request.nextUrl.clone();
-      homeUrl.pathname = "/";
+      homeUrl.pathname = "/dashboard";
       const response = NextResponse.redirect(homeUrl);
       response.headers.set("x-session-checked", "true");
       return addSecurityHeaders(response);

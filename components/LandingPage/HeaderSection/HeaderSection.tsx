@@ -1,125 +1,247 @@
 import { Button } from "@/components/ui/button";
+import CustomChevron from "@/components/ui/customChevron";
 import { Separator } from "@/components/ui/separator";
+import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useRef } from "react";
 
 const HeaderSection = () => {
+  const router = useRouter();
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+
+  const handlePushToLogin = () => {
+    router.push("/auth/login");
+  };
+
   return (
-    <div
-      className={`relative w-full min-h-screen gap-y-10 lg:gap-y-0 flex flex-col `}
-    >
-      <div className="hidden lg:absolute top-42 left-0 md:left-0 md:px-10 z-40 w-full">
+    <div className="relative w-full min-h-screen gap-y-10 lg:gap-y-0 flex flex-col xl:pt-64 pt-10">
+      <motion.div
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 1 }}
+        className="hidden lg:absolute top-42 left-0 md:left-0 md:px-10 z-40 w-full"
+      >
         <Image
           src="/landing/arrow.png"
           alt="arrow"
-          width={1920}
+          width={2000}
           height={1080}
           quality={80}
           priority
           className="object-cover w-full h-full"
         />
-      </div>
+      </motion.div>
+
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
           src="/landing/background.jpg"
           alt="Background"
-          width={1920}
+          width={2000}
           height={1080}
           quality={80}
-          className="object-cover w-full h-full"
+          className=" w-full h-full"
           priority
         />
       </div>
 
-      <nav className="z-30 hidden md:flex flex-col md:flex-row items-start px-8 py-4 bg-amber-500 m-10">
-        <h1 className="text-2xl font-bold w-full max-w-sm  text-black">
-          PRIME
-        </h1>
-
-        <div className="flex space-x-6 flex-1 justify-evenly text-black font-bold">
-          <Link href="/" className="hover:text-gray-200">
+      <motion.nav
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="z-50 hidden md:flex bg-amber-600 m-10 p-4 fixed top-0 left-0 right-0"
+      >
+        <Link href="/">
+          <Image
+            src="/app-logo-w-name.png"
+            alt="Logo"
+            width={150}
+            height={100}
+            quality={80}
+          />
+        </Link>
+        <div className="flex space-x-6 flex-1 justify-end gap-x-10 items-center text-white font-bold">
+          <Link href="/" className="hover:scale-115 duration-400">
             Home
           </Link>
-          <Link href="#" className="hover:text-gray-200">
+          <Link href="#about" className="hover:scale-115 duration-400">
             About
           </Link>
-          <Link href="#" className="hover:text-gray-200">
+          <Link href="#plans" className="hover:scale-115 duration-400">
             Plans
           </Link>
-          <Link href="#" className="hover:text-gray-200">
-            Contact
+          <Link href="#faqs" className="hover:scale-115 duration-400">
+            Faqs
+          </Link>
+          <Link
+            href="/auth/login"
+            className="hover:scale-115 duration-400 cursor-pointer"
+          >
+            <Button className="bg-white text-black rounded-sm">Sign In</Button>
           </Link>
         </div>
-      </nav>
+      </motion.nav>
 
+      <CustomChevron
+        direction="left"
+        className="absolute top-40 right-20 text-white"
+      />
+      <CustomChevron
+        direction="right"
+        className="absolute top-40 left-20 text-white"
+      />
       {/* Main Content */}
-      <div className="relative z-30 flex flex-col lg:flex-row items-center lg:items-start justify-between px-12 lg:px-24 mt-12 lg:mt-24">
-        {/* Text Section */}
-        <div className="w-full lg:max-w-4xl text-center lg:text-start text-white font-extrabold leading-normal">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+        className="relative z-30 flex flex-col lg:flex-row items-center lg:items-start justify-between px-12 lg:px-24 mt-14 md:mt-44"
+      >
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1 }}
+          className="w-full lg:max-w-4xl text-center lg:text-start text-white font-extrabold leading-normal"
+        >
           <h1 className="text-5xl lg:text-[3.5rem] xl:text-[5.5rem]">
             THE{" "}
-            <span className="bg-amber-400 text-white px-2 inline-block">
+            <span className="bg-amber-400 text-white px-2 inline-block animate-pulse duration-3000">
               BEST
             </span>{" "}
             <br />
             CRYPTO TRADING SERVICES
           </h1>
-        </div>
+        </motion.div>
 
         {/* Founder Image */}
-        <div className="hidden lg:block">
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1.2 }}
+          className="relative hidden lg:block "
+        >
           <Image
             src="/landing/founder.png"
             alt="Founder"
             width={400}
-            height={1000}
+            height={500}
             quality={100}
-            className="rounded-lg drop-shadow-xl object-contain shadow-white "
+            className="rounded-lg drop-shadow-xl object-contain shadow-white z-50"
           />
-        </div>
+          <motion.video
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="lg:block hidden absolute top-22 -left-26 w-40 lg:w-56 rounded-lg -z-10"
+          >
+            <source src="/assets/crypto-animation.webm" type="video/webm" />
+          </motion.video>
 
-        <div className="relative lg:hidden">
+          {/* Attached Video */}
+          <motion.video
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="lg:block hidden absolute top-0 right-0 w-40 lg:w-56 rounded-lg -z-10"
+          >
+            <source src="/assets/crypto-animation.webm" type="video/webm" />
+          </motion.video>
+        </motion.div>
+
+        {/* Mobile Logo */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+          className="relative lg:hidden"
+        >
           <Image
             src="/app-logo.png"
             alt="Logo"
             width={300}
             height={300}
             quality={100}
-            className="rounded-lg drop-shadow-xl shadow-white "
+            className="rounded-lg drop-shadow-xl shadow-white"
           />
-        </div>
-        <div className=" flex justify-center items-center  lg:hidden w-full">
-          <Button className="bg-white rounded-sm h-12 text-black text-xl font-bold cursor-pointer">
+        </motion.div>
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute top-0 left-0  object-contain"
+        >
+          <source src="/assets/crypto-animation.mp4" type="video/mp4" />
+        </video>
+        {/* Sign In Button for Mobile */}
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          className="flex justify-center items-center lg:hidden w-full"
+        >
+          <Button
+            onClick={handlePushToLogin}
+            className="bg-white rounded-sm h-12 text-black text-xl font-bold cursor-pointer"
+          >
             SIGN IN
           </Button>
-        </div>
+        </motion.div>
 
-        <div className=" hidden md:absolute top-1/3 mt-22 md:mt-0 right-1/2 left-1/2 z-50">
-          <Button className="bg-white rounded-sm h-12 text-black text-xl font-bold cursor-pointer">
+        {/* Sign In Button for Desktop */}
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          className="hidden md:absolute top-1/3 mt-22 md:mt-0 right-1/2 left-1/2 z-50"
+        >
+          <Button
+            onClick={handlePushToLogin}
+            className="bg-white rounded-sm h-12 text-black text-xl font-bold cursor-pointer"
+          >
             SIGN IN
           </Button>
-        </div>
-
+        </motion.div>
         <div className="relative xl:absolute pb-10 md:pb-10 lg:pb-0 lg:absolute bottom-[10%] left-1/2 transform -translate-x-1/2 translate-y-1/2 w-full z-30 flex flex-col items-center lg:bottom-[20%] xl:bottom-[30%]">
           <div className="flex flex-col">
-            <h1 className="lg:block hidden text-xl lg:text-[2.4rem] xl:text-[4.2rem] font-medium text-white text-center lg:text-start">
+            <h1 className="[text-shadow:_0_2px_px_#fef3c7] lg:block hidden text-xl lg:text-[2.4rem] xl:text-[4.2rem] font-medium text-white text-center lg:text-start">
               THE
             </h1>
-            <h1 className="text-5xl lg:text-[8rem] xl:text-[14rem] font-extrabold text-white tracking-widest text-center lg:text-start">
+            <h1 className="[text-shadow:_0_2px_2px_#fef3c7] text-5xl lg:text-[8rem] xl:text-[14rem] font-extrabold text-white tracking-widest text-center lg:text-start">
               FOUNDER
             </h1>
-            <h1 className="text-md  lg:text-[2.4rem] xl:text-[4.2rem] font-medium text-white tracking-widest">
+            <h1 className="[text-shadow:_0_2px_2px_#fef3c7]  text-md text-center xl:text-start lg:text-[2.4rem] xl:text-[4.2rem] font-medium text-white tracking-widest">
               DANNIELE JOSHUA VALDENIBRO
             </h1>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Mission & Vision Section */}
-      <div className="z-30 h-full min-h-80 bg-amber-400 py-8 px-8 lg:px-24 flex flex-col md:flex-row justify-around items-center text-black">
+      <motion.div
+        ref={sectionRef}
+        initial={{ opacity: 0, y: 0 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 1.2 }}
+        className="z-30 h-full min-h-80 bg-amber-400 py-8 px-8 lg:px-24 flex flex-col md:flex-row justify-around items-center text-black"
+      >
         {/* Mission */}
-        <div className="w-full max-w-sm text-center">
+        <motion.div
+          initial={{ opacity: 0, x: -40 }}
+          animate={isInView ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 1.3 }}
+          className="w-full max-w-sm text-center"
+        >
           <h3 className="text-2xl lg:text-4xl font-extrabold text-center">
             MISSION
           </h3>
@@ -128,16 +250,26 @@ const HeaderSection = () => {
             , to earn passive income, and build a successful business to achieve
             their goals & success.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Separator (Horizontal on small screens, Vertical on md and above) */}
-        <div className="flex items-center">
+        {/* Separator */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={isInView ? { opacity: 1, scale: 1 } : {}}
+          transition={{ duration: 1.2 }}
+          className="flex items-center"
+        >
           <Separator className="hidden md:block w-[2px] h-32 bg-black" />
           <Separator className="block md:hidden w-80 h-[2px] bg-black my-4" />
-        </div>
+        </motion.div>
 
         {/* Vision */}
-        <div className="w-full max-w-sm text-center">
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={isInView ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 1.3 }}
+          className="w-full max-w-sm text-center"
+        >
           <h3 className="text-2xl lg:text-4xl font-extrabold text-center">
             VISION
           </h3>
@@ -146,8 +278,8 @@ const HeaderSection = () => {
             goals, creating a history for future decades in the world of{" "}
             <strong>Cryptocurrency</strong>.
           </p>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
