@@ -15,13 +15,14 @@ export const metadata: Metadata = {
 
 const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
   const { userId } = await params;
-
-  const { teamMemberProfile, profile } = await protectionAdminUser();
+  const { teamMemberProfile, profile } = await protectionAdminUser().catch(
+    () => ({ teamMemberProfile: null, profile: null })
+  );
 
   if (!teamMemberProfile) return redirect("/auth/login");
 
   const [userData, allianceData] = await prisma.$transaction([
-    prisma.user_table.findFirst({
+    prisma.user_table.findUnique({
       where: {
         user_id: userId,
       },
@@ -33,11 +34,13 @@ const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
     }),
   ]);
 
-  const merchantData = await prisma.merchant_member_table.findFirst({
-    where: {
-      merchant_member_merchant_id: allianceData?.alliance_member_id,
-    },
-  });
+  const merchantData = allianceData
+    ? await prisma.merchant_member_table.findFirst({
+        where: {
+          merchant_member_merchant_id: allianceData.alliance_member_id,
+        },
+      })
+    : null;
 
   const combinedData = {
     ...userData,
