@@ -1,5 +1,5 @@
 import UserAdminProfile from "@/components/UserAdminProfile/UserAdminProfile";
-import { prisma } from "@/lib/db";
+import prisma from "@/utils/prisma";
 import { protectionAdminUser } from "@/utils/serversideProtection";
 import { UserRequestdata } from "@/utils/types";
 import { Metadata } from "next";
