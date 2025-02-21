@@ -6,8 +6,10 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import CustomChevron from "@/components/ui/customChevron";
+import Autoplay from "embla-carousel-autoplay";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useRef } from "react";
 
 const slides = [
   {
@@ -37,6 +39,8 @@ And There&apos;s <strong>no maximum amount of investment.</strong>`,
 ];
 
 const SlideSection = () => {
+  const plugin = useRef(Autoplay({ delay: 10000, stopOnInteraction: true }));
+
   return (
     <div
       id="faqs"
@@ -57,7 +61,7 @@ const SlideSection = () => {
 
       {/* Carousel */}
       <div className="relative z-30 w-full">
-        <Carousel>
+        <Carousel plugins={[plugin.current]}>
           <CarouselContent className="border-none">
             {slides.map((slide, index) => (
               <CarouselItem key={index}>
@@ -75,7 +79,7 @@ const SlideSection = () => {
                       height={1000}
                       width={1000}
                       quality={80}
-                      className="object-cover lg:block hidden  lg:h-[1450px] w-auto drop-shadow-md"
+                      className="object-cover lg:block hidden  lg:h-[1100px] w-auto drop-shadow-md"
                     />
                   </div>
 

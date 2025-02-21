@@ -58,13 +58,7 @@ export async function updateSession(request: NextRequest) {
     "/api/health",
     "/",
   ];
-  const privateRoutes = [
-    "/dashboard",
-    "/api/auth",
-    "/admin",
-    "/api/health",
-    "/dashboard",
-  ];
+  const privateRoutes = ["/dashboard", "/api/auth", "/admin", "/api/health"];
   const currentPath = request.nextUrl.pathname;
 
   if (!user) {
