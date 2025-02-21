@@ -86,16 +86,18 @@ const DashboardDepositModalPackages = ({
     >
       <DialogTrigger asChild className={className}>
         <Button
-          className=" h-44 flex items-center justify-start px-4 sm:justify-around sm:items-center text-xl sm:text-4xl "
+          className="h-44 flex items-center justify-start px-4 sm:justify-around sm:items-center text-xl sm:text-4xl max-w-full"
           onClick={() => setOpen(true)}
         >
-          Select Your Plan Here:
+          <p className="break-words whitespace-normal text-center">
+            Select Your Plan Here:
+          </p>
           <Image
             src="/assets/packages.png"
             alt="deposit"
             width={170}
             height={170}
-            className="relative "
+            className="relative"
           />
         </Button>
       </DialogTrigger>

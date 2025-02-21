@@ -14,6 +14,7 @@ import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
+import { formatTime } from "@/utils/function";
 import { ChartDataMember } from "@/utils/types";
 import { alliance_member_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
@@ -181,7 +182,15 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
   };
 
   return (
-    <ScrollArea className="w-full pb-10">
+    <ScrollArea className="w-full pb-10 bg-cardColor p-4 rounded-xl">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-2 pb-4">
+        <h1 className="text-2xl font-bold text-black">Activated Plan</h1>
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-black">7 days Package = 4.28%</p>
+          <p className="text-sm text-black">14 days Package = 5%</p>
+        </div>
+      </div>
+      <Separator className="mb-4" />
       <div className="flex grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {liveData.map((data) => (
           <Card
@@ -194,8 +203,8 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
             className="min-w-[260px] max-w-[500px] h-auto dark:bg-cardColor transition-all duration-300"
           >
             <CardHeader>
-              <CardTitle className="flex justify-end items-end">
-                <div className="text-xs rounded-full bg-black p-2">
+              <CardTitle>
+                <div className="text-md text-center rounded-full bg-black p-2">
                   {data.currentPercentage}%
                 </div>
               </CardTitle>
@@ -250,6 +259,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
                   day: "numeric",
                   year: "numeric",
                 }).format(new Date(data.completion_date))}
+                , {formatTime(data.completion_date)}
               </div>
               {data.is_ready_to_claim && (
                 <Dialog
@@ -295,7 +305,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
           </Card>
         ))}
       </div>
-      <ScrollBar orientation="horizontal" />
+      <ScrollBar className="mt-4" orientation="horizontal" />
     </ScrollArea>
   );
 };
