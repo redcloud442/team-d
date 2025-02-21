@@ -21,18 +21,24 @@ export function TestimonialPage() {
     // Apply object-contain only in fullscreen
     const applyObjectContain = () => video.classList.add("object-contain");
     const removeObjectContain = () => video.classList.remove("object-cover");
+    const applyObjectCover = () => video.classList.add("object-cover");
 
     // Listen for fullscreen change events
     video.addEventListener("fullscreenchange", () => {
       removeObjectContain();
       if (document.fullscreenElement) {
         applyObjectContain();
+      } else {
+        applyObjectCover();
+        video.muted = true;
+        video.pause();
       }
     });
 
     // Open in fullscreen
     if (video.requestFullscreen) {
       video.requestFullscreen();
+      video.muted = false;
       video.play();
     }
   };
@@ -70,6 +76,8 @@ export function TestimonialPage() {
                   <video
                     src={url}
                     loop
+                    muted
+                    playsInline
                     className="w-full h-full object-cover aspect-auto md:aspect-square rounded-lg dark:bg-transparent"
                     onClick={openVideoFullscreen}
                   />
