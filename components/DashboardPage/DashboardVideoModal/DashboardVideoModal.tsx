@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 const DashboardVideoModal = () => {
   const [open, setOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { deposit, setDeposit } = useDepositStore();
+  const { setDeposit } = useDepositStore();
   useEffect(() => {
     const handleOpen = () => {
       const isLoggedIn = localStorage.getItem("isModalOpen");
@@ -44,7 +44,7 @@ const DashboardVideoModal = () => {
     >
       <DialogTrigger asChild>
         <Button
-          className="w-full max-w-[140px] min-w-[120px] h-7"
+          className="w-full max-w-[140px] min-w-[120px] h-7 cursor-pointer"
           onClick={() => setOpen(true)}
         >
           How to Earn
