@@ -44,7 +44,7 @@ const SlideSection = () => {
   return (
     <div
       id="faqs"
-      className="relative flex justify-center items-end w-full h-auto lg:min-h-screen text-white"
+      className="relative flex justify-center items-end w-full h-auto md:min-h-screen text-white"
     >
       {/* Background Image */}
       <div className="absolute inset-0">
@@ -79,7 +79,7 @@ const SlideSection = () => {
                       height={1000}
                       width={1000}
                       quality={80}
-                      className="object-cover lg:block hidden  lg:h-[1100px] w-auto drop-shadow-md"
+                      className="object-cover lg:block hidden  md:h-[1100px] w-auto drop-shadow-md"
                     />
                   </div>
 
