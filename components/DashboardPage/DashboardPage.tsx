@@ -34,6 +34,7 @@ import DashboardEarningsModal from "./DashboardDepositRequest/EarningsModal/Earn
 import DashboardPackages from "./DashboardPackages";
 import DashboardVideoModal from "./DashboardVideoModal/DashboardVideoModal";
 import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
+import { TestimonialPage } from "./Testimonial/TestimonialPage";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
@@ -313,6 +314,8 @@ const DashboardPage = ({
             <DashboardPackages teamMemberProfile={teamMemberProfile} />
           </div>
         )}
+
+        <TestimonialPage />
 
         {/* <div className="w-full flex flex-col lg:flex-row space-6 gap-6">
           <DashboardDepositRequest
