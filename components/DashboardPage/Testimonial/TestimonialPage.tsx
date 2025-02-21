@@ -33,7 +33,11 @@ export function TestimonialPage() {
     // Open in fullscreen
     if (video.requestFullscreen) {
       video.requestFullscreen();
+      video.muted = false;
       video.play();
+    } else {
+      video.muted = true;
+      video.pause();
     }
   };
 
@@ -70,6 +74,8 @@ export function TestimonialPage() {
                   <video
                     src={url}
                     loop
+                    muted
+                    playsInline
                     className="w-full h-full object-cover aspect-auto md:aspect-square rounded-lg dark:bg-transparent"
                     onClick={openVideoFullscreen}
                   />
