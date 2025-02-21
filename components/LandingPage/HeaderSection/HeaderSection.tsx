@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
+import MobileNavbar from "../MobileNavbar/MobileNavbar";
 
 const HeaderSection = () => {
   const router = useRouter();
@@ -47,6 +48,8 @@ const HeaderSection = () => {
           priority
         />
       </div>
+
+      <MobileNavbar />
 
       <motion.nav
         initial={{ opacity: 0, y: -30 }}
