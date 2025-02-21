@@ -1,20 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import CustomChevron from "@/components/ui/customChevron";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
 const AboutSection = () => {
   const sectionRef = useRef(null);
-  const router = useRouter();
-  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
-  const handlePushToLogin = () => {
-    router.push("/auth/login");
-  };
+  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   return (
     <div
@@ -75,12 +69,7 @@ const AboutSection = () => {
           expertise and skills, helping others to earn money and end scarcity
           while also improving his skills in trading cryptocurrency.
         </p>
-        <Button
-          onClick={handlePushToLogin}
-          className="mt-6 w-full xl:w-1/2 h-12 rounded-sm px-6 py-3 bg-amber-500 text-black font-bold shadow-lg hover:bg-amber-600 transition"
-        >
-          SIGN IN
-        </Button>
+
         <CustomChevron
           direction="left"
           className="absolute -bottom-20 right-0 text-white"

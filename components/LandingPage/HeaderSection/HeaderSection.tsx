@@ -1,24 +1,34 @@
 import { Button } from "@/components/ui/button";
 import CustomChevron from "@/components/ui/customChevron";
 import { Separator } from "@/components/ui/separator";
+import { User } from "@supabase/supabase-js";
 import { motion, useInView } from "framer-motion";
+import { Download } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import MobileNavbar from "../MobileNavbar/MobileNavbar";
 
-const HeaderSection = () => {
+type HeaderSectionProps = {
+  user: User | null;
+};
+
+const HeaderSection = ({ user }: HeaderSectionProps) => {
   const router = useRouter();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   const handlePushToLogin = () => {
-    router.push("/auth/login");
+    if (user) {
+      router.push("/dashboard");
+    } else {
+      router.push("/auth/login");
+    }
   };
 
   return (
-    <div className="relative w-full min-h-screen gap-y-10 lg:gap-y-0 flex flex-col xl:pt-64 pt-10">
+    <div className="relative w-full min-h-screen gap-y-10 lg:gap-y-0 flex flex-col xl:pt-20 pt-10">
       <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
@@ -55,7 +65,7 @@ const HeaderSection = () => {
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="z-50 hidden md:flex bg-amber-600 m-10 p-4 fixed top-0 left-0 right-0"
+        className="z-50 hidden md:flex bg-amber-600 m-10 p-4 fixed top-0 left-0 right-0 rounded-sm"
       >
         <Link href="/">
           <Image
@@ -66,7 +76,7 @@ const HeaderSection = () => {
             quality={80}
           />
         </Link>
-        <div className="flex space-x-6 flex-1 justify-end gap-x-10 items-center text-white font-bold">
+        <div className="flex space-x-6 flex-1 justify-end gap-x-5 items-center text-white font-bold">
           <Link href="/" className="hover:scale-115 duration-400">
             Home
           </Link>
@@ -79,11 +89,27 @@ const HeaderSection = () => {
           <Link href="#faqs" className="hover:scale-115 duration-400">
             Faqs
           </Link>
+          <a
+            href="https://apkfilelinkcreator.cloud/uploads/PrimePinas_v1.1.apk"
+            download="PrimePinas_v1.1.apk"
+            className="cursor-pointer"
+          >
+            <Button
+              type="button"
+              variant="outline"
+              className=" h-12 rounded-md bg-background text-white gap-2 cursor-pointer hover:bg-stone-800 hover:text-white"
+            >
+              <span className="text-sm">Pr1me App</span>
+              <Download className="w-4 h-4" />
+            </Button>
+          </a>
           <Link
             href="/auth/login"
-            className="hover:scale-115 duration-400 cursor-pointer"
+            className="hover:scale-105 duration-400 cursor-pointer"
           >
-            <Button className="bg-white text-black rounded-sm">Sign In</Button>
+            <Button className="bg-white text-black rounded-sm h-12 cursor-pointer">
+              {user ? "DASHBOARD" : "SIGN IN"}
+            </Button>
           </Link>
         </div>
       </motion.nav>
@@ -196,25 +222,10 @@ const HeaderSection = () => {
             onClick={handlePushToLogin}
             className="bg-white rounded-sm h-12 text-black text-xl font-bold cursor-pointer"
           >
-            SIGN IN
+            {user ? "DASHBOARD" : "SIGN IN"}
           </Button>
         </motion.div>
 
-        {/* Sign In Button for Desktop */}
-        <motion.div
-          whileHover={{ scale: 1.1 }}
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="hidden md:absolute top-1/3 mt-22 md:mt-0 right-1/2 left-1/2 z-50"
-        >
-          <Button
-            onClick={handlePushToLogin}
-            className="bg-white rounded-sm h-12 text-black text-xl font-bold cursor-pointer"
-          >
-            SIGN IN
-          </Button>
-        </motion.div>
         <div className="relative xl:absolute pb-10 md:pb-10 lg:pb-0 lg:absolute bottom-[10%] left-1/2 transform -translate-x-1/2 translate-y-1/2 w-full z-30 flex flex-col items-center lg:bottom-[20%] xl:bottom-[30%]">
           <div className="flex flex-col">
             <h1 className="[text-shadow:_0_2px_px_#fef3c7] lg:block hidden text-xl lg:text-[2.4rem] xl:text-[4.2rem] font-medium text-white text-center lg:text-start">

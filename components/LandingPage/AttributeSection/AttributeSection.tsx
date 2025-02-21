@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import CustomChevron from "@/components/ui/customChevron";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
@@ -56,16 +55,15 @@ const HowToEarnSection = () => {
         <div className="space-y-4 mt-4">
           <p className="text-gray-300 leading-relaxed">
             <span className="text-amber-400 font-bold">Pioneer Plan:</span> You
-            can earn <span className="font-bold text-amber-500">2.5%</span>{" "}
+            can earn <span className="font-bold text-amber-500">4.28%</span>{" "}
             daily earnings or{" "}
             <span className="font-bold text-amber-500">30%</span> in{" "}
             <span className="font-bold text-amber-500">7 Days</span>.
           </p>
           <p className="text-gray-300 leading-relaxed">
             <span className="text-amber-400 font-bold">Prime Plan:</span> You
-            can earn <span className="font-bold text-amber-500">5.83%</span>{" "}
-            daily earnings or{" "}
-            <span className="font-bold text-amber-500">70%</span> in{" "}
+            can earn <span className="font-bold text-amber-500">5%</span> daily
+            earnings or <span className="font-bold text-amber-500">70%</span> in{" "}
             <span className="font-bold text-amber-500">14 Days</span>.
           </p>
         </div>
@@ -75,12 +73,7 @@ const HowToEarnSection = () => {
         </h2>
 
         {/* Sign In Button */}
-        <Button
-          onClick={handlePushToLogin}
-          className="mt-6 w-full lg:w-1/2 h-12 rounded-sm bg-amber-500 text-black font-bold shadow-lg hover:bg-amber-600 transition"
-        >
-          SIGN IN
-        </Button>
+
         <CustomChevron
           direction="left"
           className="absolute -bottom-20 right-0 text-amber-400"

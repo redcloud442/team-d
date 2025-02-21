@@ -1,3 +1,4 @@
+import { Facebook, Youtube } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -27,8 +28,14 @@ const FooterSection = () => {
 
             {/* Social Media Links */}
             <div className="flex lg:justify-start justify-center space-x-5 mt-2 cursor-pointer">
-              <Link href="https://facebook.com" target="_blank">
-                Facebook Group
+              <Link
+                href="https://www.facebook.com/groups/pr1meofficialgroup"
+                target="_blank"
+              >
+                <Facebook />
+              </Link>
+              <Link href="https://www.youtube.com/@Pr1mepinas" target="_blank">
+                <Youtube />
               </Link>
             </div>
           </div>

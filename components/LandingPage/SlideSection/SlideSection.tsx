@@ -100,7 +100,7 @@ const SlideSection = () => {
                       />
                     </div>
                   </div>
-                  <div className="hidden lg:block lg:absolute bottom-0 bg-amber-400 w-full h-[60vh] -z-10">
+                  <div className="hidden lg:block lg:absolute bottom-0 bg-amber-400 w-full h-[70%] max-h-[70vh] -z-10">
                     <CustomChevron
                       direction="right"
                       className="absolute bottom-10 right-10 text-black"
