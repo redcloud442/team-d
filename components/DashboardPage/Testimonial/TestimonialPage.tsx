@@ -24,12 +24,17 @@ export function TestimonialPage({ alliance_testimonial_url }: Testimonial) {
     // Apply object-contain only in fullscreen
     const applyObjectContain = () => video.classList.add("object-contain");
     const removeObjectContain = () => video.classList.remove("object-cover");
+    const applyObjectCover = () => video.classList.add("object-cover");
 
     // Listen for fullscreen change events
     video.addEventListener("fullscreenchange", () => {
       removeObjectContain();
       if (document.fullscreenElement) {
         applyObjectContain();
+      } else {
+        applyObjectCover();
+        video.muted = true;
+        video.pause();
       }
     });
 
