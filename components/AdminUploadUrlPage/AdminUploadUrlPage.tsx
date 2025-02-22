@@ -14,9 +14,25 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Card, CardContent } from "../ui/card";
 import FileUploadVideo from "../ui/dropZoneVideo";
+import { Progress } from "../ui/progress";
+import { ScrollArea } from "../ui/scroll-area";
+import { Skeleton } from "../ui/skeleton";
+import { AdminUploadModalDelete } from "./AdminUploadModalDelete";
 
 const schema = z.object({
-  file: z.array(z.instanceof(File)).nonempty("At least one file is required"),
+  file: z
+    .array(z.instanceof(File))
+    .nonempty("At least one file is required")
+    .refine(
+      (files) =>
+        files.every(
+          (file) =>
+            ["video/mp4", "video/webm", "video/quicktime"].includes(
+              file.type
+            ) && file.size <= 60 * 1024 * 1024 // 60MB limit
+        ),
+      { message: "All files must be valid videos and less than 60MB." }
+    ),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -30,55 +46,90 @@ const AdminUploadUrlPage = () => {
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
+  const { toast } = useToast();
   const supabase = createClientSide();
   const [hoveredIndex, setHoveredIndex] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [page, setPage] = useState(1);
   const [testimonials, setTestimonials] = useState<
     alliance_testimonial_table[]
   >([]);
-
-  const { toast } = useToast();
+  const [testimonialsCount, setTestimonialsCount] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   const selectedFiles = watch("file") || [];
+  const take = 15;
 
   const handleGetTestimonials = async () => {
     try {
-      const data = await handleFetchTestimonials();
-      setTestimonials(data);
-    } catch (error) {}
+      setIsFetching(true);
+      const { testimonial, total } = await handleFetchTestimonials({
+        take,
+        skip: page,
+      });
+
+      setTestimonials((prev) =>
+        page === 1 ? testimonial : [...prev, ...testimonial]
+      );
+
+      setTestimonialsCount(total);
+
+      if (testimonials.length + take >= total) {
+        setHasMore(false);
+      }
+    } catch (error) {
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  const loadNextPage = () => {
+    if (testimonials.length < testimonialsCount && !loading) {
+      setPage((prev) => prev + 1);
+    }
   };
 
   const handleUploadUrl = async (data: FormData) => {
     setLoading(true);
+    setProgress(0);
     const files = data.file;
-    const url = [];
+    const url: string[] = [];
+    const totalFiles = files.length;
 
-    for (const fileItem of files) {
-      const filePath = `uploads/${Date.now()}_${fileItem.name}`;
+    try {
+      for (let i = 0; i < totalFiles; i++) {
+        const fileItem = files[i];
+        const filePath = `uploads/${Date.now()}_${fileItem.name}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("TESTIMONIAL_BUCKET")
-        .upload(filePath, fileItem, { upsert: true });
+        const { error: uploadError } = await supabase.storage
+          .from("TESTIMONIAL_BUCKET")
+          .upload(filePath, fileItem, { upsert: true });
 
-      if (uploadError) {
-        throw new Error(uploadError.message);
+        if (uploadError) {
+          throw new Error(uploadError.message);
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from("TESTIMONIAL_BUCKET")
+          .getPublicUrl(filePath);
+
+        url.push(publicUrlData.publicUrl);
+
+        const uploadProgress = Math.round(((i + 1) / totalFiles) * 80);
+        setProgress(uploadProgress);
       }
 
-      const { data: publicUrlData } = supabase.storage
-        .from("TESTIMONIAL_BUCKET")
-        .getPublicUrl(filePath);
-
-      url.push(publicUrlData.publicUrl);
-    }
-    try {
+      // Process testimonial creation (remaining 20%).
       const response = await handleUploadTestimonial(url);
-      setTestimonials(response);
-
-      toast({
-        title: `Uploaded ${files.length} file(s) successfully!`,
-      });
+      setTestimonials((prev) => [...prev, ...response]);
+      setProgress(100);
 
       reset();
+      toast({
+        title: `Uploaded ${totalFiles} file(s) successfully!`,
+      });
     } catch (error) {
       toast({
         title: "Failed to upload files.",
@@ -91,7 +142,6 @@ const AdminUploadUrlPage = () => {
     }
   };
 
-  // Update file list dynamically
   const handleFileChange = (files: File[] | null) => {
     if (files && files.length > 0) {
       setValue("file", [files[0], ...files.slice(1)]);
@@ -100,13 +150,10 @@ const AdminUploadUrlPage = () => {
 
   const openVideoFullscreen = (event: React.MouseEvent<HTMLVideoElement>) => {
     const video = event.currentTarget;
-
-    // Apply object-contain only in fullscreen
     const applyObjectContain = () => video.classList.add("object-contain");
     const removeObjectContain = () => video.classList.remove("object-cover");
     const applyObjectCover = () => video.classList.add("object-cover");
 
-    // Listen for fullscreen change events
     video.addEventListener("fullscreenchange", () => {
       removeObjectContain();
       if (document.fullscreenElement) {
@@ -118,7 +165,6 @@ const AdminUploadUrlPage = () => {
       }
     });
 
-    // Open in fullscreen
     if (video.requestFullscreen) {
       video.requestFullscreen();
       video.muted = false;
@@ -128,10 +174,10 @@ const AdminUploadUrlPage = () => {
 
   useEffect(() => {
     handleGetTestimonials();
-  }, []);
+  }, [page]);
 
   return (
-    <div className="container mx-auto p-6 md:p-10 space-y-6">
+    <div className="sm:relative sm:mx-auto p-6 md:p-10 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">List of Testimonials</h1>
       </div>
@@ -141,18 +187,14 @@ const AdminUploadUrlPage = () => {
           label="Upload Video"
           onFileChange={(files) => handleFileChange(files || [])}
         />
-
-        {/* Show file count */}
         {selectedFiles.length > 0 && (
           <p className="text-green-500 text-sm">
             {selectedFiles.length} file(s) selected
           </p>
         )}
-
         {errors.file && (
           <p className="text-red-500 text-sm">{errors.file.message}</p>
         )}
-
         <Button
           type="submit"
           variant="card"
@@ -161,39 +203,71 @@ const AdminUploadUrlPage = () => {
         >
           {loading ? "Uploading..." : "Upload Files"}
         </Button>
+        {loading && (
+          <>
+            <Progress value={progress} />
+            <p className="text-sm text-gray-500">{progress}% uploaded</p>
+            <p className="text-lg text-center text-red-500">
+              Please stay on this page while uploading to prevent any errors
+            </p>
+          </>
+        )}
       </form>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {testimonials.map((testimonial) => (
-          <Card
-            key={testimonial.alliance_testimonial_id}
-            className="w-full h-full flex justify-center overflow-hidden rounded-lg dark:bg-transparent relative"
-            onMouseEnter={() =>
-              setHoveredIndex(testimonial.alliance_testimonial_id)
-            }
-            onMouseLeave={() => setHoveredIndex(null)}
-          >
-            <CardContent className="p-0">
-              {/* Play Button Overlay */}
-              {hoveredIndex === testimonial.alliance_testimonial_id && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
-                  <Button className="text-black bg-cardColor bg-opacity-70 px-4 py-2 rounded-full text-lg cursor-pointer">
-                    ▶
-                  </Button>
-                </div>
-              )}
-              <video
-                src={testimonial.alliance_testimonial_url}
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover aspect-auto md:aspect-square rounded-lg dark:bg-transparent"
-                onClick={openVideoFullscreen}
-              />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <ScrollArea className="h-[1100px] border rounded-lg p-2">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {testimonials.map((testimonial) => (
+            <Card
+              key={testimonial.alliance_testimonial_id}
+              className="w-full relative h-full flex justify-center overflow-hidden rounded-lg dark:bg-transparent"
+              onMouseEnter={() =>
+                setHoveredIndex(testimonial.alliance_testimonial_id)
+              }
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              <CardContent className="p-0">
+                {hoveredIndex === testimonial.alliance_testimonial_id && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg cursor-pointer">
+                    <AdminUploadModalDelete
+                      testimonialId={testimonial.alliance_testimonial_id}
+                      setTestimonials={setTestimonials}
+                    />
+                    <Button className="text-black bg-cardColor bg-opacity-70 px-4 py-2 rounded-full text-lg cursor-pointer">
+                      ▶
+                    </Button>
+                  </div>
+                )}
+                <video
+                  src={testimonial.alliance_testimonial_url}
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover aspect-auto md:aspect-square rounded-lg dark:bg-transparent"
+                  onClick={openVideoFullscreen}
+                />
+              </CardContent>
+            </Card>
+          ))}
+          {isFetching && (
+            <>
+              <Skeleton className="w-full h-80 bg-amber-50" />
+              <Skeleton className="w-full h-80 bg-amber-50" />
+              <Skeleton className="w-full h-80 bg-amber-50" />
+            </>
+          )}
+        </div>
+        {hasMore && testimonials.length !== 0 && (
+          <div className="relative flex justify-center items-center h-full mt-4">
+            <Button
+              className="text-black bg-cardColor bg-opacity-70 px-4 py-2  text-lg cursor-pointer rounded-md"
+              onClick={loadNextPage}
+              disabled={isFetching}
+            >
+              {isFetching ? "Loading..." : "Load More"}
+            </Button>
+          </div>
+        )}
+      </ScrollArea>
     </div>
   );
 };

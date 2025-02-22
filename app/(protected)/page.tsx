@@ -46,12 +46,32 @@ const Page = async () => {
     return redirect("/admin");
   }
 
+  const testimonials = await prisma.alliance_testimonial_table.findMany({
+    where: {
+      alliance_testimonial_is_hidden: false,
+    },
+    select: {
+      alliance_testimonial_url: true,
+    },
+    orderBy: {
+      alliance_testimonial_date_created: "desc",
+    },
+  });
+
   return (
     <DashboardPage
       profile={profile}
       teamMemberProfile={teamMemberProfile}
       referal={referal}
       packages={packages}
+      testimonials={
+        testimonials as {
+          alliance_testimonial_id: string;
+          alliance_testimonial_date_created: Date;
+          alliance_testimonial_url: string;
+          alliance_testimonial_is_hidden: boolean;
+        }[]
+      }
     />
   );
 };

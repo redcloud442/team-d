@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils"; // Utility for merging classes, or replace with classNames if preferred
 import Image from "next/image";
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 
 type FileUploadProps = {
@@ -14,15 +14,9 @@ const FileUploadVideo: React.FC<FileUploadProps> = ({
   label = "File",
   onFileChange,
 }) => {
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      setSelectedFiles((prevFiles) => {
-        const newFiles = [...prevFiles, ...acceptedFiles];
-        onFileChange(newFiles); // Ensure state and parent component are updated
-        return newFiles;
-      });
+      onFileChange(acceptedFiles);
     },
     [onFileChange]
   );
@@ -58,11 +52,6 @@ const FileUploadVideo: React.FC<FileUploadProps> = ({
           height={130}
         />
         {/* Display selected file count */}
-        {selectedFiles.length > 0 && (
-          <p className="text-green-500 text-sm mt-2">
-            {selectedFiles.length} file(s) selected
-          </p>
-        )}
       </div>
     </div>
   );
