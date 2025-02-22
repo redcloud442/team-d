@@ -21,12 +21,10 @@ export function TestimonialPage({ alliance_testimonial_url }: Testimonial) {
   const openVideoFullscreen = (event: React.MouseEvent<HTMLVideoElement>) => {
     const video = event.currentTarget;
 
-    // Apply object-contain only in fullscreen
     const applyObjectContain = () => video.classList.add("object-contain");
     const removeObjectContain = () => video.classList.remove("object-cover");
     const applyObjectCover = () => video.classList.add("object-cover");
 
-    // Listen for fullscreen change events
     video.addEventListener("fullscreenchange", () => {
       removeObjectContain();
       if (document.fullscreenElement) {
@@ -38,7 +36,6 @@ export function TestimonialPage({ alliance_testimonial_url }: Testimonial) {
       }
     });
 
-    // Open in fullscreen
     if (video.requestFullscreen) {
       video.requestFullscreen();
       video.muted = false;

@@ -319,21 +319,6 @@ const DashboardPage = ({
         )}
 
         <TestimonialPage alliance_testimonial_url={testimonials} />
-
-        {/* <div className="w-full flex flex-col lg:flex-row space-6 gap-6">
-          <DashboardDepositRequest
-            setChartData={setChartData}
-            earnings={earnings}
-            setEarnings={setEarnings}
-            packages={packages}
-            setIsActive={setIsActive}
-            teamMemberProfile={teamMemberProfile}
-          />
-          <DashboardWithdrawRequest
-            earnings={earnings}
-            teamMemberProfile={teamMemberProfile}
-          />
-        </div> */}
       </div>
     </div>
   );
