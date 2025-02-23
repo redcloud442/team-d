@@ -112,7 +112,8 @@ const AdminUploadUrlPage = () => {
         }
 
         const publicUrl =
-          "https://cdn.primepinas.com/storage/v1/object/public/" + filePath;
+          "https://cdn.primepinas.com/storage/v1/object/public/TESTIMONIAL_BUCKET/" +
+          filePath;
         url.push(publicUrl);
 
         const uploadProgress = Math.round(((i + 1) / totalFiles) * 80);

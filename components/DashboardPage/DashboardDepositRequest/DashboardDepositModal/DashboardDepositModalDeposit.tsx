@@ -145,7 +145,8 @@ const DashboardDepositModalDeposit = ({
       }
 
       const publicUrl =
-        "https://cdn.primepinas.com/storage/v1/object/public/" + filePath;
+        "https://cdn.primepinas.com/storage/v1/object/public/REQUEST_ATTACHMENTS/" +
+        filePath;
 
       await handleDepositRequest({
         TopUpFormValues: sanitizedData,

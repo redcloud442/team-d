@@ -129,7 +129,8 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
       }
 
       const publicUrl =
-        "https://cdn.primepinas.com/storage/v1/object/public/" + filePath;
+        "https://cdn.primepinas.com/storage/v1/object/public/USER_PROFILE/" +
+        filePath;
 
       await updateUserProfile({
         userId: profile.user_id,
