@@ -186,23 +186,27 @@ const RegisterPage = ({ referralLink }: Props) => {
   return (
     <Card className="w-full max-w-lg mx-auto p-2">
       <NavigationLoader visible={isSubmitting || isSuccess} />
-      <CardTitle className="font-bold text-2xl flex items-center justify-between">
-        Register
-        <a
-          href="https://apkfilelinkcreator.cloud/uploads/PrimePinas_v1.1.apk"
-          download="PrimePinas_v1.1.apk"
-          className="w-full cursor-pointer"
-        >
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-full h-12 sm:h-10 text-xs sm:text-sm rounded-md bg-stone-700 text-white gap-2 cursor-pointer hover:bg-stone-800 hover:text-white"
+      <CardTitle className="font-bold text-2xl flex items-center justify-between w-full">
+        <div>
+          <p>Register</p>
+        </div>
+        <div>
+          <a
+            href="https://apkfilelinkcreator.cloud/uploads/PrimePinas_v1.1.apk"
+            download="PrimePinas_v1.1.apk"
+            className="w-full cursor-pointer"
           >
-            <span className="text-sm">Download Pr1me App</span>
-            <Download className="w-4 h-4" />
-          </Button>
-        </a>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className=" h-12 sm:h-10 text-xs sm:text-sm rounded-md bg-stone-700 text-white gap-2 cursor-pointer hover:bg-stone-800 hover:text-white"
+            >
+              <span className="text-sm">Download Pr1me App</span>
+              <Download className="w-4 h-4" />
+            </Button>
+          </a>
+        </div>
       </CardTitle>
       <CardContent className="p-4">
         <form

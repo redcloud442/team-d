@@ -185,10 +185,6 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
     <ScrollArea className="w-full pb-10 bg-cardColor p-4 rounded-xl">
       <div className="flex flex-col sm:flex-row justify-between items-start gap-2 pb-4">
         <h1 className="text-2xl font-bold text-black">Activated Plan</h1>
-        <div className="flex flex-col gap-2">
-          <p className="text-sm text-black">7 days Package = 4.28%</p>
-          <p className="text-sm text-black">14 days Package = 5%</p>
-        </div>
       </div>
       <Separator className="mb-4" />
       <div className="flex grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

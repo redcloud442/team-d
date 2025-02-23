@@ -34,6 +34,7 @@ import {
   Settings,
   Trophy,
   User2,
+  Video,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -148,6 +149,11 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
       title: "User Monitoring",
       url: "/admin/monitoring",
       icon: MonitorCheck,
+    },
+    {
+      title: "Testimonials",
+      url: "/admin/testimonials",
+      icon: Video,
     },
   ];
 
