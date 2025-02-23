@@ -171,7 +171,7 @@ const RegisterPage = ({ referralLink }: Props) => {
       });
 
       localStorage.setItem("isModalOpen", "true");
-      router.push("/");
+      router.push("/dashboard");
     } catch (e) {
       setIsSuccess(false);
 

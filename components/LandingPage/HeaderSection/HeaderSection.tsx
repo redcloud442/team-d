@@ -216,7 +216,7 @@ const HeaderSection = ({ user }: HeaderSectionProps) => {
         {/* Sign In Button for Mobile */}
         <motion.div
           whileHover={{ scale: 1.1 }}
-          className="flex justify-center items-center lg:hidden w-full"
+          className="flex flex-col gap-4 justify-center items-center lg:hidden w-full"
         >
           <Button
             onClick={handlePushToLogin}
@@ -224,6 +224,20 @@ const HeaderSection = ({ user }: HeaderSectionProps) => {
           >
             {user ? "DASHBOARD" : "SIGN IN"}
           </Button>
+          <a
+            href="https://apkfilelinkcreator.cloud/uploads/PrimePinas_v1.1.apk"
+            download="PrimePinas_v1.1.apk"
+            className="cursor-pointer"
+          >
+            <Button
+              type="button"
+              variant="outline"
+              className=" h-12 rounded-md bg-background text-white gap-2 cursor-pointer hover:bg-stone-800 hover:text-white"
+            >
+              <span className="text-sm">Pr1me App</span>
+              <Download className="w-4 h-4" />
+            </Button>
+          </a>
         </motion.div>
 
         <div className="relative xl:absolute pb-10 md:pb-10 lg:pb-0 lg:absolute bottom-[10%] left-1/2 transform -translate-x-1/2 translate-y-1/2 w-full z-30 flex flex-col items-center lg:bottom-[20%] xl:bottom-[30%]">
