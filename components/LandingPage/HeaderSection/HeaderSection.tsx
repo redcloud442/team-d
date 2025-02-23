@@ -204,15 +204,7 @@ const HeaderSection = ({ user }: HeaderSectionProps) => {
             className="rounded-lg drop-shadow-xl shadow-white"
           />
         </motion.div>
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute top-0 left-0  object-contain"
-        >
-          <source src="/assets/crypto-animation.mp4" type="video/mp4" />
-        </video>
+
         {/* Sign In Button for Mobile */}
         <motion.div
           whileHover={{ scale: 1.1 }}
