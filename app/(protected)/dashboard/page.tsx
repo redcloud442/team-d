@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Dashboard",
   description: "Pr1me Dashboard",
   openGraph: {
-    url: "/",
+    url: "/dashboard",
   },
 };
 

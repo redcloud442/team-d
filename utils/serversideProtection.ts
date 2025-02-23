@@ -12,7 +12,7 @@ export const protectionRegisteredUser = async () => {
   const { data } = await supabase.auth.getUser();
 
   if (data.user) {
-    return { redirect: "/" };
+    return { redirect: "/dashboard" };
   }
 };
 

@@ -56,37 +56,36 @@ export async function updateSession(request: NextRequest) {
     "/api/v1/auth",
     "/auth/securedPrime",
     "/api/health",
-  ];
-  const privateRoutes = [
     "/",
-    "/dashboard",
-    "/api/auth",
-    "/admin",
-    "/api/health",
   ];
+  const privateRoutes = ["/dashboard", "/api/auth", "/admin"];
   const currentPath = request.nextUrl.pathname;
 
   if (!user) {
+    // 🔹 If user is NOT logged in and they visit a public route, let them pass
     if (publicRoutes.some((route) => currentPath.startsWith(route))) {
       return addSecurityHeaders(NextResponse.next());
     }
 
+    // 🔹 If user is NOT logged in and tries to access private routes, redirect to login
     if (privateRoutes.some((route) => currentPath.startsWith(route))) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/auth/login";
-      const response = NextResponse.redirect(loginUrl);
-      response.headers.set("x-session-checked", "true");
-      return addSecurityHeaders(response);
+      return addSecurityHeaders(NextResponse.redirect(loginUrl));
     }
-  }
+  } else {
+    // 🔹 If user is logged in and visits login/register, send them to /dashboard
+    if (publicRoutes.includes(currentPath)) {
+      if (currentPath !== "/") {
+        const homeUrl = request.nextUrl.clone();
+        homeUrl.pathname = "/dashboard";
+        return addSecurityHeaders(NextResponse.redirect(homeUrl));
+      }
+    }
 
-  if (user) {
-    if (publicRoutes.some((route) => currentPath.startsWith(route))) {
-      const homeUrl = request.nextUrl.clone();
-      homeUrl.pathname = "/";
-      const response = NextResponse.redirect(homeUrl);
-      response.headers.set("x-session-checked", "true");
-      return addSecurityHeaders(response);
+    // 🔹 If user is logged in and visits a private route, let them pass
+    if (privateRoutes.some((route) => currentPath.startsWith(route))) {
+      return addSecurityHeaders(NextResponse.next());
     }
   }
 

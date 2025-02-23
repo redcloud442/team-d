@@ -82,7 +82,7 @@ const LoginPage = () => {
 
       setIsSuccess(true);
       localStorage.setItem("isModalOpen", "true");
-      router.push("/");
+      router.push("/dashboard");
     } catch (e) {
       toast({
         title: "Check user credentials",
