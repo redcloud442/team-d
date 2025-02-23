@@ -18,12 +18,12 @@ const slides = [
     description: `Our business plan is to make <strong>150%</strong> profit every 2 weeks from the whole cryptocurrency portfolio. Investors get <strong>100%</strong> every 14 days, ensuring our long-term success with <strong>50%</strong> profit coming back to our company. The Pr1me Founder, who is highly educated and experienced in effective risk-reward ratio and risk management, achieves a <strong>98%</strong> success rate. We&apos;re confident that our business can withstand any market situation.
 `,
   },
-  {
-    image: "/faq/how-does-business-profit.png",
-    title: "HOW DOES THE BUSINESS PROFITS?",
-    description: `Our business plan is to make <strong>150%</strong> profit every 2 weeks from the whole cryptocurrency portfolio. Investors get <strong>100%</strong> every 14 days, ensuring our long-term success with <strong>50%</strong> profit coming back to our company. The Pr1me Founder, who is highly educated and experienced in effective risk-reward ratio and risk management, achieves a <strong>98%</strong> success rate. We&apos;re confident that our business can withstand any market situation.
-`,
-  },
+  //   {
+  //     image: "/faq/how-does-business-profit.png",
+  //     title: "HOW DOES THE BUSINESS PROFITS?",
+  //     description: `Our business plan is to make <strong>150%</strong> profit every 2 weeks from the whole cryptocurrency portfolio. Investors get <strong>100%</strong> every 14 days, ensuring our long-term success with <strong>50%</strong> profit coming back to our company. The Pr1me Founder, who is highly educated and experienced in effective risk-reward ratio and risk management, achieves a <strong>98%</strong> success rate. We&apos;re confident that our business can withstand any market situation.
+  // `,
+  //   },
   {
     image: "/faq/what-is-the-minimum.png",
     title: "WHAT'S THE MINIMUM OR MAXIMUM TO START INVESTING?",
