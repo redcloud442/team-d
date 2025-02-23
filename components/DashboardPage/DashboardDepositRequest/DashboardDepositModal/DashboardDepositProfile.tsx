@@ -128,7 +128,8 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
         throw new Error(`File upload failed: ${uploadError.message}`);
       }
 
-      const publicUrl = "https://cdn.primepinas.com/" + filePath;
+      const publicUrl =
+        "https://cdn.primepinas.com/storage/v1/object/public/" + filePath;
 
       await updateUserProfile({
         userId: profile.user_id,

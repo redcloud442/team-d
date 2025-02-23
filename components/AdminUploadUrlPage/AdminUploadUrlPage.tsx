@@ -111,7 +111,8 @@ const AdminUploadUrlPage = () => {
           throw new Error(uploadError.message);
         }
 
-        const publicUrl = "https://cdn.primepinas.com/" + filePath;
+        const publicUrl =
+          "https://cdn.primepinas.com/storage/v1/object/public/" + filePath;
         url.push(publicUrl);
 
         const uploadProgress = Math.round(((i + 1) / totalFiles) * 80);
