@@ -111,11 +111,8 @@ const AdminUploadUrlPage = () => {
           throw new Error(uploadError.message);
         }
 
-        const { data: publicUrlData } = supabase.storage
-          .from("TESTIMONIAL_BUCKET")
-          .getPublicUrl(filePath);
-
-        url.push(publicUrlData.publicUrl);
+        const publicUrl = "https://cdn.primepinas.com/" + filePath;
+        url.push(publicUrl);
 
         const uploadProgress = Math.round(((i + 1) / totalFiles) * 80);
         setProgress(uploadProgress);

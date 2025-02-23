@@ -11,6 +11,7 @@ import { createClientSide } from "@/utils/supabase/client";
 import {
   alliance_member_table,
   alliance_referral_link_table,
+  alliance_testimonial_table,
   package_table,
   user_table,
 } from "@prisma/client";
@@ -34,13 +35,14 @@ import DashboardEarningsModal from "./DashboardDepositRequest/EarningsModal/Earn
 import DashboardPackages from "./DashboardPackages";
 import DashboardVideoModal from "./DashboardVideoModal/DashboardVideoModal";
 import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
+import { TestimonialPage } from "./Testimonial/TestimonialPage";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
   referal: alliance_referral_link_table;
   packages: package_table[];
   profile: user_table;
-  // testimonials: alliance_testimonial_table[];
+  testimonials: alliance_testimonial_table[];
 };
 
 const DashboardPage = ({
@@ -48,7 +50,7 @@ const DashboardPage = ({
   teamMemberProfile,
   packages,
   profile,
-  // testimonials,
+  testimonials,
 }: Props) => {
   const supabaseClient = createClientSide();
   const { loading } = useUserLoadingStore();
@@ -316,7 +318,7 @@ const DashboardPage = ({
           </div>
         )}
 
-        {/* <TestimonialPage alliance_testimonial_url={testimonials} /> */}
+        <TestimonialPage alliance_testimonial_url={testimonials} />
       </div>
     </div>
   );

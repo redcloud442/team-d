@@ -144,11 +144,7 @@ const DashboardDepositModalDeposit = ({
         );
       }
 
-      const {
-        data: { publicUrl },
-      } = supabaseClient.storage
-        .from("REQUEST_ATTACHMENTS")
-        .getPublicUrl(filePath);
+      const publicUrl = "https://cdn.primepinas.com/" + filePath;
 
       await handleDepositRequest({
         TopUpFormValues: sanitizedData,
