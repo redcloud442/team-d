@@ -241,6 +241,7 @@ const AdminUploadUrlPage = () => {
                   loop
                   muted
                   playsInline
+                  preload="metadata"
                   className="w-full h-full object-cover aspect-auto md:aspect-square rounded-lg dark:bg-transparent"
                   onClick={openVideoFullscreen}
                 />
