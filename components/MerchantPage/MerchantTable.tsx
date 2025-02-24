@@ -165,13 +165,9 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
           return;
         }
 
-        const {
-          data: { publicUrl },
-        } = supabaseClient.storage
-          .from("REQUEST_ATTACHMENTS")
-          .getPublicUrl(filePath);
-
-        attachmentUrl = publicUrl;
+        attachmentUrl =
+          "https://cdn.primepinas.com/storage/v1/object/public/REQUEST_ATTACHMENTS/" +
+          filePath;
       }
 
       await handleCreateMerchantData({
