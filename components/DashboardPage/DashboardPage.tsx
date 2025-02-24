@@ -317,7 +317,7 @@ const DashboardPage = ({
           </div>
         )}
 
-        {/* <TestimonialPage alliance_testimonial_url={testimonials} /> */}
+        <TestimonialPage alliance_testimonial_url={testimonials} />
       </div>
     </div>
   );
