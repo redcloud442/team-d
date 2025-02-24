@@ -52,7 +52,7 @@ const DashboardDepositModalPackages = ({
   useEffect(() => {
     const packagesData = async () => {
       try {
-        if (!open) return;
+        if (!open || packages.length > 0) return;
         const data = await getPackageModalData();
 
         setPackages(data);
@@ -72,7 +72,7 @@ const DashboardDepositModalPackages = ({
     };
 
     packagesData();
-  }, [teamMemberProfile, open]);
+  }, [packages, open]);
 
   return (
     <Dialog

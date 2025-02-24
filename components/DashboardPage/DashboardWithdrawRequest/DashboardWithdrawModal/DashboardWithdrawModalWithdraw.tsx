@@ -78,8 +78,7 @@ const DashboardWithdrawModalWithdraw = ({
   setTransactionOpen,
 }: Props) => {
   const [open, setOpen] = useState(false);
-  const supabaseClient = createClientSide();
-  const { setEarnings } = useUserEarningsStore();
+  const { earnings: earningsState, setEarnings } = useUserEarningsStore();
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const { isWithdrawalToday, setIsWithdrawalToday } =
     useUserHaveAlreadyWithdraw();
@@ -93,8 +92,6 @@ const DashboardWithdrawModalWithdraw = ({
     setValue,
     watch,
     reset,
-    setError,
-    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<WithdrawalFormValues>({
     mode: "onChange",
@@ -113,7 +110,7 @@ const DashboardWithdrawModalWithdraw = ({
 
   const fetchEarnings = async () => {
     try {
-      if (!open) return;
+      if (!open || earningsState) return;
       const { userEarningsData } = await getUserEarnings({
         memberId: teamMemberProfile.alliance_member_id,
       });
@@ -131,7 +128,7 @@ const DashboardWithdrawModalWithdraw = ({
 
   useEffect(() => {
     fetchEarnings();
-  }, [open]);
+  }, [earningsState]);
 
   const getMaxAmount = () => {
     switch (selectedEarnings) {
