@@ -52,6 +52,7 @@ const Page = async () => {
     },
     select: {
       alliance_testimonial_url: true,
+      alliance_testimonial_thumbnail: true,
     },
     orderBy: {
       alliance_testimonial_date_created: "desc",
@@ -69,6 +70,7 @@ const Page = async () => {
           alliance_testimonial_id: string;
           alliance_testimonial_date_created: Date;
           alliance_testimonial_url: string;
+          alliance_testimonial_thumbnail: string | null;
           alliance_testimonial_is_hidden: boolean;
         }[]
       }

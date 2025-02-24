@@ -35,7 +35,6 @@ import DashboardEarningsModal from "./DashboardDepositRequest/EarningsModal/Earn
 import DashboardPackages from "./DashboardPackages";
 import DashboardVideoModal from "./DashboardVideoModal/DashboardVideoModal";
 import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
-import { TestimonialPage } from "./Testimonial/TestimonialPage";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
@@ -318,7 +317,7 @@ const DashboardPage = ({
           </div>
         )}
 
-        <TestimonialPage alliance_testimonial_url={testimonials} />
+        {/* <TestimonialPage alliance_testimonial_url={testimonials} /> */}
       </div>
     </div>
   );

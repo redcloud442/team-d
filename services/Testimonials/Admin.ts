@@ -26,7 +26,12 @@ export const handleFetchTestimonials = async (params: {
   };
 };
 
-export const handleUploadTestimonial = async (url: string[]) => {
+export const handleUploadTestimonial = async (
+  url: {
+    videoUrl: string;
+    posterUrl: string;
+  }[]
+) => {
   const response = await fetch(`/api/v1/testimonial`, {
     method: "POST",
     body: JSON.stringify({ url }),

@@ -62,8 +62,10 @@ export function TestimonialPage({ alliance_testimonial_url }: Testimonial) {
           {alliance_testimonial_url.map((url, index) => (
             <CarouselItem
               key={index}
-              className="lg:basis-1/4 md:basis-1/4 sm:basis-full flex justify-center dark:bg-transparent "
-              onMouseEnter={() => setHoveredIndex(index)}
+              className="lg:basis-1/4 md:basis-1/4 sm:basis-full flex justify-center dark:bg-transparent"
+              onMouseEnter={() => {
+                setHoveredIndex(index);
+              }}
               onMouseLeave={() => setHoveredIndex(null)}
             >
               <Card className="w-full h-full flex justify-center overflow-hidden rounded-lg dark:bg-transparent relative">
@@ -81,8 +83,9 @@ export function TestimonialPage({ alliance_testimonial_url }: Testimonial) {
                     loop
                     muted
                     playsInline
-                    preload="metadata"
+                    preload="none"
                     className="w-full h-full object-cover aspect-auto md:aspect-square rounded-lg dark:bg-transparent"
+                    poster={url.alliance_testimonial_thumbnail ?? undefined}
                     onClick={openVideoFullscreen}
                   />
                 </CardContent>
