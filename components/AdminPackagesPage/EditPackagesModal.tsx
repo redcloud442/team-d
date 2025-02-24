@@ -118,11 +118,9 @@ const EditPackagesModal = ({
           });
         }
 
-        const {
-          data: { publicUrl },
-        } = supabaseClient.storage
-          .from("PACKAGE_IMAGES")
-          .getPublicUrl(filePath);
+        const publicUrl =
+          "https://cdn.primepinas.com/storage/v1/object/public/PACKAGE_IMAGES/" +
+          filePath;
 
         url = publicUrl;
       }
