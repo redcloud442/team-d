@@ -1,4 +1,4 @@
-import { DashboardEarnings } from "@/utils/types";
+import { DashboardEarnings, HeirarchyData } from "@/utils/types";
 import { alliance_earnings_table } from "@prisma/client";
 
 export const getUserSponsor = async (params: { userId: string }) => {
@@ -135,4 +135,23 @@ export const handleGenerateLink = async (params: {
   }
 
   return result;
+};
+
+export const getHeirarchy = async (params: { allianceMemberId: string }) => {
+  const response = await fetch(`/api/v1/user/${params.allianceMemberId}/tree`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while fetching the heirarchy."
+    );
+  }
+
+  return result as HeirarchyData[];
 };
