@@ -144,6 +144,7 @@ const CreatePackageModal = ({ setPackages }: Props) => {
       <DialogTrigger asChild>
         <Button
           variant="outline"
+          className="rounded-md"
           onClick={() => {
             setOpen(true);
           }}

@@ -179,6 +179,7 @@ const EditPackagesModal = ({
       <DialogTrigger asChild>
         <Button
           variant="outline"
+          className="rounded-md"
           onClick={() => {
             setOpen(true);
             handleSelectPackage();
