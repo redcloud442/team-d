@@ -106,7 +106,7 @@ export const TopUpColumn = (
       toast({
         title: `Status Update`,
         description: `${status} Request Successfully`,
-        variant: "success",
+        variant: status === "APPROVED" ? "success" : "reject",
       });
 
       reset();
