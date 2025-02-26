@@ -1,28 +1,35 @@
 import RegisterPage from "@/components/registerPage/registerPage";
 import prisma from "@/utils/prisma";
 import { protectionRegisteredUser } from "@/utils/serversideProtection";
-import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Pr1me Register | Join Now",
-  description: "Pr1me ang sagot !",
-  openGraph: {
-    url: "https://primepinas.com/auth/register",
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ referralLink: string }>;
+}) {
+  const { referralLink } = await searchParams;
+
+  return {
     title: "Pr1me Register | Join Now",
     description: "Pr1me ang sagot !",
-    siteName: "primepinas.com",
-    images: [
-      {
-        url: "https://primepinas.com/app-logo.png",
-        width: 1200,
-        height: 630,
-        alt: "Pr1me Registration Page",
-      },
-    ],
-    type: "website",
-  },
-};
+    openGraph: {
+      url: `https://primepinas.com/auth/register?referralLink=${referralLink}`,
+      title: `Join Pr1me Now! Referred by ${referralLink}`,
+      description: "Pr1me ang sagot !",
+      siteName: "primepinas.com",
+      images: [
+        {
+          url: "https://primepinas.com/app-logo.png",
+          width: 1200,
+          height: 630,
+          alt: "Pr1me Registration Page",
+        },
+      ],
+      type: "website",
+    },
+  };
+}
 
 const Page = async ({
   searchParams,
