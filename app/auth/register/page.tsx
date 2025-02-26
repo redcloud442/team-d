@@ -8,13 +8,13 @@ export const metadata: Metadata = {
   title: "Pr1me Register | Join Now",
   description: "Pr1me ang sagot !",
   openGraph: {
-    url: "/auth/register",
+    url: "https://primepinas.com/auth/register",
     title: "Pr1me Register | Join Now",
     description: "Pr1me ang sagot !",
     siteName: "primepinas.com",
     images: [
       {
-        url: "/app-logo.png",
+        url: "https://primepinas.com/app-logo.png",
         width: 1200,
         height: 630,
         alt: "Pr1me Registration Page",
