@@ -15,6 +15,7 @@ import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import TableLoading from "../ui/tableLoading";
+import ActiveTreeModal from "../UserAdminProfile/ActiveTreeModal/ActiveTreeModal";
 
 export const AdminUsersColumn = (
   handleCopyAccountUrl: (userName: string) => void
@@ -116,14 +117,18 @@ export const AdminUsersColumn = (
       ),
       cell: ({ row }) => {
         const userName = row.original.user_username as string;
+        const memberId = row.getValue("alliance_member_id") as string;
         return (
-          <Button
-            variant="card"
-            onClick={() => handleCopyAccountUrl(userName)}
-            className="rounded-md"
-          >
-            Access Account Link
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="card"
+              onClick={() => handleCopyAccountUrl(userName)}
+              className="rounded-md"
+            >
+              Access Account Link
+            </Button>
+            <ActiveTreeModal teamMemberProfile={memberId} />
+          </div>
         );
       },
     },
