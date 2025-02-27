@@ -13,6 +13,7 @@ import {
   alliance_member_table,
   alliance_referral_link_table,
   alliance_testimonial_table,
+  alliance_wheel_settings_table,
   package_table,
   user_table,
 } from "@prisma/client";
@@ -20,6 +21,7 @@ import { Download, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import RoadmapDailyTask from "../SpinTheWheel/RoadmapDailyTask/RoadmapDailyTask";
+import { SpinWheel } from "../SpinTheWheel/SpinTheWheel";
 import { Button } from "../ui/button";
 import {
   Carousel,
@@ -45,6 +47,7 @@ type Props = {
   packages: package_table[];
   profile: user_table;
   testimonials: alliance_testimonial_table[];
+  wheel: alliance_wheel_settings_table[];
 };
 
 const DashboardPage = ({
@@ -53,6 +56,7 @@ const DashboardPage = ({
   packages,
   profile,
   testimonials,
+  wheel,
 }: Props) => {
   const supabaseClient = createClientSide();
   const { loading } = useUserLoadingStore();
@@ -321,7 +325,7 @@ const DashboardPage = ({
             <DashboardPackages teamMemberProfile={teamMemberProfile} />
           </div>
         )}
-
+        <SpinWheel prizes={wheel} />
         <TestimonialPage alliance_testimonial_url={testimonials} />
       </div>
     </div>

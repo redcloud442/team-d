@@ -59,6 +59,12 @@ const Page = async () => {
     },
   });
 
+  const wheel = await prisma.alliance_wheel_settings_table.findMany({
+    orderBy: {
+      alliance_wheel_settings_date: "desc",
+    },
+  });
+
   return (
     <DashboardPage
       profile={profile}
@@ -74,6 +80,7 @@ const Page = async () => {
           alliance_testimonial_is_hidden: boolean;
         }[]
       }
+      wheel={wheel}
     />
   );
 };

@@ -12,6 +12,7 @@ import { handleBuyWheelSpin, handleWheelSpin } from "@/services/Wheel/Member";
 import { useDailyTaskStore } from "@/store/useDailyTaskStore";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { alliance_wheel_settings_table } from "@prisma/client";
 import { motion } from "framer-motion";
 import { Loader2, Minus, Plus } from "lucide-react";
 import Image from "next/image";
@@ -23,23 +24,17 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
-const prizes = [
-  { prize: 25, color: "#FF5733", angle: 20, angley: 20 },
-  { prize: 50, color: "#33A1FF", angle: 70, angley: 70 },
-  { prize: 150, color: "#85FF33", angle: 130, angley: 130 },
-  { prize: 1000, color: "#FFC300", angle: 185, angley: 185 },
-  { prize: 10000, color: "#DAF7A6", angle: 240, angley: 240 },
-  { prize: "RE-SPIN", color: "#C70039", angle: 280, angley: 290 },
-  { prize: "NO REWARD", color: "#581845", angle: 60, angley: 330 },
-];
-
 const buySpinSchema = z.object({
   quantity: z.number().min(1),
 });
 
 type BuySpinFormValues = z.infer<typeof buySpinSchema>;
 
-export const SpinWheel = () => {
+type Props = {
+  prizes: alliance_wheel_settings_table[];
+};
+
+export const SpinWheel = ({ prizes }: Props) => {
   const [spinning, setSpinning] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [winSound, setWinSound] = useState<HTMLAudioElement | null>(null);
@@ -103,6 +98,14 @@ export const SpinWheel = () => {
           winSound?.play();
         } else if (prizeIndex === "NO REWARD") {
           loseSound?.play();
+          setDailyTask({
+            ...dailyTask,
+            wheelLog: {
+              ...dailyTask.wheelLog,
+              alliance_wheel_spin_count:
+                dailyTask.wheelLog.alliance_wheel_spin_count - 1,
+            },
+          });
         } else {
           setShowConfetti(true);
           setDailyTask({
@@ -256,7 +259,7 @@ export const SpinWheel = () => {
                 backgroundImage: `conic-gradient(${prizes
                   .map((prize, index) => {
                     const angle = (index / prizes.length) * 360;
-                    return `${prize.color} ${angle}deg ${angle + 360 / prizes.length}deg`;
+                    return `${prize.alliance_wheel_settings_color} ${angle}deg ${angle + 360 / prizes.length}deg`;
                   })
                   .join(", ")})`,
               }}
@@ -285,7 +288,7 @@ export const SpinWheel = () => {
                     transform: `rotate(-10deg)`, // Rotate text vertically
                   }}
                 >
-                  ₱ {prizes[0].prize}
+                  ₱ {prizes[0].alliance_wheel_settings_label}
                 </div>
               </div>
 
@@ -303,7 +306,7 @@ export const SpinWheel = () => {
                     transform: `rotate(40deg)`, // Rotate text vertically
                   }}
                 >
-                  ₱ {prizes[1].prize}
+                  ₱ {prizes[1].alliance_wheel_settings_label}
                 </div>
               </div>
 
@@ -321,7 +324,7 @@ export const SpinWheel = () => {
                     transform: `rotate(70deg)`, // Rotate text vertically
                   }}
                 >
-                  ₱ {prizes[3].prize}
+                  ₱ {prizes[2].alliance_wheel_settings_label}
                 </div>
               </div>
 
@@ -339,7 +342,7 @@ export const SpinWheel = () => {
                     transform: `rotate(140deg)`, // Rotate text vertically
                   }}
                 >
-                  ₱ {prizes[4].prize}
+                  ₱ {prizes[3].alliance_wheel_settings_label}
                 </div>
               </div>
 
@@ -357,7 +360,7 @@ export const SpinWheel = () => {
                     transform: `rotate(10deg)`, // Rotate text vertically
                   }}
                 >
-                  {prizes[5].prize}
+                  {prizes[4].alliance_wheel_settings_label}
                 </div>
               </div>
 
@@ -375,7 +378,7 @@ export const SpinWheel = () => {
                     transform: `rotate(40deg)`, // Rotate text vertically
                   }}
                 >
-                  ₱ {prizes[2].prize}
+                  ₱ {prizes[5].alliance_wheel_settings_label}
                 </div>
               </div>
 
@@ -393,7 +396,7 @@ export const SpinWheel = () => {
                     transform: `rotate(90deg)`, // Rotate text vertically
                   }}
                 >
-                  {prizes[6].prize}
+                  {prizes[6].alliance_wheel_settings_label}
                 </div>
               </div>
             </motion.div>
@@ -448,11 +451,11 @@ export const SpinWheel = () => {
                       </Button>
 
                       <Input
-                        type="number" // Ensures numeric input
+                        type="number"
                         variant="non-card"
                         className="w-12 text-center p-0"
                         {...register("quantity", {
-                          valueAsNumber: true, // Converts input value to a number
+                          valueAsNumber: true,
                           min: {
                             value: 1,
                             message: "Quantity must be at least 1",

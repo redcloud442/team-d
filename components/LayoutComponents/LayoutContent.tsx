@@ -23,7 +23,7 @@ import { alliance_member_table, user_table } from "@prisma/client";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useEffect } from "react";
-import { SpinWheel } from "../SpinTheWheel/SpinTheWheel";
+
 import AppSidebar from "../ui/side-bar";
 import { ModeToggle } from "../ui/toggleDarkmode";
 
@@ -149,7 +149,7 @@ export default function LayoutContent({
             <div className="absolute inset-0 bg-zinc-900/80 dark:bg-zinc-900/90"></div>
           </div>
         )}
-        {role !== ROLE.ADMIN && <SpinWheel />}
+
         {/* Content Section */}
         <div className="pb-24 p-4 relative z-50 grow">{children}</div>
 

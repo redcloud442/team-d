@@ -110,7 +110,7 @@ model alliance_referral_table {
   alliance_referral_date             DateTime  @default(now())  @db.Timestamptz(3)
 
   alliance_referral_hierarchy        String?
-  alliance_referral_member_id        String    @db.Uuid
+  alliance_referral_member_id        String    @db.Uuid  @unique
   alliance_referral_link_id          String    @db.Uuid
   alliance_referral_from_member_id   String?   @db.Uuid
 
@@ -121,18 +121,18 @@ model alliance_referral_table {
   @@schema("alliance_schema")
 }
 
-// model dashboard_earnings_summary {
-//   member_id              String   @id @map("member_id") @db.Uuid
-//   total_earnings         Float    @default(0.0) @map("total_earnings")
-//   total_withdrawals      Float    @default(0.0) @map("total_withdrawals")
-//   direct_referral_amount Float    @default(0.0) @map("direct_referral_amount")
-//   indirect_referral_amount Float  @default(0.0) @map("indirect_referral_amount")
-//   direct_referral_count  Int      @default(0) @map("direct_referral_count")
-//   indirect_referral_count Int     @default(0) @map("indirect_referral_count")
+model dashboard_earnings_summary {
+  member_id              String   @id @map("member_id") @db.Uuid
+  total_earnings         Float    @default(0.0) @map("total_earnings")
+  total_withdrawals      Float    @default(0.0) @map("total_withdrawals")
+  direct_referral_amount Float    @default(0.0) @map("direct_referral_amount")
+  indirect_referral_amount Float  @default(0.0) @map("indirect_referral_amount")
+  direct_referral_count  Int      @default(0) @map("direct_referral_count")
+  indirect_referral_count Int     @default(0) @map("indirect_referral_count")
 
-//   @@map("dashboard_earnings_summary")
-//   @@schema("alliance_schema")
-// }
+  @@map("dashboard_earnings_summary")
+  @@schema("alliance_schema")
+}
 
 
 model alliance_earnings_table {
@@ -221,6 +221,15 @@ model alliance_transaction_table {
   alliance_member_table alliance_member_table @relation(fields: [transaction_member_id], references: [alliance_member_id], onDelete: Cascade, onUpdate: Cascade)
 
 
+  @@schema("alliance_schema")
+}
+
+model alliance_wheel_settings_table {
+  alliance_wheel_settings_id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  alliance_wheel_settings_date DateTime @default(now())
+  alliance_wheel_settings_percentage Float
+  alliance_wheel_settings_label String
+  alliance_wheel_settings_color String
   @@schema("alliance_schema")
 }
 

@@ -1,4 +1,4 @@
-import { DashboardEarnings } from "@/utils/types";
+import { DashboardEarnings, HeirarchyData } from "@/utils/types";
 import {
   alliance_earnings_table,
   alliance_wheel_log_table,
