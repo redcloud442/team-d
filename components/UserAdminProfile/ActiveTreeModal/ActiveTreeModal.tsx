@@ -42,7 +42,7 @@ const ActiveTreeModal = ({ teamMemberProfile }: Props) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          variant="outline"
+          variant="card"
           className="w-full sm:max-w-[140px] cursor-pointer rounded-md"
         >
           Show Tree
