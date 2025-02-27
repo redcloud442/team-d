@@ -94,9 +94,9 @@ const CreatePackageModal = ({ setPackages }: Props) => {
         });
       }
 
-      const {
-        data: { publicUrl },
-      } = supabaseClient.storage.from("PACKAGE_IMAGES").getPublicUrl(filePath);
+      const publicUrl =
+        "https://cdn.primepinas.com/storage/v1/object/public/PACKAGE_IMAGES/" +
+        filePath;
 
       const response = await createPackage({
         packageName: sanitizedData.packageName,
@@ -144,6 +144,7 @@ const CreatePackageModal = ({ setPackages }: Props) => {
       <DialogTrigger asChild>
         <Button
           variant="outline"
+          className="rounded-md"
           onClick={() => {
             setOpen(true);
           }}

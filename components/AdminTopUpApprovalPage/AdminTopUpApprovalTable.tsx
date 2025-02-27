@@ -1,15 +1,11 @@
 "use client";
 
 import { logError } from "@/services/Error/ErrorLogs";
-import {
-  getUserOptions,
-  getUserOptionsMerchant,
-} from "@/services/Options/Options";
 import { getAdminTopUpRequest } from "@/services/TopUp/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData } from "@/utils/types";
-import { alliance_member_table, user_table } from "@prisma/client";
+import { alliance_member_table } from "@prisma/client";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import {
   ColumnFiltersState,
@@ -45,13 +41,6 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Switch } from "../ui/switch";
 import TableLoading from "../ui/tableLoading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
@@ -83,13 +72,12 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
   );
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
-  const [merchantOptions, setMerchantOptions] = useState<user_table[]>([]);
+
   const [showFilters, setShowFilters] = useState(false);
 
   const columnAccessor = sorting?.[0]?.id || "alliance_top_up_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
-  const [userOptions, setUserOptions] = useState<user_table[]>([]);
 
   const fetchRequest = async () => {
     try {
@@ -293,7 +281,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = useAdminTopUpApprovalColumns(handleRefresh, setRequestData);
+  } = useAdminTopUpApprovalColumns(reset, setRequestData);
   const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
   const table = useReactTable({
     data: requestData?.data?.[status]?.data || [],
@@ -313,65 +301,65 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
     },
   });
 
-  useEffect(() => {
-    const fetchOptions = async () => {
-      try {
-        const pageLimit = 500;
+  // useEffect(() => {
+  //   const fetchOptions = async () => {
+  //     try {
+  //       const pageLimit = 500;
 
-        // Fetch Merchant Options
-        let currentMerchantPage = 1;
-        let allMerchantOptions: user_table[] = [];
+  //       // Fetch Merchant Options
+  //       let currentMerchantPage = 1;
+  //       let allMerchantOptions: user_table[] = [];
 
-        while (true) {
-          const merchantData = await getUserOptionsMerchant({
-            page: currentMerchantPage,
-            limit: pageLimit,
-          });
+  //       while (true) {
+  //         const merchantData = await getUserOptionsMerchant({
+  //           page: currentMerchantPage,
+  //           limit: pageLimit,
+  //         });
 
-          if (!merchantData?.length) {
-            break;
-          }
+  //         if (!merchantData?.length) {
+  //           break;
+  //         }
 
-          allMerchantOptions = [...allMerchantOptions, ...merchantData];
+  //         allMerchantOptions = [...allMerchantOptions, ...merchantData];
 
-          if (merchantData.length < pageLimit) {
-            break;
-          }
+  //         if (merchantData.length < pageLimit) {
+  //           break;
+  //         }
 
-          currentMerchantPage += 1;
-        }
+  //         currentMerchantPage += 1;
+  //       }
 
-        setMerchantOptions(allMerchantOptions);
+  //       setMerchantOptions(allMerchantOptions);
 
-        // Fetch User Options
-        let currentUserPage = 1;
-        let allUserOptions: user_table[] = [];
+  //       // Fetch User Options
+  //       let currentUserPage = 1;
+  //       let allUserOptions: user_table[] = [];
 
-        while (true) {
-          const userData = await getUserOptions({
-            page: currentUserPage,
-            limit: pageLimit,
-          });
+  //       while (true) {
+  //         const userData = await getUserOptions({
+  //           page: currentUserPage,
+  //           limit: pageLimit,
+  //         });
 
-          if (!userData?.length) {
-            break;
-          }
+  //         if (!userData?.length) {
+  //           break;
+  //         }
 
-          allUserOptions = [...allUserOptions, ...userData];
+  //         allUserOptions = [...allUserOptions, ...userData];
 
-          if (userData.length < pageLimit) {
-            break;
-          }
+  //         if (userData.length < pageLimit) {
+  //           break;
+  //         }
 
-          currentUserPage += 1;
-        }
+  //         currentUserPage += 1;
+  //       }
 
-        setUserOptions(allUserOptions);
-      } catch (e) {}
-    };
+  //       setUserOptions(allUserOptions);
+  //     } catch (e) {}
+  //   };
 
-    fetchOptions();
-  }, [supabaseClient, teamMemberProfile.alliance_member_id]);
+  //   fetchOptions();
+  // }, [supabaseClient, teamMemberProfile.alliance_member_id]);
 
   useEffect(() => {
     fetchRequest();
@@ -410,7 +398,13 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
           {isOpenModal && (
             <Dialog
               open={isOpenModal.open}
-              onOpenChange={(open) => setIsOpenModal({ ...isOpenModal, open })}
+              onOpenChange={(open) => {
+                setIsOpenModal({ ...isOpenModal, open });
+                if (!open) {
+                  reset();
+                  setIsOpenModal({ open: false, requestId: "", status: "" });
+                }
+              }}
             >
               <DialogDescription></DialogDescription>
               <DialogContent>
@@ -506,7 +500,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
 
           {showFilters && (
             <div className="flex flex-wrap gap-2 items-center rounded-md ">
-              <Controller
+              {/* <Controller
                 name="merchantFilter"
                 control={control}
                 render={({ field }) => (
@@ -528,9 +522,9 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
                     </SelectContent>
                   </Select>
                 )}
-              />
+              /> */}
 
-              <Controller
+              {/* <Controller
                 name="userFilter"
                 control={control}
                 render={({ field }) => (
@@ -552,7 +546,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
                     </SelectContent>
                   </Select>
                 )}
-              />
+              /> */}
 
               <Controller
                 name="dateFilter.start"

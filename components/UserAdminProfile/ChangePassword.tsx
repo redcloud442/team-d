@@ -119,10 +119,14 @@ const ChangePassword = ({ userProfile, setUserProfile }: Props) => {
   return (
     <Card className="shadow-md">
       <CardHeader className="border-b pb-4">
-        <CardTitle className="text-lg font-semibold flex items-center gap-2 justify-between">
+        <CardTitle className="text-lg font-semibold flex items-center gap-2 justify-between flex-wrap">
           Change Password
           {role === ROLE.ADMIN && (
-            <Button variant="outline" onClick={generatePassword}>
+            <Button
+              variant="outline"
+              className="rounded-md w-full sm:w-auto"
+              onClick={generatePassword}
+            >
               Generate Password
             </Button>
           )}

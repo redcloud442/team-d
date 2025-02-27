@@ -7,7 +7,7 @@ import { user_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Badge } from "../ui/badge";
 import {
   Dialog,
@@ -26,7 +26,6 @@ const statusColorMap: Record<string, string> = {
 };
 
 export const AdminWithdrawalHistoryColumn = (
-  handleFetch: () => void,
   profile: user_table,
   setRequestData: Dispatch<SetStateAction<AdminWithdrawaldata | null>>,
   reset: () => void
@@ -40,74 +39,75 @@ export const AdminWithdrawalHistoryColumn = (
     status: "",
   });
 
-  const handleUpdateStatus = useCallback(
-    async (status: string, requestId: string, note?: string) => {
-      try {
-        setIsLoading(true);
-        await updateWithdrawalStatus({ status, requestId, note });
+  const handleUpdateStatus = async (
+    status: string,
+    requestId: string,
+    note?: string
+  ) => {
+    try {
+      setIsLoading(true);
+      await updateWithdrawalStatus({ status, requestId, note });
 
-        setRequestData((prev) => {
-          if (!prev) return prev;
+      setRequestData((prev) => {
+        if (!prev) return prev;
 
-          // Extract PENDING data and filter out the item being updated
-          const pendingData = prev.data["PENDING"]?.data ?? [];
-          const updatedItem = pendingData.find(
-            (item) => item.alliance_withdrawal_request_id === requestId
-          );
-          const newPendingList = pendingData.filter(
-            (item) => item.alliance_withdrawal_request_id !== requestId
-          );
-          const currentStatusData = prev.data[status as keyof typeof prev.data];
-          const hasExistingData = currentStatusData?.data?.length > 0;
+        // Extract PENDING data and filter out the item being updated
+        const pendingData = prev.data["PENDING"]?.data ?? [];
+        const updatedItem = pendingData.find(
+          (item) => item.alliance_withdrawal_request_id === requestId
+        );
+        const newPendingList = pendingData.filter(
+          (item) => item.alliance_withdrawal_request_id !== requestId
+        );
+        const currentStatusData = prev.data[status as keyof typeof prev.data];
+        const hasExistingData = currentStatusData?.data?.length > 0;
 
-          if (!updatedItem) return prev;
+        if (!updatedItem) return prev;
 
-          return {
-            ...prev,
-            data: {
-              ...prev.data,
-              PENDING: {
-                ...prev.data["PENDING"],
-                data: newPendingList,
-                count: Number(prev.data["PENDING"]?.count) - 1,
-              },
-              [status as keyof typeof prev.data]: {
-                ...currentStatusData,
-                data: hasExistingData
-                  ? [
-                      {
-                        ...updatedItem,
-                        alliance_withdrawal_request_status: status,
-                        approver_username: profile.user_username,
-                        alliance_withdrawal_request_date_updated: new Date(),
-                      },
-                      ...currentStatusData.data,
-                    ]
-                  : [],
-                count: Number(currentStatusData?.count || 0) + 1,
-              },
+        return {
+          ...prev,
+          data: {
+            ...prev.data,
+            PENDING: {
+              ...prev.data["PENDING"],
+              data: newPendingList,
+              count: Number(prev.data["PENDING"]?.count) - 1,
             },
-          };
-        });
+            [status as keyof typeof prev.data]: {
+              ...currentStatusData,
+              data: hasExistingData
+                ? [
+                    {
+                      ...updatedItem,
+                      alliance_withdrawal_request_status: status,
+                      approver_username: profile.user_username,
+                      alliance_withdrawal_request_date_updated: new Date(),
+                    },
+                    ...currentStatusData.data,
+                  ]
+                : [],
+              count: Number(currentStatusData?.count || 0) + 1,
+            },
+          },
+        };
+      });
 
-        toast({
-          title: `Status Update`,
-          description: `${status} Request Successfully`,
-        });
-        reset();
-        setIsOpenModal({ open: false, requestId: "", status: "" });
-      } catch (e) {
-        toast({
-          title: `Status Failed`,
-          description: `Something went wrong`,
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [handleFetch, toast]
-  );
+      reset();
+      setIsOpenModal({ open: false, requestId: "", status: "" });
+      toast({
+        title: `Status Update`,
+        description: `${status} Request Successfully`,
+      });
+    } catch (e) {
+      toast({
+        title: `Status Failed`,
+        description: `Something went wrong`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const columns: ColumnDef<WithdrawalRequestData>[] = [
     {

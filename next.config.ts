@@ -3,7 +3,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: `${process.env.NODE_ENV === "development" ? "qkrltxqicdallokpzdif.supabase.co" : "qkrltxqicdallokpzdif.supabase.co"}`,
+        hostname: `${process.env.NODE_ENV === "development" ? "qkrltxqicdallokpzdif.supabase.co" : "cdn.primepinas.com"}`,
         port: "",
         pathname: "/storage/v1/object/public/**",
       },

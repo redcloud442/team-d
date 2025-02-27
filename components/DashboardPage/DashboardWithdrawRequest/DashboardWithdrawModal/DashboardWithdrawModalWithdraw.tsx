@@ -78,8 +78,7 @@ const DashboardWithdrawModalWithdraw = ({
   setTransactionOpen,
 }: Props) => {
   const [open, setOpen] = useState(false);
-
-  const { setEarnings } = useUserEarningsStore();
+  const { earnings: earningsState, setEarnings } = useUserEarningsStore();
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const { isWithdrawalToday, setIsWithdrawalToday } =
     useUserHaveAlreadyWithdraw();
@@ -111,7 +110,7 @@ const DashboardWithdrawModalWithdraw = ({
 
   const fetchEarnings = async () => {
     try {
-      if (!open) return;
+      if (!open || earningsState) return;
       const { userEarningsData } = await getUserEarnings({
         memberId: teamMemberProfile.alliance_member_id,
       });
@@ -129,7 +128,7 @@ const DashboardWithdrawModalWithdraw = ({
 
   useEffect(() => {
     fetchEarnings();
-  }, [open]);
+  }, [earningsState]);
 
   const getMaxAmount = () => {
     switch (selectedEarnings) {
@@ -357,11 +356,11 @@ const DashboardWithdrawModalWithdraw = ({
         )}
       </DialogTrigger>
 
-      <DialogContent className="w-full sm:max-w-[400px]">
+      <DialogContent type="earnings" className="w-full sm:max-w-[400px]">
         <ScrollArea className="w-full relative sm:max-w-[400px] h-[600px] sm:h-full">
           <DialogHeader className="text-start text-2xl font-bold">
             <DialogTitle className="text-2xl font-bold mb-4 flex gap-4">
-              Withdraw
+              Withdrawal Request
               <Button
                 className="h-8 bg-pageColor  px-2 text-sm text-white"
                 variant="card"

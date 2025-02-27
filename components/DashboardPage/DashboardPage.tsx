@@ -12,10 +12,11 @@ import { createClientSide } from "@/utils/supabase/client";
 import {
   alliance_member_table,
   alliance_referral_link_table,
+  alliance_testimonial_table,
   package_table,
   user_table,
 } from "@prisma/client";
-import { RefreshCw } from "lucide-react";
+import { Download, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import RoadmapDailyTask from "../SpinTheWheel/RoadmapDailyTask/RoadmapDailyTask";
@@ -34,13 +35,16 @@ import DashboardDepositModalRefer from "./DashboardDepositRequest/DashboardDepos
 import DashboardTransactionHistory from "./DashboardDepositRequest/DashboardDepositModal/DashboardTransactionHistory";
 import DashboardEarningsModal from "./DashboardDepositRequest/EarningsModal/EarningsModal";
 import DashboardPackages from "./DashboardPackages";
+import DashboardVideoModal from "./DashboardVideoModal/DashboardVideoModal";
 import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
+import { TestimonialPage } from "./Testimonial/TestimonialPage";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
   referal: alliance_referral_link_table;
   packages: package_table[];
   profile: user_table;
+  testimonials: alliance_testimonial_table[];
 };
 
 const DashboardPage = ({
@@ -48,6 +52,7 @@ const DashboardPage = ({
   teamMemberProfile,
   packages,
   profile,
+  testimonials,
 }: Props) => {
   const supabaseClient = createClientSide();
   const { loading } = useUserLoadingStore();
@@ -173,28 +178,47 @@ const DashboardPage = ({
         </div>
 
         <div className="flex flex-col gap-4 justify-center">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <DashboardEarningsModal />
-              <Button
-                disabled={refresh}
-                className="h-7 px-2"
-                onClick={handleRefresh}
-              >
-                <RefreshCw />
-              </Button>
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col items-start gap-2">
+              <div className="flex items-center gap-2">
+                <DashboardEarningsModal />
+                <Button
+                  disabled={refresh}
+                  className="h-7 px-2"
+                  onClick={handleRefresh}
+                >
+                  <RefreshCw />
+                </Button>
+              </div>
+              <DashboardVideoModal />
             </div>
-            <Button
-              onClick={() =>
-                window.open(
-                  "https://www.facebook.com/groups/pr1meofficialgroup/",
-                  "_blank"
-                )
-              }
-              className="w-full max-w-[120px] h-7 text-white bg-blue-700"
-            >
-              facebook
-            </Button>
+            <div className="flex flex-col items-end gap-2">
+              <Button
+                onClick={() =>
+                  window.open(
+                    "https://www.facebook.com/groups/pr1meofficialgroup/",
+                    "_blank"
+                  )
+                }
+                className="w-full max-w-[120px] h-7 text-white bg-blue-700 cursor-pointer"
+              >
+                facebook
+              </Button>
+              <a
+                href="https://apkfilelinkcreator.cloud/uploads/PrimePinas_v1.1.apk"
+                download="PrimePinas_v1.1.apk"
+                className="w-full cursor-pointer"
+              >
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full max-w-[120px] h-7 text-white bg-blue-700 cursor-pointer"
+                >
+                  <span className="text-sm">Pr1me App</span>
+                  <Download className="w-4 h-4" />
+                </Button>
+              </a>
+            </div>
           </div>
 
           <div className="flex items-center justify-center space-x-4">
@@ -298,20 +322,7 @@ const DashboardPage = ({
           </div>
         )}
 
-        {/* <div className="w-full flex flex-col lg:flex-row space-6 gap-6">
-          <DashboardDepositRequest
-            setChartData={setChartData}
-            earnings={earnings}
-            setEarnings={setEarnings}
-            packages={packages}
-            setIsActive={setIsActive}
-            teamMemberProfile={teamMemberProfile}
-          />
-          <DashboardWithdrawRequest
-            earnings={earnings}
-            teamMemberProfile={teamMemberProfile}
-          />
-        </div> */}
+        <TestimonialPage alliance_testimonial_url={testimonials} />
       </div>
     </div>
   );

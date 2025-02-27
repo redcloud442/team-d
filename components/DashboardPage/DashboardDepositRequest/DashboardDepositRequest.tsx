@@ -13,7 +13,6 @@ import {
 } from "@prisma/client";
 import { Dispatch, SetStateAction } from "react";
 
-import DashboardDepositModalHistory from "./DashboardDepositModal/DashboardDepositHistory";
 import DashboardDepositModalDeposit from "./DashboardDepositModal/DashboardDepositModalDeposit";
 import DashboardDepositModalPackages from "./DashboardDepositModal/DashboardDepositPackagesModal";
 
@@ -56,10 +55,6 @@ const DashboardDepositRequest = ({
                 earnings={earnings}
                 teamMemberProfile={teamMemberProfile}
                 setIsActive={setIsActive}
-              />
-
-              <DashboardDepositModalHistory
-                teamMemberProfile={teamMemberProfile}
               />
             </div>
           </div>

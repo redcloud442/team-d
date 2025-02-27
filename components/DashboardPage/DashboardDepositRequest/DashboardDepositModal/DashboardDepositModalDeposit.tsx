@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getMerchantOptions } from "@/services/Options/Options";
 import { handleDepositRequest } from "@/services/TopUp/Member";
+import { useDepositStore } from "@/store/useDepositStore";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { escapeFormData } from "@/utils/function";
@@ -43,6 +44,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
+import DashboardHowToDepositModal from "../DashboardHowToDepositModal/DashboardHowToDepositModal";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
@@ -83,7 +85,7 @@ const DashboardDepositModalDeposit = ({
   const { canUserDeposit, setCanUserDeposit } = useUserHaveAlreadyWithdraw();
   const { toast } = useToast();
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
-  const [open, setOpen] = useState(false);
+  const { deposit: open, setDeposit: setOpen } = useDepositStore();
 
   const {
     control,
@@ -142,11 +144,9 @@ const DashboardDepositModalDeposit = ({
         );
       }
 
-      const {
-        data: { publicUrl },
-      } = supabaseClient.storage
-        .from("REQUEST_ATTACHMENTS")
-        .getPublicUrl(filePath);
+      const publicUrl =
+        "https://cdn.primepinas.com/storage/v1/object/public/REQUEST_ATTACHMENTS/" +
+        filePath;
 
       await handleDepositRequest({
         TopUpFormValues: sanitizedData,
@@ -244,7 +244,7 @@ const DashboardDepositModalDeposit = ({
             className=" relative h-60 sm:h-80 flex flex-col gap-8 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl "
             onClick={() => setOpen(true)}
           >
-            <p className="text-2xl font-bold">Deposit</p>
+            <p className="text-lg sm:text-2xl font-bold">Deposit Here </p>
             <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
               <Image
                 src="/assets/deposit.png"
@@ -259,7 +259,7 @@ const DashboardDepositModalDeposit = ({
           <Popover>
             <PopoverTrigger asChild>
               <Button className=" relative h-60 sm:h-80 flex flex-col gap-8 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl ">
-                Deposit
+                Deposit Here
                 <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
                   <Image
                     src="/assets/deposit.png"
@@ -284,11 +284,12 @@ const DashboardDepositModalDeposit = ({
           </Popover>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent type="earnings" className="sm:max-w-[425px]">
         <ScrollArea className="h-[500px] sm:h-full">
           <DialogHeader className="text-start text-2xl font-bold">
-            <DialogTitle className="text-2xl font-bold mb-4">
-              Deposit
+            <DialogTitle className="flex justify-between items-center gap-2 text-2xl font-bold mb-4">
+              Deposit Request
+              <DashboardHowToDepositModal />
             </DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
@@ -357,7 +358,7 @@ const DashboardDepositModalDeposit = ({
 
             {/* Top-Up Mode */}
             <div>
-              <Label htmlFor="topUpMode">Cashier Bank</Label>
+              <Label htmlFor="topUpMode">Mode of Payment</Label>
               <Controller
                 name="topUpMode"
                 control={control}
@@ -370,7 +371,7 @@ const DashboardDepositModalDeposit = ({
                     value={field.value}
                   >
                     <SelectTrigger className="text-center">
-                      <SelectValue placeholder="Select Cashier Bank" />
+                      <SelectValue placeholder="Select Mode of Payment" />
                     </SelectTrigger>
                     <SelectContent>
                       {topUpOptions.map((option) => (

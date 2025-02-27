@@ -93,7 +93,7 @@ const TransactionHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
 
   useEffect(() => {
     fetchRequest();
-  }, [supabaseClient, teamMemberProfile, activePage]);
+  }, [activePage]);
 
   const pageCount = Math.ceil(transactionHistory.count / 10);
 

@@ -34,6 +34,7 @@ import {
   Settings,
   Trophy,
   User2,
+  Video,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -114,7 +115,18 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
     { title: "Admin Dashboard", url: "/admin", icon: Settings },
     { title: "Leaderboards", url: "/admin/leaderboards", icon: Trophy },
     { title: "Packages", url: "/admin/packages", icon: Package },
-    { title: "Manage Users", url: "/admin/users", icon: User2 },
+    {
+      title: "Manage Users",
+      url: "/admin/users",
+      icon: User2,
+      subItems: [
+        {
+          icon: File,
+          title: "User Reinvested",
+          url: "/admin/users/reinvested",
+        },
+      ],
+    },
     { title: "Deposit History", url: "/admin/deposit", icon: HistoryIcon },
     {
       title: "Withdrawal History",
@@ -137,6 +149,11 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
       title: "User Monitoring",
       url: "/admin/monitoring",
       icon: MonitorCheck,
+    },
+    {
+      title: "Testimonials",
+      url: "/admin/testimonials",
+      icon: Video,
     },
   ];
 
@@ -177,7 +194,7 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
                   className={`flex cursor-pointer items-center px-4 py-2 rounded-md ${
                     isActive(subItem.url)
                       ? "bg-blue-50 text-blue-500 font-semibold"
-                      : "hover:bg-gray-700 text-white-700"
+                      : "hover:bg-gray-100 text-white-700"
                   }`}
                 >
                   <subItem.icon className="w-4 h-4" />

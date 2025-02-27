@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import { LRUCache } from "lru-cache";
 import { RegisterFormData } from "./types";
 
 // export const hashData = async (data: string) => {
@@ -120,67 +119,6 @@ export const escapeFormData = <T>(data: T): T => {
   return data;
 };
 
-const rateLimiter = new LRUCache({
-  max: 1000,
-  ttl: 60 * 1000, // 1 minute time-to-live
-});
-
-export const applyRateLimit = async (
-  teamMemberId: string,
-  ipAddress: string
-) => {
-  if (!teamMemberId) {
-    throw new Error("teamMemberId is required for rate limiting.");
-  }
-
-  if (!ipAddress) {
-    throw new Error("IP address is required for rate limiting.");
-  }
-
-  const rateLimitKey = `${teamMemberId}-${ipAddress}`;
-
-  const currentCount = (rateLimiter.get(rateLimitKey) as number) || 0;
-
-  if (currentCount >= 50) {
-    throw new Error("Too many requests. Please try again later.");
-  }
-
-  rateLimiter.set(rateLimitKey, currentCount + 1);
-};
-
-export const applyRateLimitMember = async (teamMemberId: string) => {
-  if (!teamMemberId) {
-    throw new Error("teamMemberId is required for rate limiting.");
-  }
-
-  const rateLimitKey = `${teamMemberId}`;
-
-  const currentCount = (rateLimiter.get(rateLimitKey) as number) || 0;
-
-  if (currentCount >= 50) {
-    throw new Error("Too many requests. Please try again later.");
-  }
-
-  rateLimiter.set(rateLimitKey, currentCount + 1);
-};
-
-export const loginRateLimit = (ip: string, userName?: string) => {
-  const currentCount = (rateLimiter.get(ip) as number) || 0;
-
-  if (currentCount >= 5) {
-    throw new Error("Too many requests. Please try again later.");
-  }
-
-  if (userName) {
-    const userNameCount = (rateLimiter.get(userName) as number) || 0;
-    if (userNameCount >= 5) {
-      throw new Error("Too many requests. Please try again later.");
-    }
-  }
-
-  rateLimiter.set(ip, currentCount + 1);
-};
-
 export const formatDateToYYYYMMDD = (date: Date | string): string => {
   const inputDate = typeof date === "string" ? new Date(date) : date;
 
@@ -188,10 +126,10 @@ export const formatDateToYYYYMMDD = (date: Date | string): string => {
     return "Invalid date"; // Handle invalid dates gracefully
   }
 
-  // Extract UTC-based date components
-  const year = String(inputDate.getUTCFullYear());
-  const month = String(inputDate.getUTCMonth() + 1).padStart(2, "0"); // Use `getUTCMonth()`
-  const day = String(inputDate.getUTCDate()).padStart(2, "0"); // Use `getUTCDate()`
+  // Extract LOCAL time-based date components (adjusted for PH Time)
+  const year = String(inputDate.getFullYear()); // Use `getFullYear()` instead of `getUTCFullYear()`
+  const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Use `getMonth()`
+  const day = String(inputDate.getDate()).padStart(2, "0"); // Use `getDate()`
 
   return `${year}-${month}-${day}`;
 };

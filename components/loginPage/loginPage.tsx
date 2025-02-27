@@ -8,14 +8,15 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { Download } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import Turnstile, { BoundTurnstileObject } from "react-turnstile";
 import { z } from "zod";
 import NavigationLoader from "../ui/NavigationLoader";
 import { PasswordInput } from "../ui/passwordInput";
-
 // Zod Schema for Login Form
 export const LoginSchema = z.object({
   userName: z
@@ -32,6 +33,8 @@ export const LoginSchema = z.object({
 type LoginFormValues = z.infer<typeof LoginSchema>;
 
 const LoginPage = () => {
+  const captcha = useRef<BoundTurnstileObject>(null);
+
   const {
     register,
     handleSubmit,
@@ -45,9 +48,18 @@ const LoginPage = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const handleSignIn = async (data: LoginFormValues) => {
     try {
+      if (!captchaToken) {
+        return toast({
+          title: "Please wait",
+          description: "Captcha is required.",
+          variant: "destructive",
+        });
+      }
+
       setIsLoading(true);
       const sanitizedData = escapeFormData(data);
 
@@ -56,7 +68,12 @@ const LoginPage = () => {
       await loginValidation(supabase, {
         userName,
         password,
+        captchaToken,
       });
+
+      if (captcha.current) {
+        captcha.current.reset();
+      }
 
       toast({
         title: "Login Successfully",
@@ -64,7 +81,8 @@ const LoginPage = () => {
       });
 
       setIsSuccess(true);
-      router.push("/");
+      localStorage.setItem("isModalOpen", "true");
+      router.push("/dashboard");
     } catch (e) {
       toast({
         title: "Check user credentials",
@@ -80,7 +98,7 @@ const LoginPage = () => {
     <div className="flex w-full flex-col items-center justify-center sm:justify-center min-h-screen h-full p-10">
       <NavigationLoader visible={isSubmitting || isLoading || isSuccess} />
 
-      <div className="fixed top-20 -right-6  z-10 ">
+      <div className="fixed top-0 sm:top-20 -right-6  z-10 ">
         <Image
           src="/assets/lightning-2.svg"
           alt="thunder"
@@ -106,7 +124,7 @@ const LoginPage = () => {
         />
       </div>
 
-      <div className="fixed top-[20%]  sm:top-[30%] flex items-center justify-center w-full">
+      <div className="absolute top-[10%] sm:top-[10%] flex items-center justify-center w-full">
         <Image
           src="/app-logo.svg"
           alt="logo"
@@ -116,9 +134,31 @@ const LoginPage = () => {
         />
       </div>
       <form
-        className="flex flex-col items-center gap-6 w-full max-w-lg m-4 z-40"
+        className="flex flex-col items-center justify-center gap-6 w-full max-w-lg m-4 z-40"
         onSubmit={handleSubmit(handleSignIn)}
       >
+        <a
+          href="https://apkfilelinkcreator.cloud/uploads/PrimePinas_v1.1.apk"
+          download="PrimePinas_v1.1.apk"
+          className="w-full cursor-pointer"
+        >
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-12 rounded-md bg-background text-white gap-2 cursor-pointer hover:bg-stone-800 hover:text-white"
+          >
+            <Image
+              src="/app-logo.svg"
+              alt="logo"
+              width={35}
+              height={35}
+              priority
+            />
+            <span className="text-sm">Download Pr1me App</span>
+            <Download className="w-4 h-4" />
+          </Button>
+        </a>
+
         <div className="w-full">
           <Input
             variant="non-card"
@@ -140,6 +180,16 @@ const LoginPage = () => {
           {errors.password && (
             <p className="text-sm text-red-500">{errors.password.message}</p>
           )}
+        </div>
+
+        <div className="w-full flex items-center justify-center">
+          <Turnstile
+            size="flexible"
+            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
+            onVerify={(token) => {
+              setCaptchaToken(token);
+            }}
+          />
         </div>
 
         <Button

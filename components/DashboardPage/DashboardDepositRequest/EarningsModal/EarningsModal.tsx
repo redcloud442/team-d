@@ -22,7 +22,7 @@ const DashboardEarningsModal = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          className="w-full max-w-[140px] min-w-[120px] h-7"
+          className="w-full max-w-[140px] min-w-[120px] h-7 cursor-pointer"
           onClick={() => setOpen(true)}
         >
           Show Earnings

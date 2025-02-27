@@ -2851,6 +2851,44 @@ USING (
   )
 );
 
+DROP POLICY IF EXISTS "Allow READ for auth users" ON alliance_schema.alliance_testimonial_table;
+CREATE POLICY "Allow READ for auth users" ON alliance_schema.alliance_testimonial_table
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table amt
+    WHERE amt.alliance_member_user_id = (SELECT auth.uid())
+  )
+);
+
+DROP POLICY IF EXISTS "Allow Insert for ADMIN users" ON alliance_schema.alliance_testimonial_table;
+CREATE POLICY "Allow Insert for ADMIN users" ON alliance_schema.alliance_testimonial_table
+AS PERMISSIVE FOR INSERT
+TO authenticated
+WITH CHECK ( EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table amt
+    WHERE amt.alliance_member_user_id = (SELECT auth.uid())
+      AND amt.alliance_member_role = 'ADMIN'
+  ));
+
+
+DROP POLICY IF EXISTS "Allow UPDATE for ADMIN users" ON alliance_schema.alliance_testimonial_table;
+CREATE POLICY "Allow UPDATE for ADMIN users" ON alliance_schema.alliance_testimonial_table
+AS PERMISSIVE FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table amt
+    WHERE amt.alliance_member_user_id = (SELECT auth.uid())
+      AND amt.alliance_member_role = 'ADMIN'
+  )
+);
+
+
 CREATE INDEX idx_alliance_top_up_request_member_id
 ON alliance_schema.alliance_top_up_request_table (alliance_top_up_request_member_id);
 

@@ -203,7 +203,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="font-normal w-full md:w-auto justify-start"
+                    className="font-normal w-full md:w-auto justify-start rounded-md"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {field.value
@@ -232,7 +232,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="font-normal w-full md:w-auto justify-start"
+                    className="font-normal w-full md:w-auto justify-start rounded-md"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {field.value
@@ -258,7 +258,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
             )}
           />
           <Button
-            className="w-full md:w-auto"
+            className="w-full md:w-auto rounded-md"
             disabled={!startDate || !endDate}
             type="submit"
           >
@@ -297,17 +297,23 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
                 readOnly
                 className="flex-1 md:flex-2 lg:flex-1"
               />
-              <Button variant="card" onClick={handleCopyLink}>
+              <Button
+                variant="card"
+                className="rounded-md h-10"
+                onClick={handleCopyLink}
+              >
                 Copy Link
               </Button>
               <Button
                 variant="card"
+                className="rounded-md h-10"
                 onClick={() => router.push("/direct-referral")}
               >
                 Direct Referral
               </Button>
               <Button
                 variant="card"
+                className="rounded-md h-10"
                 onClick={() => router.push("/indirect-referral")}
               >
                 Indirect Referral

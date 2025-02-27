@@ -107,7 +107,7 @@ const AdminWithdrawalReport = ({ teamMemberProfile }: Props) => {
                       <Button
                         variant={"card"}
                         className={cn(
-                          "w-full md:max-w-xl: justify-start text-left font-normal flex-1",
+                          "w-full rounded-md flex-1 justify-start text-left font-normal",
                           !dateFilter.startDate && "text-muted-foreground"
                         )}
                       >
@@ -150,7 +150,7 @@ const AdminWithdrawalReport = ({ teamMemberProfile }: Props) => {
                       <Button
                         variant={"card"}
                         className={cn(
-                          "w-full md:max-w-sm: justify-start text-left font-normal flex-1",
+                          "w-full rounded-md  justify-start text-left font-normal flex-1",
                           !dateFilter.endDate && "text-muted-foreground"
                         )}
                       >
@@ -192,7 +192,7 @@ const AdminWithdrawalReport = ({ teamMemberProfile }: Props) => {
 
                   <Button
                     type="submit"
-                    className=" w-full md:w-auto btn btn-primary"
+                    className=" w-full rounded-md md:w-auto btn btn-primary"
                     variant={"card"}
                   >
                     Submit

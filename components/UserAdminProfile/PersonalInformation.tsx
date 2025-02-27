@@ -4,13 +4,13 @@ import { getUserSponsor, handleGenerateLink } from "@/services/User/User";
 import { userNameToEmail } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
-import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import TableLoading from "../ui/tableLoading";
+import ActiveTreeModal from "./ActiveTreeModal/ActiveTreeModal";
 
 type Props = {
   userProfile: UserRequestdata;
@@ -83,27 +83,48 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
         <div className="flex flex-wrap justify-between">
           <CardTitle className="text-lg font-semibold flex items-center gap-2 ">
             Personal Information
-            {userSponsor === null ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <span className="text-md">
-                ( Sponsored by: {userSponsor.user_username} )
-              </span>
-            )}
           </CardTitle>
           {type === "ADMIN" && (
-            <Button
-              variant="outline"
-              onClick={async () => {
-                await handleSignIn();
-              }}
-            >
-              Sign In as {userProfile.user_username}
-            </Button>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                className="rounded-md w-full sm:w-auto"
+                onClick={async () => {
+                  await handleSignIn();
+                }}
+              >
+                Sign In as {userProfile.user_username}
+              </Button>
+
+              <ActiveTreeModal teamMemberProfile={userProfile} />
+            </div>
           )}
         </div>
       </CardHeader>
       <CardContent className="grid grid-cols-1 gap-6 sm:grid-cols-2 p-6">
+        {userSponsor === null ? (
+          <div>
+            <Label className="text-sm font-medium ">Sponsor</Label>
+            <Input
+              id="sponsor"
+              type="text"
+              value={"Loading..."}
+              readOnly
+              className="mt-1 border-gray-300"
+            />
+          </div>
+        ) : (
+          <div>
+            <Label className="text-sm font-medium ">Sponsor</Label>
+            <Input
+              id="sponsor"
+              type="text"
+              value={userSponsor.user_username || ""}
+              readOnly
+              className="mt-1 border-gray-300"
+            />
+          </div>
+        )}
         <div>
           <Label className="text-sm font-medium ">First Name</Label>
           <Input

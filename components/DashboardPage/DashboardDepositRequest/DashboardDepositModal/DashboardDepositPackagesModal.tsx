@@ -52,7 +52,7 @@ const DashboardDepositModalPackages = ({
   useEffect(() => {
     const packagesData = async () => {
       try {
-        if (!open) return;
+        if (!open || packages.length > 0) return;
         const data = await getPackageModalData();
 
         setPackages(data);
@@ -72,7 +72,7 @@ const DashboardDepositModalPackages = ({
     };
 
     packagesData();
-  }, [teamMemberProfile, open]);
+  }, [packages, open]);
 
   return (
     <Dialog
@@ -86,16 +86,18 @@ const DashboardDepositModalPackages = ({
     >
       <DialogTrigger asChild className={className}>
         <Button
-          className=" h-44 flex items-center justify-start px-4 sm:justify-around sm:items-center text-lg sm:text-2xl "
+          className="h-44 flex items-center justify-start px-4 sm:justify-around sm:items-center text-xl sm:text-4xl max-w-full"
           onClick={() => setOpen(true)}
         >
-          Buy Pr1me Plans
+          <p className="break-words whitespace-normal text-center">
+            Select Your Plan Here:
+          </p>
           <Image
             src="/assets/packages.png"
             alt="deposit"
             width={170}
             height={170}
-            className="relative "
+            className="relative"
           />
         </Button>
       </DialogTrigger>
