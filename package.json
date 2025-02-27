@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "db": "npx prisma db push && npx prisma generate",
-    "migrate-dev": "npx prisma migrate dev && npx tsx lib/seedTrigger.ts",
+    "db": "bun prisma db push && bun prisma generate",
+    "migrate-dev": "bun prisma migrate dev && bun prisma generate",
     "lint": "next lint"
   },
   "dependencies": {
