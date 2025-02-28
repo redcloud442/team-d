@@ -16,7 +16,6 @@ import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import TableLoading from "../ui/tableLoading";
@@ -305,11 +304,11 @@ export const useAdminTopUpApprovalColumns = (
                 <DialogTitle>Attachment</DialogTitle>
               </DialogHeader>
               <div className="flex justify-center items-center">
-                <Image
-                  src={attachmentUrl || ""}
+                <img
+                  key={attachmentUrl}
+                  src={attachmentUrl}
                   alt="Attachment Preview"
-                  width={400}
-                  height={400}
+                  className="object-contain w-[600px] h-[600px]"
                 />
               </div>
               <DialogClose asChild>

@@ -3,7 +3,6 @@
 import MobileNavBar from "@/components/ui/MobileNavBar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { getDashboard } from "@/services/Dasboard/Member";
-import { getTransactionHistory } from "@/services/Transaction/Transaction";
 import {
   getUserEarnings,
   getUserSponsor,
@@ -13,7 +12,6 @@ import { useDailyTaskStore } from "@/store/useDailyTaskStore";
 import { useUserLoadingStore } from "@/store/useLoadingStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useSponsorStore } from "@/store/useSponsortStore";
-import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
@@ -39,7 +37,6 @@ export default function LayoutContent({
   children,
 }: LayoutContentProps) {
   const { role } = useRole();
-  const { setTransactionHistory } = useUserTransactionHistoryStore();
   const { setTotalEarnings } = useUserDashboardEarningsStore();
   const { setEarnings } = useUserEarningsStore();
   const { setLoading } = useUserLoadingStore();
@@ -67,7 +64,6 @@ export default function LayoutContent({
         const [
           { totalEarnings, userEarningsData },
           dashboardData,
-          { transactionHistory, totalTransactions },
           dataWithdrawalToday,
           sponsorData,
         ] = await Promise.all([
@@ -75,7 +71,6 @@ export default function LayoutContent({
           getDashboard({
             teamMemberId: teamMemberProfile.alliance_member_id,
           }),
-          getTransactionHistory({ limit: 10, page: 1 }),
           getUserWithdrawalToday(),
           getUserSponsor({ userId: profile.user_id }),
         ]);
@@ -92,11 +87,6 @@ export default function LayoutContent({
         setTotalEarnings(totalEarnings);
         setEarnings(userEarningsData);
         setChartData(dashboardData);
-
-        setTransactionHistory({
-          data: transactionHistory,
-          count: totalTransactions,
-        });
 
         setCanUserDeposit(canUserDeposit);
 

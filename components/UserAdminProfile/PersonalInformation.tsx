@@ -95,8 +95,9 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
               >
                 Sign In as {userProfile.user_username}
               </Button>
-
-              <ActiveTreeModal teamMemberProfile={userProfile} />
+              <ActiveTreeModal
+                teamMemberProfile={userProfile.alliance_member_id}
+              />
             </div>
           )}
         </div>

@@ -9,12 +9,11 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { getHeirarchy } from "@/services/User/User";
 import { HeirarchyData } from "@/utils/types";
-import { alliance_member_table } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { HierarchyList } from "./HeirarchyList";
 
 type Props = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: string;
 };
 
 const ActiveTreeModal = ({ teamMemberProfile }: Props) => {
@@ -27,7 +26,7 @@ const ActiveTreeModal = ({ teamMemberProfile }: Props) => {
       try {
         setLoading(true);
         const response = await getHeirarchy({
-          allianceMemberId: teamMemberProfile.alliance_member_id,
+          allianceMemberId: teamMemberProfile,
         });
         setHeirarchy(response);
       } catch (error) {
@@ -37,14 +36,14 @@ const ActiveTreeModal = ({ teamMemberProfile }: Props) => {
     };
 
     if (open) fetchHeirarchy();
-  }, [open, teamMemberProfile.alliance_member_id]);
+  }, [open, teamMemberProfile]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          variant="outline"
-          className="w-full sm:max-w-[140px]   cursor-pointer rounded-md"
+          variant="card"
+          className="w-full sm:max-w-[140px] cursor-pointer rounded-md"
         >
           Show Tree
         </Button>
