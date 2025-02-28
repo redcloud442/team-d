@@ -184,16 +184,6 @@ const AvailPackagePage = ({
         count: 1,
       });
 
-      if (
-        !dailyTask.dailyTask.two_thousand_package_plan &&
-        dailyTask.dailyTask.five_hundred_referrals_amount &&
-        dailyTask.dailyTask.ten_direct_referrals_count &&
-        dailyTask.dailyTask.two_hundred_referrals_amount &&
-        dailyTask.dailyTask.three_referrals_count
-      ) {
-        setDailyTask(response);
-      }
-
       setSelectedPackage(null);
       setOpen(false);
     } catch (e) {

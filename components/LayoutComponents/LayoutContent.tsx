@@ -82,20 +82,17 @@ export default function LayoutContent({
           canUserDeposit,
         } = dataWithdrawalToday.data;
 
-        setDailyTask(dataWithdrawalToday.response);
-
         setTotalEarnings(totalEarnings);
         setEarnings(userEarningsData);
         setChartData(dashboardData);
-
         setCanUserDeposit(canUserDeposit);
-
         setIsWithdrawalToday({
           referral: canWithdrawReferral,
           package: canWithdrawPackage,
           winning: canWithdrawWinning,
         });
 
+        setDailyTask(dataWithdrawalToday.data.response);
         setSponsor(sponsorData);
       } catch (e) {
       } finally {

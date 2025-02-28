@@ -2937,3 +2937,68 @@ GRANT ALL ON ALL TABLES IN SCHEMA public TO PUBLIC;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO POSTGRES;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO public;
+
+
+CREATE OR REPLACE FUNCTION update_daily_task_with_bounty()
+RETURNS TRIGGER AS $$
+DECLARE
+  referral_count INT;
+  last_updated TIMESTAMP;
+BEGIN
+
+  SELECT COALESCE(alliance_wheel_date_updated, alliance_wheel_date) 
+  INTO last_updated
+  FROM alliance_schema.alliance_wheel_table
+  WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id
+  ORDER BY alliance_wheel_date DESC
+  LIMIT 1;
+
+  SELECT COUNT(*) INTO referral_count
+  FROM packages_schema.package_ally_bounty_log
+  WHERE package_ally_bounty_member_id = NEW.package_ally_bounty_member_id
+  AND package_ally_bounty_log_date_created >= last_updated;
+
+  UPDATE alliance_schema.alliance_wheel_table AS aw
+  SET 
+    three_referrals = CASE 
+      WHEN aw.three_referrals = FALSE AND referral_count >= 1 THEN TRUE 
+      ELSE aw.three_referrals END,
+
+    ten_referrals = CASE 
+      WHEN (aw.ten_referrals = FALSE AND aw.three_referrals = TRUE) AND referral_count >= 2 THEN TRUE 
+      ELSE aw.ten_referrals END,
+
+    twenty_five_referrals = CASE 
+      WHEN (aw.twenty_five_referrals = FALSE AND aw.ten_referrals = TRUE) AND referral_count >= 3 THEN TRUE
+      ELSE aw.twenty_five_referrals END,
+
+    fifty_referrals = CASE 
+      WHEN (aw.fifty_referrals = FALSE AND aw.twenty_five_referrals = TRUE) AND referral_count >= 4 THEN TRUE
+      ELSE aw.fifty_referrals END,
+
+    one_hundred_referrals = CASE 
+      WHEN (aw.fifty_referrals = TRUE AND aw.one_hundred_referrals = FALSE) AND referral_count >= 5 THEN TRUE 
+      ELSE aw.one_hundred_referrals END,
+
+    alliance_wheel_date_updated = CASE 
+      WHEN referral_count >= 1 AND (aw.three_referrals = FALSE AND aw.ten_referrals = FALSE) THEN NOW()
+      WHEN referral_count >= 2 AND (aw.ten_referrals = FALSE AND aw.twenty_five_referrals = FALSE) THEN NOW()
+      WHEN referral_count >= 3 AND (aw.twenty_five_referrals = FALSE AND aw.fifty_referrals = FALSE) THEN NOW()
+      WHEN referral_count >= 4 AND (aw.fifty_referrals = FALSE AND aw.one_hundred_referrals = FALSE) THEN NOW()
+      WHEN referral_count >= 5 AND (aw.fifty_referrals = TRUE AND aw.one_hundred_referrals = FALSE) THEN NOW()
+      ELSE aw.alliance_wheel_date_updated
+    END
+
+  FROM packages_schema.package_ally_bounty_log AS log
+  WHERE log.package_ally_bounty_from = NEW.package_ally_bounty_from
+  AND aw.alliance_wheel_member_id = log.package_ally_bounty_member_id
+AND aw.alliance_wheel_date = (DATE_TRUNC('day', NOW() AT TIME ZONE 'Asia/Manila') - INTERVAL '1 day') AT TIME ZONE 'UTC' + INTERVAL '16 hours';
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE TRIGGER update_daily_task_with_bounty
+AFTER INSERT ON packages_schema.package_ally_bounty_log
+FOR EACH STATEMENT EXECUTE FUNCTION update_daily_task_with_bounty();

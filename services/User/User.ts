@@ -68,10 +68,10 @@ export const getUserWithdrawalToday = async () => {
       canUserDeposit: boolean;
       canWithdrawWinning: boolean;
       canWithdrawPackage: boolean;
-    };
-    response: {
-      wheelLog: alliance_wheel_log_table;
-      dailyTask: alliance_wheel_table;
+      response: {
+        wheelLog: alliance_wheel_log_table;
+        dailyTask: alliance_wheel_table;
+      };
     };
   };
 };

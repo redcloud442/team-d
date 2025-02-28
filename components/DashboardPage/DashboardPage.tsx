@@ -2,7 +2,6 @@
 
 import { logError } from "@/services/Error/ErrorLogs";
 import { getUserEarnings } from "@/services/User/User";
-import { useDailyTaskStore } from "@/store/useDailyTaskStore";
 import { useUserLoadingStore } from "@/store/useLoadingStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useSponsorStore } from "@/store/useSponsortStore";
@@ -64,7 +63,6 @@ const DashboardPage = ({
   const { totalEarnings, setTotalEarnings } = useUserDashboardEarningsStore();
   const { chartData } = usePackageChartData();
   const { sponsor } = useSponsorStore();
-  const { dailyTask } = useDailyTaskStore();
 
   const [isActive, setIsActive] = useState(
     teamMemberProfile.alliance_member_is_active
@@ -274,12 +272,12 @@ const DashboardPage = ({
           </div>
           <div className="flex justify-center items-center gap-2 py-2">
             <Button className="w-full max-w-[140px] min-w-[120px] h-7">
-              {carouselItems[activeSlide]?.label}{" "}
+              {carouselItems[activeSlide].label}{" "}
             </Button>
           </div>
         </div>
 
-        <RoadmapDailyTask allianceWheel={dailyTask.dailyTask} />
+        <RoadmapDailyTask />
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
           <div className="flex flex-col gap-4 ">
             <DashboardDepositModalDeposit
@@ -325,6 +323,7 @@ const DashboardPage = ({
             <DashboardPackages teamMemberProfile={teamMemberProfile} />
           </div>
         )}
+
         <SpinWheel prizes={wheel} />
         <TestimonialPage alliance_testimonial_url={testimonials} />
       </div>

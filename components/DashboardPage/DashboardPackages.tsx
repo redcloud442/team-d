@@ -182,7 +182,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
   };
 
   return (
-    <ScrollArea className="w-full pb-10 bg-cardColor p-4 rounded-xl">
+    <ScrollArea className="w-full pb-10 bg-cardColor p-4 rounded-xl h-[500px]">
       <div className="flex flex-col sm:flex-row justify-between items-start gap-2 pb-4">
         <h1 className="text-2xl font-bold text-black">Activated Plan</h1>
       </div>
