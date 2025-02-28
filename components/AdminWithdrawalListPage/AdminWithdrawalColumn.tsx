@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Textarea } from "../ui/textarea";
+import ActiveTreeModal from "../UserAdminProfile/ActiveTreeModal/ActiveTreeModal";
 
 const statusColorMap: Record<string, string> = {
   APPROVED: "bg-green-500 dark:bg-green-600 dark:text-white",
@@ -129,6 +130,22 @@ export const AdminWithdrawalHistoryColumn = (
           {row.getValue("user_username")}
         </div>
       ),
+    },
+    {
+      accessorKey: "alliance_member_id",
+      header: () => (
+        <Button variant="ghost">
+          Show Tree <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const memberId = row.getValue("alliance_member_id") as string;
+        return (
+          <div className="flex items-center gap-4">
+            <ActiveTreeModal teamMemberProfile={memberId} />
+          </div>
+        );
+      },
     },
     {
       accessorKey: "alliance_withdrawal_request_status",
