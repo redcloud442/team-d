@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import TableLoading from "../ui/tableLoading";
+import ActiveTreeModal from "./ActiveTreeModal/ActiveTreeModal";
 
 type Props = {
   userProfile: UserRequestdata;
@@ -94,6 +95,9 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
               >
                 Sign In as {userProfile.user_username}
               </Button>
+              <ActiveTreeModal
+                teamMemberProfile={userProfile.alliance_member_id}
+              />
             </div>
           )}
         </div>
