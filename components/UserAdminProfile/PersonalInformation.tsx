@@ -4,6 +4,7 @@ import { getUserSponsor, handleGenerateLink } from "@/services/User/User";
 import { userNameToEmail } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserRequestdata } from "@/utils/types";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -16,6 +17,7 @@ type Props = {
   userProfile: UserRequestdata;
   type?: "ADMIN" | "MEMBER" | "ACCOUNTING" | "MERCHANT";
 };
+
 const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
   const supabaseClient = createClientSide();
   const [isLoading, setIsLoading] = useState(false);
@@ -23,6 +25,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
     user_username: string;
   } | null>(null);
   const { toast } = useToast();
+  const params = useParams();
 
   const handleSignIn = async () => {
     try {
@@ -58,8 +61,9 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
     if (!userProfile.user_id) return;
     const fetchUserSponsor = async () => {
       try {
+        const userId = params.userId;
         const userSponsor = await getUserSponsor({
-          userId: userProfile.user_id,
+          userId: userId ? (userId as string) : userProfile.user_id,
         });
 
         setUserSponsor({ user_username: userSponsor });
@@ -74,7 +78,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
       }
     };
     fetchUserSponsor();
-  }, [userProfile.user_id]);
+  }, [userProfile.user_id, params.userId]);
 
   return (
     <Card className="shadow-md">

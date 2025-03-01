@@ -167,3 +167,15 @@ export const getAdminUserReinvestedReport = async (params: {
     totalCount: number;
   };
 };
+
+export const getUserByUsername = async (params: { username: string }) => {
+  const response = await fetch(`/api/v1/user/search?search=${params.username}`);
+
+  const result = await response.json();
+
+  if (!response.ok) throw new Error("Failed to fetch user profile");
+
+  return result as {
+    data: UserRequestdata[];
+  };
+};
