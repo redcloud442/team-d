@@ -187,7 +187,7 @@ export const WithdrawalColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center w-xs">
+        <div className="text-center">
           {row.getValue("alliance_withdrawal_request_type")}
         </div>
       ),
