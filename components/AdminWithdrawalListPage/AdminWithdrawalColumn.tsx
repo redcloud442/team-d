@@ -203,7 +203,7 @@ export const AdminWithdrawalHistoryColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap w-xs">
+        <div className="text-wrap">
           {row.getValue("alliance_withdrawal_request_type")}
         </div>
       ),
