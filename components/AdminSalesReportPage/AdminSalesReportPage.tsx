@@ -180,6 +180,7 @@ const AdminSalesReportPage = ({ teamMemberProfile }: Props) => {
           <AdminSalesReportTable
             teamMemberProfile={teamMemberProfile}
             salesReportData={salesReportData}
+            isFetchingList={isFetchingList}
           />
         </section>
       </div>
