@@ -102,7 +102,8 @@ const ReusableTable = <T extends object>({
               <TableCell className="px-0" colSpan={columns.length}>
                 <div className="flex justify-between items-center py-2 px-4 bg-zinc-50 border-t border-white dark:bg-zinc-900 dark:border-zinc-500">
                   <span className="text-sm text-zinc-600 dark:text-zinc-300">
-                    Showing {totalCount} out of {totalCount} entries
+                    Showing {Math.min(activePage * 10, totalCount)} out of{" "}
+                    {totalCount} entries
                   </span>
                 </div>
               </TableCell>
