@@ -40,11 +40,6 @@ export const SpinWheel = ({ prizes }: Props) => {
   const [winSound, setWinSound] = useState<HTMLAudioElement | null>(null);
   const [loseSound, setLoseSound] = useState<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    setWinSound(new Audio("/assets/sounds/winning.mp3"));
-    setLoseSound(new Audio("/assets/sounds/losing.mp3"));
-  }, []);
-
   const { dailyTask, setDailyTask } = useDailyTaskStore();
 
   const [selectedPrize, setSelectedPrize] = useState<string | null>(null);
@@ -55,6 +50,13 @@ export const SpinWheel = ({ prizes }: Props) => {
 
   const { toast } = useToast();
   const { earnings, setEarnings } = useUserEarningsStore();
+
+  useEffect(() => {
+    if (isOpen) {
+      setWinSound(new Audio("/assets/sounds/winning.mp3"));
+      setLoseSound(new Audio("/assets/sounds/losing.mp3"));
+    }
+  }, [isOpen]);
 
   const {
     register,

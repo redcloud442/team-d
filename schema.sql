@@ -2943,6 +2943,7 @@ CREATE OR REPLACE FUNCTION update_daily_task_with_bounty()
 RETURNS TRIGGER AS $$
 DECLARE
   referral_count INT;
+  new_spin_count INT := 0;
   last_updated TIMESTAMP;
 BEGIN
 
@@ -2955,44 +2956,77 @@ BEGIN
 
   SELECT COUNT(*) INTO referral_count
   FROM packages_schema.package_ally_bounty_log
+  INNER JOIN alliance_schema.alliance_referral_table ON alliance_referral_member_id = package_ally_bounty_from
   WHERE package_ally_bounty_member_id = NEW.package_ally_bounty_member_id
-  AND package_ally_bounty_log_date_created >= last_updated;
+  AND package_ally_bounty_log_date_created >= last_updated AND alliance_referral_date >= last_updated;
 
-  UPDATE alliance_schema.alliance_wheel_table AS aw
-  SET 
+  IF (referral_count >= 1 AND (SELECT three_referrals FROM alliance_schema.alliance_wheel_table WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id) = FALSE) THEN
+    new_spin_count := 1;
+  ELSIF (referral_count >= 2 AND (SELECT ten_referrals FROM alliance_schema.alliance_wheel_table WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id) = FALSE) THEN
+    new_spin_count := 3;
+  ELSIF (referral_count >= 3 AND (SELECT twenty_five_referrals FROM alliance_schema.alliance_wheel_table WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id) = FALSE) THEN
+    new_spin_count := 5;
+  ELSIF (referral_count >= 4 AND (SELECT fifty_referrals FROM alliance_schema.alliance_wheel_table WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id) = FALSE) THEN
+    new_spin_count := 10;
+  ELSIF (referral_count >= 5 AND (SELECT one_hundred_referrals FROM alliance_schema.alliance_wheel_table WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id) = FALSE) THEN
+    new_spin_count := 20;
+  END IF;
+
+  INSERT INTO alliance_schema.alliance_wheel_table (
+    alliance_wheel_member_id, 
+    alliance_wheel_date,
+    three_referrals, 
+    alliance_wheel_date_updated
+  )
+  VALUES (
+    NEW.package_ally_bounty_member_id,
+    (DATE_TRUNC('day', NOW() AT TIME ZONE 'Asia/Manila') - INTERVAL '1 day') AT TIME ZONE 'UTC' + INTERVAL '16 hours',
+    (referral_count >= 1), 
+   CASE 
+    WHEN referral_count >= 1 THEN NOW()
+    ELSE NULL
+   END
+  )
+  ON CONFLICT (alliance_wheel_member_id, alliance_wheel_date)
+  DO UPDATE SET
     three_referrals = CASE 
-      WHEN aw.three_referrals = FALSE AND referral_count >= 1 THEN TRUE 
-      ELSE aw.three_referrals END,
+      WHEN alliance_wheel_table.three_referrals = FALSE 
+           AND alliance_wheel_table.ten_referrals = FALSE 
+           AND EXCLUDED.three_referrals = TRUE THEN TRUE 
+      ELSE alliance_wheel_table.three_referrals END,
 
     ten_referrals = CASE 
-      WHEN (aw.ten_referrals = FALSE AND aw.three_referrals = TRUE) AND referral_count >= 2 THEN TRUE 
-      ELSE aw.ten_referrals END,
+      WHEN alliance_wheel_table.ten_referrals = FALSE 
+           AND alliance_wheel_table.three_referrals = TRUE 
+           AND EXCLUDED.ten_referrals = TRUE THEN TRUE 
+      ELSE alliance_wheel_table.ten_referrals END,
 
     twenty_five_referrals = CASE 
-      WHEN (aw.twenty_five_referrals = FALSE AND aw.ten_referrals = TRUE) AND referral_count >= 3 THEN TRUE
-      ELSE aw.twenty_five_referrals END,
+      WHEN alliance_wheel_table.twenty_five_referrals = FALSE 
+           AND alliance_wheel_table.ten_referrals = TRUE 
+           AND EXCLUDED.twenty_five_referrals = TRUE THEN TRUE 
+      ELSE alliance_wheel_table.twenty_five_referrals END,
 
     fifty_referrals = CASE 
-      WHEN (aw.fifty_referrals = FALSE AND aw.twenty_five_referrals = TRUE) AND referral_count >= 4 THEN TRUE
-      ELSE aw.fifty_referrals END,
+      WHEN alliance_wheel_table.fifty_referrals = FALSE 
+           AND alliance_wheel_table.twenty_five_referrals = TRUE 
+           AND EXCLUDED.fifty_referrals = TRUE THEN TRUE 
+      ELSE alliance_wheel_table.fifty_referrals END,
 
     one_hundred_referrals = CASE 
-      WHEN (aw.fifty_referrals = TRUE AND aw.one_hundred_referrals = FALSE) AND referral_count >= 5 THEN TRUE 
-      ELSE aw.one_hundred_referrals END,
+      WHEN alliance_wheel_table.one_hundred_referrals = FALSE 
+           AND alliance_wheel_table.fifty_referrals = TRUE 
+           AND EXCLUDED.one_hundred_referrals = TRUE THEN TRUE 
+      ELSE alliance_wheel_table.one_hundred_referrals END,
 
-    alliance_wheel_date_updated = CASE 
-      WHEN referral_count >= 1 AND (aw.three_referrals = FALSE AND aw.ten_referrals = FALSE) THEN NOW()
-      WHEN referral_count >= 2 AND (aw.ten_referrals = FALSE AND aw.twenty_five_referrals = FALSE) THEN NOW()
-      WHEN referral_count >= 3 AND (aw.twenty_five_referrals = FALSE AND aw.fifty_referrals = FALSE) THEN NOW()
-      WHEN referral_count >= 4 AND (aw.fifty_referrals = FALSE AND aw.one_hundred_referrals = FALSE) THEN NOW()
-      WHEN referral_count >= 5 AND (aw.fifty_referrals = TRUE AND aw.one_hundred_referrals = FALSE) THEN NOW()
-      ELSE aw.alliance_wheel_date_updated
-    END
+    alliance_wheel_date_updated = NOW();
 
-  FROM packages_schema.package_ally_bounty_log AS log
-  WHERE log.package_ally_bounty_from = NEW.package_ally_bounty_from
-  AND aw.alliance_wheel_member_id = log.package_ally_bounty_member_id
-AND aw.alliance_wheel_date = (DATE_TRUNC('day', NOW() AT TIME ZONE 'Asia/Manila') - INTERVAL '1 day') AT TIME ZONE 'UTC' + INTERVAL '16 hours';
+
+    IF new_spin_count > 0 THEN
+    UPDATE alliance_schema.alliance_wheel_log_table
+    SET alliance_wheel_spin_count = alliance_wheel_spin_count + new_spin_count
+    WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id;
+  END IF;
 
   RETURN NEW;
 END;
@@ -3001,4 +3035,4 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER update_daily_task_with_bounty
 AFTER INSERT ON packages_schema.package_ally_bounty_log
-FOR EACH STATEMENT EXECUTE FUNCTION update_daily_task_with_bounty();
+FOR EACH ROW EXECUTE FUNCTION update_daily_task_with_bounty();
