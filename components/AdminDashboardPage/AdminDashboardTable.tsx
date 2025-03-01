@@ -139,7 +139,7 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
           </Button>
         </form>
       </div>
-      <ScrollArea className="w-full overflow-x-auto ">
+      <ScrollArea className="w-full overflow-x-auto relative">
         {isFetchingList && <TableLoading />}
         <Table className="table-auto w-full border-collapse border border-gray-200">
           <TableHeader>

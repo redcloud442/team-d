@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import TableLoading from "../ui/tableLoading";
 import AdminSalesReportTable from "./AdminSalesReportTable";
 type Props = {
   teamMemberProfile: alliance_member_table;
@@ -109,8 +108,6 @@ const AdminSalesReportPage = ({ teamMemberProfile }: Props) => {
         <header className="mb-4">
           <h1 className="Title">Sales Report Page</h1>
         </header>
-
-        {isFetchingList && <TableLoading />}
 
         {/* Table Section */}
 

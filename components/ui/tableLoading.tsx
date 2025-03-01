@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import Image from "next/image";
 
 const TableLoading = () => {
   return (
@@ -7,7 +7,7 @@ const TableLoading = () => {
     >
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="animate-pulse transition-all duration-1000">
-          <Loader2 className="w-10 h-10 animate-spin text-yellow-500" />
+          <Image src="/app-logo.png" alt="thunder" width={100} height={100} />
         </div>
       </div>
     </div>

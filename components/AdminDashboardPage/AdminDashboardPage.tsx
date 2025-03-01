@@ -39,6 +39,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import TableLoading from "../ui/tableLoading";
 import AdminDashboardCard from "./AdminDashboardCard";
 import AdminDashboardChart from "./AdminDashboardChart";
+
 type Props = {
   teamMemberProfile: alliance_member_table;
   referral: alliance_referral_link_table;

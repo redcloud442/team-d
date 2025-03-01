@@ -20,9 +20,13 @@ import { AdminSalesReportColumn } from "./AdminSalesReportColum";
 type DataTableProps = {
   teamMemberProfile: alliance_member_table;
   salesReportData: adminSalesTotalReportData;
+  isFetchingList: boolean;
 };
 
-const AdminSalesReportTable = ({ salesReportData }: DataTableProps) => {
+const AdminSalesReportTable = ({
+  salesReportData,
+  isFetchingList,
+}: DataTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -77,7 +81,7 @@ const AdminSalesReportTable = ({ salesReportData }: DataTableProps) => {
         columns={columns}
         activePage={1}
         totalCount={salesReportData.dailyIncome.length}
-        isFetchingList={false}
+        isFetchingList={isFetchingList}
         setActivePage={() => {}}
         pageCount={1}
       />
