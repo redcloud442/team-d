@@ -204,7 +204,7 @@ export const useAdminTopUpApprovalColumns = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap w-xs">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_type")}
         </div>
       ),

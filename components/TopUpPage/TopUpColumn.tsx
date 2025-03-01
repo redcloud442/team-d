@@ -198,7 +198,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap w-xs">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_type")}
         </div>
       ),
@@ -215,7 +215,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap w-xs">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_name")}
         </div>
       ),
