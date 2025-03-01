@@ -39,8 +39,7 @@ const ReusableTable = <T extends object>({
     <>
       <ScrollArea className="relative w-full overflow-x-auto">
         {isFetchingList && <TableLoading />}
-
-        <Table className="min-w-full table-auto border-separate border-spacing-0 dark:bg-zinc-950 dark:border-zinc-800 border-white">
+        <Table className="relative min-w-full table-auto border-separate border-spacing-0 dark:bg-zinc-950 dark:border-zinc-800 border-white">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
