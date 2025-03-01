@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-cardColor font-bold text-md text-black shadow-sm ",
-        card: "bg-pageColor font-bold text-md text-white shadow-sm hover:bg-neutral-900/90 ",
+        card: "bg-pageColor font-bold text-md text-white shadow-sm hover:bg-neutral-900/90 rounded-md ",
         destructive:
           "bg-red-500 text-neutral-50 shadow-xs hover:bg-red-500/90 dark:bg-red-900 dark:text-neutral-50 dark:hover:bg-red-900/90",
         outline:

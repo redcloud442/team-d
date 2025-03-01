@@ -22,7 +22,7 @@ export const AdminUserMonitoringColumn = (): ColumnDef<user_table>[] => {
         return (
           <div
             onClick={() => router.push(`/admin/users/${id}`)}
-            className="text-wrap cursor-pointer hover:underline text-blue-500"
+            className="text-center cursor-pointer hover:underline text-blue-500"
           >
             {row.getValue("user_username")}
           </div>

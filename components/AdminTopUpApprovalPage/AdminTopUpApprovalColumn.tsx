@@ -172,7 +172,6 @@ export const useAdminTopUpApprovalColumns = (
 
     {
       accessorKey: "alliance_top_up_request_amount",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -192,6 +191,23 @@ export const useAdminTopUpApprovalColumns = (
         }).format(amount);
         return <div className="font-medium text-center">{formatted}</div>;
       },
+    },
+    {
+      accessorKey: "alliance_top_up_request_type",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Bank Account <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-wrap w-xs">
+          {row.getValue("alliance_top_up_request_type")}
+        </div>
+      ),
     },
     {
       accessorKey: "alliance_top_up_request_name",
@@ -242,7 +258,7 @@ export const useAdminTopUpApprovalColumns = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap w-40">
           {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))},{" "}
           {formatTime(row.getValue("alliance_top_up_request_date"))}
         </div>
@@ -275,7 +291,7 @@ export const useAdminTopUpApprovalColumns = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap w-40">
           {row.getValue("alliance_top_up_request_date_updated")
             ? formatDateToYYYYMMDD(
                 row.getValue("alliance_top_up_request_date_updated")
@@ -297,7 +313,9 @@ export const useAdminTopUpApprovalColumns = (
         return (
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline">View Attachment</Button>
+              <Button className="w-20 rounded-md" variant="outline">
+                View
+              </Button>
             </DialogTrigger>
             <DialogContent type="table">
               <DialogHeader>
@@ -322,7 +340,7 @@ export const useAdminTopUpApprovalColumns = (
     {
       accessorKey: "alliance_top_up_request_reject_note",
 
-      header: () => <div>Rejection Note</div>,
+      header: () => <div className="w-24">Rejection Note</div>,
       cell: ({ row }) => {
         const rejectionNote = row.getValue(
           "alliance_top_up_request_reject_note"

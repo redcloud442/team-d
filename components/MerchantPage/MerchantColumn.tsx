@@ -74,7 +74,6 @@ export const useMerchantColumn = (handleFetch: () => void) => {
   const columns: ColumnDef<merchant_table>[] = [
     {
       accessorKey: "merchant_account_name",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -90,7 +89,6 @@ export const useMerchantColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "merchant_account_number",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -133,7 +131,9 @@ export const useMerchantColumn = (handleFetch: () => void) => {
             {attachmentUrl ? (
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="outline">View Attachment</Button>
+                  <Button className="rounded-md w-full" variant="outline">
+                    View
+                  </Button>
                 </DialogTrigger>
                 <DialogContent type="table">
                   <DialogHeader>

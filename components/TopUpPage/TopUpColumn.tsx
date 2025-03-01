@@ -188,36 +188,34 @@ export const TopUpColumn = (
     },
     {
       accessorKey: "alliance_top_up_request_type",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
           className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Bank Name <ArrowUpDown />
+          Bank Account <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap w-xs">
           {row.getValue("alliance_top_up_request_type")}
         </div>
       ),
     },
     {
       accessorKey: "alliance_top_up_request_name",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
           className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Name <ArrowUpDown />
+          Account Name <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap w-xs">
           {row.getValue("alliance_top_up_request_name")}
         </div>
       ),
@@ -252,7 +250,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap w-40">
           {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))},{" "}
           {formatTime(row.getValue("alliance_top_up_request_date"))}
         </div>
@@ -271,7 +269,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap w-40">
           {row.getValue("alliance_top_up_request_date_updated")
             ? formatDateToYYYYMMDD(
                 row.getValue("alliance_top_up_request_date_updated")
@@ -293,7 +291,9 @@ export const TopUpColumn = (
         return (
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline">View Attachment</Button>
+              <Button className="rounded-md" variant="outline">
+                View
+              </Button>
             </DialogTrigger>
             <DialogContent type="table">
               <DialogHeader>

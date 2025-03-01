@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 
 const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
   const { userId } = await params;
+
   const { teamMemberProfile, profile } = await protectionAdminUser().catch(
     () => ({ teamMemberProfile: null, profile: null })
   );

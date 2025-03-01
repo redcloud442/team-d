@@ -19,8 +19,6 @@ import {
 import { format } from "date-fns";
 import {
   CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
   Loader2,
   PhilippinePeso,
   RefreshCw,
@@ -41,9 +39,7 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { Switch } from "../ui/switch";
-import TableLoading from "../ui/tableLoading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Textarea } from "../ui/textarea";
 import { TopUpColumn } from "./TopUpColumn";
@@ -282,49 +278,6 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
     },
   });
 
-  // useEffect(() => {
-  //   const fetchOptions = async () => {
-  //     try {
-  //       const pageLimit = 500;
-
-  //       let currentUserPage = 1;
-
-  //       let allUserOptions: user_table[] = [];
-
-  //       while (true) {
-  //         const userData = await getUserOptions({
-  //           page: currentUserPage,
-  //           limit: pageLimit,
-  //         });
-
-  //         if (!userData?.length) {
-  //           break;
-  //         }
-
-  //         allUserOptions = [...allUserOptions, ...userData];
-
-  //         if (userData.length < pageLimit) {
-  //           break;
-  //         }
-
-  //         currentUserPage += 1;
-  //       }
-
-  //       setUserOptions(allUserOptions);
-  //     } catch (e) {
-  //       if (e instanceof Error) {
-  //         await logError(supabaseClient, {
-  //           errorMessage: e.message,
-  //           stackTrace: e.stack,
-  //           stackPath: "components/TopUpPage/TopUpTable.tsx",
-  //         });
-  //       }
-  //     }
-  //   };
-
-  //   fetchOptions();
-  // }, [supabaseClient, teamMemberProfile.alliance_member_id]);
-
   useEffect(() => {
     fetchRequest();
   }, [supabaseClient, teamMemberProfile, activePage, sorting]);
@@ -445,13 +398,13 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
               disabled={isFetchingList}
               size="sm"
               variant="card"
-              className=" rounded-md"
+              className="rounded-md h-12"
             >
               <Search />
             </Button>
             <Button
               variant="card"
-              className=" rounded-md"
+              className="rounded-md h-12"
               onClick={handleRefresh}
               disabled={isFetchingList}
               size="sm"
@@ -471,30 +424,6 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
 
           {showFilters && (
             <div className="flex flex-wrap gap-2 items-center rounded-md ">
-              {/* <Controller
-                name="userFilter"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={(value) =>
-                      field.onChange(value === field.value ? "" : value)
-                    }
-                    value={field.value || ""}
-                  >
-                    <SelectTrigger className="w-full sm:w-auto">
-                      <SelectValue placeholder="Requestor" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {userOptions.map((opt) => (
-                        <SelectItem key={opt.user_id} value={opt.user_id}>
-                          {opt.user_username}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              /> */}
-
               <Controller
                 name="dateFilter.start"
                 control={control}
@@ -503,7 +432,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className="font-normal justify-start"
+                        className="font-normal justify-start h-12 rounded-md"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value
@@ -527,7 +456,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
                 )}
               />
 
-              <Button type="submit" onClick={handleRefresh}>
+              <Button className="h-12 rounded-md" onClick={handleRefresh}>
                 Submit
               </Button>
             </div>
@@ -540,129 +469,56 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
           </div>
         </div>
       </div>
-      <ScrollArea className="w-full overflow-x-auto ">
-        {isFetchingList && <TableLoading />}
 
-        <Tabs defaultValue="PENDING" onValueChange={handleTabChange}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="PENDING">
-              Pending ({requestData?.data?.PENDING?.count || 0})
-            </TabsTrigger>
-            <TabsTrigger value="APPROVED">
-              Approved ({requestData?.data?.APPROVED?.count || 0})
-            </TabsTrigger>
-            <TabsTrigger value="REJECTED">
-              Rejected ({requestData?.data?.REJECTED?.count || 0})
-            </TabsTrigger>
-          </TabsList>
+      <Tabs defaultValue="PENDING" onValueChange={handleTabChange}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="PENDING">
+            Pending ({requestData?.data?.PENDING?.count || 0})
+          </TabsTrigger>
+          <TabsTrigger value="APPROVED">
+            Approved ({requestData?.data?.APPROVED?.count || 0})
+          </TabsTrigger>
+          <TabsTrigger value="REJECTED">
+            Rejected ({requestData?.data?.REJECTED?.count || 0})
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="PENDING">
-            <TopUpTabs
-              table={table}
-              columns={columns}
-              activePage={activePage}
-              totalCount={requestData?.data?.PENDING?.count || 0}
-            />
-          </TabsContent>
+        <TabsContent value="PENDING">
+          <TopUpTabs
+            table={table}
+            columns={columns}
+            activePage={activePage}
+            totalCount={requestData?.data?.PENDING?.count || 0}
+            isFetchingList={isFetchingList}
+            setActivePage={setActivePage}
+            pageCount={pageCount}
+          />
+        </TabsContent>
 
-          <TabsContent value="APPROVED">
-            <TopUpTabs
-              table={table}
-              columns={columns}
-              activePage={activePage}
-              totalCount={requestData?.data?.APPROVED?.count || 0}
-            />
-          </TabsContent>
+        <TabsContent value="APPROVED">
+          <TopUpTabs
+            table={table}
+            columns={columns}
+            activePage={activePage}
+            totalCount={requestData?.data?.APPROVED?.count || 0}
+            isFetchingList={isFetchingList}
+            setActivePage={setActivePage}
+            pageCount={pageCount}
+          />
+        </TabsContent>
 
-          <TabsContent value="REJECTED">
-            <TopUpTabs
-              table={table}
-              columns={columns}
-              activePage={activePage}
-              totalCount={requestData?.data?.REJECTED?.count || 0}
-            />
-          </TabsContent>
-        </Tabs>
-        <ScrollBar
-          className="bg-blue-700 dark:bg-blue-700"
-          orientation="horizontal"
-        />
-      </ScrollArea>
-
-      <div className="flex items-center justify-end gap-x-4 py-4">
-        {activePage > 1 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
-            disabled={activePage <= 1}
-          >
-            <ChevronLeft />
-          </Button>
-        )}
-
-        <div className="flex space-x-2">
-          {(() => {
-            const maxVisiblePages = 3;
-            const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
-            let displayedPages = [];
-
-            if (pageCount <= maxVisiblePages) {
-              displayedPages = pages;
-            } else {
-              if (activePage <= 2) {
-                displayedPages = [1, 2, 3, "...", pageCount];
-              } else if (activePage >= pageCount - 1) {
-                displayedPages = [
-                  1,
-                  "...",
-                  pageCount - 2,
-                  pageCount - 1,
-                  pageCount,
-                ];
-              } else {
-                displayedPages = [
-                  activePage - 1,
-                  activePage,
-                  activePage + 1,
-                  "...",
-                  pageCount,
-                ];
-              }
-            }
-
-            return displayedPages.map((page, index) =>
-              typeof page === "number" ? (
-                <Button
-                  key={page}
-                  variant={activePage === page ? "card" : "outline"}
-                  size="sm"
-                  onClick={() => setActivePage(page)}
-                >
-                  {page}
-                </Button>
-              ) : (
-                <span key={`ellipsis-${index}`} className="px-2 py-1">
-                  {page}
-                </span>
-              )
-            );
-          })()}
-        </div>
-        {activePage < pageCount && (
-          <Button
-            variant="card"
-            className="md:w-auto rounded-md"
-            size="sm"
-            onClick={() =>
-              setActivePage((prev) => Math.min(prev + 1, pageCount))
-            }
-            disabled={activePage >= pageCount}
-          >
-            <ChevronRight />
-          </Button>
-        )}
-      </div>
+        <TabsContent value="REJECTED">
+          <TopUpTabs
+            table={table}
+            columns={columns}
+            activePage={activePage}
+            totalCount={requestData?.data?.REJECTED?.count || 0}
+            isFetchingList={isFetchingList}
+            setActivePage={setActivePage}
+            pageCount={pageCount}
+          />
+        </TabsContent>
+      </Tabs>
     </Card>
   );
 };

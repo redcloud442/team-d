@@ -196,21 +196,20 @@ export const AdminWithdrawalHistoryColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          className="p-1"
+          className="p-1 text-center"
           onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Bank Account <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap w-xs">
           {row.getValue("alliance_withdrawal_request_type")}
         </div>
       ),
     },
     {
       accessorKey: "alliance_withdrawal_request_bank_name",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -221,7 +220,7 @@ export const AdminWithdrawalHistoryColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap w-xs">
           {row.getValue("alliance_withdrawal_request_bank_name")}
         </div>
       ),
@@ -258,7 +257,7 @@ export const AdminWithdrawalHistoryColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap w-40">
           {formatDateToYYYYMMDD(
             row.getValue("alliance_withdrawal_request_date")
           )}
@@ -310,7 +309,7 @@ export const AdminWithdrawalHistoryColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap w-40">
           {row.getValue("alliance_withdrawal_request_date_updated")
             ? formatDateToYYYYMMDD(
                 row.getValue("alliance_withdrawal_request_date_updated")
@@ -325,7 +324,7 @@ export const AdminWithdrawalHistoryColumn = (
     },
     {
       accessorKey: "alliance_withdrawal_request_reject_note",
-      header: () => <div>Rejection Note</div>,
+      header: () => <div className="w-24">Rejection Note</div>,
       cell: ({ row }) => {
         const rejectionNote = row.getValue(
           "alliance_withdrawal_request_reject_note"

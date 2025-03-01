@@ -203,6 +203,7 @@ const AdminUserReinvestedPage = ({ teamMemberProfile }: Props) => {
             activePage={page}
             totalCount={totalCount}
             reinvestedReportData={reinvestedReportData}
+            isFetchingList={isFetchingList}
           />
         </section>
       </div>
