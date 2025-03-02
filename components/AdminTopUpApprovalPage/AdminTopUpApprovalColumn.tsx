@@ -330,7 +330,7 @@ export const useAdminTopUpApprovalColumns = (
         return (
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="w-20 rounded-md" variant="outline">
+              <Button className="rounded-md" variant="outline">
                 View Attachment
               </Button>
             </DialogTrigger>

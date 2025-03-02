@@ -240,7 +240,6 @@ export const TopUpColumn = (
     },
     {
       accessorKey: "alliance_top_up_request_date",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -300,7 +299,7 @@ export const TopUpColumn = (
         return (
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="w-20 rounded-md" variant="outline">
+              <Button className="rounded-md" variant="outline">
                 View Attachment
               </Button>
             </DialogTrigger>
