@@ -194,7 +194,7 @@ const ReusableTable = <T extends object>({
               setActivePage((prev) => Math.min(prev + 1, pageCount))
             }
             disabled={activePage >= pageCount}
-            className=" text-white rounded-lg px-3 py-2 hover:bg-yellow-600 transition dark:hover:bg-yellow-500 dark:text-white"
+            className=" text-white dark:bg-yellow-500 rounded-lg px-3 py-2 hover:bg-yellow-600 transition dark:hover:bg-yellow-500 dark:text-white"
           >
             <ChevronRight />
           </Button>
