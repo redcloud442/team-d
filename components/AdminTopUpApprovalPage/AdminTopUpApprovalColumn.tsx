@@ -370,7 +370,9 @@ export const useAdminTopUpApprovalColumns = (
               return rejectionNote ? (
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button variant="destructive">View Rejection Note</Button>
+                    <Button className="rounded-md w-full" variant="destructive">
+                      View Rejection Note
+                    </Button>
                   </DialogTrigger>
                   <DialogContent type="table">
                     <DialogHeader>
