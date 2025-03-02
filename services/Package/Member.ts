@@ -1,4 +1,8 @@
-import { package_table } from "@prisma/client";
+import {
+  alliance_wheel_log_table,
+  alliance_wheel_table,
+  package_table,
+} from "@prisma/client";
 
 export const createPackageConnection = async (params: {
   packageData: { amount: number; packageId: string };
@@ -27,7 +31,10 @@ export const createPackageConnection = async (params: {
     );
   }
 
-  return response;
+  return result as {
+    wheelLog: alliance_wheel_log_table;
+    dailyTask: alliance_wheel_table;
+  };
 };
 
 export const getPackageModalData = async () => {

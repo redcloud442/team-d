@@ -12,12 +12,15 @@ import {
   alliance_member_table,
   alliance_referral_link_table,
   alliance_testimonial_table,
+  alliance_wheel_settings_table,
   package_table,
   user_table,
 } from "@prisma/client";
 import { Download, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import RoadmapDailyTask from "../SpinTheWheel/RoadmapDailyTask/RoadmapDailyTask";
+import { SpinWheel } from "../SpinTheWheel/SpinTheWheel";
 import { Button } from "../ui/button";
 import {
   Carousel,
@@ -43,6 +46,7 @@ type Props = {
   packages: package_table[];
   profile: user_table;
   testimonials: alliance_testimonial_table[];
+  wheel: alliance_wheel_settings_table[];
 };
 
 const DashboardPage = ({
@@ -51,6 +55,7 @@ const DashboardPage = ({
   packages,
   profile,
   testimonials,
+  wheel,
 }: Props) => {
   const supabaseClient = createClientSide();
   const { loading } = useUserLoadingStore();
@@ -267,11 +272,12 @@ const DashboardPage = ({
           </div>
           <div className="flex justify-center items-center gap-2 py-2">
             <Button className="w-full max-w-[140px] min-w-[120px] h-7">
-              {carouselItems[activeSlide]?.label}{" "}
+              {carouselItems[activeSlide].label}{" "}
             </Button>
           </div>
         </div>
 
+        <RoadmapDailyTask />
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
           <div className="flex flex-col gap-4 ">
             <DashboardDepositModalDeposit
@@ -318,6 +324,7 @@ const DashboardPage = ({
           </div>
         )}
 
+        <SpinWheel prizes={wheel} />
         <TestimonialPage alliance_testimonial_url={testimonials} />
       </div>
     </div>

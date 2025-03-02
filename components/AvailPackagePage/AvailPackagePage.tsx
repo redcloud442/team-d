@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { createPackageConnection } from "@/services/Package/Member";
+import { useDailyTaskStore } from "@/store/useDailyTaskStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { escapeFormData } from "@/utils/function";
-import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   alliance_earnings_table,
@@ -39,9 +39,9 @@ const AvailPackagePage = ({
   setSelectedPackage,
   selectedPackage,
 }: Props) => {
-  const supabaseClient = createClientSide();
   const { toast } = useToast();
   const { setEarnings } = useUserEarningsStore();
+  const { dailyTask, setDailyTask } = useDailyTaskStore();
   const { chartData, setChartData } = usePackageChartData();
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const [maxAmount, setMaxAmount] = useState(
@@ -128,6 +128,13 @@ const AvailPackagePage = ({
         );
         remainingAmount -= referralDeduction;
 
+        const winningDeduction = Math.min(
+          remainingAmount,
+          earnings.alliance_winning_earnings
+        );
+
+        remainingAmount -= winningDeduction;
+
         setEarnings({
           ...earnings,
           alliance_combined_earnings:
@@ -136,6 +143,8 @@ const AvailPackagePage = ({
             earnings.alliance_olympus_earnings - olympusDeduction,
           alliance_referral_bounty:
             earnings.alliance_referral_bounty - referralDeduction,
+          alliance_winning_earnings:
+            earnings.alliance_winning_earnings - winningDeduction,
         });
       }
 
@@ -174,6 +183,18 @@ const AvailPackagePage = ({
         ],
         count: 1,
       });
+
+      if (Number(amount) % 5000 === 0) {
+        const count = Math.floor(Number(amount) / 5000) * 2;
+        setDailyTask({
+          ...dailyTask,
+          wheelLog: {
+            ...dailyTask.wheelLog,
+            alliance_wheel_spin_count:
+              dailyTask.wheelLog.alliance_wheel_spin_count + count,
+          },
+        });
+      }
 
       setSelectedPackage(null);
       setOpen(false);

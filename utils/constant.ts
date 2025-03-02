@@ -25,7 +25,7 @@ export const ROLE = {
   ADMIN: "ADMIN",
 };
 
-export const BASE_URL = "https://primepinas.com";
+export const BASE_URL = "https://redful.xyz";
 
 export const MAX_FILE_SIZE_MB = 12;
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -33,15 +33,26 @@ export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 export const ACTIVE = "ACTIVE";
 export const ENDED = "ENDED";
 
-export const VIDEO_URLS = [
-  "https://hburgwylodfpwgbtywue.supabase.co/storage/v1/object/public/TESTIMONIAL_BUCKET//0208%20(1)(1)23323.mp4",
-  "https://hburgwylodfpwgbtywue.supabase.co/storage/v1/object/public/TESTIMONIAL_BUCKET//0219(1)1.mp4",
-  "https://hburgwylodfpwgbtywue.supabase.co/storage/v1/object/public/TESTIMONIAL_BUCKET//0219(1)%20(1).mp4",
-  "https://hburgwylodfpwgbtywue.supabase.co/storage/v1/object/public/TESTIMONIAL_BUCKET//111.mp4",
-  "https://hburgwylodfpwgbtywue.supabase.co/storage/v1/object/public/TESTIMONIAL_BUCKET//donald.MP4",
-  "https://hburgwylodfpwgbtywue.supabase.co/storage/v1/object/public/TESTIMONIAL_BUCKET//FDownload.App_AQMhFd9AaRAiqwn9oHDBk2bfH7cVl6DemVGsTJQFR7NfgURJi0YdU3Oy_xhhWOWcg5Sy_fZVpYGCyY8JdDzvnEIU_720p_(HD).mp4",
-  "https://hburgwylodfpwgbtywue.supabase.co/storage/v1/object/public/TESTIMONIAL_BUCKET//IMG_4146.mp4",
-  "https://hburgwylodfpwgbtywue.supabase.co/storage/v1/object/public/TESTIMONIAL_BUCKET//IMG_7783.MOV",
-  "https://hburgwylodfpwgbtywue.supabase.co/storage/v1/object/public/TESTIMONIAL_BUCKET//tine.mp4",
-  "https://hburgwylodfpwgbtywue.supabase.co/storage/v1/object/public/TESTIMONIAL_BUCKET//video_2025-01-20_08-59-24.mp4",
+export const ROADMAP_STEPS = [
+  { id: 1, label: "3 referrals + 2 spin", key: "three_referrals" },
+  {
+    id: 2,
+    label: "10 referrals + 5 spin",
+    key: "ten_referrals",
+  },
+  {
+    id: 3,
+    label: "25 referrals + 15 spin",
+    key: "twenty_five_referrals",
+  },
+  {
+    id: 4,
+    label: "50 referrals + 35 spin",
+    key: "fifty_referrals",
+  },
+  {
+    id: 5,
+    label: "100 referrals + 50 spin",
+    key: "one_hundred_referrals",
+  },
 ];

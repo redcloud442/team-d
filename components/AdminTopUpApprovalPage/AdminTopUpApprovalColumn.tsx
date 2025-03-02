@@ -351,7 +351,7 @@ export const useAdminTopUpApprovalColumns = (
               </div>
               <DialogClose asChild>
                 <Button variant="secondary">Close</Button>
-              </DialogClose>
+            </DialogClose>
             </DialogContent>
           </Dialog>
         );

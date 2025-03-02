@@ -136,6 +136,8 @@ const DashboardWithdrawModalWithdraw = ({
         return earnings?.alliance_olympus_earnings ?? 0;
       case "REFERRAL":
         return earnings?.alliance_referral_bounty ?? 0;
+      case "WINNING":
+        return earnings?.alliance_winning_earnings ?? 0;
       default:
         return 0;
     }
@@ -216,6 +218,41 @@ const DashboardWithdrawModalWithdraw = ({
           });
 
           break;
+        case "WINNING":
+          if (earnings) {
+            // Remaining amount to be deducted
+
+            let remainingAmount = Number(sanitizedData.amount);
+
+            // Calculate Referral Bounty deduction
+            const winningDeduction = Math.min(
+              remainingAmount,
+              earnings.alliance_winning_earnings
+            );
+
+            remainingAmount -= winningDeduction;
+
+            if (remainingAmount > 0) {
+              break;
+            }
+
+            // Update state with new earnings values
+            setEarnings({
+              ...earnings,
+              alliance_combined_earnings:
+                earnings.alliance_combined_earnings -
+                Number(sanitizedData.amount),
+              alliance_winning_earnings:
+                earnings.alliance_winning_earnings - winningDeduction,
+            });
+          }
+
+          setIsWithdrawalToday({
+            ...isWithdrawalToday,
+            winning: true,
+          });
+
+          break;
 
         default:
           break;
@@ -275,7 +312,9 @@ const DashboardWithdrawModalWithdraw = ({
       }}
     >
       <DialogTrigger asChild>
-        {!isWithdrawalToday.package || !isWithdrawalToday.referral ? (
+        {!isWithdrawalToday.package ||
+        !isWithdrawalToday.referral ||
+        !isWithdrawalToday.winning ? (
           <Button
             className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2"
             onClick={() => setOpen(true)}
@@ -360,6 +399,11 @@ const DashboardWithdrawModalWithdraw = ({
                           "amount",
                           earnings?.alliance_referral_bounty.toFixed(2) ?? "0"
                         );
+                      } else if (value === "WINNING") {
+                        setValue(
+                          "amount",
+                          earnings?.alliance_winning_earnings.toFixed(2) ?? "0"
+                        );
                       }
                     }}
                     value={field.value}
@@ -374,13 +418,20 @@ const DashboardWithdrawModalWithdraw = ({
 
                               maximumFractionDigits: 2,
                             })}`
-                          : `Referral Earnings ₱ ${(
-                              earnings?.alliance_referral_bounty ?? 0
-                            ).toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
+                          : field.value === "REFERRAL"
+                            ? `Referral Earnings ₱ ${(
+                                earnings?.alliance_referral_bounty ?? 0
+                              ).toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
 
-                              maximumFractionDigits: 2,
-                            })}`}
+                                maximumFractionDigits: 2,
+                              })}`
+                            : `Winning Earnings ₱ ${(
+                                earnings?.alliance_winning_earnings ?? 0
+                              ).toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}`}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -401,6 +452,19 @@ const DashboardWithdrawModalWithdraw = ({
                         <SelectItem className="text-xs" value="REFERRAL">
                           Referral Earnings ₱{" "}
                           {earnings?.alliance_referral_bounty.toLocaleString(
+                            "en-US",
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          ) ?? 0}
+                        </SelectItem>
+                      )}
+
+                      {!isWithdrawalToday.winning && (
+                        <SelectItem className="text-xs" value="WINNING">
+                          Winning Earnings ₱{" "}
+                          {earnings?.alliance_winning_earnings.toLocaleString(
                             "en-US",
                             {
                               minimumFractionDigits: 2,

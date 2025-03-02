@@ -22,6 +22,7 @@ import {
   BeakerIcon,
   Calendar,
   ChevronUp,
+  FerrisWheel,
   File,
   Group,
   HistoryIcon,
@@ -154,6 +155,11 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
       title: "Testimonials",
       url: "/admin/testimonials",
       icon: Video,
+    },
+    {
+      title: "Wheel Management",
+      url: "/admin/wheel-management",
+      icon: FerrisWheel,
     },
   ];
 

@@ -1,5 +1,9 @@
 import { DashboardEarnings, HeirarchyData } from "@/utils/types";
-import { alliance_earnings_table } from "@prisma/client";
+import {
+  alliance_earnings_table,
+  alliance_wheel_log_table,
+  alliance_wheel_table,
+} from "@prisma/client";
 
 export const getUserSponsor = async (params: { userId: string }) => {
   const response = await fetch(`/api/v1/user/sponsor`, {
@@ -59,9 +63,16 @@ export const getUserWithdrawalToday = async () => {
   }
 
   return result as {
-    canWithdrawReferral: boolean;
-    canUserDeposit: boolean;
-    canWithdrawPackage: boolean;
+    data: {
+      canWithdrawReferral: boolean;
+      canUserDeposit: boolean;
+      canWithdrawWinning: boolean;
+      canWithdrawPackage: boolean;
+      response: {
+        wheelLog: alliance_wheel_log_table;
+        dailyTask: alliance_wheel_table;
+      };
+    };
   };
 };
 
