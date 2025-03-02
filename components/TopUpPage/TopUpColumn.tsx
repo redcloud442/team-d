@@ -347,34 +347,7 @@ export const TopUpColumn = (
           },
         ]
       : []),
-    {
-      accessorKey: "alliance_top_up_request_reject_note",
-      header: () => <div>Rejection Note</div>,
-      cell: ({ row }) => {
-        const rejectionNote = row.getValue(
-          "alliance_top_up_request_reject_note"
-        ) as string;
 
-        return rejectionNote ? (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="destructive">View Rejection Note</Button>
-            </DialogTrigger>
-            <DialogContent type="table">
-              <DialogHeader>
-                <DialogTitle>Rejection Note</DialogTitle>
-              </DialogHeader>
-              <div className="flex justify-center items-center">
-                <Textarea value={rejectionNote} readOnly />
-              </div>
-              <DialogClose asChild>
-                <Button variant="secondary">Close</Button>
-              </DialogClose>
-            </DialogContent>
-          </Dialog>
-        ) : null;
-      },
-    },
     {
       header: "Actions",
       cell: ({ row }) => {
