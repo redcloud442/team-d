@@ -209,7 +209,7 @@ export const useAdminTopUpApprovalColumns = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_type")}
         </div>
       ),
@@ -284,7 +284,7 @@ export const useAdminTopUpApprovalColumns = (
               </Button>
             ),
             cell: ({ row }: { row: Row<TopUpRequestData> }) => (
-              <div className="text-center">
+              <div className="text-wrap">
                 {row.getValue("approver_username")}
               </div>
             ),
