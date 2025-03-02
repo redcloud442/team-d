@@ -250,15 +250,14 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
         rejectNote: "",
       },
     });
-
+  const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
   const {
     columns,
     isOpenModal,
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = TopUpColumn(setRequestData, reset);
-  const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
+  } = TopUpColumn(setRequestData, reset, status);
 
   const table = useReactTable({
     data: requestData?.data?.[status]?.data || [],

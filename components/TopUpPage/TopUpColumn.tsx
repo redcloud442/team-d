@@ -5,7 +5,7 @@ import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Badge } from "../ui/badge";
@@ -27,7 +27,8 @@ const statusColorMap: Record<string, string> = {
 
 export const TopUpColumn = (
   setRequestData: Dispatch<SetStateAction<AdminTopUpRequestData | null>>,
-  reset: () => void
+  reset: () => void,
+  status: string
 ) => {
   const { toast } = useToast();
   const supabaseClient = createClientSide();
@@ -258,7 +259,6 @@ export const TopUpColumn = (
     },
     {
       accessorKey: "alliance_top_up_request_date_updated",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -280,41 +280,38 @@ export const TopUpColumn = (
         </div>
       ),
     },
-    {
-      accessorKey: "alliance_top_up_request_attachment",
-      header: () => <div>Attachment</div>,
-      cell: ({ row }) => {
-        const attachmentUrl = row.getValue(
-          "alliance_top_up_request_attachment"
-        ) as string;
+    ...(status !== "PENDING"
+      ? [
+          {
+            accessorKey: "alliance_top_up_request_reject_note",
+            header: () => <div className="w-24">Rejection Note</div>,
+            cell: ({ row }: { row: Row<TopUpRequestData> }) => {
+              const rejectionNote = row.getValue(
+                "alliance_top_up_request_reject_note"
+              ) as string;
 
-        return (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="rounded-md" variant="outline">
-                View
-              </Button>
-            </DialogTrigger>
-            <DialogContent type="table">
-              <DialogHeader>
-                <DialogTitle>Attachment</DialogTitle>
-              </DialogHeader>
-              <div className="flex justify-center items-center">
-                <img
-                  key={attachmentUrl}
-                  src={attachmentUrl}
-                  alt="Attachment Preview"
-                  className="object-contain w-[600px] h-[600px]"
-                />
-              </div>
-              <DialogClose asChild>
-                <Button variant="secondary">Close</Button>
-              </DialogClose>
-            </DialogContent>
-          </Dialog>
-        );
-      },
-    },
+              return rejectionNote ? (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="destructive">View Rejection Note</Button>
+                  </DialogTrigger>
+                  <DialogContent type="table">
+                    <DialogHeader>
+                      <DialogTitle>Attachment</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex justify-center items-center">
+                      <Textarea value={rejectionNote} readOnly />
+                    </div>
+                    <DialogClose asChild>
+                      <Button variant="secondary">Close</Button>
+                    </DialogClose>
+                  </DialogContent>
+                </Dialog>
+              ) : null;
+            },
+          },
+        ]
+      : []),
     {
       accessorKey: "alliance_top_up_request_reject_note",
 

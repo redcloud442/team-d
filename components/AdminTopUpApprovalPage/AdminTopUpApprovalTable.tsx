@@ -265,14 +265,15 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
     }
   };
 
+  const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
   const {
     columns,
     isOpenModal,
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = useAdminTopUpApprovalColumns(reset, setRequestData);
-  const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
+  } = useAdminTopUpApprovalColumns(reset, setRequestData, status);
+
   const table = useReactTable({
     data: requestData?.data?.[status]?.data || [],
     columns,
@@ -318,6 +319,7 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
   };
 
   const rejectNote = watch("rejectNote");
+
   return (
     <Card className="w-full rounded-sm p-4">
       <div className="flex flex-wrap gap-4 items-start py-4">

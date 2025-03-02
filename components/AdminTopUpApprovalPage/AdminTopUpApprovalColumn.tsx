@@ -14,7 +14,7 @@ import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
@@ -28,7 +28,8 @@ const statusColorMap: Record<string, string> = {
 
 export const useAdminTopUpApprovalColumns = (
   reset: () => void,
-  setRequestData: Dispatch<SetStateAction<AdminTopUpRequestData | null>>
+  setRequestData: Dispatch<SetStateAction<AdminTopUpRequestData | null>>,
+  status: string
 ) => {
   const { toast } = useToast();
   const router = useRouter();
@@ -337,40 +338,42 @@ export const useAdminTopUpApprovalColumns = (
         );
       },
     },
-    {
-      accessorKey: "alliance_top_up_request_reject_note",
+    ...(status !== "PENDING"
+      ? [
+          {
+            accessorKey: "alliance_top_up_request_reject_note",
+            header: () => <div className="w-24">Rejection Note</div>,
+            cell: ({ row }: { row: Row<TopUpRequestData> }) => {
+              const rejectionNote = row.getValue(
+                "alliance_top_up_request_reject_note"
+              ) as string;
 
-      header: () => <div className="w-24">Rejection Note</div>,
-      cell: ({ row }) => {
-        const rejectionNote = row.getValue(
-          "alliance_top_up_request_reject_note"
-        ) as string;
-
-        return rejectionNote ? (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="destructive">View Rejection Note</Button>
-            </DialogTrigger>
-            <DialogContent type="table">
-              <DialogHeader>
-                <DialogTitle>Attachment</DialogTitle>
-              </DialogHeader>
-              <div className="flex justify-center items-center">
-                <Textarea value={rejectionNote} readOnly />
-              </div>
-              <DialogClose asChild>
-                <Button variant="secondary">Close</Button>
-              </DialogClose>
-            </DialogContent>
-          </Dialog>
-        ) : null;
-      },
-    },
+              return rejectionNote ? (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="destructive">View Rejection Note</Button>
+                  </DialogTrigger>
+                  <DialogContent type="table">
+                    <DialogHeader>
+                      <DialogTitle>Attachment</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex justify-center items-center">
+                      <Textarea value={rejectionNote} readOnly />
+                    </div>
+                    <DialogClose asChild>
+                      <Button variant="secondary">Close</Button>
+                    </DialogClose>
+                  </DialogContent>
+                </Dialog>
+              ) : null;
+            },
+          },
+        ]
+      : []),
     {
       header: "Actions",
       cell: ({ row }) => {
         const data = row.original;
-
         return (
           <>
             {data.alliance_top_up_request_status === "PENDING" && (
