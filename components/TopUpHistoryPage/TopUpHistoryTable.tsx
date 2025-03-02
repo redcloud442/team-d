@@ -23,7 +23,6 @@ import ReusableTable from "../ReusableTable/ReusableTable";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Input } from "../ui/input";
-import { ScrollArea } from "../ui/scroll-area";
 import { TopUpHistoryColumn } from "./TopUpHistoryColumn";
 
 type DataTableProps = {
@@ -122,48 +121,46 @@ const TopUpHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
   const pageCount = Math.ceil(requestCount / 10);
 
   return (
-    <ScrollArea className="w-full overflow-x-auto ">
-      <Card className="w-full rounded-sm p-4">
-        <h1>Deposit History</h1>
-        <div className="flex items-center py-4">
-          <form className="flex gap-2" onSubmit={handleSubmit(handleFilter)}>
-            <Input
-              {...register("referenceId")}
-              placeholder="Filter reference id..."
-              className="max-w-sm p-2 border rounded h-12"
-            />
-            <Button
-              type="submit"
-              disabled={isFetchingList}
-              size="sm"
-              variant="outline"
-              className="h-12"
-            >
-              <Search />
-            </Button>
-            <Button
-              onClick={fetchRequest}
-              disabled={isFetchingList}
-              size="sm"
-              className="h-12"
-            >
-              <RefreshCw />
-              Refresh
-            </Button>
-          </form>
-        </div>
+    <Card className="w-full rounded-sm p-4">
+      <h1>Deposit History</h1>
+      <div className="flex items-center py-4">
+        <form className="flex gap-2" onSubmit={handleSubmit(handleFilter)}>
+          <Input
+            {...register("referenceId")}
+            placeholder="Filter reference id..."
+            className="max-w-sm p-2 border rounded h-12"
+          />
+          <Button
+            type="submit"
+            disabled={isFetchingList}
+            size="sm"
+            variant="outline"
+            className="h-12"
+          >
+            <Search />
+          </Button>
+          <Button
+            onClick={fetchRequest}
+            disabled={isFetchingList}
+            size="sm"
+            className="h-12"
+          >
+            <RefreshCw />
+            Refresh
+          </Button>
+        </form>
+      </div>
 
-        <ReusableTable
-          table={table}
-          columns={columns}
-          activePage={activePage}
-          totalCount={requestCount}
-          isFetchingList={isFetchingList}
-          setActivePage={setActivePage}
-          pageCount={pageCount}
-        />
-      </Card>
-    </ScrollArea>
+      <ReusableTable
+        table={table}
+        columns={columns}
+        activePage={activePage}
+        totalCount={requestCount}
+        isFetchingList={isFetchingList}
+        setActivePage={setActivePage}
+        pageCount={pageCount}
+      />
+    </Card>
   );
 };
 
