@@ -101,7 +101,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
             <div className="flex items-center gap-2 flex-wrap">
               <Button
                 variant="outline"
-                className="rounded-md w-full sm:w-auto"
+                className="rounded-md w-full"
                 onClick={async () => {
                   await handleSignIn();
                 }}
