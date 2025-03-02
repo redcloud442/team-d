@@ -11,7 +11,7 @@ export const AdminWithdrawalReportColumn =
         header: ({ column }) => (
           <Button
             variant="ghost"
-            className="p-1"
+            className="p-1 w-40"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
             Date Start
@@ -20,21 +20,20 @@ export const AdminWithdrawalReportColumn =
         cell: ({ row }) => {
           // Get the original date
           const originalDate = new Date(row.original.interval_start);
-          
+
           // Add one day
           const newDate = new Date(originalDate);
           newDate.setDate(newDate.getDate() + 1);
-        
+
           // Format the new date as YYYY-MM-DD
           const formattedDate = newDate.toISOString().split("T")[0];
-        
+
           return (
             <div className="flex items-center gap-2 text-wrap">
               {formatDay(originalDate)}, {formattedDate}
             </div>
           );
         },
-        
       },
       {
         accessorKey: "total_admin_approvals",
@@ -122,7 +121,7 @@ export const AdminWithdrawalReportColumn =
         header: ({ column }) => (
           <Button
             variant="ghost"
-            className="p-1"
+            className="p-1 w-40"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
             Date End

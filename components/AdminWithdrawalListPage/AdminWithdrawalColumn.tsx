@@ -163,7 +163,11 @@ export const AdminWithdrawalHistoryColumn = (
           "alliance_withdrawal_request_status"
         ) as string;
         const color = statusColorMap[status.toUpperCase()] || "gray"; // Default to gray if status is undefined
-        return <Badge className={`${color}`}>{status}</Badge>;
+        return (
+          <div className="flex justify-center items-center">
+            <Badge className={`${color}`}>{status}</Badge>
+          </div>
+        );
       },
     },
 
@@ -196,7 +200,7 @@ export const AdminWithdrawalHistoryColumn = (
       header: ({ column }) => (
         <Button
           variant="ghost"
-          className="p-1"
+          className="p-1 text-center"
           onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
           Bank Account <ArrowUpDown />
@@ -210,7 +214,6 @@ export const AdminWithdrawalHistoryColumn = (
     },
     {
       accessorKey: "alliance_withdrawal_request_bank_name",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -221,7 +224,7 @@ export const AdminWithdrawalHistoryColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap w-xs">
           {row.getValue("alliance_withdrawal_request_bank_name")}
         </div>
       ),
@@ -258,7 +261,7 @@ export const AdminWithdrawalHistoryColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap w-40">
           {formatDateToYYYYMMDD(
             row.getValue("alliance_withdrawal_request_date")
           )}
@@ -310,7 +313,7 @@ export const AdminWithdrawalHistoryColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap w-40">
           {row.getValue("alliance_withdrawal_request_date_updated")
             ? formatDateToYYYYMMDD(
                 row.getValue("alliance_withdrawal_request_date_updated")
@@ -334,7 +337,9 @@ export const AdminWithdrawalHistoryColumn = (
         return rejectionNote ? (
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="destructive">View Rejection Note</Button>
+              <Button className="w-full rounded-md" variant="destructive">
+                View Rejection Note
+              </Button>
             </DialogTrigger>
             <DialogContent type="table">
               <DialogHeader>

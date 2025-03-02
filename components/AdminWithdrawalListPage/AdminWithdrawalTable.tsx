@@ -16,14 +16,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { format } from "date-fns";
-import {
-  CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  RefreshCw,
-  Search,
-} from "lucide-react";
+import { CalendarIcon, Loader2, RefreshCw, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
@@ -39,9 +32,7 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { Switch } from "../ui/switch";
-import TableLoading from "../ui/tableLoading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Textarea } from "../ui/textarea";
 import { AdminWithdrawalHistoryColumn } from "./AdminWithdrawalColumn";
@@ -432,6 +423,7 @@ const AdminWithdrawalHistoryTable = ({
               type="submit"
               disabled={isFetchingList}
               size="sm"
+              className="h-12 rounded-md"
               variant="card"
             >
               <Search />
@@ -441,6 +433,7 @@ const AdminWithdrawalHistoryTable = ({
               onClick={handleRefresh}
               disabled={isFetchingList}
               size="sm"
+              className="h-12 rounded-md"
             >
               <RefreshCw />
               Refresh
@@ -457,30 +450,6 @@ const AdminWithdrawalHistoryTable = ({
 
           {showFilters && (
             <div className="flex flex-wrap gap-2 items-center rounded-md ">
-              {/* <Controller
-                name="userFilter"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={(value) =>
-                      field.onChange(value === field.value ? "" : value)
-                    }
-                    value={field.value || ""}
-                  >
-                    <SelectTrigger className="w-full sm:w-auto">
-                      <SelectValue placeholder="Requestor" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {userOptions.map((opt) => (
-                        <SelectItem key={opt.user_id} value={opt.user_id}>
-                          {opt.user_username}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              /> */}
-
               <Controller
                 name="dateFilter.start"
                 control={control}
@@ -489,7 +458,7 @@ const AdminWithdrawalHistoryTable = ({
                     <PopoverTrigger asChild>
                       <Button
                         variant="card"
-                        className="font-normal justify-start"
+                        className="font-normal justify-start h-12 rounded-md"
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value
@@ -515,138 +484,67 @@ const AdminWithdrawalHistoryTable = ({
 
               {/* End Date Picker */}
 
-              <Button variant="card" onClick={fetchRequest}>
+              <Button
+                variant="card"
+                onClick={fetchRequest}
+                className="h-12 rounded-md"
+              >
                 Submit
               </Button>
             </div>
           )}
         </form>
       </div>
-      <ScrollArea className="w-full overflow-x-auto ">
-        {isFetchingList && <TableLoading />}
 
-        <Tabs defaultValue="PENDING" onValueChange={handleTabChange}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="PENDING">
-              Pending ({requestData?.data?.["PENDING"]?.count || 0})
-            </TabsTrigger>
-            <TabsTrigger value="APPROVED">
-              Approved ({requestData?.data?.["APPROVED"]?.count || 0})
-            </TabsTrigger>
-            <TabsTrigger value="REJECTED">
-              Rejected ({requestData?.data?.["REJECTED"]?.count || 0})
-            </TabsTrigger>
-          </TabsList>
+      <Tabs defaultValue="PENDING" onValueChange={handleTabChange}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="PENDING">
+            Pending ({requestData?.data?.["PENDING"]?.count || 0})
+          </TabsTrigger>
+          <TabsTrigger value="APPROVED">
+            Approved ({requestData?.data?.["APPROVED"]?.count || 0})
+          </TabsTrigger>
+          <TabsTrigger value="REJECTED">
+            Rejected ({requestData?.data?.["REJECTED"]?.count || 0})
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="PENDING">
-            <AdminWithdrawalTabs
-              table={table}
-              columns={columns}
-              activePage={activePage}
-              totalCount={requestData?.data?.["PENDING"]?.count || 0}
-            />
-          </TabsContent>
+        <TabsContent value="PENDING">
+          <AdminWithdrawalTabs
+            table={table}
+            columns={columns}
+            activePage={activePage}
+            totalCount={requestData?.data?.["PENDING"]?.count || 0}
+            setActivePage={setActivePage}
+            pageCount={pageCount}
+            isFetchingList={isFetchingList}
+          />
+        </TabsContent>
 
-          <TabsContent value="APPROVED">
-            <AdminWithdrawalTabs
-              table={table}
-              columns={columns}
-              activePage={activePage}
-              totalCount={requestData?.data?.["APPROVED"]?.count || 0}
-            />
-          </TabsContent>
+        <TabsContent value="APPROVED">
+          <AdminWithdrawalTabs
+            table={table}
+            columns={columns}
+            activePage={activePage}
+            totalCount={requestData?.data?.["APPROVED"]?.count || 0}
+            setActivePage={setActivePage}
+            pageCount={pageCount}
+            isFetchingList={isFetchingList}
+          />
+        </TabsContent>
 
-          <TabsContent value="REJECTED">
-            <AdminWithdrawalTabs
-              table={table}
-              columns={columns}
-              activePage={activePage}
-              totalCount={requestData?.data?.["REJECTED"]?.count || 0}
-            />
-          </TabsContent>
-        </Tabs>
-        <ScrollBar
-          className="bg-blue-700 dark:bg-blue-700"
-          orientation="horizontal"
-        />
-      </ScrollArea>
-
-      <div className="flex items-center justify-end gap-x-4 py-4">
-        {activePage > 1 && (
-          <Button
-            variant="card"
-            size="sm"
-            onClick={() => setActivePage((prev) => Math.max(prev - 1, 1))}
-            disabled={activePage <= 1}
-          >
-            <ChevronLeft />
-          </Button>
-        )}
-
-        <div className="flex space-x-2">
-          {(() => {
-            const maxVisiblePages = 3;
-            const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
-            let displayedPages = [];
-
-            if (pageCount <= maxVisiblePages) {
-              // Show all pages if there are 3 or fewer
-              displayedPages = pages;
-            } else {
-              if (activePage <= 2) {
-                // Show the first 3 pages and the last page
-                displayedPages = [1, 2, 3, "...", pageCount];
-              } else if (activePage >= pageCount - 1) {
-                // Show the first page and the last 3 pages
-                displayedPages = [
-                  1,
-                  "...",
-                  pageCount - 2,
-                  pageCount - 1,
-                  pageCount,
-                ];
-              } else {
-                displayedPages = [
-                  activePage - 1,
-                  activePage,
-                  activePage + 1,
-                  "...",
-                  pageCount,
-                ];
-              }
-            }
-
-            return displayedPages.map((page, index) =>
-              typeof page === "number" ? (
-                <Button
-                  key={page}
-                  variant={activePage === page ? "card" : "outline"}
-                  size="sm"
-                  onClick={() => setActivePage(page)}
-                >
-                  {page}
-                </Button>
-              ) : (
-                <span key={`ellipsis-${index}`} className="px-2 py-1">
-                  {page}
-                </span>
-              )
-            );
-          })()}
-        </div>
-        {activePage < pageCount && (
-          <Button
-            variant="card"
-            size="sm"
-            onClick={() =>
-              setActivePage((prev) => Math.min(prev + 1, pageCount))
-            }
-            disabled={activePage >= pageCount}
-          >
-            <ChevronRight />
-          </Button>
-        )}
-      </div>
+        <TabsContent value="REJECTED">
+          <AdminWithdrawalTabs
+            table={table}
+            columns={columns}
+            activePage={activePage}
+            totalCount={requestData?.data?.["REJECTED"]?.count || 0}
+            setActivePage={setActivePage}
+            pageCount={pageCount}
+            isFetchingList={isFetchingList}
+          />
+        </TabsContent>
+      </Tabs>
     </Card>
   );
 };

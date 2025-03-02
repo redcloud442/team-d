@@ -176,7 +176,6 @@ export const WithdrawalColumn = (
     },
     {
       accessorKey: "alliance_withdrawal_request_type",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -206,14 +205,13 @@ export const WithdrawalColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-center w-xs">
           {row.getValue("alliance_withdrawal_request_account")}
         </div>
       ),
     },
     {
       accessorKey: "alliance_withdrawal_request_bank_name",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -224,7 +222,7 @@ export const WithdrawalColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-center w-xs">
           {row.getValue("alliance_withdrawal_request_bank_name")}
         </div>
       ),
@@ -259,7 +257,7 @@ export const WithdrawalColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-center w-40">
           {formatDateToYYYYMMDD(
             row.getValue("alliance_withdrawal_request_date")
           )}
@@ -279,7 +277,7 @@ export const WithdrawalColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-center w-40">
           {row.getValue("alliance_withdrawal_request_date_updated")
             ? formatDateToYYYYMMDD(
                 row.getValue("alliance_withdrawal_request_date_updated")

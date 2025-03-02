@@ -14,7 +14,7 @@ import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
-import { ColumnDef } from "@tanstack/react-table";
+import { Column, ColumnDef, Row } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
@@ -28,7 +28,8 @@ const statusColorMap: Record<string, string> = {
 
 export const useAdminTopUpApprovalColumns = (
   reset: () => void,
-  setRequestData: Dispatch<SetStateAction<AdminTopUpRequestData | null>>
+  setRequestData: Dispatch<SetStateAction<AdminTopUpRequestData | null>>,
+  status: string
 ) => {
   const { toast } = useToast();
   const router = useRouter();
@@ -39,6 +40,7 @@ export const useAdminTopUpApprovalColumns = (
     requestId: "",
     status: "",
   });
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleUpdateStatus = async (
     status: string,
@@ -166,13 +168,16 @@ export const useAdminTopUpApprovalColumns = (
       cell: ({ row }) => {
         const status = row.getValue("alliance_top_up_request_status") as string;
         const color = statusColorMap[status.toUpperCase()] || "gray";
-        return <Badge className={`${color} text-white`}>{status}</Badge>;
+        return (
+          <div className="flex justify-center items-center">
+            <Badge className={`${color} text-white`}>{status}</Badge>
+          </div>
+        );
       },
     },
 
     {
       accessorKey: "alliance_top_up_request_amount",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -194,8 +199,24 @@ export const useAdminTopUpApprovalColumns = (
       },
     },
     {
+      accessorKey: "alliance_top_up_request_type",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Bank Account <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-wrap">
+          {row.getValue("alliance_top_up_request_type")}
+        </div>
+      ),
+    },
+    {
       accessorKey: "alliance_top_up_request_name",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -206,7 +227,7 @@ export const useAdminTopUpApprovalColumns = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_name")}
         </div>
       ),
@@ -242,50 +263,66 @@ export const useAdminTopUpApprovalColumns = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-center w-40">
           {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))},{" "}
           {formatTime(row.getValue("alliance_top_up_request_date"))}
         </div>
       ),
     },
-    {
-      accessorKey: "approver_username",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="p-1"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
-        >
-          Approver <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("approver_username")}</div>
-      ),
-    },
-    {
-      accessorKey: "alliance_top_up_request_date_updated",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="p-1"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
-        >
-          Date Updated <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => (
-        <div className="text-wrap">
-          {row.getValue("alliance_top_up_request_date_updated")
-            ? formatDateToYYYYMMDD(
-                row.getValue("alliance_top_up_request_date_updated")
-              ) +
-              " " +
-              formatTime(row.getValue("alliance_top_up_request_date_updated"))
-            : ""}
-        </div>
-      ),
-    },
+    ...(status !== "PENDING"
+      ? [
+          {
+            accessorKey: "approver_username",
+            header: ({ column }: { column: Column<TopUpRequestData> }) => (
+              <Button
+                variant="ghost"
+                className="p-1"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "desc")
+                }
+              >
+                Approver <ArrowUpDown />
+              </Button>
+            ),
+            cell: ({ row }: { row: Row<TopUpRequestData> }) => (
+              <div className="text-wrap">
+                {row.getValue("approver_username")}
+              </div>
+            ),
+          },
+        ]
+      : []),
+    ...(status !== "PENDING"
+      ? [
+          {
+            accessorKey: "alliance_top_up_request_date_updated",
+            header: ({ column }: { column: Column<TopUpRequestData> }) => (
+              <Button
+                variant="ghost"
+                className="p-1"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "asc")
+                }
+              >
+                Date Updated <ArrowUpDown />
+              </Button>
+            ),
+            cell: ({ row }: { row: Row<TopUpRequestData> }) => (
+              <div className="text-center w-40">
+                {row.getValue("alliance_top_up_request_date_updated")
+                  ? formatDateToYYYYMMDD(
+                      row.getValue("alliance_top_up_request_date_updated")
+                    ) +
+                    "," +
+                    formatTime(
+                      row.getValue("alliance_top_up_request_date_updated")
+                    )
+                  : ""}
+              </div>
+            ),
+          },
+        ]
+      : []),
     {
       accessorKey: "alliance_top_up_request_attachment",
       header: () => <div>Attachment</div>,
@@ -295,9 +332,11 @@ export const useAdminTopUpApprovalColumns = (
         ) as string;
 
         return (
-          <Dialog>
+          <Dialog open={modalOpen} onOpenChange={setModalOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline">View Attachment</Button>
+              <Button className="rounded-md w-full" variant="outline">
+                View Attachment
+              </Button>
             </DialogTrigger>
             <DialogContent type="table">
               <DialogHeader>
@@ -319,40 +358,44 @@ export const useAdminTopUpApprovalColumns = (
         );
       },
     },
-    {
-      accessorKey: "alliance_top_up_request_reject_note",
+    ...(status !== "PENDING"
+      ? [
+          {
+            accessorKey: "alliance_top_up_request_reject_note",
+            header: () => <div>Rejection Note</div>,
+            cell: ({ row }: { row: Row<TopUpRequestData> }) => {
+              const rejectionNote = row.getValue(
+                "alliance_top_up_request_reject_note"
+              ) as string;
 
-      header: () => <div>Rejection Note</div>,
-      cell: ({ row }) => {
-        const rejectionNote = row.getValue(
-          "alliance_top_up_request_reject_note"
-        ) as string;
-
-        return rejectionNote ? (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="destructive">View Rejection Note</Button>
-            </DialogTrigger>
-            <DialogContent type="table">
-              <DialogHeader>
-                <DialogTitle>Attachment</DialogTitle>
-              </DialogHeader>
-              <div className="flex justify-center items-center">
-                <Textarea value={rejectionNote} readOnly />
-              </div>
-              <DialogClose asChild>
-                <Button variant="secondary">Close</Button>
-              </DialogClose>
-            </DialogContent>
-          </Dialog>
-        ) : null;
-      },
-    },
+              return rejectionNote ? (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="rounded-md w-full" variant="destructive">
+                      View Rejection Note
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent type="table">
+                    <DialogHeader>
+                      <DialogTitle>Attachment</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex justify-center items-center">
+                      <Textarea value={rejectionNote} readOnly />
+                    </div>
+                    <DialogClose asChild>
+                      <Button variant="secondary">Close</Button>
+                    </DialogClose>
+                  </DialogContent>
+                </Dialog>
+              ) : null;
+            },
+          },
+        ]
+      : []),
     {
       header: "Actions",
       cell: ({ row }) => {
         const data = row.original;
-
         return (
           <>
             {data.alliance_top_up_request_status === "PENDING" && (

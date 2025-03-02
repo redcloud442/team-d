@@ -12,32 +12,35 @@ export const leaderBoardColumn = (
   return [
     {
       id: "Rank",
-      header: () => <Button variant="ghost">Rank</Button>,
+      header: () => (
+        <Button className="w-fit" variant="ghost">
+          Rank
+        </Button>
+      ),
       cell: ({ row }) => {
         const rank = row.index + 1 + (pageIndex - 1) * pageSize;
 
-        switch (rank) {
-          case 1:
-            return (
+        return (
+          <div className="flex justify-center items-center">
+            {" "}
+            {/* Flex container for centering */}
+            {rank === 1 ? (
               <Badge className="bg-green-500 dark:bg-green-600 text-white dark:text-white">
                 Top 1
               </Badge>
-            );
-          case 2:
-            return (
+            ) : rank === 2 ? (
               <Badge className="bg-green-500 dark:bg-green-600 text-white dark:text-white">
                 Top 2
               </Badge>
-            );
-          case 3:
-            return (
+            ) : rank === 3 ? (
               <Badge className="bg-green-500 dark:bg-green-600 text-white dark:text-white">
                 Top 3
               </Badge>
-            );
-          default:
-            return <Badge className="bg-gray-500">Rank {rank}</Badge>;
-        }
+            ) : (
+              <Badge className="bg-gray-500">Rank {rank}</Badge>
+            )}
+          </div>
+        );
       },
     },
     {

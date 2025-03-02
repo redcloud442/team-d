@@ -134,7 +134,6 @@ export const AdminUsersColumn = (
     },
     {
       accessorKey: "alliance_member_role",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -144,12 +143,13 @@ export const AdminUsersColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("alliance_member_role")}</div>
+        <div className="text-center">
+          {row.getValue("alliance_member_role")}
+        </div>
       ),
     },
     {
       accessorKey: "user_first_name",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -188,14 +188,13 @@ export const AdminUsersColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-center">
           {formatDateToYYYYMMDD(row.getValue("user_date_created"))}
         </div>
       ),
     },
     {
       accessorKey: "alliance_member_restricted",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -205,7 +204,7 @@ export const AdminUsersColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-center">
           {row.getValue("alliance_member_restricted") ? "YES" : "NO"}
         </div>
       ),
@@ -213,7 +212,6 @@ export const AdminUsersColumn = (
 
     {
       accessorKey: "alliance_member_is_active",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -226,7 +224,7 @@ export const AdminUsersColumn = (
         const isActive = row.getValue("alliance_member_is_active");
         return (
           <div
-            className={`${isActive ? "text-green-500" : "text-red-500"} text-wrap`}
+            className={`${isActive ? "text-green-500" : "text-red-500"} text-center`}
           >
             {isActive ? "YES" : "NO"}
           </div>

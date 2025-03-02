@@ -200,7 +200,7 @@ const AppSidebar = ({ userData, teamMemberProfile }: Props) => {
                   className={`flex cursor-pointer items-center px-4 py-2 rounded-md ${
                     isActive(subItem.url)
                       ? "bg-blue-50 text-blue-500 font-semibold"
-                      : "hover:bg-gray-100 text-white-700"
+                      : "hover:bg-gray-700 text-white-700"
                   }`}
                 >
                   <subItem.icon className="w-4 h-4" />

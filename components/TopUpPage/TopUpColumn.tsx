@@ -5,7 +5,7 @@ import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
-import { ColumnDef } from "@tanstack/react-table";
+import { Column, ColumnDef, Row } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Badge } from "../ui/badge";
@@ -27,7 +27,8 @@ const statusColorMap: Record<string, string> = {
 
 export const TopUpColumn = (
   setRequestData: Dispatch<SetStateAction<AdminTopUpRequestData | null>>,
-  reset: () => void
+  reset: () => void,
+  status: string
 ) => {
   const { toast } = useToast();
   const supabaseClient = createClientSide();
@@ -38,6 +39,7 @@ export const TopUpColumn = (
     status: "",
     amount: 0,
   });
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleUpdateStatus = async (
     status: string,
@@ -142,7 +144,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap p-0">{row.getValue("user_username")}</div>
+        <div className="text-wrap">{row.getValue("user_username")}</div>
       ),
     },
     {
@@ -160,7 +162,11 @@ export const TopUpColumn = (
       cell: ({ row }) => {
         const status = row.getValue("alliance_top_up_request_status") as string;
         const color = statusColorMap[status.toUpperCase()] || "gray"; // Default to gray if status is undefined
-        return <Badge className={`${color} text-wrap`}>{status}</Badge>;
+        return (
+          <div className="flex justify-center items-center">
+            <Badge className={`${color} text-wrap`}>{status}</Badge>
+          </div>
+        );
       },
     },
 
@@ -183,19 +189,18 @@ export const TopUpColumn = (
           style: "currency",
           currency: "PHP",
         }).format(amount);
-        return <div className="font-medium text-wrap">{formatted}</div>;
+        return <div className="font-medium text-center">{formatted}</div>;
       },
     },
     {
       accessorKey: "alliance_top_up_request_type",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
           className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Bank Name <ArrowUpDown />
+          Bank Account <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
@@ -206,14 +211,13 @@ export const TopUpColumn = (
     },
     {
       accessorKey: "alliance_top_up_request_name",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
           className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Name <ArrowUpDown />
+          Account Name <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
@@ -241,7 +245,6 @@ export const TopUpColumn = (
     },
     {
       accessorKey: "alliance_top_up_request_date",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -252,36 +255,44 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-wrap flex justify-center items-center">
           {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))},{" "}
           {formatTime(row.getValue("alliance_top_up_request_date"))}
         </div>
       ),
     },
-    {
-      accessorKey: "alliance_top_up_request_date_updated",
+    ...(status !== "PENDING"
+      ? [
+          {
+            accessorKey: "alliance_top_up_request_date_updated",
+            header: ({ column }: { column: Column<TopUpRequestData> }) => (
+              <Button
+                variant="ghost"
+                className="p-1"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "asc")
+                }
+              >
+                Date Updated <ArrowUpDown />
+              </Button>
+            ),
+            cell: ({ row }: { row: Row<TopUpRequestData> }) => (
+              <div className="text-wrap flex justify-center items-center">
+                {row.getValue("alliance_top_up_request_date_updated")
+                  ? formatDateToYYYYMMDD(
+                      row.getValue("alliance_top_up_request_date_updated")
+                    ) +
+                    "," +
+                    formatTime(
+                      row.getValue("alliance_top_up_request_date_updated")
+                    )
+                  : ""}
+              </div>
+            ),
+          },
+        ]
+      : []),
 
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="p-1"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Date Updated <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => (
-        <div className="text-wrap">
-          {row.getValue("alliance_top_up_request_date_updated")
-            ? formatDateToYYYYMMDD(
-                row.getValue("alliance_top_up_request_date_updated")
-              ) +
-              "," +
-              formatTime(row.getValue("alliance_top_up_request_date_updated"))
-            : ""}
-        </div>
-      ),
-    },
     {
       accessorKey: "alliance_top_up_request_attachment",
       header: () => <div>Attachment</div>,
@@ -291,9 +302,11 @@ export const TopUpColumn = (
         ) as string;
 
         return (
-          <Dialog>
+          <Dialog open={modalOpen} onOpenChange={setModalOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline">View Attachment</Button>
+              <Button className="rounded-md w-full" variant="outline">
+                View Attachment
+              </Button>
             </DialogTrigger>
             <DialogContent type="table">
               <DialogHeader>
@@ -315,35 +328,41 @@ export const TopUpColumn = (
         );
       },
     },
-    {
-      accessorKey: "alliance_top_up_request_reject_note",
+    ...(status !== "PENDING"
+      ? [
+          {
+            accessorKey: "alliance_top_up_request_reject_note",
+            header: () => <div>Rejection Note</div>,
+            cell: ({ row }: { row: Row<TopUpRequestData> }) => {
+              const rejectionNote = row.getValue(
+                "alliance_top_up_request_reject_note"
+              ) as string;
 
-      header: () => <div>Rejection Note</div>,
-      cell: ({ row }) => {
-        const rejectionNote = row.getValue(
-          "alliance_top_up_request_reject_note"
-        ) as string;
+              return rejectionNote ? (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="w-full rounded-md" variant="destructive">
+                      View Rejection Note
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent type="table">
+                    <DialogHeader>
+                      <DialogTitle>Attachment</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex justify-center items-center">
+                      <Textarea value={rejectionNote} readOnly />
+                    </div>
+                    <DialogClose asChild>
+                      <Button variant="secondary">Close</Button>
+                    </DialogClose>
+                  </DialogContent>
+                </Dialog>
+              ) : null;
+            },
+          },
+        ]
+      : []),
 
-        return rejectionNote ? (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="destructive">View Rejection Note</Button>
-            </DialogTrigger>
-            <DialogContent type="table">
-              <DialogHeader>
-                <DialogTitle>Rejection Note</DialogTitle>
-              </DialogHeader>
-              <div className="flex justify-center items-center">
-                <Textarea value={rejectionNote} readOnly />
-              </div>
-              <DialogClose asChild>
-                <Button variant="secondary">Close</Button>
-              </DialogClose>
-            </DialogContent>
-          </Dialog>
-        ) : null;
-      },
-    },
     {
       header: "Actions",
       cell: ({ row }) => {
