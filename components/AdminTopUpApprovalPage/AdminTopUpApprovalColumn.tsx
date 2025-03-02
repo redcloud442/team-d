@@ -40,6 +40,7 @@ export const useAdminTopUpApprovalColumns = (
     requestId: "",
     status: "",
   });
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleUpdateStatus = async (
     status: string,
@@ -331,7 +332,7 @@ export const useAdminTopUpApprovalColumns = (
         ) as string;
 
         return (
-          <Dialog>
+          <Dialog open={modalOpen} onOpenChange={setModalOpen}>
             <DialogTrigger asChild>
               <Button className="rounded-md w-full" variant="outline">
                 View Attachment
