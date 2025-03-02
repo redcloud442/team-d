@@ -98,7 +98,7 @@ const AvailPackagePage = ({
           (selectedPackage?.packages_days ?? 0) * 24 * 60 * 60 * 1000
       );
 
-      const response = await createPackageConnection({
+      await createPackageConnection({
         packageData: {
           amount: Number(result.amount),
           packageId: selectedPackage?.package_id || "",
@@ -183,6 +183,18 @@ const AvailPackagePage = ({
         ],
         count: 1,
       });
+
+      if (Number(amount) % 5000 === 0) {
+        const count = Math.floor(Number(amount) / 5000) * 2;
+        setDailyTask({
+          ...dailyTask,
+          wheelLog: {
+            ...dailyTask.wheelLog,
+            alliance_wheel_spin_count:
+              dailyTask.wheelLog.alliance_wheel_spin_count + count,
+          },
+        });
+      }
 
       setSelectedPackage(null);
       setOpen(false);

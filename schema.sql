@@ -2961,15 +2961,15 @@ BEGIN
   AND package_ally_bounty_log_date_created >= last_updated AND alliance_referral_date >= last_updated;
 
   IF (referral_count >= 1 AND (SELECT three_referrals FROM alliance_schema.alliance_wheel_table WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id) = FALSE) THEN
-    new_spin_count := 1;
+    new_spin_count := 2;
   ELSIF (referral_count >= 2 AND (SELECT ten_referrals FROM alliance_schema.alliance_wheel_table WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id) = FALSE) THEN
-    new_spin_count := 3;
-  ELSIF (referral_count >= 3 AND (SELECT twenty_five_referrals FROM alliance_schema.alliance_wheel_table WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id) = FALSE) THEN
     new_spin_count := 5;
+  ELSIF (referral_count >= 3 AND (SELECT twenty_five_referrals FROM alliance_schema.alliance_wheel_table WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id) = FALSE) THEN
+    new_spin_count := 15;
   ELSIF (referral_count >= 4 AND (SELECT fifty_referrals FROM alliance_schema.alliance_wheel_table WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id) = FALSE) THEN
-    new_spin_count := 10;
+    new_spin_count := 35;
   ELSIF (referral_count >= 5 AND (SELECT one_hundred_referrals FROM alliance_schema.alliance_wheel_table WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id) = FALSE) THEN
-    new_spin_count := 20;
+    new_spin_count := 50;
   END IF;
 
   INSERT INTO alliance_schema.alliance_wheel_table (
@@ -3033,6 +3033,119 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE TRIGGER update_daily_task_with_bounty
+AFTER INSERT ON packages_schema.package_ally_bounty_log
+FOR EACH ROW EXECUTE FUNCTION update_daily_task_with_bounty();
+
+
+
+CREATE OR REPLACE FUNCTION update_daily_task_with_bounty()
+RETURNS TRIGGER AS $$
+DECLARE
+  referral_count INT;
+  new_spin_count INT := 0;
+  last_updated TIMESTAMP;
+  wheel_data RECORD;
+BEGIN
+  -- Get the latest wheel data for the member
+  SELECT * INTO wheel_data 
+  FROM alliance_schema.alliance_wheel_table 
+  WHERE alliance_wheel_member_id = NEW.package_ally_bounty_member_id
+  ORDER BY alliance_wheel_date DESC LIMIT 1;
+
+  -- Handle case where no previous record exists
+  last_updated := COALESCE(wheel_data.alliance_wheel_date_updated, wheel_data.alliance_wheel_date, NOW());
+
+  -- Get the count of distinct referrals
+  SELECT COUNT(DISTINCT package_ally_bounty_from) INTO referral_count
+  FROM packages_schema.package_ally_bounty_log
+  INNER JOIN alliance_schema.alliance_referral_table 
+      ON alliance_referral_member_id = package_ally_bounty_from
+  WHERE package_ally_bounty_member_id = NEW.package_ally_bounty_member_id
+  AND package_ally_bounty_log_date_created >= last_updated 
+  AND alliance_referral_date >= last_updated;
+
+  -- Determine spin count based on referral conditions
+  IF (referral_count >= 3 AND COALESCE(wheel_data.three_referrals, FALSE) = FALSE) THEN
+    new_spin_count := 1;
+  ELSIF (referral_count >= 10 AND COALESCE(wheel_data.ten_referrals, FALSE) = FALSE) THEN
+    new_spin_count := 3;
+  ELSIF (referral_count >= 25 AND COALESCE(wheel_data.twenty_five_referrals, FALSE) = FALSE) THEN
+    new_spin_count := 5;
+  ELSIF (referral_count >= 50 AND COALESCE(wheel_data.fifty_referrals, FALSE) = FALSE) THEN
+    new_spin_count := 10;
+  ELSIF (referral_count >= 100 AND COALESCE(wheel_data.one_hundred_referrals, FALSE) = FALSE) THEN
+    new_spin_count := 20;
+  END IF;
+
+  -- Insert or Update the wheel data
+  INSERT INTO alliance_schema.alliance_wheel_table (
+    alliance_wheel_member_id, 
+    alliance_wheel_date,
+    three_referrals,
+    alliance_wheel_date_updated
+  )
+  VALUES (
+    NEW.package_ally_bounty_member_id,
+    (DATE_TRUNC('day', NOW() AT TIME ZONE 'Asia/Manila') - INTERVAL '1 day') AT TIME ZONE 'UTC' + INTERVAL '16 hours',
+    (referral_count >= 1),
+     NOW()
+  )
+  ON CONFLICT (alliance_wheel_member_id, alliance_wheel_date)
+  DO UPDATE SET
+    three_referrals = CASE 
+      WHEN alliance_wheel_table.three_referrals = FALSE 
+           AND alliance_wheel_table.ten_referrals = FALSE 
+           AND referral_count >= 3 THEN TRUE 
+      ELSE alliance_wheel_table.three_referrals END,
+
+    ten_referrals = CASE 
+      WHEN alliance_wheel_table.ten_referrals = FALSE 
+           AND alliance_wheel_table.three_referrals = TRUE
+           AND referral_count >= 10 THEN TRUE 
+      ELSE alliance_wheel_table.ten_referrals END,
+
+    twenty_five_referrals = CASE 
+      WHEN alliance_wheel_table.twenty_five_referrals = FALSE 
+           AND alliance_wheel_table.ten_referrals = TRUE 
+           AND referral_count >= 25 THEN TRUE 
+      ELSE alliance_wheel_table.twenty_five_referrals END,
+
+    fifty_referrals = CASE 
+      WHEN alliance_wheel_table.fifty_referrals = FALSE 
+           AND alliance_wheel_table.twenty_five_referrals = TRUE 
+           AND referral_count >= 50 THEN TRUE 
+      ELSE alliance_wheel_table.fifty_referrals END,
+
+    one_hundred_referrals = CASE 
+      WHEN alliance_wheel_table.one_hundred_referrals = FALSE 
+           AND alliance_wheel_table.fifty_referrals = TRUE 
+           AND referral_count >= 100 THEN TRUE 
+      ELSE alliance_wheel_table.one_hundred_referrals END,
+
+    -- ✅ Update `alliance_wheel_date_updated` ONLY IF any referral milestone is newly reached
+    alliance_wheel_date_updated = CASE 
+      WHEN 
+        (alliance_wheel_table.three_referrals = FALSE AND referral_count >= 3) OR
+        (alliance_wheel_table.ten_referrals = FALSE AND referral_count >= 10) OR
+        (alliance_wheel_table.twenty_five_referrals = FALSE AND referral_count >= 25) OR
+        (alliance_wheel_table.fifty_referrals = FALSE AND referral_count >= 50) OR
+        (alliance_wheel_table.one_hundred_referrals = FALSE AND referral_count >= 100)
+      THEN NOW()
+      ELSE alliance_wheel_table.alliance_wheel_date_updated
+    END;
+
+  -- Update the spin count log
+  INSERT INTO alliance_schema.alliance_wheel_log_table (alliance_wheel_member_id, alliance_wheel_spin_count)
+  VALUES (NEW.package_ally_bounty_member_id, new_spin_count)
+  ON CONFLICT (alliance_wheel_member_id) 
+  DO UPDATE SET alliance_wheel_spin_count = alliance_wheel_log_table.alliance_wheel_spin_count + EXCLUDED.alliance_wheel_spin_count;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ✅ Create the trigger to execute after insert
 CREATE OR REPLACE TRIGGER update_daily_task_with_bounty
 AFTER INSERT ON packages_schema.package_ally_bounty_log
 FOR EACH ROW EXECUTE FUNCTION update_daily_task_with_bounty();
