@@ -132,7 +132,7 @@ export const useMerchantColumn = (handleFetch: () => void) => {
               <Dialog>
                 <DialogTrigger asChild>
                   <Button className="rounded-md w-full" variant="outline">
-                    View
+                    View Attachment
                   </Button>
                 </DialogTrigger>
                 <DialogContent type="table">
@@ -166,7 +166,7 @@ export const useMerchantColumn = (handleFetch: () => void) => {
           <DropdownMenu>
             <>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
+                <Button variant="ghost" className="w-full">
                   <MoreHorizontal />
                 </Button>
               </DropdownMenuTrigger>
