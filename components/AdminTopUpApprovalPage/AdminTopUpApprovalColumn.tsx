@@ -14,7 +14,7 @@ import { updateTopUpStatus } from "@/services/TopUp/Admin";
 import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
-import { ColumnDef, Row } from "@tanstack/react-table";
+import { Column, ColumnDef, Row } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
@@ -265,44 +265,60 @@ export const useAdminTopUpApprovalColumns = (
         </div>
       ),
     },
-    {
-      accessorKey: "approver_username",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="p-1"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
-        >
-          Approver <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => (
-        <div className="text-wrap">{row.getValue("approver_username")}</div>
-      ),
-    },
-    {
-      accessorKey: "alliance_top_up_request_date_updated",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="p-1"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
-        >
-          Date Updated <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => (
-        <div className="text-wrap w-40">
-          {row.getValue("alliance_top_up_request_date_updated")
-            ? formatDateToYYYYMMDD(
-                row.getValue("alliance_top_up_request_date_updated")
-              ) +
-              " " +
-              formatTime(row.getValue("alliance_top_up_request_date_updated"))
-            : ""}
-        </div>
-      ),
-    },
+    ...(status !== "PENDING"
+      ? [
+          {
+            accessorKey: "approver_username",
+            header: ({ column }: { column: Column<TopUpRequestData> }) => (
+              <Button
+                variant="ghost"
+                className="p-1"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "desc")
+                }
+              >
+                Approver <ArrowUpDown />
+              </Button>
+            ),
+            cell: ({ row }: { row: Row<TopUpRequestData> }) => (
+              <div className="text-wrap">
+                {row.getValue("approver_username")}
+              </div>
+            ),
+          },
+        ]
+      : []),
+    ...(status !== "PENDING"
+      ? [
+          {
+            accessorKey: "alliance_top_up_request_date_updated",
+            header: ({ column }: { column: Column<TopUpRequestData> }) => (
+              <Button
+                variant="ghost"
+                className="p-1"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "asc")
+                }
+              >
+                Date Updated <ArrowUpDown />
+              </Button>
+            ),
+            cell: ({ row }: { row: Row<TopUpRequestData> }) => (
+              <div className="text-wrap w-40">
+                {row.getValue("alliance_top_up_request_date_updated")
+                  ? formatDateToYYYYMMDD(
+                      row.getValue("alliance_top_up_request_date_updated")
+                    ) +
+                    "," +
+                    formatTime(
+                      row.getValue("alliance_top_up_request_date_updated")
+                    )
+                  : ""}
+              </div>
+            ),
+          },
+        ]
+      : []),
     {
       accessorKey: "alliance_top_up_request_attachment",
       header: () => <div>Attachment</div>,
@@ -315,7 +331,7 @@ export const useAdminTopUpApprovalColumns = (
           <Dialog>
             <DialogTrigger asChild>
               <Button className="w-20 rounded-md" variant="outline">
-                View
+                View Attachment
               </Button>
             </DialogTrigger>
             <DialogContent type="table">
