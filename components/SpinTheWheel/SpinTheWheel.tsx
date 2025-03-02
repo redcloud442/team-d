@@ -35,6 +35,7 @@ type Props = {
 };
 
 export const SpinWheel = ({ prizes }: Props) => {
+  console.log(prizes);
   const [spinning, setSpinning] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [winSound, setWinSound] = useState<HTMLAudioElement | null>(null);
@@ -380,7 +381,7 @@ export const SpinWheel = ({ prizes }: Props) => {
                     transform: `rotate(40deg)`, // Rotate text vertically
                   }}
                 >
-                  ₱ {prizes[5].alliance_wheel_settings_label}
+                  {prizes[5].alliance_wheel_settings_label}
                 </div>
               </div>
 
