@@ -6,7 +6,7 @@ import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { merchant_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import {
@@ -74,13 +74,9 @@ export const useMerchantColumn = (handleFetch: () => void) => {
   const columns: ColumnDef<merchant_table>[] = [
     {
       accessorKey: "merchant_account_name",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="p-0"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Account Name <ArrowUpDown />
+      header: () => (
+        <Button variant="ghost" className="p-0">
+          Account Name
         </Button>
       ),
       cell: ({ row }) => (
@@ -89,13 +85,9 @@ export const useMerchantColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "merchant_account_number",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="p-0"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Account Number <ArrowUpDown />
+      header: () => (
+        <Button variant="ghost" className="p-0">
+          Account Number
         </Button>
       ),
       cell: ({ row }) => {
@@ -108,13 +100,9 @@ export const useMerchantColumn = (handleFetch: () => void) => {
     },
     {
       accessorKey: "merchant_account_type",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="p-0"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Account Type <ArrowUpDown />
+      header: () => (
+        <Button variant="ghost" className="p-0">
+          Account Type
         </Button>
       ),
       cell: ({ row }) => (
