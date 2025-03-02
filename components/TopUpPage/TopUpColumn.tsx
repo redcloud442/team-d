@@ -280,6 +280,41 @@ export const TopUpColumn = (
         </div>
       ),
     },
+    {
+      accessorKey: "alliance_top_up_request_attachment",
+      header: () => <div>Attachment</div>,
+      cell: ({ row }) => {
+        const attachmentUrl = row.getValue(
+          "alliance_top_up_request_attachment"
+        ) as string;
+
+        return (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="w-20 rounded-md" variant="outline">
+                View
+              </Button>
+            </DialogTrigger>
+            <DialogContent type="table">
+              <DialogHeader>
+                <DialogTitle>Attachment</DialogTitle>
+              </DialogHeader>
+              <div className="flex justify-center items-center">
+                <img
+                  key={attachmentUrl}
+                  src={attachmentUrl}
+                  alt="Attachment Preview"
+                  className="object-contain w-[600px] h-[600px]"
+                />
+              </div>
+              <DialogClose asChild>
+                <Button variant="secondary">Close</Button>
+              </DialogClose>
+            </DialogContent>
+          </Dialog>
+        );
+      },
+    },
     ...(status !== "PENDING"
       ? [
           {
@@ -314,7 +349,6 @@ export const TopUpColumn = (
       : []),
     {
       accessorKey: "alliance_top_up_request_reject_note",
-
       header: () => <div>Rejection Note</div>,
       cell: ({ row }) => {
         const rejectionNote = row.getValue(
