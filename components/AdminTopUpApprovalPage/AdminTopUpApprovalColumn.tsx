@@ -216,7 +216,6 @@ export const useAdminTopUpApprovalColumns = (
     },
     {
       accessorKey: "alliance_top_up_request_name",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -245,7 +244,7 @@ export const useAdminTopUpApprovalColumns = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_account")}
         </div>
       ),
@@ -362,7 +361,7 @@ export const useAdminTopUpApprovalColumns = (
       ? [
           {
             accessorKey: "alliance_top_up_request_reject_note",
-            header: () => <div className="w-24">Rejection Note</div>,
+            header: () => <div>Rejection Note</div>,
             cell: ({ row }: { row: Row<TopUpRequestData> }) => {
               const rejectionNote = row.getValue(
                 "alliance_top_up_request_reject_note"

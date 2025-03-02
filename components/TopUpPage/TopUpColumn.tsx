@@ -203,7 +203,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_type")}
         </div>
       ),
@@ -220,7 +220,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_name")}
         </div>
       ),
@@ -237,7 +237,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_account")}
         </div>
       ),
@@ -254,7 +254,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center w-40">
+        <div className="text-wrap flex justify-center items-center">
           {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))},{" "}
           {formatTime(row.getValue("alliance_top_up_request_date"))}
         </div>
@@ -276,7 +276,7 @@ export const TopUpColumn = (
               </Button>
             ),
             cell: ({ row }: { row: Row<TopUpRequestData> }) => (
-              <div className="text-wrap w-40">
+              <div className="text-wrap flex justify-center items-center">
                 {row.getValue("alliance_top_up_request_date_updated")
                   ? formatDateToYYYYMMDD(
                       row.getValue("alliance_top_up_request_date_updated")
@@ -331,7 +331,7 @@ export const TopUpColumn = (
       ? [
           {
             accessorKey: "alliance_top_up_request_reject_note",
-            header: () => <div className="w-24">Rejection Note</div>,
+            header: () => <div>Rejection Note</div>,
             cell: ({ row }: { row: Row<TopUpRequestData> }) => {
               const rejectionNote = row.getValue(
                 "alliance_top_up_request_reject_note"
@@ -340,7 +340,9 @@ export const TopUpColumn = (
               return rejectionNote ? (
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button variant="destructive">View Rejection Note</Button>
+                    <Button className="w-full rounded-md" variant="destructive">
+                      View Rejection Note
+                    </Button>
                   </DialogTrigger>
                   <DialogContent type="table">
                     <DialogHeader>

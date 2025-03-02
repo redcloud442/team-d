@@ -49,7 +49,7 @@ const ReusableTable = <T extends object>({
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="py-2 px-4 text-center text-sm font-medium text-zinc-600 border-b border-r dark:bg-zinc-800 border-white dark:text-zinc-300 dark:border-zinc-500"
+                    className="py-2 px-4 text-center text-md font-extrabold text-zinc-600 border-b border-r dark:bg-zinc-800 border-white dark:text-zinc-300 dark:border-zinc-500"
                   >
                     {header.isPlaceholder
                       ? null

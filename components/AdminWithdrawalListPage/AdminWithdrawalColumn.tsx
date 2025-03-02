@@ -163,7 +163,11 @@ export const AdminWithdrawalHistoryColumn = (
           "alliance_withdrawal_request_status"
         ) as string;
         const color = statusColorMap[status.toUpperCase()] || "gray"; // Default to gray if status is undefined
-        return <Badge className={`${color}`}>{status}</Badge>;
+        return (
+          <div className="flex justify-center items-center">
+            <Badge className={`${color}`}>{status}</Badge>
+          </div>
+        );
       },
     },
 
@@ -324,7 +328,7 @@ export const AdminWithdrawalHistoryColumn = (
     },
     {
       accessorKey: "alliance_withdrawal_request_reject_note",
-      header: () => <div className="w-24">Rejection Note</div>,
+      header: () => <div>Rejection Note</div>,
       cell: ({ row }) => {
         const rejectionNote = row.getValue(
           "alliance_withdrawal_request_reject_note"
@@ -333,7 +337,9 @@ export const AdminWithdrawalHistoryColumn = (
         return rejectionNote ? (
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="destructive">View Rejection Note</Button>
+              <Button className="w-full rounded-md" variant="destructive">
+                View Rejection Note
+              </Button>
             </DialogTrigger>
             <DialogContent type="table">
               <DialogHeader>

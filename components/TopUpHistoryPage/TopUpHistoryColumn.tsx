@@ -118,7 +118,9 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
         return rejectionNote ? (
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="destructive">View Rejection Note</Button>
+              <Button className="w-full rounded-md" variant="destructive">
+                View Rejection Note
+              </Button>
             </DialogTrigger>
             <DialogContent type="table">
               <DialogHeader>
