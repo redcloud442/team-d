@@ -143,7 +143,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap p-0">{row.getValue("user_username")}</div>
+        <div className="text-wrap">{row.getValue("user_username")}</div>
       ),
     },
     {
@@ -161,7 +161,11 @@ export const TopUpColumn = (
       cell: ({ row }) => {
         const status = row.getValue("alliance_top_up_request_status") as string;
         const color = statusColorMap[status.toUpperCase()] || "gray"; // Default to gray if status is undefined
-        return <Badge className={`${color} text-wrap`}>{status}</Badge>;
+        return (
+          <div className="flex justify-center items-center">
+            <Badge className={`${color} text-wrap`}>{status}</Badge>
+          </div>
+        );
       },
     },
 
@@ -184,7 +188,7 @@ export const TopUpColumn = (
           style: "currency",
           currency: "PHP",
         }).format(amount);
-        return <div className="font-medium text-wrap">{formatted}</div>;
+        return <div className="font-medium text-center">{formatted}</div>;
       },
     },
     {
@@ -199,7 +203,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-center">
           {row.getValue("alliance_top_up_request_type")}
         </div>
       ),
@@ -216,7 +220,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-center">
           {row.getValue("alliance_top_up_request_name")}
         </div>
       ),
@@ -233,7 +237,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-center">
           {row.getValue("alliance_top_up_request_account")}
         </div>
       ),
@@ -250,7 +254,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap w-40">
+        <div className="text-center w-40">
           {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))},{" "}
           {formatTime(row.getValue("alliance_top_up_request_date"))}
         </div>
@@ -299,7 +303,7 @@ export const TopUpColumn = (
         return (
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="rounded-md" variant="outline">
+              <Button className="rounded-md w-full" variant="outline">
                 View Attachment
               </Button>
             </DialogTrigger>

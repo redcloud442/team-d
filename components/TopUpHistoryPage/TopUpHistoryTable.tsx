@@ -130,17 +130,23 @@ const TopUpHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
             <Input
               {...register("referenceId")}
               placeholder="Filter reference id..."
-              className="max-w-sm p-2 border rounded"
+              className="max-w-sm p-2 border rounded h-12"
             />
             <Button
               type="submit"
               disabled={isFetchingList}
               size="sm"
               variant="outline"
+              className="h-12"
             >
               <Search />
             </Button>
-            <Button onClick={fetchRequest} disabled={isFetchingList} size="sm">
+            <Button
+              onClick={fetchRequest}
+              disabled={isFetchingList}
+              size="sm"
+              className="h-12"
+            >
               <RefreshCw />
               Refresh
             </Button>

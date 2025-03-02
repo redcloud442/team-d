@@ -167,7 +167,11 @@ export const useAdminTopUpApprovalColumns = (
       cell: ({ row }) => {
         const status = row.getValue("alliance_top_up_request_status") as string;
         const color = statusColorMap[status.toUpperCase()] || "gray";
-        return <Badge className={`${color} text-white`}>{status}</Badge>;
+        return (
+          <div className="flex justify-center items-center">
+            <Badge className={`${color} text-white`}>{status}</Badge>
+          </div>
+        );
       },
     },
 
@@ -205,7 +209,7 @@ export const useAdminTopUpApprovalColumns = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-center">
           {row.getValue("alliance_top_up_request_type")}
         </div>
       ),
@@ -223,7 +227,7 @@ export const useAdminTopUpApprovalColumns = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-center">
+        <div className="text-wrap">
           {row.getValue("alliance_top_up_request_name")}
         </div>
       ),
@@ -241,7 +245,7 @@ export const useAdminTopUpApprovalColumns = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap">
+        <div className="text-center">
           {row.getValue("alliance_top_up_request_account")}
         </div>
       ),
@@ -259,7 +263,7 @@ export const useAdminTopUpApprovalColumns = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap w-40">
+        <div className="text-center w-40">
           {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))},{" "}
           {formatTime(row.getValue("alliance_top_up_request_date"))}
         </div>
@@ -281,7 +285,7 @@ export const useAdminTopUpApprovalColumns = (
               </Button>
             ),
             cell: ({ row }: { row: Row<TopUpRequestData> }) => (
-              <div className="text-wrap">
+              <div className="text-center">
                 {row.getValue("approver_username")}
               </div>
             ),
@@ -304,7 +308,7 @@ export const useAdminTopUpApprovalColumns = (
               </Button>
             ),
             cell: ({ row }: { row: Row<TopUpRequestData> }) => (
-              <div className="text-wrap w-40">
+              <div className="text-center w-40">
                 {row.getValue("alliance_top_up_request_date_updated")
                   ? formatDateToYYYYMMDD(
                       row.getValue("alliance_top_up_request_date_updated")
@@ -330,7 +334,7 @@ export const useAdminTopUpApprovalColumns = (
         return (
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="rounded-md" variant="outline">
+              <Button className="rounded-md w-full" variant="outline">
                 View Attachment
               </Button>
             </DialogTrigger>
