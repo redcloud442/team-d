@@ -39,7 +39,6 @@ export const TopUpColumn = (
     status: "",
     amount: 0,
   });
-  const [modalOpen, setModalOpen] = useState(false);
 
   const handleUpdateStatus = async (
     status: string,
@@ -302,7 +301,7 @@ export const TopUpColumn = (
         ) as string;
 
         return (
-          <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+          <Dialog>
             <DialogTrigger asChild>
               <Button className="rounded-md w-full" variant="outline">
                 View Attachment
