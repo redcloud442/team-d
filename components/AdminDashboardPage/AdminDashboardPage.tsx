@@ -16,6 +16,7 @@ import {
 import { format } from "date-fns";
 import {
   CalendarIcon,
+  CoinsIcon,
   Package2Icon,
   PersonStandingIcon,
   PhilippinePeso,
@@ -352,6 +353,47 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
               <>
                 <PersonStandingIcon />
                 {adminDashboard?.totalActivatedUser}
+              </>
+            }
+            description=""
+            descriptionClassName="text-sm text-gray-500"
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-1 xl:grid-cols-3 gap-6">
+          <CardAmountAdmin
+            title="Total Spins Purchased"
+            value={
+              <>
+                <CoinsIcon />
+                {adminDashboard?.totalSpinPurchaseCount}
+              </>
+            }
+            description=""
+            descriptionClassName="text-sm text-gray-500"
+          />
+          <CardAmountAdmin
+            title="Spin Purchased Amount"
+            value={
+              <>
+                <CoinsIcon />
+                {adminDashboard?.totalSpinPurchase}
+              </>
+            }
+            description=""
+            descriptionClassName="text-sm text-gray-500"
+          />
+          <CardAmountAdmin
+            title="Total Winning Withdrawal"
+            value={
+              <>
+                <PhilippinePeso />
+                {adminDashboard?.totalWinningWithdrawal.toLocaleString(
+                  "en-US",
+                  {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }
+                )}
               </>
             }
             description=""

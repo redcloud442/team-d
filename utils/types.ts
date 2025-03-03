@@ -104,6 +104,9 @@ export type AdminDashboardData = {
   numberOfRegisteredUser: number;
   totalActivatedPackage: number;
   totalActivatedUser: number;
+  totalSpinPurchase: number;
+  totalSpinPurchaseCount: number;
+  totalWinningWithdrawal: number;
 };
 
 export type AdminTopUpRequestData = {
