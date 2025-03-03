@@ -21,7 +21,6 @@ import { alliance_member_table, user_table } from "@prisma/client";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useEffect } from "react";
-
 import AppSidebar from "../ui/side-bar";
 import { ModeToggle } from "../ui/toggleDarkmode";
 

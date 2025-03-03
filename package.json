@@ -1,5 +1,5 @@
 {
-  "name": "red",
+  "name": "prime-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -32,9 +32,7 @@
     "@radix-ui/react-tooltip": "^1.1.6",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.46.1",
     "@tanstack/react-table": "^8.20.5",
-    "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -42,7 +40,6 @@
     "dotenv": "^16.4.5",
     "embla-carousel-autoplay": "^8.5.2",
     "embla-carousel-react": "^8.5.2",
-    "express-rate-limit": "^7.4.1",
     "framer-motion": "^12.4.1",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.460.0",

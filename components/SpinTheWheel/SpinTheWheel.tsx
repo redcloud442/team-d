@@ -447,8 +447,24 @@ export const SpinWheel = ({ prizes }: Props) => {
                         type="number"
                         variant="non-card"
                         className="w-12 text-center p-0"
+                        min={1} // Prevents setting value below 1 via UI controls
+                        onKeyDown={(e) => {
+                          if (e.key === "-" || e.key === "e") {
+                            e.preventDefault(); // Prevents typing "-" or "e"
+                          }
+                        }}
                         {...register("quantity", {
                           valueAsNumber: true,
+                          onChange: (e) => {
+                            const inputValue = e.target.value;
+                            if (inputValue === "") {
+                              e.target.value = null;
+                              return;
+                            }
+
+                            // Remove non-numeric characters
+                            e.target.value = inputValue.replace(/[^0-9.]/g, "");
+                          },
                           min: {
                             value: 1,
                             message: "Quantity must be at least 1",
