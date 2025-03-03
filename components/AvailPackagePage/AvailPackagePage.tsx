@@ -184,8 +184,10 @@ const AvailPackagePage = ({
         count: 1,
       });
 
-      if (Number(amount) % 5000 === 0) {
-        const count = Math.floor(Number(amount) / 5000) * 2;
+      if (Number(amount) >= 5000) {
+        const baseCount = Math.floor(Number(amount) / 5000) * 2;
+        const count = baseCount > 0 ? baseCount : 2;
+
         setDailyTask({
           ...dailyTask,
           wheelLog: {
