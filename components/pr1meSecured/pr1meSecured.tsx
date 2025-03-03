@@ -27,11 +27,11 @@ import { PasswordInput } from "../ui/passwordInput";
 export const LoginSchema = z.object({
   userName: z
     .string()
-    .min(6, "Username must be at least 6 characters")
-    .max(20, "Username must be at most 20 characters")
+    .min(6, "Username must be at least 6 characters long")
+    .max(20, "Username must be at most 50 characters long")
     .regex(
-      /^[a-zA-Z0-9_]+$/,
-      "Username can only contain letters, numbers, and underscores"
+      /^[a-zA-Z][a-zA-Z0-9._]*$/,
+      "Username must start with a letter and can only contain letters, numbers, dots, and underscores"
     ),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
@@ -84,10 +84,7 @@ const Pr1meSecured = () => {
       const validation = LoginSchema.safeParse(sanitizedData);
 
       if (!validation.success) {
-        toast({
-          title: "Invalid input",
-          variant: "destructive",
-        });
+        toast({ title: "Invalid input", variant: "destructive" });
         return;
       }
 
@@ -96,10 +93,7 @@ const Pr1meSecured = () => {
       const result = await handleSignInAdmin({ userName, password });
 
       if (!result.ok) {
-        toast({
-          title: "Not Allowed",
-          variant: "destructive",
-        });
+        toast({ title: "Not Allowed", variant: "destructive" });
         return;
       }
 
@@ -110,9 +104,7 @@ const Pr1meSecured = () => {
       const sanitizedEmail = userEmail.trim().replace(/["\\]/g, "");
       const { error } = await supabase.auth.signInWithOtp({
         email: sanitizedEmail,
-        options: {
-          captchaToken: captchaToken || "",
-        },
+        options: { captchaToken: captchaToken || "" },
       });
 
       if (captcha.current) {
@@ -157,17 +149,12 @@ const Pr1meSecured = () => {
 
       if (error) throw new Error("Invalid OTP");
 
-      toast({
-        title: "Successfully logged in!",
-      });
+      toast({ title: "Successfully logged in!" });
 
       window.location.href = "/admin";
     } catch (e) {
       if (e instanceof Error) {
-        toast({
-          title: "Invalid OTP",
-          variant: "destructive",
-        });
+        toast({ title: "Invalid OTP", variant: "destructive" });
       }
     } finally {
       setIsLoading(false);
@@ -184,9 +171,7 @@ const Pr1meSecured = () => {
           alt="thunder"
           width={300}
           height={300}
-          style={{
-            objectFit: "contain",
-          }}
+          style={{ objectFit: "contain" }}
           quality={100}
           className="sm:hidden"
         />
