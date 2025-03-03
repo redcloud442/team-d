@@ -24,18 +24,13 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
-const buySpinSchema = z.object({
-  quantity: z.number().min(1),
-});
+const buySpinSchema = z.object({ quantity: z.number().min(1) });
 
 type BuySpinFormValues = z.infer<typeof buySpinSchema>;
 
-type Props = {
-  prizes: alliance_wheel_settings_table[];
-};
+type Props = { prizes: alliance_wheel_settings_table[] };
 
 export const SpinWheel = ({ prizes }: Props) => {
-  console.log(prizes);
   const [spinning, setSpinning] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [winSound, setWinSound] = useState<HTMLAudioElement | null>(null);
@@ -68,9 +63,7 @@ export const SpinWheel = ({ prizes }: Props) => {
     formState: { errors, isSubmitting },
   } = useForm<BuySpinFormValues>({
     resolver: zodResolver(buySpinSchema),
-    defaultValues: {
-      quantity: 1,
-    },
+    defaultValues: { quantity: 1 },
   });
 
   const handleSpin = async () => {
@@ -363,7 +356,7 @@ export const SpinWheel = ({ prizes }: Props) => {
                     transform: `rotate(10deg)`, // Rotate text vertically
                   }}
                 >
-                  {prizes[4].alliance_wheel_settings_label}
+                  ₱ {prizes[4].alliance_wheel_settings_label}
                 </div>
               </div>
 
@@ -431,10 +424,7 @@ export const SpinWheel = ({ prizes }: Props) => {
                       Balance: ₱{" "}
                       {earnings?.alliance_combined_earnings.toLocaleString(
                         "en-US",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                       )}
                     </div>
                     <Label>Quantity</Label>
