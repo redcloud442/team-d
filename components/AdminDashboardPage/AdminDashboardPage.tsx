@@ -387,7 +387,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
             value={
               <>
                 <PhilippinePeso />
-                {adminDashboard?.totalWinningWithdrawal.toLocaleString(
+                {adminDashboard?.totalWinningWithdrawal?.toLocaleString(
                   "en-US",
                   {
                     minimumFractionDigits: 2,
