@@ -19,6 +19,7 @@ import {
 import { Download, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import RoadmapDailyTask from "../SpinTheWheel/RoadmapDailyTask/RoadmapDailyTask";
 import { SpinWheel } from "../SpinTheWheel/SpinTheWheel";
 import { Button } from "../ui/button";
 import {
@@ -276,7 +277,7 @@ const DashboardPage = ({
           </div>
         </div>
 
-        {/* <RoadmapDailyTask /> */}
+        <RoadmapDailyTask />
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
           <div className="flex flex-col gap-4 ">
             <DashboardDepositModalDeposit
