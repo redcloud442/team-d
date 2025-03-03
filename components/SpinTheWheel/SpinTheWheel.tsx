@@ -509,13 +509,15 @@ export const SpinWheel = ({ prizes }: Props) => {
             >
               {selectedPrize === "NO REWARD"
                 ? "😢 No reward this time."
-                : `🎉 You won: ₱ ${Number(selectedPrize).toLocaleString(
-                    "en-US",
-                    {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }
-                  )} 🎉`}
+                : selectedPrize === "RE-SPIN"
+                  ? "🎉 You won: RE-SPIN 🎉"
+                  : `🎉 You won:   ${Number(selectedPrize).toLocaleString(
+                      "en-US",
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )} 🎉`}
             </motion.div>
           )}
         </div>
