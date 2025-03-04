@@ -49,6 +49,7 @@ type FilterFormValues = {
   statusFilter: string;
   rejectNote: string;
   dateFilter: { start: string; end: string };
+  showHiddenUser: boolean;
 };
 
 const AdminWithdrawalHistoryTable = ({
@@ -66,10 +67,10 @@ const AdminWithdrawalHistoryTable = ({
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const columnAccessor = sorting?.[0]?.id || "alliance_withdrawal_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
-  const [userOptions, setUserOptions] = useState<user_table[]>([]);
 
   const fetchRequest = async () => {
     try {
@@ -78,8 +79,13 @@ const AdminWithdrawalHistoryTable = ({
 
       const sanitizedData = escapeFormData(getValues());
 
-      const { referenceId, userFilter, statusFilter, dateFilter } =
-        sanitizedData;
+      const {
+        referenceId,
+        userFilter,
+        statusFilter,
+        dateFilter,
+        showHiddenUser,
+      } = sanitizedData;
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
@@ -92,6 +98,7 @@ const AdminWithdrawalHistoryTable = ({
         search: referenceId,
         userFilter,
         statusFilter: statusFilter || "PENDING",
+        showHiddenUser: showHiddenUser,
         dateFilter: {
           start:
             startDate && !isNaN(startDate.getTime())
@@ -183,8 +190,13 @@ const AdminWithdrawalHistoryTable = ({
       };
       const sanitizedData = escapeFormData(getValues());
 
-      const { referenceId, userFilter, statusFilter, dateFilter } =
-        sanitizedData;
+      const {
+        referenceId,
+        userFilter,
+        statusFilter,
+        dateFilter,
+        showHiddenUser,
+      } = sanitizedData;
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
@@ -198,6 +210,7 @@ const AdminWithdrawalHistoryTable = ({
         search: referenceId,
         userFilter,
         statusFilter: statusFilter || "PENDING",
+        showHiddenUser: showHiddenUser,
         dateFilter: {
           start:
             startDate && !isNaN(startDate.getTime())
@@ -244,8 +257,11 @@ const AdminWithdrawalHistoryTable = ({
           end: undefined,
         },
         rejectNote: "",
+        showHiddenUser: false,
       },
     });
+
+  const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
 
   const {
     columns,
@@ -253,9 +269,13 @@ const AdminWithdrawalHistoryTable = ({
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = AdminWithdrawalHistoryColumn(profile, setRequestData, reset);
-
-  const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
+  } = AdminWithdrawalHistoryColumn(
+    profile,
+    setRequestData,
+    reset,
+    status,
+    hidden
+  );
 
   const table = useReactTable({
     data: requestData?.data?.[status]?.data || [],
@@ -275,44 +295,9 @@ const AdminWithdrawalHistoryTable = ({
     },
   });
 
-  // useEffect(() => {
-  //   const fetchOptions = async () => {
-  //     try {
-  //       const pageLimit = 500;
-
-  //       let currentUserPage = 1;
-
-  //       let allUserOptions: user_table[] = [];
-
-  //       while (true) {
-  //         const userData = await getUserOptions({
-  //           page: currentUserPage,
-  //           limit: pageLimit,
-  //         });
-
-  //         if (!userData?.length) {
-  //           break;
-  //         }
-
-  //         allUserOptions = [...allUserOptions, ...userData];
-
-  //         if (userData.length < pageLimit) {
-  //           break;
-  //         }
-
-  //         currentUserPage += 1;
-  //       }
-
-  //       setUserOptions(allUserOptions);
-  //     } catch (e) {}
-  //   };
-
-  //   fetchOptions();
-  // }, [supabaseClient, teamMemberProfile.alliance_member_id]);
-
   useEffect(() => {
     fetchRequest();
-  }, [supabaseClient, teamMemberProfile, activePage, sorting]);
+  }, [supabaseClient, teamMemberProfile, activePage, sorting, hidden]);
 
   const pageCount = Math.ceil((requestData?.data?.[status]?.count || 0) / 10);
 
@@ -322,6 +307,12 @@ const AdminWithdrawalHistoryTable = ({
       reset();
       handleRefresh();
     }
+  };
+
+  const handleHiddenSwitchChange = (checked: boolean) => {
+    setHidden(checked);
+    setValue("showHiddenUser", checked);
+    handleRefresh();
   };
 
   const handleTabChange = async (type?: string) => {
@@ -445,6 +436,13 @@ const AdminWithdrawalHistoryTable = ({
                 onCheckedChange={handleSwitchChange}
               />
               <Label htmlFor="filter">Filter</Label>
+
+              <Switch
+                id="filter-switch"
+                checked={hidden}
+                onCheckedChange={handleHiddenSwitchChange}
+              />
+              <Label htmlFor="filter-switch">Show Hidden User</Label>
             </div>
           </div>
 

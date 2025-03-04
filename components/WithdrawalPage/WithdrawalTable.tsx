@@ -48,6 +48,7 @@ type FilterFormValues = {
   statusFilter: string;
   rejectNote: string;
   dateFilter: { start: string; end: string };
+  showHiddenUser: boolean;
 };
 
 const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
@@ -59,6 +60,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
   const [requestData, setRequestData] = useState<AdminWithdrawaldata | null>(
     null
   );
+  const [hidden, setHidden] = useState(false);
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -74,8 +76,13 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const sanitizedData = escapeFormData(getValues());
 
-      const { referenceId, userFilter, statusFilter, dateFilter } =
-        sanitizedData;
+      const {
+        referenceId,
+        userFilter,
+        statusFilter,
+        dateFilter,
+        showHiddenUser,
+      } = sanitizedData;
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
@@ -98,6 +105,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
               ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
               : undefined,
         },
+        showHiddenUser,
       });
 
       setRequestData((prev: AdminWithdrawaldata | null) => {
@@ -177,8 +185,13 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
       };
       const sanitizedData = escapeFormData(getValues());
 
-      const { referenceId, userFilter, statusFilter, dateFilter } =
-        sanitizedData;
+      const {
+        referenceId,
+        userFilter,
+        statusFilter,
+        dateFilter,
+        showHiddenUser,
+      } = sanitizedData;
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
@@ -202,6 +215,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
               ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
               : undefined,
         },
+        showHiddenUser,
       });
 
       for (const status of statuses) {
@@ -236,8 +250,11 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
           end: undefined,
         },
         rejectNote: "",
+        showHiddenUser: false,
       },
     });
+
+  const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
 
   const {
     columns,
@@ -245,9 +262,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = WithdrawalColumn(reset, setRequestData);
-
-  const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
+  } = WithdrawalColumn(reset, setRequestData, status, hidden);
 
   const table = useReactTable({
     data: requestData?.data?.[status]?.data || [],
@@ -279,6 +294,12 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
       reset();
       handleRefresh();
     }
+  };
+
+  const handleHiddenSwitchChange = (checked: boolean) => {
+    setHidden(checked);
+    setValue("showHiddenUser", checked);
+    handleRefresh();
   };
 
   const handleTabChange = async (type?: string) => {
@@ -387,6 +408,12 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
                 onCheckedChange={handleSwitchChange}
               />
               <Label htmlFor="filter">Filter</Label>
+              <Switch
+                id="filter-switch"
+                checked={hidden}
+                onCheckedChange={handleHiddenSwitchChange}
+              />
+              <Label htmlFor="filter-switch">Show Hidden User</Label>
             </div>
           </div>
 

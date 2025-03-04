@@ -12,6 +12,7 @@ export const getAdminWithdrawalRequest = async (params: {
     start: string | undefined;
     end: string | undefined;
   };
+  showHiddenUser: boolean;
 }) => {
   const response = await fetch("/api/v1/withdraw/list", {
     method: "POST",
@@ -92,6 +93,25 @@ export const getAdminWithdrawalTotalReport = async (params: {
   const result = await response.json();
 
   if (!response.ok) throw new Error("Failed to fetch withdrawal total report");
+
+  return result;
+};
+
+export const hideUser = async (params: {
+  id: string;
+  type: "add" | "remove";
+}) => {
+  const response = await fetch("/api/v1/withdraw/" + params.id + "/hide-user", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ type: params.type }),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) throw new Error("Failed to hide user");
 
   return result;
 };

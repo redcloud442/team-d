@@ -3068,3 +3068,27 @@ WITH CHECK ( EXISTS (
     FROM alliance_schema.alliance_member_table amt
     WHERE amt.alliance_member_user_id = (SELECT auth.uid())
   ));
+
+DROP POLICY IF EXISTS "Allow READ for ADMIN And ACCOUNTING users" ON alliance_schema.alliance_hidden_user_table;
+CREATE POLICY "Allow READ for ADMIN And ACCOUNTING users" ON alliance_schema.alliance_hidden_user_table
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table amt
+    WHERE amt.alliance_member_user_id = (SELECT auth.uid())
+    AND amt.alliance_member_role IN ('ADMIN', 'ACCOUNTING')
+  )
+);
+
+DROP POLICY IF EXISTS "Allow Insert for ADMIN And ACCOUNTING users" ON alliance_schema.alliance_hidden_user_table;
+CREATE POLICY "Allow Insert for ADMIN And ACCOUNTING users" ON alliance_schema.alliance_hidden_user_table
+AS PERMISSIVE FOR INSERT
+TO authenticated
+WITH CHECK ( EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table amt
+    WHERE amt.alliance_member_user_id = (SELECT auth.uid())
+        AND amt.alliance_member_role IN ('ADMIN', 'ACCOUNTING')
+  ));
