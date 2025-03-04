@@ -46,12 +46,7 @@ type Props = {
   referral: alliance_referral_link_table;
 };
 
-type FormContextType = {
-  dateFilter: {
-    start: string;
-    end: string;
-  };
-};
+type FormContextType = { dateFilter: { start: string; end: string } };
 
 const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
   const supabaseClient = createClientSide();
@@ -63,12 +58,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [totalReferral, setTotalReferral] = useState(0);
   const filterMethods = useForm<FormContextType>({
-    defaultValues: {
-      dateFilter: {
-        start: undefined,
-        end: undefined,
-      },
-    },
+    defaultValues: { dateFilter: { start: undefined, end: undefined } },
   });
 
   const { getValues, control, handleSubmit, watch } = filterMethods;
@@ -99,10 +89,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
 
       const [data, totalReferral] = await Promise.all([
         getAdminDashboardByDate({
-          dateFilter: {
-            start: formattedStartDate,
-            end: formattedEndDate,
-          },
+          dateFilter: { start: formattedStartDate, end: formattedEndDate },
         }),
         getTotalReferral(),
       ]);
@@ -142,10 +129,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
         : "";
 
       const data = await getAdminDashboardByDate({
-        dateFilter: {
-          start: formattedStartDate,
-          end: formattedEndDate,
-        },
+        dateFilter: { start: formattedStartDate, end: formattedEndDate },
       });
 
       setAdminDashboardByDate(data);
@@ -179,10 +163,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(referral.alliance_referral_link);
-      toast({
-        title: "Link copied!",
-        description: "Link copied to clipboard",
-      });
+      toast({ title: "Link copied!", description: "Link copied to clipboard" });
     } catch (err) {}
   };
   const startDate = watch("dateFilter.start");
@@ -376,7 +357,10 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
             value={
               <>
                 <CoinsIcon />
-                {adminDashboard?.totalSpinPurchase}
+                {adminDashboard?.totalSpinPurchase?.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </>
             }
             description=""
@@ -389,10 +373,7 @@ const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
                 <PhilippinePeso />
                 {adminDashboard?.totalWinningWithdrawal?.toLocaleString(
                   "en-US",
-                  {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }
+                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                 )}
               </>
             }
