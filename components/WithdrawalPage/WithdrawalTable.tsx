@@ -18,6 +18,7 @@ import {
 import { format } from "date-fns";
 import {
   CalendarIcon,
+  CheckCheckIcon,
   Loader2,
   PhilippinePeso,
   RefreshCw,
@@ -115,22 +116,42 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
         showHiddenUser,
       });
 
-      setRequestData((prev: AdminWithdrawaldata | null) => {
-        if (!prev) {
+      setRequestData(
+        (prev: AdminWithdrawaldata | null): AdminWithdrawaldata => {
+          if (!prev) {
+            return {
+              data: {
+                APPROVED: {
+                  data: [],
+                  count: requestData?.data?.APPROVED?.count || 0,
+                },
+                REJECTED: {
+                  data: [],
+                  count: requestData?.data?.REJECTED?.count || 0,
+                },
+                PENDING: {
+                  data: [],
+                  count: requestData?.data?.PENDING?.count || 0,
+                },
+                [statusFilter as "PENDING" | "APPROVED" | "REJECTED"]:
+                  requestData?.data?.[
+                    statusFilter as "PENDING" | "APPROVED" | "REJECTED"
+                  ] || {
+                    data: [],
+                    count: 0,
+                  },
+              },
+              totalWithdrawals: {
+                amount: requestData?.totalWithdrawals?.amount || 0,
+                count: requestData?.totalWithdrawals?.count || 0,
+              },
+            };
+          }
+
           return {
+            ...prev,
             data: {
-              APPROVED: {
-                data: [],
-                count: requestData?.data?.APPROVED?.count || 0,
-              },
-              REJECTED: {
-                data: [],
-                count: requestData?.data?.REJECTED?.count || 0,
-              },
-              PENDING: {
-                data: [],
-                count: requestData?.data?.PENDING?.count || 0,
-              },
+              ...prev.data,
               [statusFilter as "PENDING" | "APPROVED" | "REJECTED"]: requestData
                 ?.data?.[
                 statusFilter as "PENDING" | "APPROVED" | "REJECTED"
@@ -141,25 +162,11 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
             },
             totalWithdrawals: {
               amount: requestData?.totalWithdrawals?.amount || 0,
+              count: requestData?.totalWithdrawals?.count || 0,
             },
           };
         }
-
-        return {
-          ...prev,
-          data: {
-            ...prev.data,
-            [statusFilter as "PENDING" | "APPROVED" | "REJECTED"]: requestData
-              ?.data?.[statusFilter as "PENDING" | "APPROVED" | "REJECTED"] || {
-              data: [],
-              count: 0,
-            },
-          },
-          totalWithdrawals: {
-            amount: requestData?.totalWithdrawals?.amount || 0,
-          },
-        };
-      });
+      );
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
@@ -242,6 +249,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
         ...updatedData,
         totalWithdrawals: {
           amount: requestData?.totalWithdrawals?.amount || 0,
+          count: requestData?.totalWithdrawals?.count || 0,
         },
       });
     } catch (e) {
@@ -349,6 +357,17 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
                     maximumFractionDigits: 2,
                   }
                 ) || 0}
+              </>
+            }
+            description=""
+            descriptionClassName="text-sm text-gray-500"
+          />{" "}
+          <CardAmountAdmin
+            title="Total Approved Withdrawal"
+            value={
+              <>
+                <CheckCheckIcon />
+                {requestData?.totalWithdrawals?.count}
               </>
             }
             description=""
