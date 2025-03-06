@@ -96,10 +96,11 @@ export const WithdrawalColumn = (
                 updatedItem.alliance_withdrawal_request_amount -
                   updatedItem.alliance_withdrawal_request_fee
               ),
-            count:
+            approvedAmount:
               status === "APPROVED"
-                ? (prev.totalWithdrawals?.count || 0) + 1
-                : (prev.totalWithdrawals?.count || 0) - 1,
+                ? (prev.totalWithdrawals?.approvedAmount || 0) +
+                  updatedItem.alliance_withdrawal_request_amount
+                : prev.totalWithdrawals?.approvedAmount || 0,
           },
         };
       });

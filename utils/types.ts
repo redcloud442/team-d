@@ -145,7 +145,7 @@ export type AdminWithdrawaldata = {
   };
   totalWithdrawals?: {
     amount: number;
-    count: number;
+    approvedAmount: number;
   };
 };
 

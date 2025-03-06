@@ -18,7 +18,6 @@ import {
 import { format } from "date-fns";
 import {
   CalendarIcon,
-  CheckCheckIcon,
   Loader2,
   PhilippinePeso,
   RefreshCw,
@@ -143,7 +142,8 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
               },
               totalWithdrawals: {
                 amount: requestData?.totalWithdrawals?.amount || 0,
-                count: requestData?.totalWithdrawals?.count || 0,
+                approvedAmount:
+                  requestData?.totalWithdrawals?.approvedAmount || 0,
               },
             };
           }
@@ -162,7 +162,8 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
             },
             totalWithdrawals: {
               amount: requestData?.totalWithdrawals?.amount || 0,
-              count: requestData?.totalWithdrawals?.count || 0,
+              approvedAmount:
+                requestData?.totalWithdrawals?.approvedAmount || 0,
             },
           };
         }
@@ -249,7 +250,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
         ...updatedData,
         totalWithdrawals: {
           amount: requestData?.totalWithdrawals?.amount || 0,
-          count: requestData?.totalWithdrawals?.count || 0,
+          approvedAmount: requestData?.totalWithdrawals?.approvedAmount || 0,
         },
       });
     } catch (e) {
@@ -366,8 +367,14 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
             title="Total Approved Withdrawal"
             value={
               <>
-                <CheckCheckIcon />
-                {requestData?.totalWithdrawals?.count}
+                <PhilippinePeso />
+                {requestData?.totalWithdrawals?.approvedAmount?.toLocaleString(
+                  "en-US",
+                  {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }
+                ) || 0}
               </>
             }
             description=""
