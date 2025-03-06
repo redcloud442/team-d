@@ -3092,3 +3092,15 @@ WITH CHECK ( EXISTS (
     WHERE amt.alliance_member_user_id = (SELECT auth.uid())
         AND amt.alliance_member_role IN ('ADMIN', 'ACCOUNTING')
   ));
+
+DROP POLICY IF EXISTS "Allow Delete for ADMIN And ACCOUNTING users" ON alliance_schema.alliance_hidden_user_table;
+CREATE POLICY "Allow Delete for ADMIN And ACCOUNTING users" ON alliance_schema.alliance_hidden_user_table
+AS PERMISSIVE FOR DELETE
+TO authenticated
+USING ( EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table amt
+    WHERE amt.alliance_member_user_id = (SELECT auth.uid())
+        AND amt.alliance_member_role IN ('ADMIN', 'ACCOUNTING')
+  ));
+

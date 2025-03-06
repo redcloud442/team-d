@@ -266,7 +266,6 @@ export const AdminWithdrawalHistoryColumn = (
 
     {
       accessorKey: "alliance_withdrawal_request_date",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -302,29 +301,23 @@ export const AdminWithdrawalHistoryColumn = (
         </div>
       ),
     },
-    ...(status !== "PENDING"
-      ? [
-          {
-            accessorKey: "approver_username",
-            header: ({ column }: { column: Column<WithdrawalRequestData> }) => (
-              <Button
-                variant="ghost"
-                className="p-1"
-                onClick={() =>
-                  column.toggleSorting(column.getIsSorted() === "desc")
-                }
-              >
-                Approver <ArrowUpDown />
-              </Button>
-            ),
-            cell: ({ row }: { row: Row<WithdrawalRequestData> }) => (
-              <div className="text-wrap">
-                {row.getValue("approver_username")}
-              </div>
-            ),
-          },
-        ]
-      : []),
+
+    {
+      accessorKey: "approver_username",
+      header: ({ column }: { column: Column<WithdrawalRequestData> }) => (
+        <Button
+          variant="ghost"
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
+        >
+          Approver <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }: { row: Row<WithdrawalRequestData> }) => (
+        <div className="text-wrap">{row.getValue("approver_username")}</div>
+      ),
+    },
+
     ...(status !== "PENDING"
       ? [
           {
