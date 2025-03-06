@@ -144,7 +144,7 @@ export const AdminUsersColumn = (
       ),
       cell: ({ row }) => (
         <div className="text-center">
-          {row.getValue("alliance_member_role")}
+          {(row.getValue("alliance_member_role") as string).replace("_", " ")}
         </div>
       ),
     },
@@ -273,6 +273,19 @@ export const AdminUsersColumn = (
                   }
                 >
                   Promote as Accountant
+                </DropdownMenuItem>
+              )}
+
+              {data.alliance_member_role !== "ACCOUNTING_HEAD" && (
+                <DropdownMenuItem
+                  onClick={() =>
+                    handlePromoteToMerchant(
+                      data.alliance_member_id,
+                      "ACCOUNTING_HEAD"
+                    )
+                  }
+                >
+                  Promote as Accounting Head
                 </DropdownMenuItem>
               )}
 

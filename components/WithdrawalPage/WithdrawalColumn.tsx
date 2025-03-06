@@ -89,6 +89,14 @@ export const WithdrawalColumn = (
               count: Number(currentStatusData?.count || 0) + 1,
             },
           },
+          totalWithdrawals: {
+            amount:
+              Number(prev.totalWithdrawals?.amount || 0) -
+              Number(
+                updatedItem.alliance_withdrawal_request_amount -
+                  updatedItem.alliance_withdrawal_request_fee
+              ),
+          },
         };
       });
       reset();

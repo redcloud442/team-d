@@ -162,9 +162,13 @@ export const protectionMemberUser = async (ip?: string) => {
 
     if (
       !teamMember?.alliance_member_alliance_id ||
-      !["MEMBER", "MERCHANT", "ACCOUNTING", "ADMIN"].includes(
-        teamMember.alliance_member_role
-      )
+      ![
+        "MEMBER",
+        "MERCHANT",
+        "ACCOUNTING",
+        "ADMIN",
+        "ACCOUNTING_HEAD",
+      ].includes(teamMember.alliance_member_role)
     ) {
       return { redirect: "/404" };
     }
@@ -341,7 +345,9 @@ export const protectionAccountingUser = async (ip?: string) => {
 
     if (
       !teamMember?.alliance_member_alliance_id ||
-      !["ADMIN", "ACCOUNTING"].includes(teamMember.alliance_member_role)
+      !["ADMIN", "ACCOUNTING", "ACCOUNTING_HEAD"].includes(
+        teamMember.alliance_member_role
+      )
     ) {
       return { redirect: "/auth/login" };
     }

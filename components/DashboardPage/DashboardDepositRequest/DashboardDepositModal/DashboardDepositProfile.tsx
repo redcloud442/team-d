@@ -335,18 +335,19 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
                 </div>
               )}
 
-              {role === "ACCOUNTING" && (
-                <div className="flex justify-between gap-4">
-                  <Button
-                    type="button"
-                    className="w-full"
-                    variant="card"
-                    onClick={() => router.push("/withdraw")}
-                  >
-                    Withdrawal
-                  </Button>
-                </div>
-              )}
+              {role === "ACCOUNTING" ||
+                (role === "ACCOUNTING_HEAD" && (
+                  <div className="flex justify-between gap-4">
+                    <Button
+                      type="button"
+                      className="w-full"
+                      variant="card"
+                      onClick={() => router.push("/withdraw")}
+                    >
+                      Withdrawal
+                    </Button>
+                  </div>
+                ))}
 
               {/* Submit Button */}
               <div className="flex justify-center">
