@@ -138,9 +138,14 @@ const RegisterPage = ({ referralLink }: Props) => {
     }
 
     if (!captchaToken) {
+      if (captcha.current) {
+        captcha.current.reset();
+        captcha.current.execute();
+      }
+
       return toast({
         title: "Please wait",
-        description: "Captcha is required.",
+        description: "Refreshing CAPTCHA, please try again.",
         variant: "destructive",
       });
     }
@@ -174,12 +179,19 @@ const RegisterPage = ({ referralLink }: Props) => {
       router.push("/dashboard");
     } catch (e) {
       setIsSuccess(false);
-
-      toast({
-        title: "Error",
-        description: "Check your account details and try again",
-        variant: "destructive",
-      });
+      if (e instanceof Error) {
+        toast({
+          title: "Error",
+          description: e.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "An unknown error occurred",
+          variant: "destructive",
+        });
+      }
     }
   };
 
