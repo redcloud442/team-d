@@ -76,7 +76,7 @@ export async function updateSession(request: NextRequest) {
   } else {
     // 🔹 If user is logged in and visits login/register, send them to /dashboard
     if (publicRoutes.includes(currentPath)) {
-      if (currentPath !== "/") {
+      if (currentPath !== "/dashboard") {
         const homeUrl = request.nextUrl.clone();
         homeUrl.pathname = "/dashboard";
         return addSecurityHeaders(NextResponse.redirect(homeUrl));
