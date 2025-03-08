@@ -53,13 +53,17 @@ const LoginPage = () => {
   const handleSignIn = async (data: LoginFormValues) => {
     try {
       if (!captchaToken) {
+        if (captcha.current) {
+          captcha.current.reset();
+          captcha.current.execute();
+        }
+
         return toast({
           title: "Please wait",
-          description: "Captcha is required.",
+          description: "Refreshing CAPTCHA, please try again.",
           variant: "destructive",
         });
       }
-
       setIsLoading(true);
       const sanitizedData = escapeFormData(data);
 
@@ -84,11 +88,19 @@ const LoginPage = () => {
       localStorage.setItem("isModalOpen", "true");
       router.push("/dashboard");
     } catch (e) {
-      toast({
-        title: "Check user credentials",
-        description: "Invalid username or password",
-        variant: "destructive",
-      });
+      if (e instanceof Error) {
+        toast({
+          title: "Error",
+          description: e.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "An unknown error occurred",
+          variant: "destructive",
+        });
+      }
 
       setIsLoading(false); // Stop loader on error
     }
