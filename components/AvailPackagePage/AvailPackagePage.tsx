@@ -294,14 +294,6 @@ const AvailPackagePage = ({
                               value = `${integerPart}.${decimalPart.slice(0, 2)}`;
                             }
 
-                            const amount = maxAmount;
-
-                            // Enforce the maximum amount value
-                            const numericValue = parseFloat(value || "0");
-                            if (!isNaN(numericValue) && numericValue > amount) {
-                              value = amount.toString(); // Adjust precision to match allowed decimals
-                            }
-
                             field.onChange(value);
                           }}
                         />

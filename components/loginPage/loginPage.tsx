@@ -90,13 +90,13 @@ const LoginPage = () => {
     } catch (e) {
       if (e instanceof Error) {
         toast({
-          title: "Error",
+          title: "An error occurred",
           description: e.message,
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Error",
+          title: "An error occurred",
           description: "An unknown error occurred",
           variant: "destructive",
         });

@@ -122,7 +122,7 @@ const Pr1meSecured = () => {
     } catch (e) {
       if (e instanceof Error) {
         toast({
-          title: "Invalid username or password",
+          title: e.message,
           variant: "destructive",
         });
       }

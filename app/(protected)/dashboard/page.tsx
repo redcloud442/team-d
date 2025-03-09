@@ -63,6 +63,12 @@ const Page = async () => {
     orderBy: {
       alliance_wheel_settings_date: "desc",
     },
+    select: {
+      alliance_wheel_settings_id: true,
+      alliance_wheel_settings_label: true,
+      alliance_wheel_settings_percentage: true,
+      alliance_wheel_settings_color: true,
+    },
   });
 
   return (

@@ -12,7 +12,6 @@ import {
   alliance_member_table,
   alliance_referral_link_table,
   alliance_testimonial_table,
-  alliance_wheel_settings_table,
   package_table,
   user_table,
 } from "@prisma/client";
@@ -46,7 +45,12 @@ type Props = {
   packages: package_table[];
   profile: user_table;
   testimonials: alliance_testimonial_table[];
-  wheel: alliance_wheel_settings_table[];
+  wheel: {
+    alliance_wheel_settings_id: string;
+    alliance_wheel_settings_label: string;
+    alliance_wheel_settings_percentage: number;
+    alliance_wheel_settings_color: string;
+  }[];
 };
 
 const DashboardPage = ({

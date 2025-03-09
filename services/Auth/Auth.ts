@@ -79,8 +79,10 @@ export const createTriggerUser = async (params: {
     body: JSON.stringify(userParams),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    throw new Error("Username already taken.");
+    throw new Error(data.message || userError);
   }
 
   return { success: true };
@@ -106,8 +108,10 @@ export const loginValidation = async (
     body: JSON.stringify(params),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    throw new Error("Invalid username or password");
+    throw new Error(data.message);
   }
 
   const { error: signInError } = await supabaseClient.auth.signInWithPassword({
@@ -184,8 +188,10 @@ export const handleSignInAdmin = async (params: {
     body: JSON.stringify(params),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    throw new Error("Invalid username or password");
+    throw new Error(data.message);
   }
 
   return response;
