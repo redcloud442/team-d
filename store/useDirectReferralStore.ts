@@ -6,6 +6,7 @@ interface directReferralState {
     data: (user_table & {
       total_bounty_earnings: string;
       package_ally_bounty_log_date_created: Date;
+      alliance_referral_date: Date;
     })[];
     count: number;
   };
@@ -14,6 +15,7 @@ interface directReferralState {
     data: (user_table & {
       total_bounty_earnings: string;
       package_ally_bounty_log_date_created: Date;
+      alliance_referral_date: Date;
     })[];
     count: number;
   }) => void;
