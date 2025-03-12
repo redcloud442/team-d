@@ -192,3 +192,8 @@ export type HeirarchyData = {
   user_username: string;
   user_id: string;
 };
+
+export type ModalGuide = {
+  isModalOpen: boolean;
+  type: "package" | "withdrawal";
+};

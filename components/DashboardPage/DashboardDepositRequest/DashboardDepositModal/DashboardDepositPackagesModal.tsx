@@ -21,6 +21,7 @@ import {
 } from "@prisma/client";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import DashboardDynamicGuideModal from "../DashboardDynamicGuideModal/DashboardDynamicGuideModal";
 
 type Props = {
   className: string;
@@ -102,11 +103,12 @@ const DashboardDepositModalPackages = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" type="earnings">
         <ScrollArea className="h-[600px] sm:h-full">
           <DialogHeader className="text-start text-2xl font-bold">
-            <DialogTitle className="text-2xl font-bold mb-4">
+            <DialogTitle className="text-2xl font-bold mb-4 flex justify-between gap-2">
               Avail Pr1me Plans
+              <DashboardDynamicGuideModal type="avail" />
             </DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>

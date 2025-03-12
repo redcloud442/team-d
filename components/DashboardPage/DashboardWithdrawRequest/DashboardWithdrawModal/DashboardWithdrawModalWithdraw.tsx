@@ -41,6 +41,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
+import DashboardDynamicGuideModal from "../../DashboardDepositRequest/DashboardDynamicGuideModal/DashboardDynamicGuideModal";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
@@ -362,7 +363,7 @@ const DashboardWithdrawModalWithdraw = ({
             <DialogTitle className="text-2xl font-bold mb-4 flex gap-4">
               Withdrawal Request
               <Button
-                className="h-8 bg-pageColor  px-2 text-sm text-white"
+                className="h-8 bg-pageColor px-2 text-sm text-white rounded-md"
                 variant="card"
                 onClick={() => setTransactionOpen(true)}
               >
@@ -370,7 +371,9 @@ const DashboardWithdrawModalWithdraw = ({
               </Button>
             </DialogTitle>
 
-            <DialogDescription></DialogDescription>
+            <DialogDescription className="w-full">
+              <DashboardDynamicGuideModal type="withdraw" />
+            </DialogDescription>
           </DialogHeader>
 
           <form
@@ -675,6 +678,7 @@ const DashboardWithdrawModalWithdraw = ({
             </div>
 
             {/* Submit Button */}
+
             <div className="flex items-center justify-center gap-2">
               <Button
                 disabled={isSubmitting || getMaxAmount() === 0}

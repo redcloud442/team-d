@@ -37,7 +37,7 @@ const DashboardHowToDepositModal = () => {
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogTrigger asChild>
         <Button
-          className="h-8 bg-pageColor  px-2 text-sm text-white"
+          className="h-8 bg-pageColor  px-2 text-sm text-white rounded-md"
           variant="card"
         >
           How to Deposit
