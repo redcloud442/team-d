@@ -44,7 +44,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
-import DashboardHowToDepositModal from "../DashboardHowToDepositModal/DashboardHowToDepositModal";
+import DashboardDynamicGuideModal from "../DashboardDynamicGuideModal/DashboardDynamicGuideModal";
 
 type Props = {
   teamMemberProfile: alliance_member_table;
@@ -289,7 +289,7 @@ const DashboardDepositModalDeposit = ({
           <DialogHeader className="text-start text-2xl font-bold">
             <DialogTitle className="flex justify-between items-center gap-2 text-2xl font-bold mb-4">
               Deposit Request
-              <DashboardHowToDepositModal />
+              <DashboardDynamicGuideModal type="deposit" />
             </DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>

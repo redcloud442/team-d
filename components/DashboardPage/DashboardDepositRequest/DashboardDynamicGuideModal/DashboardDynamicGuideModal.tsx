@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 const DashboardWithdrawGuideModal = ({
   type,
 }: {
-  type: "avail" | "withdraw";
+  type: "avail" | "withdraw" | "deposit" | "register" | "refer";
 }) => {
   const storageKey = "hidden-modal-guides"; // Store hidden types in localStorage
   const [isModalOpen, setIsModalOpen] = useState(true);
@@ -67,7 +67,7 @@ const DashboardWithdrawGuideModal = ({
       <DialogTrigger asChild>
         <Button
           className={`h-8 bg-pageColor px-2 text-sm text-white rounded-md ${
-            type === "withdraw" ? "w-full" : ""
+            type === "withdraw" || "register" ? "w-full" : ""
           }`}
           type="button"
           variant="card"
@@ -86,7 +86,7 @@ const DashboardWithdrawGuideModal = ({
           <CarouselContent>
             <CarouselItem>
               <Image
-                src={`/guides/${type === "withdraw" ? "7" : "2"}.png`} // Dynamically change image per type
+                src={`/guides/${type === "withdraw" ? "7" : type === "deposit" ? "4" : type === "register" ? "6" : type === "refer" ? "5" : "2"}.png`} // Dynamically change image per type
                 alt={`${type} guide`}
                 width={1200}
                 height={1200}

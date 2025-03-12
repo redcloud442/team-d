@@ -17,6 +17,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Confetti from "react-confetti";
+import { Button } from "../ui/button";
 
 const Wheel = dynamic(
   () => import("react-custom-roulette").then((mod) => mod.Wheel),
@@ -40,7 +41,7 @@ export const SpinWheel = ({ prizes }: Props) => {
   const [winSound, setWinSound] = useState<HTMLAudioElement | null>(null);
   const [loseSound, setLoseSound] = useState<HTMLAudioElement | null>(null);
   const [spinSound, setSpinSound] = useState<HTMLAudioElement | null>(null);
-
+  const [startedSpinning, setStartedSpinning] = useState(false);
   const { dailyTask, setDailyTask } = useDailyTaskStore();
 
   const [selectedPrize, setSelectedPrize] = useState<string | null>(null);
@@ -64,7 +65,7 @@ export const SpinWheel = ({ prizes }: Props) => {
   }, [selectedPrize]);
 
   const handleSpin = async () => {
-    if (spinning) {
+    if (spinning || startedSpinning) {
       return toast({
         title: "You are already spinning",
         description: "Please wait for the wheel to stop spinning",
@@ -83,6 +84,7 @@ export const SpinWheel = ({ prizes }: Props) => {
 
     setShowConfetti(false);
     setSelectedPrize(null);
+    setStartedSpinning(true);
 
     setTimeout(() => {
       if (spinSound) {
@@ -98,6 +100,8 @@ export const SpinWheel = ({ prizes }: Props) => {
       setSelectedPrize(prizeIndex);
     } catch (error) {
       setSpinning(false);
+    } finally {
+      setStartedSpinning(false);
     }
   };
 
@@ -212,16 +216,20 @@ export const SpinWheel = ({ prizes }: Props) => {
         {showConfetti && <Confetti width={440} height={600} />}
         <div className="flex flex-col items-center justify-start space-y-6 mt-4">
           <div className="relative">
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999]">
+            <Button
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] hover:dark:bg-transparent hover:bg-transparent"
+              disabled={spinning}
+              variant="ghost"
+              onClick={handleSpin}
+            >
               <Image
                 src="/app-logo.png"
                 alt="Center Logo"
                 width={80}
                 height={80}
                 className="rounded-full cursor-pointer z-[9999]"
-                onClick={handleSpin}
               />
-            </div>
+            </Button>
             <Wheel
               mustStartSpinning={spinning}
               prizeNumber={prizeNumberLogic}

@@ -21,6 +21,7 @@ import {
 } from "@prisma/client";
 import Image from "next/image";
 import { useState } from "react";
+import DashboardDynamicGuideModal from "../DashboardDynamicGuideModal/DashboardDynamicGuideModal";
 import DashboardDirectReferral from "./DashboardDirectReferral";
 import DashboardIndirectReferral from "./DashboardIndirectReferral";
 
@@ -90,13 +91,13 @@ const DashboardDepositModalRefer = ({
           <div className="flex flex-col items-end space-y-4">
             {/* Referral Link and Code */}
 
-            <Card className="dark:bg-cardColor border-none w-full">
+            <Card className="dark:bg-cardColor border-none">
               <CardHeader>
-                <CardTitle className="text-black text-2xl">
+                <CardTitle className="text-black text-2xl flex justify-between ">
                   Refer & Earn
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <div className="flex justify-between items-end gap-2">
                   <div className="flex flex-col gap-2">
                     <Label
@@ -124,12 +125,13 @@ const DashboardDepositModalRefer = ({
                     Copy
                   </Button>
                 </div>
+                <DashboardDynamicGuideModal type="refer" />
                 <Image
                   src="/assets/referral-bonus.png"
                   alt="Refer a Friend"
                   width={1000}
                   height={1000}
-                  className="w-full h-full py-4"
+                  className="w-full h-full"
                 />
               </CardContent>
             </Card>

@@ -15,6 +15,7 @@ import { useCallback, useRef, useState } from "react";
 import { useController, useForm } from "react-hook-form";
 import Turnstile, { BoundTurnstileObject } from "react-turnstile";
 import { z } from "zod";
+import DashboardDynamicGuideModal from "../DashboardPage/DashboardDepositRequest/DashboardDynamicGuideModal/DashboardDynamicGuideModal";
 import NavigationLoader from "../ui/NavigationLoader";
 import { PasswordInput } from "../ui/passwordInput";
 
@@ -220,6 +221,7 @@ const RegisterPage = ({ referralLink }: Props) => {
           </a>
         </div>
       </CardTitle>
+
       <CardContent className="p-4">
         <form
           className="flex flex-col gap-4"
@@ -371,6 +373,7 @@ const RegisterPage = ({ referralLink }: Props) => {
               setCaptchaToken(token);
             }}
           /> */}
+          <DashboardDynamicGuideModal type="register" />
           <div className="w-full flex flex-1 justify-center">
             <Turnstile
               size="flexible"
