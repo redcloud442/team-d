@@ -64,7 +64,13 @@ export const SpinWheel = ({ prizes }: Props) => {
   }, [selectedPrize]);
 
   const handleSpin = async () => {
-    if (spinning) return;
+    if (spinning) {
+      return toast({
+        title: "You are already spinning",
+        description: "Please wait for the wheel to stop spinning",
+        variant: "destructive",
+      });
+    }
 
     if (dailyTask.wheelLog.alliance_wheel_spin_count <= 0) {
       toast({
