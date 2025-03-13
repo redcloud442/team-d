@@ -67,7 +67,7 @@ const DashboardWithdrawGuideModal = ({
       <DialogTrigger asChild>
         <Button
           className={`h-8 bg-pageColor px-2 text-sm text-white rounded-md ${
-            type === "withdraw" || "register" ? "w-full" : ""
+            type === "withdraw" || type === "register" ? "w-full" : ""
           }`}
           type="button"
           variant="card"
