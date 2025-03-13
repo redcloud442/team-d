@@ -1,9 +1,16 @@
+"use client";
+
 import { alliance_wheel_settings_table } from "@prisma/client";
-import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { Card } from "../ui/card";
 import EditModalWheel from "./EditModalWheel/EditModalWheel";
-
+const Wheel = dynamic(
+  () => import("react-custom-roulette").then((mod) => mod.Wheel),
+  {
+    ssr: false,
+  }
+);
 type DataListProps = {
   wheelData: alliance_wheel_settings_table[];
 };
@@ -12,157 +19,32 @@ const AdminWheelList = ({ wheelData }: DataListProps) => {
   const [wheelSettings, setWheelSettings] =
     useState<alliance_wheel_settings_table[]>(wheelData);
 
+  const wheelDataSetting = wheelData.map((prize) => ({
+    option:
+      prize.alliance_wheel_settings_label !== "NO REWARD" &&
+      prize.alliance_wheel_settings_label !== "RE-SPIN"
+        ? `₱ ${Number(prize.alliance_wheel_settings_label).toLocaleString(
+            "en-US",
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }
+          )}`
+        : prize.alliance_wheel_settings_label,
+    style: { backgroundColor: prize.alliance_wheel_settings_color },
+  }));
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col items-center justify-start space-y-6 mt-4  ">
         <div className="relative">
-          <div
-            className={`w-[350px] h-[350px] sm:w-[400px] sm:h-[400px] rounded-full border-[10px] border-black text-white
-              }`}
-            style={{
-              backgroundImage: `conic-gradient(${wheelSettings
-                .map((setting, index) => {
-                  const angle = (index / wheelSettings.length) * 360;
-                  return `${setting.alliance_wheel_settings_color} ${angle}deg ${angle + 360 / wheelSettings.length}deg`;
-                })
-                .join(", ")})`,
-            }}
-          >
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <Image
-                src="/app-logo.png"
-                alt="Center Logo"
-                width={80}
-                height={80}
-                className="rounded-full cursor-pointer"
-              />
-            </div>
-            <div
-              className="absolute top-1/2 left-1/2 origin-[0_-160px] sm:origin-[0_-160px]"
-              style={{
-                transform: `rotate(70deg)  translateY(-130px) rotate(-70deg)`, // Keeps the label upright
-              }}
-            >
-              <div
-                className="text-white text-center"
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  transform: `rotate(-10deg)`, // Rotate text vertically
-                }}
-              >
-                {wheelSettings[0].alliance_wheel_settings_label}
-              </div>
-            </div>
-
-            <div
-              className="absolute top-1/2 left-1/2 origin-[0_-160px]"
-              style={{
-                transform: `rotate(125deg)  translateY(-130px) rotate(-122deg)`, // Keeps the label upright
-              }}
-            >
-              <div
-                className="text-white text-center"
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  transform: `rotate(40deg)`, // Rotate text vertically
-                }}
-              >
-                {wheelSettings[1].alliance_wheel_settings_label}
-              </div>
-            </div>
-
-            <div
-              className="absolute top-1/2 left-1/2 origin-[0_-160px]"
-              style={{
-                transform: `rotate(161deg)  translateY(-130px)rotate(-140deg)`, // Keeps the label upright
-              }}
-            >
-              <div
-                className="text-white text-center"
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  transform: `rotate(70deg)`, // Rotate text vertically
-                }}
-              >
-                {wheelSettings[2].alliance_wheel_settings_label}
-              </div>
-            </div>
-
-            <div
-              className="absolute top-1/2 left-1/2 origin-[0_-160px]"
-              style={{
-                transform: `rotate(-123deg)  translateY(-130px) rotate(127deg)`, // Keeps the label upright
-              }}
-            >
-              <div
-                className="text-white text-center"
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  transform: `rotate(140deg)`, // Rotate text vertically
-                }}
-              >
-                {wheelSettings[3].alliance_wheel_settings_label}
-              </div>
-            </div>
-
-            <div
-              className="absolute top-1/2 left-1/2 origin-[0_-160px]"
-              style={{
-                transform: `rotate(-72deg)  translateY(-140px) rotate(80deg)`, // Keeps the label upright
-              }}
-            >
-              <div
-                className="text-white text-center"
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  transform: `rotate(10deg)`, // Rotate text vertically
-                }}
-              >
-                {wheelSettings[4].alliance_wheel_settings_label}
-              </div>
-            </div>
-
-            <div
-              className="absolute top-1/2 left-1/2 origin-[0_-160px]"
-              style={{
-                transform: `rotate(-10deg)  translateY(-130px) rotate(30deg)`, // Keeps the label upright
-              }}
-            >
-              <div
-                className="text-white text-center"
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  transform: `rotate(40deg)`, // Rotate text vertically
-                }}
-              >
-                {wheelSettings[5].alliance_wheel_settings_label}
-              </div>
-            </div>
-
-            <div
-              className="absolute top-1/2 left-1/2 origin-[0_-160px]"
-              style={{
-                transform: `rotate(20deg)  translateY(-130px) rotate(-5deg)`, // Keeps the label upright
-              }}
-            >
-              <div
-                className="text-white text-center"
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  transform: `rotate(90deg)`, // Rotate text vertically
-                }}
-              >
-                {wheelSettings[6].alliance_wheel_settings_label}
-              </div>
-            </div>
-          </div>
+          <Wheel
+            mustStartSpinning={false}
+            prizeNumber={0}
+            data={wheelDataSetting}
+            onStopSpinning={() => {}}
+            textColors={["#ffffff"]}
+          />
         </div>
       </div>
       {wheelSettings.length ? (

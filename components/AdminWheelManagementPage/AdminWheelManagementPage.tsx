@@ -1,4 +1,3 @@
-"use client";
 import { alliance_wheel_settings_table } from "@prisma/client";
 import AdminWheelSetting from "./AdminWheelSetting";
 
