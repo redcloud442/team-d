@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import TopUpHistoryTable from "../TopUpHistoryPage/TopUpHistoryTable";
 import { Skeleton } from "../ui/skeleton";
 import WithdrawalHistoryTable from "../WithrawalHistoryPage/WithdrawalHistoryTable";
+import AdminCheckUserReferral from "./AdminCheckUserReferral";
 import ChangePassword from "./ChangePassword";
 import MerchantBalance from "./MerchantBalance";
 import PersonalInformation from "./PersonalInformation";
@@ -24,8 +25,7 @@ type Props = {
 
 const UserAdminProfile = ({ userProfile: initialData, profile }: Props) => {
   const { toast } = useToast();
-  const [userProfileData, setUserProfileData] =
-    useState<UserRequestdata>(initialData);
+  const [userProfileData] = useState<UserRequestdata>(initialData);
 
   const [isLoading, setIsLoading] = useState(false);
   const [userList, setUserList] = useState<UserRequestdata[]>([]);
@@ -168,6 +168,8 @@ const UserAdminProfile = ({ userProfile: initialData, profile }: Props) => {
         {userProfileData.alliance_member_role === "MERCHANT" && (
           <MerchantBalance profile={profile} userProfile={userProfileData} />
         )}
+
+        <AdminCheckUserReferral userProfile={userProfileData} />
 
         <ChangePassword userProfile={userProfileData} />
 
