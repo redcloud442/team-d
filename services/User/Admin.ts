@@ -179,3 +179,28 @@ export const getUserByUsername = async (params: { username: string }) => {
     data: UserRequestdata[];
   };
 };
+
+export const getAdminCheckUserReferral = async (params: {
+  memberId: string;
+  dateFilter: {
+    start: Date | null;
+    end: Date | null;
+  };
+}) => {
+  const response = await fetch(`/api/v1/user/${params.memberId}/referral`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) throw new Error("Failed to fetch referral data");
+
+  return result as {
+    directReferral: number;
+    indirectReferral: number;
+  };
+};
