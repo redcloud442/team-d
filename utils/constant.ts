@@ -25,6 +25,11 @@ export const ROLE = {
   ADMIN: "ADMIN",
 };
 
+export const BANK_IMAGE = {
+  PAYMAYA: "/assets/bank/MAYA.png",
+  "QR PH": "/assets/bank/QRPH.png",
+};
+
 export const BASE_URL = "https://primepinas.com";
 
 export const MAX_FILE_SIZE_MB = 12;

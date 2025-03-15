@@ -37,6 +37,7 @@ import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, merchant_table } from "@prisma/client";
 
+import { BANK_IMAGE } from "@/utils/constant";
 import { AlertCircle, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { NextResponse } from "next/server";
@@ -379,8 +380,20 @@ const DashboardDepositModalDeposit = ({
                           key={option.merchant_id}
                           value={option.merchant_id}
                         >
-                          {option.merchant_account_type} -{" "}
-                          {option.merchant_account_name}
+                          <div className="flex items-center gap-2">
+                            <Image
+                              src={
+                                BANK_IMAGE[
+                                  option.merchant_account_type as keyof typeof BANK_IMAGE
+                                ]
+                              }
+                              alt={option.merchant_account_type}
+                              width={40}
+                              height={40}
+                            />
+                            {option.merchant_account_type} -{" "}
+                            {option.merchant_account_name}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
