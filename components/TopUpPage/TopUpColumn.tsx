@@ -103,11 +103,6 @@ export const TopUpColumn = (
           merchantBalance: merchantBalance,
         };
       });
-      toast({
-        title: `Status Update`,
-        description: `${status} Request Successfully`,
-        variant: status === "APPROVED" ? "success" : "reject",
-      });
 
       reset();
     } catch (e) {
