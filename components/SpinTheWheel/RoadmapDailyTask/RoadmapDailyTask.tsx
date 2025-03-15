@@ -24,10 +24,15 @@ const RoadmapComponent = () => {
   }, [handleCheckDailyTask]);
 
   return (
-    <div className="p-4 sm:p-6 rounded-md shadow-md space-y-6 bg-black/40">
-      <h2 className="text-md sm:text-xl font-bold text-white pb-14">
-        Daily Task Progress
-      </h2>
+    <div className="relative p-4 sm:p-6 rounded-md shadow-md space-y-6 bg-black/40">
+      <div className="flex flex-col pb-14 gap-4">
+        <h2 className="text-md sm:text-xl font-bold text-white">
+          Daily Task Progress
+        </h2>
+        <p className="text-white sm:text-sm text-xs">
+          Note : Same Day Invite Same Day Deposit = GET FREE SPIN
+        </p>
+      </div>
       <div className="relative w-full">
         <Progress value={progress} className="h-3 sm:h-4 bg-gray-600" />
 
