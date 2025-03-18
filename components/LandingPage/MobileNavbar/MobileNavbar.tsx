@@ -11,6 +11,11 @@ import Link from "next/link";
 import { useState } from "react";
 const MobileNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleSetIsOpen = () => {
+    setIsOpen(false);
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
@@ -28,28 +33,28 @@ const MobileNavbar = () => {
 
         <nav className="flex flex-col justify-center items-center relative gap-4 mt-6 text-center">
           <Link
-            onClick={() => setIsOpen(false)}
+            onClick={handleSetIsOpen}
             href="/"
             className="text-lg font-medium hover:text-amber-400"
           >
             Home
           </Link>
           <Link
-            onClick={() => setIsOpen(false)}
+            onClick={handleSetIsOpen}
             href="#about"
             className="text-lg font-medium hover:text-amber-400"
           >
             About
           </Link>
           <Link
-            onClick={() => setIsOpen(false)}
+            onClick={handleSetIsOpen}
             href="#plans"
             className="text-lg font-medium hover:text-amber-400"
           >
             Plans
           </Link>
           <Link
-            onClick={() => setIsOpen(false)}
+            onClick={handleSetIsOpen}
             href="#faqs"
             className="text-lg font-medium hover:text-amber-400"
           >

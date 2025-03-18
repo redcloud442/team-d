@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import CustomChevron from "@/components/ui/customChevron";
 import { Separator } from "@/components/ui/separator";

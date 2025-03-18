@@ -1,5 +1,3 @@
-"use client";
-
 import { User } from "@supabase/supabase-js";
 import AboutSection from "./AboutSection/AboutSection";
 import AttributeSection from "./AttributeSection/AttributeSection";

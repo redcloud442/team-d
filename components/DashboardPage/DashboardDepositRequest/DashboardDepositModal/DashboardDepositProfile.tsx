@@ -22,6 +22,7 @@ import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, user_table } from "@prisma/client";
 import { CheckCircleIcon, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -315,37 +316,34 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
                 )}
               </div>
               {role === "MERCHANT" && (
-                <div className="flex justify-between gap-4">
-                  <Button
-                    type="button"
-                    className="w-full"
-                    variant="card"
-                    onClick={() => router.push("/merchant")}
-                  >
-                    Create MOP
-                  </Button>
-                  <Button
-                    type="button"
-                    className="w-full"
-                    variant="card"
-                    onClick={() => router.push("/deposit")}
-                  >
-                    Orders
-                  </Button>
+                <div className="flex w-full justify-center items-center gap-4">
+                  <Link href="/merchant">
+                    <Button
+                      type="button"
+                      variant="card"
+                      className="w-full rounded-md"
+                    >
+                      Create MOP
+                    </Button>
+                  </Link>
+                  <Link href="/merchant">
+                    <Button
+                      type="button"
+                      variant="card"
+                      className="w-full rounded-md"
+                    >
+                      Orders
+                    </Button>
+                  </Link>
                 </div>
               )}
 
               {(role === "ACCOUNTING" || role === "ACCOUNTING_HEAD") && (
-                <div className="flex justify-between gap-4">
-                  <Button
-                    type="button"
-                    className="w-full"
-                    variant="card"
-                    onClick={() => router.push("/withdraw")}
-                  >
+                <Link href="/withdraw" className="w-full">
+                  <Button type="button" className="w-full" variant="card">
                     Withdrawal
                   </Button>
-                </div>
+                </Link>
               )}
 
               {/* Submit Button */}

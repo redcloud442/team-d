@@ -3,17 +3,11 @@
 import CustomChevron from "@/components/ui/customChevron";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
 const HowToEarnSection = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
-  const router = useRouter();
-
-  const handlePushToLogin = () => {
-    router.push("/auth/login");
-  };
 
   return (
     <div

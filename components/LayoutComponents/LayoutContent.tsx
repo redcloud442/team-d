@@ -105,12 +105,7 @@ export default function LayoutContent({
   return (
     <div className="flex min-h-screen w-full overflow-hidden relative">
       {role === ROLE.ADMIN && (
-        <div>
-          <AppSidebar
-            userData={profile}
-            teamMemberProfile={teamMemberProfile}
-          />
-        </div>
+        <AppSidebar userData={profile} teamMemberProfile={teamMemberProfile} />
       )}
 
       <div className="flex-1 flex flex-col overflow-x-auto relative">

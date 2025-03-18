@@ -2,7 +2,6 @@ import RouterTransition from "@/components/ui/routerTransition";
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 import { Roboto_Slab } from "next/font/google";
-import { Suspense } from "react";
 import "./globals.css";
 export const metadata: Metadata = {
   title: "PR1MEPH",
@@ -25,7 +24,7 @@ export default function RootLayout({
       <body>
         <main>
           <RouterTransition />
-          <Suspense fallback={<RouterTransition />}>{children}</Suspense>
+          {children}
         </main>
         <Toaster />
       </body>
