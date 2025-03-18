@@ -179,6 +179,26 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
             className="mt-1 border-gray-300"
           />
         </div>
+        <div>
+          <Label className="text-sm font-medium ">Direct Count</Label>
+          <Input
+            id="directCount"
+            type="text"
+            value={userProfile.direct_referral_count || "N/A"}
+            readOnly
+            className="mt-1 border-gray-300"
+          />
+        </div>
+        <div>
+          <Label className="text-sm font-medium ">Indirect Count</Label>
+          <Input
+            id="indirectCount"
+            type="text"
+            value={userProfile.indirect_referral_count || "N/A"}
+            readOnly
+            className="mt-1 border-gray-300"
+          />
+        </div>
       </CardContent>
     </Card>
   );

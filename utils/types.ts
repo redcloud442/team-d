@@ -2,6 +2,7 @@ import {
   alliance_member_table,
   alliance_top_up_request_table,
   alliance_withdrawal_request_table,
+  dashboard_earnings_summary,
   merchant_member_table,
   user_history_log,
   user_table,
@@ -44,7 +45,8 @@ export type WithdrawalRequestData = alliance_withdrawal_request_table & {
 
 export type UserRequestdata = user_table &
   alliance_member_table &
-  merchant_member_table;
+  merchant_member_table &
+  dashboard_earnings_summary;
 
 export type LegionRequestData = user_table &
   alliance_member_table & {

@@ -22,18 +22,27 @@ const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
 
   if (!teamMemberProfile) return redirect("/auth/login");
 
-  const [userData, allianceData] = await prisma.$transaction([
-    prisma.user_table.findUnique({
-      where: {
-        user_id: userId,
-      },
-    }),
-    prisma.alliance_member_table.findFirst({
-      where: {
-        alliance_member_user_id: userId,
-      },
-    }),
-  ]);
+  const [userData, allianceData, earningsData] = await prisma.$transaction(
+    async (tx) => {
+      const user = await tx.user_table.findUnique({
+        where: { user_id: userId },
+      });
+
+      if (!user) return [null, null, null]; // Stop further queries if user doesn't exist
+
+      const alliance = await tx.alliance_member_table.findFirst({
+        where: { alliance_member_user_id: userId },
+      });
+
+      const earnings = alliance
+        ? await tx.dashboard_earnings_summary.findUnique({
+            where: { member_id: alliance.alliance_member_id },
+          })
+        : null;
+
+      return [user, alliance, earnings];
+    }
+  );
 
   const merchantData = allianceData
     ? await prisma.merchant_member_table.findFirst({
@@ -47,6 +56,7 @@ const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
     ...userData,
     ...allianceData,
     ...merchantData,
+    ...earningsData,
   } as UserRequestdata;
 
   if (!combinedData) return redirect("/auth/login");

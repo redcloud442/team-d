@@ -3104,3 +3104,103 @@ USING ( EXISTS (
         AND amt.alliance_member_role IN ('ADMIN', 'ACCOUNTING')
   ));
 
+
+CREATE OR REPLACE FUNCTION alliance_schema.process_package_ally_bounty_log()
+RETURNS TRIGGER 
+AS $$
+
+plv8.subtransaction(function() {
+
+  var newRow = NEW;
+  var memberId = newRow.package_ally_bounty_member_id;
+  var createdAt = newRow.package_ally_bounty_log_date_created;
+
+  plv8.execute(`
+    INSERT INTO alliance_schema.alliance_wheel_table (alliance_wheel_member_id, alliance_wheel_date)
+    VALUES ($1, $2)
+    ON CONFLICT (alliance_wheel_member_id) DO NOTHING;
+  `, [memberId, createdAt]);
+
+  var wheelData = plv8.execute(`
+    SELECT * FROM alliance_schema.alliance_wheel_table
+    WHERE alliance_wheel_member_id = $1;
+  `, [memberId]);
+
+  if (wheelData.length === 0) {
+    return newRow;
+  }
+
+  var lastUpdated = wheelData[0].alliance_wheel_date_updated || wheelData[0].alliance_wheel_date;
+
+  // Count unique referrals since the last update
+  var referralCountResult = plv8.execute(`
+    SELECT COUNT(DISTINCT package_ally_bounty_from) AS count
+    FROM alliance_schema.package_ally_bounty_log
+    WHERE package_ally_bounty_member_id = $1 AND package_ally_bounty_log_date_created >= $2;
+  `, [memberId, lastUpdated]);
+  
+  var referralCount = referralCountResult.length > 0 ? parseInt(referralCountResult[0].count, 10) : 0;
+  
+  var updateFields = {};
+  var newSpinCount = 0;
+
+  if (referralCount >= 3 && !wheelData[0].three_referrals) {
+    newSpinCount = 3;
+    updateFields.three_referrals = true;
+  }
+  if (referralCount >= 10 && wheelData[0].three_referrals) {
+    newSpinCount = 5;
+    updateFields.ten_referrals = true;
+  }
+  if (referralCount >= 25 && wheelData[0].ten_referrals) {
+    newSpinCount = 15;
+    updateFields.twenty_five_referrals = true;
+  }
+  if (referralCount >= 50 && wheelData[0].twenty_five_referrals) {
+    newSpinCount = 35;
+    updateFields.fifty_referrals = true;
+  }
+  if (referralCount >= 100 && wheelData[0].fifty_referrals && !wheelData[0].one_hundred_referrals) {
+    newSpinCount = 50;
+    updateFields.one_hundred_referrals = true;
+  }
+
+  if (newSpinCount > 0) {
+    updateFields.alliance_wheel_date_updated = new Date();
+    
+    plv8.execute(`
+      INSERT INTO alliance_schema.alliance_transaction_table (transaction_amount, transaction_description, transaction_member_id)
+      VALUES (0, 'Daily task + ' || $1 || ' spins', $2);
+    `, [newSpinCount, memberId]);
+  }
+
+  if (Object.keys(updateFields).length > 0) {
+    var updateQuery = `UPDATE alliance_schema.alliance_wheel_table SET `;
+    var updateParams = [];
+    var index = 1;
+    
+    for (var key in updateFields) {
+      updateQuery += `${key} = $${index}, `;
+      updateParams.push(updateFields[key]);
+      index++;
+    }
+    updateQuery = updateQuery.slice(0, -2) + ` WHERE alliance_wheel_member_id = $${index}`;
+    updateParams.push(memberId);
+    
+    plv8.execute(updateQuery, updateParams);
+  }
+
+  if (newSpinCount > 0) {
+    plv8.execute(`
+      INSERT INTO alliance_schema.alliance_wheel_log_table (alliance_wheel_member_id, alliance_wheel_spin_count)
+      VALUES ($1, $2)
+      ON CONFLICT (alliance_wheel_member_id) DO UPDATE
+      SET alliance_wheel_spin_count = alliance_wheel_log_table.alliance_wheel_spin_count + EXCLUDED.alliance_wheel_spin_count;
+    `, [memberId, newSpinCount]);
+  }
+
+  
+  return newRow;
+
+  });
+$$ LANGUAGE plv8;
