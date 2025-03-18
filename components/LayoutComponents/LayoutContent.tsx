@@ -2,6 +2,18 @@
 
 import MobileNavBar from "@/components/ui/MobileNavBar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ROLE } from "@/utils/constant";
+import { useRole } from "@/utils/context/roleContext";
+import { alliance_member_table, user_table } from "@prisma/client";
+import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import { useCallback, useEffect, useMemo } from "react";
+import DevMode from "../ui/dev-mode";
+import { ModeToggle } from "../ui/toggleDarkmode";
+
+const LazyAppSidebar = dynamic(() => import("../ui/side-bar"), { ssr: false });
+
 import { getDashboard } from "@/services/Dasboard/Member";
 import {
   getUserEarnings,
@@ -15,14 +27,6 @@ import { useSponsorStore } from "@/store/useSponsortStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
-import { ROLE } from "@/utils/constant";
-import { useRole } from "@/utils/context/roleContext";
-import { alliance_member_table, user_table } from "@prisma/client";
-import { useTheme } from "next-themes";
-import Image from "next/image";
-import { useEffect } from "react";
-import AppSidebar from "../ui/side-bar";
-import { ModeToggle } from "../ui/toggleDarkmode";
 
 type LayoutContentProps = {
   profile: user_table;
@@ -36,116 +40,129 @@ export default function LayoutContent({
   children,
 }: LayoutContentProps) {
   const { role } = useRole();
+  const { setTheme } = useTheme();
   const { setTotalEarnings } = useUserDashboardEarningsStore();
   const { setEarnings } = useUserEarningsStore();
   const { setLoading } = useUserLoadingStore();
   const { setChartData } = usePackageChartData();
   const { setIsWithdrawalToday, setCanUserDeposit } =
     useUserHaveAlreadyWithdraw();
-  const { setTheme } = useTheme();
   const { setSponsor } = useSponsorStore();
   const { setDailyTask } = useDailyTaskStore();
 
+  const isAdmin = useMemo(() => role === ROLE.ADMIN, [role]);
+
   useEffect(() => {
-    if (role !== ROLE.ADMIN) {
-      setTheme("dark"); // Default to light mode for other roles
+    if (!isAdmin) {
+      setTheme("dark");
     }
-  }, [role, setTheme]);
+  }, [isAdmin, setTheme]);
+
+  const handleFetchTransaction = useCallback(async () => {
+    if (isAdmin) return;
+
+    try {
+      setLoading(true);
+
+      const [
+        { totalEarnings, userEarningsData },
+        dashboardData,
+        dataWithdrawalToday,
+        sponsorData,
+      ] = await Promise.all([
+        getUserEarnings({ memberId: teamMemberProfile.alliance_member_id }),
+        getDashboard({ teamMemberId: teamMemberProfile.alliance_member_id }),
+        getUserWithdrawalToday(),
+        getUserSponsor({ userId: profile.user_id }),
+      ]);
+
+      const {
+        canWithdrawReferral,
+        canWithdrawPackage,
+        canWithdrawWinning,
+        canUserDeposit,
+      } = dataWithdrawalToday.data;
+
+      setTotalEarnings(totalEarnings);
+      setEarnings(userEarningsData);
+      setChartData(dashboardData);
+      setCanUserDeposit(canUserDeposit);
+      setIsWithdrawalToday({
+        referral: canWithdrawReferral,
+        package: canWithdrawPackage,
+        winning: canWithdrawWinning,
+      });
+
+      setDailyTask(dataWithdrawalToday.data.response);
+      setSponsor(sponsorData);
+    } catch (e) {
+      console.error("Failed to fetch transaction data", e);
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    isAdmin,
+    teamMemberProfile.alliance_member_id,
+    profile.user_id,
+    setLoading,
+  ]);
 
   useEffect(() => {
-    const handleFetchTransaction = async () => {
-      if (role === ROLE.ADMIN) return;
-
-      try {
-        setLoading(true);
-
-        // Run independent queries in parallel
-        const [
-          { totalEarnings, userEarningsData },
-          dashboardData,
-          dataWithdrawalToday,
-          sponsorData,
-        ] = await Promise.all([
-          getUserEarnings({ memberId: teamMemberProfile.alliance_member_id }),
-          getDashboard({
-            teamMemberId: teamMemberProfile.alliance_member_id,
-          }),
-          getUserWithdrawalToday(),
-          getUserSponsor({ userId: profile.user_id }),
-        ]);
-
-        const {
-          canWithdrawReferral,
-          canWithdrawPackage,
-          canWithdrawWinning,
-          canUserDeposit,
-        } = dataWithdrawalToday.data;
-
-        setTotalEarnings(totalEarnings);
-        setEarnings(userEarningsData);
-        setChartData(dashboardData);
-        setCanUserDeposit(canUserDeposit);
-        setIsWithdrawalToday({
-          referral: canWithdrawReferral,
-          package: canWithdrawPackage,
-          winning: canWithdrawWinning,
-        });
-
-        setDailyTask(dataWithdrawalToday.data.response);
-        setSponsor(sponsorData);
-      } catch (e) {
-      } finally {
-        setLoading(false);
-      }
-    };
-
     handleFetchTransaction();
-  }, [role]);
+  }, [handleFetchTransaction]);
+
+  const sidebar = useMemo(() => {
+    if (!isAdmin) return null;
+    return (
+      <LazyAppSidebar
+        userData={profile}
+        teamMemberProfile={teamMemberProfile}
+      />
+    );
+  }, [isAdmin]);
+
+  const backgroundImage = useMemo(() => {
+    if (isAdmin) return null;
+    return (
+      <div className="absolute inset-0 -z-10">
+        <Image
+          src="/assets/bg-primary.jpeg"
+          alt="Background"
+          quality={100}
+          fill
+          priority
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-zinc-900/80 dark:bg-zinc-900/90"></div>
+      </div>
+    );
+  }, [isAdmin]);
+
+  const mobileNav = useMemo(() => {
+    if (isAdmin) return null;
+    return <MobileNavBar />;
+  }, [isAdmin]);
 
   return (
     <div className="flex min-h-screen w-full overflow-hidden relative">
-      {role === ROLE.ADMIN && (
-        <AppSidebar userData={profile} teamMemberProfile={teamMemberProfile} />
-      )}
+      {sidebar}
 
       <div className="flex-1 flex flex-col overflow-x-auto relative">
-        {role === ROLE.ADMIN && (
+        {isAdmin && (
           <div className="p-4 md:hidden">
             <SidebarTrigger />
           </div>
         )}
 
-        {role !== ROLE.ADMIN && (
-          <div className="absolute inset-0 -z-10">
-            {/* Background Image */}
-            <Image
-              src="/assets/bg-primary.jpeg"
-              alt="Background"
-              quality={100}
-              fill
-              priority
-              className="object-cover"
-            />
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-zinc-900/80 dark:bg-zinc-900/90"></div>
-          </div>
-        )}
+        {backgroundImage}
 
-        {/* Content Section */}
         <div className="pb-24 p-4 relative z-50 grow">{children}</div>
 
-        {/* Mobile Navigation */}
+        {mobileNav}
 
-        {role !== ROLE.ADMIN && <MobileNavBar />}
-        {role === ROLE.ADMIN && <ModeToggle />}
-        {process.env.NODE_ENV === "development" && (
-          <div className="fixed top-10 right-1/2 ">
-            <div className="block sm:hidden text-3xl">sm</div>
-            <div className="hidden sm:block md:hidden text-3xl">md</div>
-            <div className="hidden md:block lg:hidden text-3xl">lg</div>
-            <div className="hidden lg:block text-3xl">xl</div>
-          </div>
-        )}
+        {isAdmin && <ModeToggle />}
+
+        <DevMode />
       </div>
     </div>
   );
