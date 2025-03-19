@@ -326,7 +326,7 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
                       Create MOP
                     </Button>
                   </Link>
-                  <Link href="/merchant">
+                  <Link href="/deposit">
                     <Button
                       type="button"
                       variant="card"
