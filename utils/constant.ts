@@ -28,6 +28,7 @@ export const ROLE = {
 export const BANK_IMAGE = {
   PAYMAYA: "/assets/bank/MAYA.png",
   "QR PH": "/assets/bank/QRPH.png",
+  GOTYME: "/assets/bank/GOTYME.jpg",
 };
 
 export const BASE_URL = "https://primepinas.com";
