@@ -194,6 +194,7 @@ const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
         : undefined;
       const endDate = startDate ? new Date(startDate) : undefined;
 
+      setActivePage(1);
       const requestData = await getAdminTopUpRequest({
         page: activePage,
         limit: 10,

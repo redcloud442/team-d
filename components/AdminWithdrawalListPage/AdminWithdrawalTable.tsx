@@ -202,6 +202,8 @@ const AdminWithdrawalHistoryTable = ({
         : undefined;
       const endDate = startDate ? new Date(startDate) : undefined;
 
+      setActivePage(1);
+
       const requestData = await getAdminWithdrawalRequest({
         page: activePage,
         limit: 10,
@@ -297,7 +299,7 @@ const AdminWithdrawalHistoryTable = ({
 
   useEffect(() => {
     fetchRequest();
-  }, [supabaseClient, teamMemberProfile, activePage, sorting, hidden]);
+  }, [teamMemberProfile, activePage, sorting, hidden]);
 
   const pageCount = Math.ceil((requestData?.data?.[status]?.count || 0) / 10);
 
@@ -324,7 +326,7 @@ const AdminWithdrawalHistoryTable = ({
       return;
     }
 
-    await handleRefresh();
+    await fetchRequest();
   };
 
   const rejectNote = watch("rejectNote");
@@ -421,7 +423,7 @@ const AdminWithdrawalHistoryTable = ({
             </Button>
             <Button
               variant="card"
-              onClick={handleRefresh}
+              onClick={handleFilter}
               disabled={isFetchingList}
               size="sm"
               className="h-12 rounded-md"

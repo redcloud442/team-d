@@ -220,8 +220,9 @@ const AdminTopUpApprovalTable = ({ teamMemberProfile }: DataTableProps) => {
 
       const endDate = startDate ? new Date(startDate) : undefined;
 
+      setActivePage(1);
       const requestData = await getAdminTopUpRequest({
-        page: 1,
+        page: activePage,
         limit: 10,
         columnAccessor,
         isAscendingSort,

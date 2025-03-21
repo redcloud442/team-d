@@ -218,6 +218,8 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
         : undefined;
       const endDate = startDate ? new Date(startDate) : undefined;
 
+      setActivePage(1);
+
       const requestData = await getAdminWithdrawalRequest({
         page: activePage,
         limit: 10,
@@ -338,7 +340,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
       return;
     }
 
-    await handleRefresh();
+    await fetchRequest();
   };
 
   const rejectNote = watch("rejectNote");
