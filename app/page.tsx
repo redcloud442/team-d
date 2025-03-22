@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Pr1me Pinas",
   description: "Pr1me Pinas",
   openGraph: {
-    url: "/",
+    url: "https://pr1mepinas.com",
   },
 };
 const montserrat = Montserrat({
