@@ -45,7 +45,11 @@ export function NavUser({ user }: { user: user_table }) {
                   src={user.user_profile_picture ?? ""}
                   alt={user.user_username ?? ""}
                 />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">
+                  {" "}
+                  {user.user_first_name?.charAt(0).toUpperCase() ?? ""}
+                  {user.user_last_name?.charAt(0).toUpperCase() ?? ""}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
