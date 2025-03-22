@@ -5,6 +5,7 @@ import {
   FerrisWheel,
   File,
   HistoryIcon,
+  LayoutDashboardIcon,
   MonitorCheck,
   Package,
   PersonStandingIcon,
@@ -34,7 +35,7 @@ const data = {
     {
       name: "PRIMEPINAS",
       logo: "/app-logo.svg",
-      plan: "Incorporated",
+      plan: "Company",
     },
   ],
   navMain: [
@@ -47,7 +48,7 @@ const data = {
         {
           title: "Dashboard",
           url: "/admin",
-          icon: SquareTerminal,
+          icon: LayoutDashboardIcon,
         },
         {
           title: "Leaderboard",

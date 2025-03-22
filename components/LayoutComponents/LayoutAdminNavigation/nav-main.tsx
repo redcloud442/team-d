@@ -39,7 +39,7 @@ export function NavMain({
   const isActive = (url: string) => pathname === url;
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Application Dashboard</SidebarGroupLabel>
+      <SidebarGroupLabel>Application Menu</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
