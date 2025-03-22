@@ -4,7 +4,13 @@ import { ThemeProvider } from "@/components/theme-provider/theme-provider";
 
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { RoleProvider } from "@/utils/context/roleContext";
+import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
+import {
+  alliance_member_table,
+  alliance_referral_link_table,
+  user_table,
+} from "@prisma/client";
 import { redirect } from "next/navigation";
 
 export default async function AppLayout({
@@ -12,17 +18,22 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const {
-    profile,
-    redirect: redirectTo,
-    teamMemberProfile,
-  } = await protectionMemberUser();
+  const userProfile = await prisma.$transaction(async (tx) => {
+    const {
+      profile,
+      redirect: redirectTo,
+      teamMemberProfile,
+      referral,
+    } = await protectionMemberUser(tx);
 
-  if (redirectTo) {
-    redirect(redirectTo);
+    return { profile, redirectTo, teamMemberProfile, referral };
+  });
+
+  if (userProfile.redirectTo) {
+    redirect(userProfile.redirectTo);
   }
 
-  if (!profile) {
+  if (!userProfile.profile) {
     redirect("/500");
   }
 
@@ -30,15 +41,13 @@ export default async function AppLayout({
     <ThemeProvider attribute="class" defaultTheme="light">
       <SidebarProvider>
         <RoleProvider
-          initialRole={teamMemberProfile.alliance_member_role}
-          initialUserName={profile.user_username ?? ""}
+          initialProfile={userProfile.profile as user_table}
+          initialTeamMemberProfile={
+            userProfile.teamMemberProfile as alliance_member_table & user_table
+          }
+          initialReferral={userProfile.referral as alliance_referral_link_table}
         >
-          <LayoutContent
-            profile={profile}
-            teamMemberProfile={teamMemberProfile}
-          >
-            {children}
-          </LayoutContent>
+          <LayoutContent>{children}</LayoutContent>
         </RoleProvider>
       </SidebarProvider>
     </ThemeProvider>

@@ -7,12 +7,9 @@ import {
   getAdminDashboardByDate,
 } from "@/services/Dasboard/Admin";
 import { logError } from "@/services/Error/ErrorLogs";
+import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminDashboardData, AdminDashboardDataByDate } from "@/utils/types";
-import {
-  alliance_member_table,
-  alliance_referral_link_table,
-} from "@prisma/client";
 import { format } from "date-fns";
 import {
   CalendarIcon,
@@ -41,15 +38,11 @@ import TableLoading from "../ui/tableLoading";
 import AdminDashboardCard from "./AdminDashboardCard";
 import AdminDashboardChart from "./AdminDashboardChart";
 
-type Props = {
-  teamMemberProfile: alliance_member_table;
-  referral: alliance_referral_link_table;
-};
-
 type FormContextType = { dateFilter: { start: string; end: string } };
 
-const AdminDashboardPage = ({ teamMemberProfile, referral }: Props) => {
+const AdminDashboardPage = () => {
   const supabaseClient = createClientSide();
+  const { teamMemberProfile, referral } = useRole();
   const router = useRouter();
   const { toast } = useToast();
   const [adminDashboardByDate, setAdminDashboardByDate] =

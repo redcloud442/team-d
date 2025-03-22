@@ -1,11 +1,11 @@
 "use client";
-import { alliance_member_table } from "@prisma/client";
 import { Controller, useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 import { cn } from "@/lib/utils";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminUserReinvestedReport } from "@/services/User/Admin";
+import { useRole } from "@/utils/context/roleContext";
 import { adminUserReinvestedReportData } from "@/utils/types";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { format } from "date-fns";
@@ -15,9 +15,6 @@ import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import AdminUserReinvestedTable from "./AdminUserReinvestedTable";
-type Props = {
-  teamMemberProfile: alliance_member_table;
-};
 
 type FormData = {
   dateFilter: {
@@ -26,8 +23,9 @@ type FormData = {
   };
 };
 
-const AdminUserReinvestedPage = ({ teamMemberProfile }: Props) => {
+const AdminUserReinvestedPage = () => {
   const supabaseClient = createClientComponentClient();
+  const { teamMemberProfile } = useRole();
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [page, setPage] = useState(1);
   const [reinvestedReportData, setReinvestedReportData] = useState<

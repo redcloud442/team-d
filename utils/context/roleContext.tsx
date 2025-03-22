@@ -1,36 +1,84 @@
 "use client";
 
+import {
+  alliance_member_table,
+  alliance_referral_link_table,
+  user_table,
+} from "@prisma/client";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 type RoleContextType = {
-  role: string;
-  userName: string;
-  setRole: ({ role, userName }: { role: string; userName: string }) => void;
+  profile: user_table;
+  teamMemberProfile: alliance_member_table;
+  referral: alliance_referral_link_table;
+  setProfile: ({ profile }: { profile: user_table }) => void;
+  setTeamMemberProfile: ({
+    teamMemberProfile,
+  }: {
+    teamMemberProfile: alliance_member_table & user_table;
+  }) => void;
+  setReferral: ({
+    referral,
+  }: {
+    referral: alliance_referral_link_table;
+  }) => void;
 };
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 export const RoleProvider = ({
   children,
-  initialRole,
-  initialUserName,
+  initialProfile,
+  initialTeamMemberProfile,
+  initialReferral,
 }: {
   children: ReactNode;
-  initialRole: string;
-  initialUserName: string;
+  initialProfile: user_table;
+  initialTeamMemberProfile: alliance_member_table;
+  initialReferral: alliance_referral_link_table;
 }) => {
   const [state, setState] = useState({
-    role: initialRole,
-    userName: initialUserName,
+    profile: initialProfile,
+    teamMemberProfile: initialTeamMemberProfile,
+    referral: initialReferral,
   });
 
-  const setRole = ({ role, userName }: { role: string; userName: string }) => {
-    setState({ role, userName });
+  const setProfile = ({ profile }: { profile: user_table }) => {
+    setState((prev) => ({ ...prev, profile }));
+  };
+
+  const setTeamMemberProfile = ({
+    teamMemberProfile,
+  }: {
+    teamMemberProfile: alliance_member_table & user_table;
+  }) => {
+    setState((prev) => ({
+      ...prev,
+      teamMemberProfile,
+    }));
+  };
+
+  const setReferral = ({
+    referral,
+  }: {
+    referral: alliance_referral_link_table;
+  }) => {
+    setState((prev) => ({
+      ...prev,
+      referral,
+    }));
   };
 
   return (
     <RoleContext.Provider
-      value={{ role: state.role, userName: state.userName, setRole }}
+      value={{
+        teamMemberProfile: state.teamMemberProfile,
+        referral: state.referral,
+        setTeamMemberProfile,
+        setReferral,
+        profile: state.profile,
+        setProfile,
+      }}
     >
       {children}
     </RoleContext.Provider>

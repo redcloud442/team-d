@@ -7,13 +7,12 @@ import { usePackageChartData } from "@/store/usePackageChartData";
 import { useSponsorStore } from "@/store/useSponsortStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
+import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
 import {
-  alliance_member_table,
   alliance_referral_link_table,
   alliance_testimonial_table,
   package_table,
-  user_table,
 } from "@prisma/client";
 import { Download, RefreshCw } from "lucide-react";
 import Image from "next/image";
@@ -40,10 +39,8 @@ import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/Dashboard
 import { TestimonialPage } from "./Testimonial/TestimonialPage";
 
 type Props = {
-  teamMemberProfile: alliance_member_table;
   referal: alliance_referral_link_table;
   packages: package_table[];
-  profile: user_table;
   testimonials: alliance_testimonial_table[];
   wheel: {
     alliance_wheel_settings_id: string;
@@ -53,20 +50,14 @@ type Props = {
   }[];
 };
 
-const DashboardPage = ({
-  referal,
-  teamMemberProfile,
-  packages,
-  profile,
-  testimonials,
-  wheel,
-}: Props) => {
+const DashboardPage = ({ referal, packages, testimonials, wheel }: Props) => {
   const supabaseClient = createClientSide();
   const { loading } = useUserLoadingStore();
   const { earnings, setEarnings } = useUserEarningsStore();
   const { totalEarnings, setTotalEarnings } = useUserDashboardEarningsStore();
   const { chartData } = usePackageChartData();
   const { sponsor } = useSponsorStore();
+  const { teamMemberProfile, profile } = useRole();
 
   const [isActive, setIsActive] = useState(
     teamMemberProfile.alliance_member_is_active

@@ -1,13 +1,8 @@
 "use client";
 
-import { alliance_member_table } from "@prisma/client";
 import WithdrawalTable from "./WithdrawalTable";
 
-type Props = {
-  teamMemberProfile: alliance_member_table;
-};
-
-const WithdrawalPage = ({ teamMemberProfile }: Props) => {
+const WithdrawalPage = () => {
   return (
     <div className="mx-auto md:p-10">
       <div>
@@ -20,7 +15,7 @@ const WithdrawalPage = ({ teamMemberProfile }: Props) => {
 
         {/* Table Section */}
         <section className=" rounded-lg ">
-          <WithdrawalTable teamMemberProfile={teamMemberProfile} />
+          <WithdrawalTable />
         </section>
       </div>
     </div>

@@ -1,91 +1,83 @@
+// app/dashboard/page.tsx
+
 import DashboardPage from "@/components/DashboardPage/DashboardPage";
 import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
-import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Pr1me Dashboard",
-  openGraph: {
-    url: "/dashboard",
-  },
-};
-
 const Page = async () => {
-  const {
-    redirect: redirectTo,
-    referal,
-    teamMemberProfile,
-    profile,
-  } = await protectionMemberUser();
+  const result = await prisma.$transaction(async (tx) => {
+    const authData = await protectionMemberUser(tx);
 
-  if (redirectTo) {
-    redirect(redirectTo);
+    if ("redirect" in authData) return { redirectTo: authData.redirect };
+
+    const { profile, teamMemberProfile, referral } = authData;
+
+    if (teamMemberProfile.alliance_member_role === "ADMIN") {
+      return { redirectTo: "/admin" };
+    }
+
+    const [packages, testimonials, wheel] = await Promise.all([
+      tx.package_table.findMany({
+        where: { package_is_disabled: false },
+        select: {
+          package_id: true,
+          package_name: true,
+          package_percentage: true,
+          packages_days: true,
+          package_description: true,
+          package_color: true,
+          package_is_disabled: true,
+          package_image: true,
+        },
+      }),
+      tx.alliance_testimonial_table.findMany({
+        where: { alliance_testimonial_is_hidden: false },
+        select: {
+          alliance_testimonial_id: true,
+          alliance_testimonial_date_created: true,
+          alliance_testimonial_url: true,
+          alliance_testimonial_thumbnail: true,
+          alliance_testimonial_is_hidden: true,
+        },
+        orderBy: {
+          alliance_testimonial_date_created: "desc",
+        },
+      }),
+      tx.alliance_wheel_settings_table.findMany({
+        orderBy: {
+          alliance_wheel_settings_date: "desc",
+        },
+        select: {
+          alliance_wheel_settings_id: true,
+          alliance_wheel_settings_label: true,
+          alliance_wheel_settings_percentage: true,
+          alliance_wheel_settings_color: true,
+        },
+      }),
+    ]);
+
+    return {
+      profile,
+      teamMemberProfile,
+      referral,
+      packages,
+      testimonials,
+      wheel,
+    };
+  });
+
+  if ("redirectTo" in result) {
+    return redirect(result.redirectTo as string);
   }
 
-  if (!teamMemberProfile) return redirect("/500");
-
-  const packages = await prisma.package_table.findMany({
-    where: {
-      package_is_disabled: false,
-    },
-    select: {
-      package_id: true,
-      package_name: true,
-      package_percentage: true,
-      packages_days: true,
-      package_description: true,
-      package_color: true,
-      package_is_disabled: true,
-      package_image: true,
-    },
-  });
-
-  if (teamMemberProfile.alliance_member_role === "ADMIN") {
-    return redirect("/admin");
-  }
-
-  const testimonials = await prisma.alliance_testimonial_table.findMany({
-    where: {
-      alliance_testimonial_is_hidden: false,
-    },
-    select: {
-      alliance_testimonial_url: true,
-      alliance_testimonial_thumbnail: true,
-    },
-    orderBy: {
-      alliance_testimonial_date_created: "desc",
-    },
-  });
-
-  const wheel = await prisma.alliance_wheel_settings_table.findMany({
-    orderBy: {
-      alliance_wheel_settings_date: "desc",
-    },
-    select: {
-      alliance_wheel_settings_id: true,
-      alliance_wheel_settings_label: true,
-      alliance_wheel_settings_percentage: true,
-      alliance_wheel_settings_color: true,
-    },
-  });
+  const { referral, packages, testimonials, wheel } = result;
 
   return (
     <DashboardPage
-      profile={profile}
-      teamMemberProfile={teamMemberProfile}
-      referal={referal}
+      referal={referral}
       packages={packages}
-      testimonials={
-        testimonials as {
-          alliance_testimonial_id: string;
-          alliance_testimonial_date_created: Date;
-          alliance_testimonial_url: string;
-          alliance_testimonial_thumbnail: string | null;
-          alliance_testimonial_is_hidden: boolean;
-        }[]
-      }
+      testimonials={testimonials}
       wheel={wheel}
     />
   );

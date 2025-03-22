@@ -16,8 +16,7 @@ const NavBar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClientSide();
-  const { role } = useRole();
-  const { userName } = useRole();
+  const { teamMemberProfile, profile } = useRole();
 
   const handleNavigation = (url: string) => {
     if (pathname !== url) {
@@ -48,7 +47,7 @@ const NavBar = () => {
 
         {/* Navigation Links */}
         <div className="hidden items-center space-x-4 md:flex">
-          {role === "MERCHANT" && (
+          {teamMemberProfile.alliance_member_role === "MERCHANT" && (
             <>
               <Button
                 variant="ghost"
@@ -64,7 +63,7 @@ const NavBar = () => {
               </Button>
             </>
           )}
-          {role === "ACCOUNTING" && (
+          {teamMemberProfile.alliance_member_role === "ACCOUNTING" && (
             <Button
               variant="ghost"
               onClick={() => handleNavigation("/withdraw")}
@@ -76,7 +75,7 @@ const NavBar = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">
-                Hello, {userName}
+                Hello, {profile.user_first_name} {profile.user_last_name}
                 <ChevronDown />
               </Button>
             </DropdownMenuTrigger>

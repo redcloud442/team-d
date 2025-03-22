@@ -67,7 +67,8 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
   };
 
   useEffect(() => {
-    if (!userProfile.user_id) return;
+    if (!userProfile.user_id || userProfile.alliance_member_role === "ADMIN")
+      return;
     const fetchUserSponsor = async () => {
       try {
         const userId = params.userId;
@@ -116,29 +117,19 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
         </div>
       </CardHeader>
       <CardContent className="grid grid-cols-1 gap-6 sm:grid-cols-2 p-6">
-        {userSponsor === null ? (
+        {userProfile.alliance_member_role !== "ADMIN" && (
           <div>
-            <Label className="text-sm font-medium ">Sponsor</Label>
+            <Label className="text-sm font-medium">Sponsor</Label>
             <Input
               id="sponsor"
               type="text"
-              value={"Loading..."}
-              readOnly
-              className="mt-1 border-gray-300"
-            />
-          </div>
-        ) : (
-          <div>
-            <Label className="text-sm font-medium ">Sponsor</Label>
-            <Input
-              id="sponsor"
-              type="text"
-              value={userSponsor.user_username || ""}
+              value={userSponsor ? userSponsor.user_username : "Loading..."}
               readOnly
               className="mt-1 border-gray-300"
             />
           </div>
         )}
+
         <div>
           <Label className="text-sm font-medium ">First Name</Label>
           <Input
@@ -184,7 +175,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
           <Input
             id="directCount"
             type="text"
-            value={userProfile.direct_referral_count || "N/A"}
+            value={userProfile.direct_referral_count}
             readOnly
             className="mt-1 border-gray-300"
           />
@@ -194,7 +185,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
           <Input
             id="indirectCount"
             type="text"
-            value={userProfile.indirect_referral_count || "N/A"}
+            value={userProfile.indirect_referral_count}
             readOnly
             className="mt-1 border-gray-300"
           />

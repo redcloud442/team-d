@@ -23,7 +23,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, user_table } from "@prisma/client";
 import { CheckCircleIcon, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -59,9 +58,8 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
     profile.user_profile_picture || ""
   );
   const [isUploading, setIsUploading] = useState(false);
-  const { role } = useRole();
+  const { teamMemberProfile } = useRole();
   const { toast } = useToast();
-  const router = useRouter();
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const supabaseClient = createClientSide();
@@ -315,7 +313,7 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
                   </p>
                 )}
               </div>
-              {role === "MERCHANT" && (
+              {teamMemberProfile.alliance_member_role === "MERCHANT" && (
                 <div className="flex w-full justify-center items-center gap-4">
                   <Link href="/merchant">
                     <Button
@@ -338,7 +336,9 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
                 </div>
               )}
 
-              {(role === "ACCOUNTING" || role === "ACCOUNTING_HEAD") && (
+              {(teamMemberProfile.alliance_member_role === "ACCOUNTING" ||
+                teamMemberProfile.alliance_member_role ===
+                  "ACCOUNTING_HEAD") && (
                 <Link href="/withdraw" className="w-full">
                   <Button type="button" className="w-full" variant="card">
                     Withdrawal
