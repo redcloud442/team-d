@@ -77,7 +77,7 @@ const HeaderSection = ({ user }: HeaderSectionProps) => {
             quality={80}
           />
         </Link>
-        <div className="flex space-x-6 flex-1 justify-end gap-x-5 items-center text-white font-bold">
+        <div className="flex space-x-6 flex-1 justify-end gap-5 items-center text-white font-bold flex-wrap">
           <Link href="/" className="hover:scale-115 duration-400">
             Home
           </Link>
@@ -105,7 +105,7 @@ const HeaderSection = ({ user }: HeaderSectionProps) => {
             </Button>
           </a>
           <Link
-            href="/auth/login"
+            href={`${user ? "/dashboard" : "/auth/login"}`}
             className="hover:scale-105 duration-400 cursor-pointer"
           >
             <Button className="bg-white text-black rounded-sm h-12 cursor-pointer">
