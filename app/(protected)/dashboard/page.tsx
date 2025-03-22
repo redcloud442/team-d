@@ -11,7 +11,7 @@ const Page = async () => {
   if (!teamMemberProfile) return redirect("/auth/login");
 
   if (teamMemberProfile.alliance_member_role === "ADMIN") {
-    return { redirectTo: "/admin" };
+    redirect("/admin");
   }
 
   const [packages, testimonials, wheel] = await Promise.all([
