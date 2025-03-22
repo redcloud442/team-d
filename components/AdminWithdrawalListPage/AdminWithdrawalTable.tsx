@@ -2,10 +2,10 @@
 
 import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminWithdrawalRequest } from "@/services/Withdrawal/Admin";
+import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminWithdrawaldata } from "@/utils/types";
-import { alliance_member_table, user_table } from "@prisma/client";
 import {
   ColumnFiltersState,
   getCoreRowModel,
@@ -38,11 +38,6 @@ import { Textarea } from "../ui/textarea";
 import { AdminWithdrawalHistoryColumn } from "./AdminWithdrawalColumn";
 import AdminWithdrawalTabs from "./AdminWithdrawalTabs";
 
-type DataTableProps = {
-  teamMemberProfile: alliance_member_table;
-  profile: user_table;
-};
-
 type FilterFormValues = {
   referenceId: string;
   userFilter: string;
@@ -52,11 +47,10 @@ type FilterFormValues = {
   showHiddenUser: boolean;
 };
 
-const AdminWithdrawalHistoryTable = ({
-  teamMemberProfile,
-  profile,
-}: DataTableProps) => {
+const AdminWithdrawalHistoryTable = () => {
   const supabaseClient = createClientSide();
+  const { teamMemberProfile, profile } = useRole();
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});

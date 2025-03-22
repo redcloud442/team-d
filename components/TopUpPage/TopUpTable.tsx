@@ -2,7 +2,6 @@
 
 import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminTopUpRequest } from "@/services/TopUp/Admin";
-import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData } from "@/utils/types";
@@ -60,7 +59,6 @@ type FilterFormValues = {
 
 const TopUpTable = ({ teamMemberProfile }: DataTableProps) => {
   const supabaseClient = createClientSide();
-  const { role } = useRole();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});

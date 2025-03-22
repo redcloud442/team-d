@@ -6,7 +6,6 @@ import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminWithdrawaldata } from "@/utils/types";
-import { alliance_member_table } from "@prisma/client";
 import {
   ColumnFiltersState,
   getCoreRowModel,
@@ -45,9 +44,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Textarea } from "../ui/textarea";
 import { WithdrawalColumn } from "./WithdrawalColumn";
 import WithdrawalTabs from "./WithdrawalTabs";
-type DataTableProps = {
-  teamMemberProfile: alliance_member_table;
-};
 
 type FilterFormValues = {
   referenceId: string;
@@ -58,9 +54,9 @@ type FilterFormValues = {
   showHiddenUser: boolean;
 };
 
-const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
+const WithdrawalTable = () => {
   const supabaseClient = createClientSide();
-  const { role } = useRole();
+  const { teamMemberProfile } = useRole();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -285,7 +281,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
     });
 
   const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
-
+  const role = teamMemberProfile.alliance_member_role;
   const {
     columns,
     isOpenModal,

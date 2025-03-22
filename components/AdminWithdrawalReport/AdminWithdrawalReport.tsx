@@ -1,10 +1,10 @@
 "use client";
-import { alliance_member_table } from "@prisma/client";
 import { Controller, useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 import { cn } from "@/lib/utils";
 import { getAdminWithdrawalReport } from "@/services/Withdrawal/Admin";
+import { useRole } from "@/utils/context/roleContext";
 import { format } from "date-fns"; // If you're using date-fns
 import { CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -13,10 +13,6 @@ import { Calendar } from "../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import AdminWithdrawalReportTable from "./AdminWithdrawalReportTable";
 
-type Props = {
-  teamMemberProfile: alliance_member_table;
-};
-
 type FormData = {
   dateFilter: {
     startDate: Date | null;
@@ -24,7 +20,8 @@ type FormData = {
   };
 };
 
-const AdminWithdrawalReport = ({ teamMemberProfile }: Props) => {
+const AdminWithdrawalReport = () => {
+  const { teamMemberProfile } = useRole();
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [withdrawalReportData, setWithdrawalReportData] = useState<{
     total_amount: number;

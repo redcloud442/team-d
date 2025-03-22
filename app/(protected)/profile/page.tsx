@@ -1,9 +1,10 @@
 import UserProfilePage from "@/components/UserProfilePage/UserProfilePage";
 import prisma from "@/utils/prisma";
-import { protectionAllUser } from "@/utils/serversideProtection";
+import { protectionMemberUser } from "@/utils/serversideProtection";
 import { UserRequestdata } from "@/utils/types";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
+
 export const metadata: Metadata = {
   title: "Profile Page",
   description: "User Profile Page",
@@ -14,47 +15,50 @@ export const metadata: Metadata = {
 
 const Page = async () => {
   const {
+    teamMemberProfile,
     profile,
     redirect: redirectTo,
-    teamMemberProfile,
-  } = await protectionAllUser();
+    earningsSummary,
+  } = await prisma.$transaction(async (tx) => {
+    const {
+      teamMemberProfile,
+      profile,
+      redirect: redirectTo,
+    } = await protectionMemberUser(tx);
+
+    if (redirectTo || !teamMemberProfile) {
+      return { redirect: redirectTo };
+    }
+
+    const earningsSummary = await tx.dashboard_earnings_summary.findFirst({
+      where: {
+        member_id: teamMemberProfile.alliance_member_id,
+      },
+    });
+
+    return {
+      teamMemberProfile,
+      profile,
+      redirect: redirectTo,
+      earningsSummary,
+    };
+  });
 
   if (redirectTo) {
     redirect(redirectTo);
   }
 
-  if (!teamMemberProfile || !profile) redirect("/500");
-
-  const [userData, allianceData] = await prisma.$transaction([
-    prisma.user_table.findFirst({
-      where: {
-        user_id: profile.user_id,
-      },
-      select: {
-        user_id: true,
-        user_username: true,
-        user_first_name: true,
-        user_last_name: true,
-        user_email: true,
-      },
-    }),
-    prisma.alliance_member_table.findFirst({
-      where: {
-        alliance_member_user_id: profile.user_id,
-      },
-      select: {
-        alliance_member_id: true,
-
-        alliance_member_role: true,
-      },
-    }),
-  ]);
+  if (!teamMemberProfile || !profile) {
+    redirect("/500");
+  }
 
   const combinedData = {
-    ...userData,
-    ...allianceData,
+    ...teamMemberProfile,
+    ...profile,
+    ...earningsSummary,
   } as UserRequestdata;
 
   return <UserProfilePage userProfile={combinedData} />;
 };
+
 export default Page;

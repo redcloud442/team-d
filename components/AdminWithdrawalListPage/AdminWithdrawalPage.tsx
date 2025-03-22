@@ -1,13 +1,7 @@
 "use client";
-import { alliance_member_table, user_table } from "@prisma/client";
 import AdminWithdrawalHistoryTable from "./AdminWithdrawalTable";
 
-type Props = {
-  teamMemberProfile: alliance_member_table;
-  profile: user_table;
-};
-
-const AdminWithdrawalHistoryPage = ({ teamMemberProfile, profile }: Props) => {
+const AdminWithdrawalHistoryPage = () => {
   return (
     <div className="mx-auto md:p-10">
       <div>
@@ -20,10 +14,7 @@ const AdminWithdrawalHistoryPage = ({ teamMemberProfile, profile }: Props) => {
 
         {/* Table Section */}
         <section className=" rounded-lg ">
-          <AdminWithdrawalHistoryTable
-            teamMemberProfile={teamMemberProfile}
-            profile={profile}
-          />
+          <AdminWithdrawalHistoryTable />
         </section>
       </div>
     </div>

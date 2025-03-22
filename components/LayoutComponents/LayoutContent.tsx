@@ -1,19 +1,11 @@
 "use client";
 
 import MobileNavBar from "@/components/ui/MobileNavBar";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { ROLE } from "@/utils/constant";
-import { useRole } from "@/utils/context/roleContext";
-import { alliance_member_table, user_table } from "@prisma/client";
-import { useTheme } from "next-themes";
-import dynamic from "next/dynamic";
-import Image from "next/image";
-import { useCallback, useEffect, useMemo } from "react";
-import DevMode from "../ui/dev-mode";
-import { ModeToggle } from "../ui/toggleDarkmode";
-
-const LazyAppSidebar = dynamic(() => import("../ui/side-bar"), { ssr: false });
-
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { getDashboard } from "@/services/Dasboard/Member";
 import {
   getUserEarnings,
@@ -27,19 +19,32 @@ import { useSponsorStore } from "@/store/useSponsortStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
+import { ROLE } from "@/utils/constant";
+import { useRole } from "@/utils/context/roleContext";
+import { useTheme } from "next-themes";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import React, { useCallback, useEffect, useMemo } from "react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "../ui/breadcrumb";
+import DevMode from "../ui/dev-mode";
+import { Separator } from "../ui/separator";
+import { AppSidebar } from "../ui/side-bar";
+import { ModeToggle } from "../ui/toggleDarkmode";
 
 type LayoutContentProps = {
-  profile: user_table;
-  teamMemberProfile: alliance_member_table;
   children: React.ReactNode;
 };
 
-export default function LayoutContent({
-  profile,
-  teamMemberProfile,
-  children,
-}: LayoutContentProps) {
-  const { role } = useRole();
+export default function LayoutContent({ children }: LayoutContentProps) {
+  const { teamMemberProfile } = useRole();
   const { setTheme } = useTheme();
   const { setTotalEarnings } = useUserDashboardEarningsStore();
   const { setEarnings } = useUserEarningsStore();
@@ -50,7 +55,12 @@ export default function LayoutContent({
   const { setSponsor } = useSponsorStore();
   const { setDailyTask } = useDailyTaskStore();
 
-  const isAdmin = useMemo(() => role === ROLE.ADMIN, [role]);
+  const isAdmin = useMemo(
+    () => teamMemberProfile.alliance_member_role === ROLE.ADMIN,
+    [teamMemberProfile.alliance_member_role]
+  );
+  const pathname = usePathname();
+  const pathSegments = pathname.split("/").filter(Boolean);
 
   useEffect(() => {
     if (!isAdmin) {
@@ -59,8 +69,6 @@ export default function LayoutContent({
   }, [isAdmin, setTheme]);
 
   const handleFetchTransaction = useCallback(async () => {
-    if (isAdmin) return;
-
     try {
       setLoading(true);
 
@@ -73,7 +81,7 @@ export default function LayoutContent({
         getUserEarnings({ memberId: teamMemberProfile.alliance_member_id }),
         getDashboard({ teamMemberId: teamMemberProfile.alliance_member_id }),
         getUserWithdrawalToday(),
-        getUserSponsor({ userId: profile.user_id }),
+        getUserSponsor({ userId: teamMemberProfile.alliance_member_user_id }),
       ]);
 
       const {
@@ -103,22 +111,19 @@ export default function LayoutContent({
   }, [
     isAdmin,
     teamMemberProfile.alliance_member_id,
-    profile.user_id,
+    teamMemberProfile.alliance_member_user_id,
     setLoading,
   ]);
 
   useEffect(() => {
-    handleFetchTransaction();
-  }, [handleFetchTransaction]);
+    if (!isAdmin) {
+      handleFetchTransaction();
+    }
+  }, [isAdmin, handleFetchTransaction]);
 
   const sidebar = useMemo(() => {
     if (!isAdmin) return null;
-    return (
-      <LazyAppSidebar
-        userData={profile}
-        teamMemberProfile={teamMemberProfile}
-      />
-    );
+    return <AppSidebar />;
   }, [isAdmin]);
 
   const backgroundImage = useMemo(() => {
@@ -143,27 +148,82 @@ export default function LayoutContent({
     return <MobileNavBar />;
   }, [isAdmin]);
 
-  return (
-    <div className="flex min-h-screen w-full overflow-hidden relative">
-      {sidebar}
+  const breadcrumbs = useMemo(() => {
+    return pathSegments.map((segment, i) => {
+      const href = "/" + pathSegments.slice(0, i + 1).join("/");
+      return {
+        label: decodeURIComponent(segment)
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (l) => l.toUpperCase()),
+        href,
+        isCurrentPage: i === pathSegments.length - 1,
+      };
+    });
+  }, [pathSegments]);
 
-      <div className="flex-1 flex flex-col overflow-x-auto relative">
-        {isAdmin && (
-          <div className="p-4 md:hidden">
-            <SidebarTrigger />
-          </div>
-        )}
+  if (!isAdmin) {
+    return (
+      <div className="flex min-h-screen w-full overflow-hidden relative">
+        <div className="flex-1 flex flex-col overflow-x-auto relative">
+          {backgroundImage}
 
-        {backgroundImage}
+          <div className="pb-24 p-4 relative z-50 grow">{children}</div>
 
-        <div className="pb-24 p-4 relative z-50 grow">{children}</div>
+          {mobileNav}
 
-        {mobileNav}
-
-        {isAdmin && <ModeToggle />}
-
-        <DevMode />
+          <DevMode />
+        </div>
       </div>
-    </div>
-  );
+    );
+  } else {
+    return (
+      <SidebarProvider>
+        {sidebar}
+        <SidebarInset>
+          <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+            <div className="flex items-center gap-2 px-4">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 h-4" />
+              <Breadcrumb>
+                <BreadcrumbList>
+                  {breadcrumbs.map((crumb, index) => (
+                    <React.Fragment key={crumb.href}>
+                      <BreadcrumbItem
+                        className={
+                          index !== breadcrumbs.length - 1
+                            ? "hidden md:block"
+                            : ""
+                        }
+                      >
+                        {crumb.isCurrentPage ? (
+                          <BreadcrumbPage>
+                            {crumb.label === "Admin"
+                              ? "Dashboard"
+                              : crumb.label}
+                          </BreadcrumbPage>
+                        ) : (
+                          <BreadcrumbLink asChild>
+                            <Link href={crumb.href}>
+                              {crumb.label === "Admin"
+                                ? "Dashboard"
+                                : crumb.label}
+                            </Link>
+                          </BreadcrumbLink>
+                        )}
+                      </BreadcrumbItem>
+                      {index < breadcrumbs.length - 1 && (
+                        <BreadcrumbSeparator className="hidden md:block" />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </BreadcrumbList>
+              </Breadcrumb>
+            </div>
+          </header>
+          <div className="pb-24 p-4 relative z-50 grow">{children}</div>
+          <ModeToggle />
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
 }

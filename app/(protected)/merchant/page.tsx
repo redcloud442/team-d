@@ -1,4 +1,5 @@
 import MerchantPage from "@/components/MerchantPage/MerchantPage";
+import prisma from "@/utils/prisma";
 import { protectionMerchantUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -11,8 +12,11 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const { teamMemberProfile, redirect: redirectTo } =
-    await protectionMerchantUser();
+  const { teamMemberProfile, redirect: redirectTo } = await prisma.$transaction(
+    async (tx) => {
+      return await protectionMerchantUser(tx);
+    }
+  );
 
   if (redirectTo) {
     redirect(redirectTo);

@@ -1,4 +1,5 @@
 import AdminUploadUrlPage from "@/components/AdminUploadUrlPage/AdminUploadUrlPage";
+import prisma from "@/utils/prisma";
 import { protectionAdminUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -12,7 +13,9 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const { teamMemberProfile } = await protectionAdminUser();
+  const { teamMemberProfile } = await prisma.$transaction(async (tx) => {
+    return await protectionAdminUser(tx);
+  });
 
   if (!teamMemberProfile) return redirect("/auth/login");
 
