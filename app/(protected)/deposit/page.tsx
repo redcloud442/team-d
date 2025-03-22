@@ -19,7 +19,7 @@ const Page = async () => {
 
   if (!teamMemberProfile) return redirect("/auth/login");
 
-  return <TopUpPage teamMemberProfile={teamMemberProfile} />;
+  return <TopUpPage />;
 };
 
 export default Page;

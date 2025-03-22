@@ -1,5 +1,3 @@
-"use client";
-
 import { UserRequestdata } from "@/utils/types";
 import ChangePassword from "../UserAdminProfile/ChangePassword";
 import PersonalInformation from "../UserAdminProfile/PersonalInformation";

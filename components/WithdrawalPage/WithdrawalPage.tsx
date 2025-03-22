@@ -1,5 +1,3 @@
-"use client";
-
 import WithdrawalTable from "./WithdrawalTable";
 
 const WithdrawalPage = () => {

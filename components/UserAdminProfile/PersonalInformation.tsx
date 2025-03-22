@@ -1,3 +1,4 @@
+"use client";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getUserSponsor, handleGenerateLink } from "@/services/User/User";

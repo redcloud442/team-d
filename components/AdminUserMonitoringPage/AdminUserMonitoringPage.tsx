@@ -1,4 +1,3 @@
-"use client";
 import AdminUserMonitoringTable from "./AdminUserMonitoringTable";
 
 const AdminUserMonitoringPage = () => {

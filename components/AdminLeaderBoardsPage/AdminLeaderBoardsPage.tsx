@@ -1,4 +1,3 @@
-"use client";
 import AdminLeaderBoardsPage from "./AdminLeaderBoardsTable";
 
 const AdminUserPage = () => {

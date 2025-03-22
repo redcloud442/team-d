@@ -1,4 +1,3 @@
-"use client";
 import AdminWithdrawalHistoryTable from "./AdminWithdrawalTable";
 
 const AdminWithdrawalHistoryPage = () => {
