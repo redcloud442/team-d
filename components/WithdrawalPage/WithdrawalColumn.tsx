@@ -31,7 +31,8 @@ export const WithdrawalColumn = (
   reset: () => void,
   setRequestData: Dispatch<SetStateAction<AdminWithdrawaldata | null>>,
   status: "PENDING" | "REJECTED" | "APPROVED",
-  hidden: boolean
+  hidden: boolean,
+  role: string
 ) => {
   const { toast } = useToast();
   const supabaseClient = createClientSide();
@@ -336,6 +337,29 @@ export const WithdrawalColumn = (
                       row.getValue("alliance_withdrawal_request_date_updated")
                     )
                   : ""}
+              </div>
+            ),
+          },
+        ]
+      : []),
+    ...(role == "ACCOUNTING_HEAD"
+      ? [
+          {
+            accessorKey: "approver_username",
+            header: ({ column }: { column: Column<WithdrawalRequestData> }) => (
+              <Button
+                variant="ghost"
+                className="p-1"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "desc")
+                }
+              >
+                Approver <ArrowUpDown />
+              </Button>
+            ),
+            cell: ({ row }: { row: Row<WithdrawalRequestData> }) => (
+              <div className="text-wrap">
+                {row.getValue("approver_username")}
               </div>
             ),
           },

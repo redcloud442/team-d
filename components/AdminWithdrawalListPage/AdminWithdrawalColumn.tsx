@@ -301,7 +301,6 @@ export const AdminWithdrawalHistoryColumn = (
         </div>
       ),
     },
-
     {
       accessorKey: "approver_username",
       header: ({ column }: { column: Column<WithdrawalRequestData> }) => (
@@ -317,7 +316,6 @@ export const AdminWithdrawalHistoryColumn = (
         <div className="text-wrap">{row.getValue("approver_username")}</div>
       ),
     },
-
     ...(status !== "PENDING"
       ? [
           {

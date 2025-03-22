@@ -2,6 +2,7 @@
 
 import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminWithdrawalRequest } from "@/services/Withdrawal/Admin";
+import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminWithdrawaldata } from "@/utils/types";
@@ -44,7 +45,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Textarea } from "../ui/textarea";
 import { WithdrawalColumn } from "./WithdrawalColumn";
 import WithdrawalTabs from "./WithdrawalTabs";
-
 type DataTableProps = {
   teamMemberProfile: alliance_member_table;
 };
@@ -60,6 +60,7 @@ type FilterFormValues = {
 
 const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
   const supabaseClient = createClientSide();
+  const { role } = useRole();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -291,7 +292,7 @@ const WithdrawalTable = ({ teamMemberProfile }: DataTableProps) => {
     isLoading,
     setIsOpenModal,
     handleUpdateStatus,
-  } = WithdrawalColumn(reset, setRequestData, status, hidden);
+  } = WithdrawalColumn(reset, setRequestData, status, hidden, role);
 
   const table = useReactTable({
     data: requestData?.data?.[status]?.data || [],
