@@ -33,7 +33,6 @@ yarn-error.log*
 .env*
 docker-compose.yml
 docker-stack.yaml
-Dockerfile
 
 # vercel
 .vercel

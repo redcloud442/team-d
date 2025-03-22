@@ -1,13 +1,6 @@
-"use client";
-
-import { alliance_member_table } from "@prisma/client";
 import TopUpTable from "./TopUpTable";
 
-type Props = {
-  teamMemberProfile: alliance_member_table;
-};
-
-const TopUpPage = ({ teamMemberProfile }: Props) => {
+const TopUpPage = () => {
   return (
     <div className="mx-auto py-8 md:p-10">
       <div>
@@ -20,7 +13,7 @@ const TopUpPage = ({ teamMemberProfile }: Props) => {
 
         {/* Table Section */}
         <section className="rounded-lg">
-          <TopUpTable teamMemberProfile={teamMemberProfile} />
+          <TopUpTable />
         </section>
       </div>
     </div>

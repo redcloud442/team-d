@@ -1,5 +1,5 @@
 import { logError } from "@/services/Error/ErrorLogs";
-import { alliance_member_table, Prisma, user_table } from "@prisma/client";
+import { alliance_member_table, user_table } from "@prisma/client";
 import prisma from "./prisma";
 import { createClientServerSide } from "./supabase/server";
 
@@ -30,7 +30,7 @@ export const refreshSession = async () => {
   }
 };
 
-export const protectionAdminUser = async (tx: Prisma.TransactionClient) => {
+export const protectionAdminUser = async () => {
   try {
     const supabase = await createClientServerSide();
 
@@ -95,10 +95,7 @@ export const protectionAdminUser = async (tx: Prisma.TransactionClient) => {
   }
 };
 
-export const protectionMemberUser = async (
-  tx: Prisma.TransactionClient,
-  ip?: string
-) => {
+export const protectionMemberUser = async (ip?: string) => {
   const supabase = await createClientServerSide();
 
   try {
@@ -119,7 +116,7 @@ export const protectionMemberUser = async (
     //   }
     // }
 
-    const user = await tx.user_table.findUnique({
+    const user = await prisma.user_table.findUnique({
       where: { user_id: userId },
       include: {
         alliance_member_table: {
@@ -174,7 +171,7 @@ export const protectionMemberUser = async (
   }
 };
 
-export const protectionMerchantUser = async (tx: Prisma.TransactionClient) => {
+export const protectionMerchantUser = async () => {
   const supabase = await createClientServerSide();
   try {
     const { data: authData, error: authError } = await supabase.auth.getUser();
@@ -194,7 +191,7 @@ export const protectionMerchantUser = async (tx: Prisma.TransactionClient) => {
     //   }
     // }
 
-    const user = await tx.user_table.findUnique({
+    const user = await prisma.user_table.findUnique({
       where: { user_id: userId },
       include: {
         alliance_member_table: {
@@ -238,9 +235,7 @@ export const protectionMerchantUser = async (tx: Prisma.TransactionClient) => {
   }
 };
 
-export const protectionAccountingUser = async (
-  tx: Prisma.TransactionClient
-) => {
+export const protectionAccountingUser = async () => {
   const supabase = await createClientServerSide();
   try {
     const { data: authData, error: authError } = await supabase.auth.getUser();
@@ -260,7 +255,7 @@ export const protectionAccountingUser = async (
     //   }
     // }
 
-    const user = await tx.user_table.findUnique({
+    const user = await prisma.user_table.findUnique({
       where: { user_id: userId },
       include: {
         alliance_member_table: {

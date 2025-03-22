@@ -1,5 +1,4 @@
 import TopUpPage from "@/components/TopUpPage/TopUpPage";
-import prisma from "@/utils/prisma";
 import { protectionMerchantUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -13,13 +12,11 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const { teamMemberProfile } = await prisma.$transaction(async (tx) => {
-    return await protectionMerchantUser(tx);
-  });
+  const { teamMemberProfile } = await protectionMerchantUser();
 
   if (!teamMemberProfile) return redirect("/auth/login");
 
-  return <TopUpPage teamMemberProfile={teamMemberProfile} />;
+  return <TopUpPage />;
 };
 
 export default Page;

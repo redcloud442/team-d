@@ -4,7 +4,6 @@ import { ThemeProvider } from "@/components/theme-provider/theme-provider";
 
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { RoleProvider } from "@/utils/context/roleContext";
-import prisma from "@/utils/prisma";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import {
   alliance_member_table,
@@ -18,22 +17,18 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const userProfile = await prisma.$transaction(async (tx) => {
-    const {
-      profile,
-      redirect: redirectTo,
-      teamMemberProfile,
-      referral,
-    } = await protectionMemberUser(tx);
+  const {
+    profile,
+    redirect: redirectTo,
+    teamMemberProfile,
+    referral,
+  } = await protectionMemberUser();
 
-    return { profile, redirectTo, teamMemberProfile, referral };
-  });
-
-  if (userProfile.redirectTo) {
-    redirect(userProfile.redirectTo);
+  if (redirectTo) {
+    redirect(redirectTo);
   }
 
-  if (!userProfile.profile) {
+  if (!profile) {
     redirect("/500");
   }
 
@@ -41,11 +36,11 @@ export default async function AppLayout({
     <ThemeProvider attribute="class" defaultTheme="light">
       <SidebarProvider>
         <RoleProvider
-          initialProfile={userProfile.profile as user_table}
+          initialProfile={profile as user_table}
           initialTeamMemberProfile={
-            userProfile.teamMemberProfile as alliance_member_table & user_table
+            teamMemberProfile as alliance_member_table & user_table
           }
-          initialReferral={userProfile.referral as alliance_referral_link_table}
+          initialReferral={referral as alliance_referral_link_table}
         >
           <LayoutContent>{children}</LayoutContent>
         </RoleProvider>

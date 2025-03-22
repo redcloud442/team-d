@@ -64,11 +64,15 @@ export const handleCreateMerchantData = async (params: {
     body: JSON.stringify(params),
   });
 
+  const result = await response.json();
+
   if (!response.ok) {
     throw new Error("An error occurred while creating the merchant.");
   }
 
-  return response;
+  return result as {
+    data: merchant_table;
+  };
 };
 
 export const handleUpdateMerchantData = async (params: {

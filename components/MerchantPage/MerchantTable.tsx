@@ -6,10 +6,11 @@ import {
   getMerchantData,
   handleCreateMerchantData,
 } from "@/services/merchant/Merchant";
+import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { alliance_member_table, merchant_table } from "@prisma/client";
+import { merchant_table } from "@prisma/client";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import {
   ColumnFiltersState,
@@ -40,10 +41,6 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useMerchantColumn } from "./MerchantColumn";
 
-type DataTableProps = {
-  teamMemberProfile: alliance_member_table;
-};
-
 const filterFormValuesSchema = z.object({
   accountNumber: z.string().min(1, "Account number is required"),
   accountType: z.string().min(1, "Account type is required"),
@@ -62,9 +59,10 @@ const filterFormValuesSchema = z.object({
 
 type FilterFormValues = z.infer<typeof filterFormValuesSchema>;
 
-const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
+const MerchantTable = () => {
   const supabaseClient = createClientSide();
   const { toast } = useToast();
+  const { teamMemberProfile } = useRole();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -97,7 +95,7 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
     handleUpdateMerchant,
     isDeleteModal,
     setIsDeleteModal,
-  } = useMerchantColumn(fetchMerchant);
+  } = useMerchantColumn(setRequestData);
 
   const table = useReactTable({
     data: requestData,
@@ -159,7 +157,7 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
           filePath;
       }
 
-      await handleCreateMerchantData({
+      const { data: merchantData } = await handleCreateMerchantData({
         accountNumber: sanitizedData.accountNumber,
         accountType: sanitizedData.accountType,
         accountName: sanitizedData.bankName,
@@ -170,7 +168,8 @@ const MerchantTable = ({ teamMemberProfile }: DataTableProps) => {
         title: "Merchant Created",
         description: "Merchant has been created successfully",
       });
-      fetchMerchant();
+
+      setRequestData((prev) => [...prev, merchantData]);
       setIsOpenModal(false);
     } catch (e) {
       if (e instanceof Error) {
