@@ -44,7 +44,7 @@ export function TeamSwitcher({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="flex aspect-square size-6 data-[state=open]:size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+              <div className="flex aspect-square size-6 data-[state=open]:size-8 items-center justify-center rounded-lg bg-transparent text-sidebar-primary-foreground">
                 <Image
                   width={32}
                   height={32}

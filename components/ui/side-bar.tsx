@@ -34,7 +34,7 @@ const data = {
   teams: [
     {
       name: "PRIMEPINAS",
-      logo: "/app-logo.svg",
+      logo: "/app-logo.png",
       plan: "Company",
     },
   ],
