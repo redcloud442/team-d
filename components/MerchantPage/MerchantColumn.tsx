@@ -8,7 +8,7 @@ import { merchant_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -26,7 +26,9 @@ import {
 } from "../ui/dropdown-menu";
 import TableLoading from "../ui/tableLoading";
 
-export const useMerchantColumn = (handleFetch: () => void) => {
+export const useMerchantColumn = (
+  setRequestData: Dispatch<SetStateAction<merchant_table[]>>
+) => {
   const { toast } = useToast();
   const supabase = createClientSide();
   const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +54,9 @@ export const useMerchantColumn = (handleFetch: () => void) => {
         description: "Merchant has been deleted successfully",
       });
       setIsDeleteModal({ merchantId: "", isOpen: false });
-      handleFetch();
+      setRequestData((prev) =>
+        prev.filter((merchant) => merchant.merchant_id !== merchantId)
+      );
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabase, {

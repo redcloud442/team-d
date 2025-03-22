@@ -95,7 +95,7 @@ const MerchantTable = () => {
     handleUpdateMerchant,
     isDeleteModal,
     setIsDeleteModal,
-  } = useMerchantColumn(fetchMerchant);
+  } = useMerchantColumn(setRequestData);
 
   const table = useReactTable({
     data: requestData,
@@ -157,7 +157,7 @@ const MerchantTable = () => {
           filePath;
       }
 
-      await handleCreateMerchantData({
+      const { data: merchantData } = await handleCreateMerchantData({
         accountNumber: sanitizedData.accountNumber,
         accountType: sanitizedData.accountType,
         accountName: sanitizedData.bankName,
@@ -168,7 +168,8 @@ const MerchantTable = () => {
         title: "Merchant Created",
         description: "Merchant has been created successfully",
       });
-      fetchMerchant();
+
+      setRequestData((prev) => [...prev, merchantData]);
       setIsOpenModal(false);
     } catch (e) {
       if (e instanceof Error) {
