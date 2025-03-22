@@ -18,30 +18,16 @@ const Page = async () => {
     teamMemberProfile,
     profile,
     redirect: redirectTo,
-    earningsSummary,
-  } = await prisma.$transaction(async (tx) => {
-    const {
-      teamMemberProfile,
-      profile,
-      redirect: redirectTo,
-    } = await protectionMemberUser(tx);
+  } = await protectionMemberUser();
 
-    if (redirectTo || !teamMemberProfile) {
-      return { redirect: redirectTo };
-    }
+  if (redirectTo || !teamMemberProfile) {
+    return { redirect: redirectTo };
+  }
 
-    const earningsSummary = await tx.dashboard_earnings_summary.findFirst({
-      where: {
-        member_id: teamMemberProfile.alliance_member_id,
-      },
-    });
-
-    return {
-      teamMemberProfile,
-      profile,
-      redirect: redirectTo,
-      earningsSummary,
-    };
+  const earningsSummary = await prisma.dashboard_earnings_summary.findUnique({
+    where: {
+      member_id: teamMemberProfile.alliance_member_id,
+    },
   });
 
   if (redirectTo) {

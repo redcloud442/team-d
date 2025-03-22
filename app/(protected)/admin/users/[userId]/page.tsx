@@ -16,11 +16,7 @@ export const metadata: Metadata = {
 const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
   const { userId } = await params;
 
-  const { teamMemberProfile, profile } = await prisma.$transaction(
-    async (tx) => {
-      return await protectionAdminUser(tx);
-    }
-  );
+  const { teamMemberProfile, profile } = await protectionAdminUser();
 
   if (!teamMemberProfile) return redirect("/auth/login");
 

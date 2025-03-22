@@ -9,11 +9,7 @@ import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings"
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
-import {
-  alliance_referral_link_table,
-  alliance_testimonial_table,
-  package_table,
-} from "@prisma/client";
+import { alliance_testimonial_table, package_table } from "@prisma/client";
 import { Download, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -39,7 +35,6 @@ import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/Dashboard
 import { TestimonialPage } from "./Testimonial/TestimonialPage";
 
 type Props = {
-  referal: alliance_referral_link_table;
   packages: package_table[];
   testimonials: alliance_testimonial_table[];
   wheel: {
@@ -50,8 +45,9 @@ type Props = {
   }[];
 };
 
-const DashboardPage = ({ referal, packages, testimonials, wheel }: Props) => {
+const DashboardPage = ({ packages, testimonials, wheel }: Props) => {
   const supabaseClient = createClientSide();
+  const { referral } = useRole();
   const { loading } = useUserLoadingStore();
   const { earnings, setEarnings } = useUserEarningsStore();
   const { totalEarnings, setTotalEarnings } = useUserDashboardEarningsStore();
@@ -281,7 +277,7 @@ const DashboardPage = ({ referal, packages, testimonials, wheel }: Props) => {
             />
             <DashboardTransactionHistory
               teamMemberProfile={teamMemberProfile}
-              referal={referal}
+              referal={referral}
               className="w-full"
               open={open}
               setOpen={setOpen}
@@ -291,7 +287,7 @@ const DashboardPage = ({ referal, packages, testimonials, wheel }: Props) => {
           <div className="flex flex-col justify-start gap-4 ">
             <DashboardDepositModalRefer
               teamMemberProfile={teamMemberProfile}
-              referal={referal}
+              referal={referral}
               isActive={isActive}
               className="w-full"
               totalEarnings={totalEarnings}
