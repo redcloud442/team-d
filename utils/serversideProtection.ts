@@ -50,45 +50,28 @@ export const protectionAdminUser = async () => {
     //   }
     // }
 
-    const [profile, teamMember] = await Promise.all([
-      prisma.user_table.findUnique({
-        where: { user_id: userId },
-        select: {
-          user_id: true,
-          user_first_name: true,
-          user_last_name: true,
-          user_profile_picture: true,
-          user_username: true,
-          user_email: true,
-        },
-      }),
-      prisma.alliance_member_table.findFirst({
-        where: { alliance_member_user_id: userId },
-        select: {
-          alliance_member_id: true,
-          alliance_member_role: true,
-          alliance_member_alliance_id: true,
-          alliance_member_restricted: true,
-          alliance_member_is_active: true,
-        },
-      }),
-    ]);
+    const user = await prisma.user_table.findUnique({
+      where: { user_id: userId },
+      include: {
+        alliance_member_table: true,
+      },
+    });
 
-    if (!profile || !teamMember) {
+    if (!user) {
       return { redirect: "/auth/login" };
     }
 
     const validRoles = new Set(["ADMIN"]);
     if (
-      !teamMember.alliance_member_alliance_id ||
-      !validRoles.has(teamMember.alliance_member_role) ||
-      teamMember.alliance_member_restricted
+      !user.alliance_member_table[0]?.alliance_member_alliance_id ||
+      !validRoles.has(user.alliance_member_table[0]?.alliance_member_role) ||
+      user.alliance_member_table[0]?.alliance_member_restricted
     ) {
       return { redirect: "/auth/login" };
     }
     return {
-      profile: profile as user_table,
-      teamMemberProfile: teamMember as alliance_member_table,
+      profile: user as user_table,
+      teamMemberProfile: user.alliance_member_table[0] as alliance_member_table,
     };
   } catch (error) {
     return { redirect: "/error" };

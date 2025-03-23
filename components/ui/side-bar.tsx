@@ -27,6 +27,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useRole } from "@/utils/context/roleContext";
 
@@ -144,8 +145,14 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { profile } = useRole();
+  const { setOpen } = useSidebar();
   return (
-    <Sidebar className="border-none" collapsible="icon" {...props}>
+    <Sidebar
+      onMouseEnter={() => setOpen(true)}
+      className="border-none"
+      collapsible="icon"
+      {...props}
+    >
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
