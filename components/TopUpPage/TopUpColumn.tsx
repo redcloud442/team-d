@@ -228,7 +228,7 @@ export const TopUpColumn = (
           className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Bank Account <ArrowUpDown />
+          Bank Number <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
