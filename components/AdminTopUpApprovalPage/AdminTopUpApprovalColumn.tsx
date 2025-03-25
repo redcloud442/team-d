@@ -154,7 +154,6 @@ export const useAdminTopUpApprovalColumns = (
     },
     {
       accessorKey: "alliance_top_up_request_status",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -240,7 +239,7 @@ export const useAdminTopUpApprovalColumns = (
           className="p-1"
           onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
         >
-          Bank Account <ArrowUpDown />
+          Bank Number <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => (
@@ -351,7 +350,7 @@ export const useAdminTopUpApprovalColumns = (
               </div>
               <DialogClose asChild>
                 <Button variant="secondary">Close</Button>
-            </DialogClose>
+              </DialogClose>
             </DialogContent>
           </Dialog>
         );
