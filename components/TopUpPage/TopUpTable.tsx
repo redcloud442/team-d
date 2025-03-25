@@ -5,13 +5,14 @@ import { getAdminTopUpRequest } from "@/services/TopUp/Admin";
 import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { AdminTopUpRequestData } from "@/utils/types";
+import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import {
   ColumnFiltersState,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  Header,
   SortingState,
   useReactTable,
   VisibilityState,
@@ -19,12 +20,13 @@ import {
 import { format } from "date-fns";
 import {
   CalendarIcon,
+  ChevronDown,
   Loader2,
   PhilippinePeso,
   RefreshCw,
   Search,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
@@ -36,6 +38,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -301,6 +309,50 @@ const TopUpTable = () => {
   };
 
   const rejectNote = watch("rejectNote");
+
+  const tableColumns = useMemo(() => {
+    return table.getAllColumns().map((column) => {
+      const header = column.columnDef.header;
+      let columnLabel = column.id || "Unnamed Column"; // Default to column id
+
+      if (typeof header === "string") {
+        columnLabel = header;
+      } else if (typeof header === "function") {
+        const renderedHeader = header({
+          column,
+          header: column.columnDef.header as unknown as Header<
+            TopUpRequestData,
+            unknown
+          >,
+          table,
+        });
+
+        if (React.isValidElement(renderedHeader)) {
+          const props = renderedHeader.props as { children: string | string[] };
+          if (typeof props.children === "string") {
+            columnLabel = props.children;
+          } else if (Array.isArray(props.children)) {
+            columnLabel = props.children
+              .map((child) => (typeof child === "string" ? child : ""))
+              .join("");
+          }
+        }
+      }
+
+      return {
+        label: columnLabel, // Extracted column name
+        accessorFn: column.id,
+        getCanHide: column.getCanHide,
+        getIsVisible: column.getIsVisible,
+        toggleVisibility: column.toggleVisibility,
+      };
+    });
+  }, [table]);
+
+  const handleAutoFill = (string: string) => {
+    setValue("rejectNote", string);
+  };
+
   return (
     <Card className="w-full rounded-sm p-4">
       <div className="flex flex-wrap gap-4 items-start py-4">
@@ -334,31 +386,65 @@ const TopUpTable = () => {
                   </DialogTitle>
                 </DialogHeader>
                 {isOpenModal.status === "REJECTED" && (
-                  <Controller
-                    name="rejectNote"
-                    control={control}
-                    rules={{ required: "Rejection note is required" }}
-                    render={({ field, fieldState }) => (
-                      <div className="flex flex-col gap-2">
-                        <Textarea
-                          placeholder="Enter the reason for rejection..."
-                          {...field}
-                        />
-                        {fieldState.error && (
-                          <span className="text-red-500 text-sm">
-                            {fieldState.error.message}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  />
+                  <>
+                    <Controller
+                      name="rejectNote"
+                      control={control}
+                      rules={{ required: "Rejection note is required" }}
+                      render={({ field, fieldState }) => (
+                        <div className="flex flex-col gap-2">
+                          <Textarea
+                            placeholder="Enter the reason for rejection..."
+                            {...field}
+                          />
+                          {fieldState.error && (
+                            <span className="text-red-500 text-sm">
+                              {fieldState.error.message}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    />
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
+                        onClick={() => handleAutoFill("Wrong receipt")}
+                      >
+                        Wrong receipt
+                      </Button>
+                      <Button
+                        className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
+                        onClick={() => handleAutoFill("Put exact amount")}
+                      >
+                        Put exact amount
+                      </Button>
+                      <Button
+                        className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
+                        onClick={() => handleAutoFill("Duplicate receipt")}
+                      >
+                        Duplicate receipt
+                      </Button>
+                      <Button
+                        className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
+                        onClick={() =>
+                          handleAutoFill("Show the reference number")
+                        }
+                      >
+                        Show the reference number
+                      </Button>
+                    </div>
+                  </>
                 )}
                 <div className="flex justify-end gap-2 mt-4">
                   <DialogClose asChild>
-                    <Button variant="secondary">Cancel</Button>
+                    <Button variant="card" className="rounded-md">
+                      Cancel
+                    </Button>
                   </DialogClose>
                   <Button
+                    variant="card"
                     disabled={isLoading}
+                    className="rounded-md"
                     onClick={() =>
                       handleUpdateStatus(
                         isOpenModal.status,
@@ -467,17 +553,45 @@ const TopUpTable = () => {
       </div>
 
       <Tabs defaultValue="PENDING" onValueChange={handleTabChange}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="PENDING">
-            Pending ({requestData?.data?.PENDING?.count || 0})
-          </TabsTrigger>
-          <TabsTrigger value="APPROVED">
-            Approved ({requestData?.data?.APPROVED?.count || 0})
-          </TabsTrigger>
-          <TabsTrigger value="REJECTED">
-            Rejected ({requestData?.data?.REJECTED?.count || 0})
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex items-start :justify-start lg:justify-between flex-wrap gap-2">
+          <TabsList className="mb-4">
+            <TabsTrigger value="PENDING">
+              Pending ({requestData?.data?.PENDING?.count || 0})
+            </TabsTrigger>
+            <TabsTrigger value="APPROVED">
+              Approved ({requestData?.data?.APPROVED?.count || 0})
+            </TabsTrigger>
+            <TabsTrigger value="REJECTED">
+              Rejected ({requestData?.data?.REJECTED?.count || 0})
+            </TabsTrigger>
+          </TabsList>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto rounded-md">
+                Columns <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {tableColumns
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.accessorFn}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.label}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         <TabsContent value="PENDING">
           <TopUpTabs
