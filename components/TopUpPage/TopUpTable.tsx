@@ -2,6 +2,7 @@
 
 import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminTopUpRequest } from "@/services/TopUp/Admin";
+import { RECIPT_MAPPING } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
@@ -406,32 +407,15 @@ const TopUpTable = () => {
                       )}
                     />
                     <div className="flex flex-wrap gap-2">
-                      <Button
-                        className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
-                        onClick={() => handleAutoFill("Wrong receipt")}
-                      >
-                        Wrong receipt
-                      </Button>
-                      <Button
-                        className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
-                        onClick={() => handleAutoFill("Put exact amount")}
-                      >
-                        Put exact amount
-                      </Button>
-                      <Button
-                        className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
-                        onClick={() => handleAutoFill("Duplicate receipt")}
-                      >
-                        Duplicate receipt
-                      </Button>
-                      <Button
-                        className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
-                        onClick={() =>
-                          handleAutoFill("Show the reference number")
-                        }
-                      >
-                        Show the reference number
-                      </Button>
+                      {RECIPT_MAPPING.map((item) => (
+                        <Button
+                          key={item.id}
+                          className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
+                          onClick={() => handleAutoFill(item.value)}
+                        >
+                          {item.label}
+                        </Button>
+                      ))}
                     </div>
                   </>
                 )}

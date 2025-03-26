@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { updateTopUpStatus } from "@/services/TopUp/Admin";
+import { useRole } from "@/utils/context/roleContext";
 import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
@@ -31,6 +32,7 @@ export const TopUpColumn = (
   status: string
 ) => {
   const { toast } = useToast();
+  const { profile } = useRole();
   const supabaseClient = createClientSide();
   const [isLoading, setIsLoading] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState({
@@ -103,7 +105,11 @@ export const TopUpColumn = (
           merchantBalance: merchantBalance,
         };
       });
-
+      if (status === "APPROVED") {
+        await navigator.clipboard.writeText(
+          `${profile.user_username} - APPROVED`
+        );
+      }
       reset();
     } catch (e) {
       if (e instanceof Error) {

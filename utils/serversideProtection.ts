@@ -1,5 +1,9 @@
 import { logError } from "@/services/Error/ErrorLogs";
-import { alliance_member_table, user_table } from "@prisma/client";
+import {
+  alliance_member_table,
+  alliance_referral_link_table,
+  user_table,
+} from "@prisma/client";
 import prisma from "./prisma";
 import { createClientServerSide } from "./supabase/server";
 
@@ -41,19 +45,30 @@ export const protectionAdminUser = async () => {
 
     const userId = authData.user.id;
 
-    // if (ip) {
-    //   const banned = await prisma.user_history_log.findFirst({
-    //     where: { user_history_user_id: userId, user_ip_address: ip },
-    //   });
-    //   if (banned) {
-    //     return { redirect: "/500" };
-    //   }
-    // }
-
     const user = await prisma.user_table.findUnique({
       where: { user_id: userId },
-      include: {
-        alliance_member_table: true,
+      select: {
+        user_id: true,
+        user_username: true,
+        user_first_name: true,
+        user_last_name: true,
+        user_date_created: true,
+        user_profile_picture: true,
+        alliance_member_table: {
+          select: {
+            alliance_member_id: true,
+            alliance_member_role: true,
+            alliance_member_restricted: true,
+            alliance_member_date_created: true,
+            alliance_member_date_updated: true,
+            alliance_member_is_active: true,
+            alliance_referral_link_table: {
+              select: {
+                alliance_referral_link: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -63,15 +78,15 @@ export const protectionAdminUser = async () => {
 
     const validRoles = new Set(["ADMIN"]);
     if (
-      !user.alliance_member_table[0]?.alliance_member_alliance_id ||
       !validRoles.has(user.alliance_member_table[0]?.alliance_member_role) ||
       user.alliance_member_table[0]?.alliance_member_restricted
     ) {
       return { redirect: "/auth/login" };
     }
     return {
-      profile: user as user_table,
-      teamMemberProfile: user.alliance_member_table[0] as alliance_member_table,
+      profile: user as unknown as user_table,
+      teamMemberProfile: user
+        .alliance_member_table[0] as unknown as alliance_member_table,
     };
   } catch (error) {
     return { redirect: "/error" };
@@ -90,21 +105,28 @@ export const protectionMemberUser = async (ip?: string) => {
 
     const userId = authData.user.id;
 
-    // if (ip) {
-    //   const banned = await prisma.user_history_log.findFirst({
-    //     where: { user_history_user_id: userId, user_ip_address: ip },
-    //   });
-    //   if (banned) {
-    //     return { redirect: "/500" };
-    //   }
-    // }
-
     const user = await prisma.user_table.findUnique({
       where: { user_id: userId },
-      include: {
+      select: {
+        user_id: true,
+        user_username: true,
+        user_first_name: true,
+        user_last_name: true,
+        user_date_created: true,
+        user_profile_picture: true,
         alliance_member_table: {
-          include: {
-            alliance_referral_link_table: true,
+          select: {
+            alliance_member_id: true,
+            alliance_member_role: true,
+            alliance_member_restricted: true,
+            alliance_member_date_created: true,
+            alliance_member_date_updated: true,
+            alliance_member_is_active: true,
+            alliance_referral_link_table: {
+              select: {
+                alliance_referral_link: true,
+              },
+            },
           },
         },
       },
@@ -138,9 +160,10 @@ export const protectionMemberUser = async (ip?: string) => {
       user.alliance_member_table[0]?.alliance_referral_link_table[0];
 
     return {
-      profile: user as user_table,
-      teamMemberProfile: user.alliance_member_table[0] as alliance_member_table,
-      referral: referral,
+      profile: user as unknown as user_table,
+      teamMemberProfile: user
+        .alliance_member_table[0] as unknown as alliance_member_table,
+      referral: referral as unknown as alliance_referral_link_table,
     };
   } catch (e) {
     if (e instanceof Error) {
@@ -176,10 +199,21 @@ export const protectionMerchantUser = async () => {
 
     const user = await prisma.user_table.findUnique({
       where: { user_id: userId },
-      include: {
+      select: {
+        user_id: true,
+        user_username: true,
+        user_first_name: true,
+        user_last_name: true,
+        user_date_created: true,
+        user_profile_picture: true,
         alliance_member_table: {
-          include: {
-            alliance_referral_link_table: true,
+          select: {
+            alliance_member_id: true,
+            alliance_member_role: true,
+            alliance_member_restricted: true,
+            alliance_member_date_created: true,
+            alliance_member_date_updated: true,
+            alliance_member_is_active: true,
           },
         },
       },
@@ -191,10 +225,7 @@ export const protectionMerchantUser = async () => {
 
     const teamMember = user.alliance_member_table[0];
 
-    if (
-      !teamMember?.alliance_member_alliance_id ||
-      !["MERCHANT", "ADMIN"].includes(teamMember.alliance_member_role)
-    ) {
+    if (!["MERCHANT", "ADMIN"].includes(teamMember.alliance_member_role)) {
       return { redirect: "/auth/login" };
     }
 
@@ -203,7 +234,7 @@ export const protectionMerchantUser = async () => {
     }
 
     return {
-      profile: user as user_table,
+      profile: user as unknown as user_table,
       teamMemberProfile: teamMember as alliance_member_table,
     };
   } catch (e) {
@@ -240,10 +271,21 @@ export const protectionAccountingUser = async () => {
 
     const user = await prisma.user_table.findUnique({
       where: { user_id: userId },
-      include: {
+      select: {
+        user_id: true,
+        user_username: true,
+        user_first_name: true,
+        user_last_name: true,
+        user_date_created: true,
+        user_profile_picture: true,
         alliance_member_table: {
-          include: {
-            alliance_referral_link_table: true,
+          select: {
+            alliance_member_id: true,
+            alliance_member_role: true,
+            alliance_member_restricted: true,
+            alliance_member_date_created: true,
+            alliance_member_date_updated: true,
+            alliance_member_is_active: true,
           },
         },
       },
@@ -256,7 +298,6 @@ export const protectionAccountingUser = async () => {
     const teamMember = user.alliance_member_table[0];
 
     if (
-      !teamMember?.alliance_member_alliance_id ||
       !["ADMIN", "ACCOUNTING", "ACCOUNTING_HEAD"].includes(
         teamMember.alliance_member_role
       )
@@ -269,7 +310,7 @@ export const protectionAccountingUser = async () => {
     }
 
     return {
-      profile: user as user_table,
+      profile: user as unknown as user_table,
       teamMemberProfile: teamMember as alliance_member_table,
     };
   } catch (e) {
@@ -297,10 +338,26 @@ export const protectionAllUser = async (ip?: string) => {
 
     const user = await prisma.user_table.findUnique({
       where: { user_id: userId },
-      include: {
+      select: {
+        user_id: true,
+        user_username: true,
+        user_first_name: true,
+        user_last_name: true,
+        user_date_created: true,
+        user_profile_picture: true,
         alliance_member_table: {
-          include: {
-            alliance_referral_link_table: true,
+          select: {
+            alliance_member_id: true,
+            alliance_member_role: true,
+            alliance_member_restricted: true,
+            alliance_member_date_created: true,
+            alliance_member_date_updated: true,
+            alliance_member_is_active: true,
+            alliance_referral_link_table: {
+              select: {
+                alliance_referral_link: true,
+              },
+            },
           },
         },
       },
@@ -319,10 +376,7 @@ export const protectionAllUser = async (ip?: string) => {
     ) {
       return { redirect: "/" };
     }
-    if (
-      !teamMember?.alliance_member_alliance_id ||
-      !["ADMIN"].includes(teamMember.alliance_member_role)
-    ) {
+    if (!["ADMIN"].includes(teamMember.alliance_member_role)) {
       return { redirect: "/admin" };
     }
 
@@ -331,8 +385,8 @@ export const protectionAllUser = async (ip?: string) => {
     }
 
     return {
-      profile: user as user_table,
-      teamMemberProfile: teamMember as alliance_member_table,
+      profile: user as unknown as user_table,
+      teamMemberProfile: teamMember as unknown as alliance_member_table,
     };
   } catch (e) {
     if (e instanceof Error) {

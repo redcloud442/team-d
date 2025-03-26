@@ -44,7 +44,7 @@ type LayoutContentProps = {
 };
 
 export default function LayoutContent({ children }: LayoutContentProps) {
-  const { teamMemberProfile } = useRole();
+  const { teamMemberProfile, profile } = useRole();
   const { setTheme } = useTheme();
   const { setTotalEarnings } = useUserDashboardEarningsStore();
   const { setEarnings } = useUserEarningsStore();
@@ -81,7 +81,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         getUserEarnings({ memberId: teamMemberProfile.alliance_member_id }),
         getDashboard({ teamMemberId: teamMemberProfile.alliance_member_id }),
         getUserWithdrawalToday(),
-        getUserSponsor({ userId: teamMemberProfile.alliance_member_user_id }),
+        getUserSponsor({ userId: profile.user_id }),
       ]);
 
       const {
