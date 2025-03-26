@@ -2,7 +2,7 @@ import TopUpTable from "./TopUpTable";
 
 const TopUpPage = () => {
   return (
-    <div className="mx-auto py-8 md:p-10">
+    <div className="mx-auto py-8 md:p-6">
       <div>
         <header className="mb-4">
           <h1 className="Title">Deposit List Page</h1>

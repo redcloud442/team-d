@@ -63,7 +63,7 @@ type FilterFormValues = {
 
 const TopUpTable = () => {
   const supabaseClient = createClientSide();
-  const { teamMemberProfile } = useRole();
+  const { teamMemberProfile, profile } = useRole();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -354,6 +354,10 @@ const TopUpTable = () => {
     setValue("rejectNote", string);
   };
 
+  const handleApproveCopyLink = () => {
+    navigator.clipboard.writeText(`${profile?.user_username} - Approved`);
+  };
+
   return (
     <Card className="w-full rounded-sm p-4">
       <div className="flex flex-wrap gap-4 items-start py-4">
@@ -418,6 +422,14 @@ const TopUpTable = () => {
                       ))}
                     </div>
                   </>
+                )}
+                {isOpenModal.status === "APPROVED" && (
+                  <Button
+                    onClick={handleApproveCopyLink}
+                    className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
+                  >
+                    Approve Copy Link
+                  </Button>
                 )}
                 <div className="flex justify-end gap-2 mt-4">
                   <DialogClose asChild>
