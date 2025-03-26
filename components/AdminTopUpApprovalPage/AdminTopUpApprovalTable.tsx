@@ -402,54 +402,24 @@ const AdminTopUpApprovalTable = () => {
                   </DialogTitle>
                 </DialogHeader>
                 {isOpenModal.status === "REJECTED" && (
-                  <>
-                    <Controller
-                      name="rejectNote"
-                      control={control}
-                      rules={{ required: "Rejection note is required" }}
-                      render={({ field, fieldState }) => (
-                        <div className="flex flex-col gap-2">
-                          <Textarea
-                            placeholder="Enter the reason for rejection..."
-                            {...field}
-                          />
-                          {fieldState.error && (
-                            <span className="text-red-500 text-sm">
-                              {fieldState.error.message}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    />
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
-                        onClick={() => handleAutoFill("Wrong receipt")}
-                      >
-                        Wrong receipt
-                      </Button>
-                      <Button
-                        className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
-                        onClick={() => handleAutoFill("Put exact amount")}
-                      >
-                        Put exact amount
-                      </Button>
-                      <Button
-                        className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
-                        onClick={() => handleAutoFill("Duplicate receipt")}
-                      >
-                        Duplicate receipt
-                      </Button>
-                      <Button
-                        className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
-                        onClick={() =>
-                          handleAutoFill("Show the reference number")
-                        }
-                      >
-                        Show the reference number
-                      </Button>
-                    </div>
-                  </>
+                  <Controller
+                    name="rejectNote"
+                    control={control}
+                    rules={{ required: "Rejection note is required" }}
+                    render={({ field, fieldState }) => (
+                      <div className="flex flex-col gap-2">
+                        <Textarea
+                          placeholder="Enter the reason for rejection..."
+                          {...field}
+                        />
+                        {fieldState.error && (
+                          <span className="text-red-500 text-sm">
+                            {fieldState.error.message}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  />
                 )}
                 <div className="flex justify-end gap-2 mt-4">
                   <DialogClose asChild>

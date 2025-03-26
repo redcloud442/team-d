@@ -2,7 +2,6 @@
 
 import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminTopUpRequest } from "@/services/TopUp/Admin";
-import { RECIPT_MAPPING } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
@@ -391,46 +390,26 @@ const TopUpTable = () => {
                   </DialogTitle>
                 </DialogHeader>
                 {isOpenModal.status === "REJECTED" && (
-                  <>
-                    <Controller
-                      name="rejectNote"
-                      control={control}
-                      rules={{ required: "Rejection note is required" }}
-                      render={({ field, fieldState }) => (
-                        <div className="flex flex-col gap-2">
-                          <Textarea
-                            placeholder="Enter the reason for rejection..."
-                            {...field}
-                          />
-                          {fieldState.error && (
-                            <span className="text-red-500 text-sm">
-                              {fieldState.error.message}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    />
-                    <div className="flex flex-wrap gap-2">
-                      {RECIPT_MAPPING.map((item) => (
-                        <Button
-                          key={item.id}
-                          className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
-                          onClick={() => handleAutoFill(item.value)}
-                        >
-                          {item.label}
-                        </Button>
-                      ))}
-                    </div>
-                  </>
+                  <Controller
+                    name="rejectNote"
+                    control={control}
+                    rules={{ required: "Rejection note is required" }}
+                    render={({ field, fieldState }) => (
+                      <div className="flex flex-col gap-2">
+                        <Textarea
+                          placeholder="Enter the reason for rejection..."
+                          {...field}
+                        />
+                        {fieldState.error && (
+                          <span className="text-red-500 text-sm">
+                            {fieldState.error.message}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  />
                 )}
-                {isOpenModal.status === "APPROVED" && (
-                  <Button
-                    onClick={handleApproveCopyLink}
-                    className="rounded-md px-2 bg-transparent border-2 border-black hover:bg-black/20"
-                  >
-                    Approve Copy Link
-                  </Button>
-                )}
+
                 <div className="flex justify-end gap-2 mt-4">
                   <DialogClose asChild>
                     <Button variant="card" className="rounded-md">
