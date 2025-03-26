@@ -62,7 +62,7 @@ type FilterFormValues = {
 
 const TopUpTable = () => {
   const supabaseClient = createClientSide();
-  const { teamMemberProfile, profile } = useRole();
+  const { teamMemberProfile } = useRole();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -255,6 +255,7 @@ const TopUpTable = () => {
         rejectNote: "",
       },
     });
+
   const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
   const {
     columns,
