@@ -311,7 +311,10 @@ const DashboardPage = ({ packages, testimonials, wheel }: Props) => {
 
         {chartData.length > 0 && (
           <div className=" gap-6">
-            <DashboardPackages teamMemberProfile={teamMemberProfile} />
+            <DashboardPackages
+              packages={packages[1]}
+              teamMemberProfile={teamMemberProfile}
+            />
           </div>
         )}
 

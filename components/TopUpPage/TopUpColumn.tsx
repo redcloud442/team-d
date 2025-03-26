@@ -163,7 +163,6 @@ export const TopUpColumn = (
         );
       },
     },
-
     {
       accessorKey: "alliance_top_up_request_amount",
       header: ({ column }) => (
