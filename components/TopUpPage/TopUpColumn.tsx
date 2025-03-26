@@ -105,11 +105,7 @@ export const TopUpColumn = (
           merchantBalance: merchantBalance,
         };
       });
-      if (status === "APPROVED") {
-        await navigator.clipboard.writeText(
-          `${profile.user_username} - APPROVED`
-        );
-      }
+
       reset();
     } catch (e) {
       if (e instanceof Error) {
