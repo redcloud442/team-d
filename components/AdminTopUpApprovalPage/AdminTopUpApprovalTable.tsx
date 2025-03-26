@@ -370,10 +370,6 @@ const AdminTopUpApprovalTable = () => {
     });
   }, [table]);
 
-  const handleAutoFill = (string: string) => {
-    setValue("rejectNote", string);
-  };
-
   return (
     <Card className="w-full rounded-sm p-4">
       <div className="flex flex-wrap gap-4 items-start py-4">
