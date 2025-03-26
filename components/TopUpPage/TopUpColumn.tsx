@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { updateTopUpStatus } from "@/services/TopUp/Admin";
-import { useRole } from "@/utils/context/roleContext";
 import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
@@ -32,7 +31,6 @@ export const TopUpColumn = (
   status: string
 ) => {
   const { toast } = useToast();
-  const { profile } = useRole();
   const supabaseClient = createClientSide();
   const [isLoading, setIsLoading] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState({
@@ -324,7 +322,7 @@ export const TopUpColumn = (
         );
       },
     },
-    ...(status !== "PENDING"
+    ...(status === "REJECTED"
       ? [
           {
             accessorKey: "alliance_top_up_request_reject_note",
@@ -358,49 +356,52 @@ export const TopUpColumn = (
           },
         ]
       : []),
+    ...(status === "PENDING"
+      ? [
+          {
+            header: "Actions",
+            cell: ({ row }: { row: Row<TopUpRequestData> }) => {
+              const data = row.original;
 
-    {
-      header: "Actions",
-      cell: ({ row }) => {
-        const data = row.original;
+              return (
+                <>
+                  {data.alliance_top_up_request_status === "PENDING" && (
+                    <div className="flex gap-2">
+                      <Button
+                        className="bg-green-500 hover:bg-green-600 dark:bg-green-500 dark:text-white"
+                        onClick={() =>
+                          setIsOpenModal({
+                            open: true,
+                            requestId: data.alliance_top_up_request_id,
+                            status: "APPROVED",
+                            amount: data.alliance_top_up_request_amount || 0,
+                          })
+                        }
+                      >
+                        Approve
+                      </Button>
 
-        return (
-          <>
-            {data.alliance_top_up_request_status === "PENDING" && (
-              <div className="flex gap-2">
-                <Button
-                  className="bg-green-500 hover:bg-green-600 dark:bg-green-500 dark:text-white"
-                  onClick={() =>
-                    setIsOpenModal({
-                      open: true,
-                      requestId: data.alliance_top_up_request_id,
-                      status: "APPROVED",
-                      amount: data.alliance_top_up_request_amount || 0,
-                    })
-                  }
-                >
-                  Approve
-                </Button>
-
-                <Button
-                  variant="destructive"
-                  onClick={() =>
-                    setIsOpenModal({
-                      open: true,
-                      requestId: data.alliance_top_up_request_id,
-                      status: "REJECTED",
-                      amount: 0,
-                    })
-                  }
-                >
-                  Reject
-                </Button>
-              </div>
-            )}
-          </>
-        );
-      },
-    },
+                      <Button
+                        variant="destructive"
+                        onClick={() =>
+                          setIsOpenModal({
+                            open: true,
+                            requestId: data.alliance_top_up_request_id,
+                            status: "REJECTED",
+                            amount: 0,
+                          })
+                        }
+                      >
+                        Reject
+                      </Button>
+                    </div>
+                  )}
+                </>
+              );
+            },
+          },
+        ]
+      : []),
   ];
 
   return {
