@@ -16,10 +16,11 @@ import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings"
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { formatTime } from "@/utils/function";
 import { ChartDataMember } from "@/utils/types";
-import { alliance_member_table } from "@prisma/client";
+import { alliance_member_table, package_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import ReinvestButton from "../ReinvestButton/ReinvestButton";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
@@ -36,9 +37,13 @@ import { Separator } from "../ui/separator";
 
 type DashboardPackagesProps = {
   teamMemberProfile: alliance_member_table;
+  packages: package_table;
 };
 
-const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
+const DashboardPackages = ({
+  teamMemberProfile,
+  packages,
+}: DashboardPackagesProps) => {
   const { toast } = useToast();
   const { earnings, setEarnings } = useUserEarningsStore();
   const { chartData, setChartData } = usePackageChartData();
@@ -239,7 +244,11 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
                   Total Amount
                 </Badge>
                 <span className="text-2xl font-extrabold text-black">
-                  ₱ {Math.trunc(data.current_amount).toLocaleString("en-US")}
+                  ₱{" "}
+                  {data.current_amount.toLocaleString("en-US", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })}
                 </span>
                 <span className="text-xl text-black font-extrabold">
                   {data.package} Plan
@@ -258,44 +267,53 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
                 , {formatTime(data.completion_date)}
               </div>
               {data.is_ready_to_claim && (
-                <Dialog
-                  open={openDialogId === data.package_connection_id}
-                  onOpenChange={(isOpen) =>
-                    setOpenDialogId(isOpen ? data.package_connection_id : null)
-                  }
-                >
-                  <DialogDescription></DialogDescription>
-                  <DialogTrigger asChild>
-                    <Button className="dark:bg-black dark:text-white dark:hover:bg-black hover:bg-black hover:text-white cursor-pointer px-10 py-2">
-                      Collect
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle className="text-bold mb-4">
-                        Collect Package
-                      </DialogTitle>
-                      Are you sure you want to collect this package?
-                    </DialogHeader>
-                    <DialogFooter>
-                      <Button
-                        disabled={isLoading === data.package_connection_id}
-                        onClick={() => handleClaimPackage(data)}
-                        className="w-full"
-                        variant="card"
-                      >
-                        {isLoading === data.package_connection_id ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            {"Collecting ..."}
-                          </>
-                        ) : (
-                          "Collect"
-                        )}
+                <>
+                  <Dialog
+                    open={openDialogId === data.package_connection_id}
+                    onOpenChange={(isOpen) =>
+                      setOpenDialogId(
+                        isOpen ? data.package_connection_id : null
+                      )
+                    }
+                  >
+                    <DialogDescription></DialogDescription>
+                    <DialogTrigger asChild>
+                      <Button className="dark:bg-black dark:text-white dark:hover:bg-black hover:bg-black hover:text-white cursor-pointer px-10 py-2">
+                        Collect
                       </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle className="text-bold mb-4">
+                          Collect Package
+                        </DialogTitle>
+                        Are you sure you want to collect this package?
+                      </DialogHeader>
+                      <DialogFooter>
+                        <Button
+                          disabled={isLoading === data.package_connection_id}
+                          onClick={() => handleClaimPackage(data)}
+                          className="w-full"
+                          variant="card"
+                        >
+                          {isLoading === data.package_connection_id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              {"Collecting ..."}
+                            </>
+                          ) : (
+                            "Collect"
+                          )}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                  <ReinvestButton
+                    primaryPackage={packages}
+                    packageConnectionId={data.package_connection_id}
+                    amountToReinvest={data.current_amount}
+                  />
+                </>
               )}
             </CardFooter>
           </Card>
