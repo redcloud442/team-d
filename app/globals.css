@@ -214,4 +214,19 @@
       border-color: transparent;
     }
   }
+  @keyframes wiggle-color {
+    0%,
+    100% {
+      transform: rotate(-3deg);
+      background-color: #3b82f6; /* Tailwind's blue-500 */
+    }
+    50% {
+      transform: rotate(3deg);
+      background-color: #22c55e; /* Tailwind's green-500 */
+    }
+  }
+
+  .animate-wiggle {
+    animation: wiggle-color 1s ease-in-out infinite;
+  }
 }

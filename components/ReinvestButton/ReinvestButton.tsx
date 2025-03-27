@@ -152,10 +152,17 @@ const ReinvestButton = ({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogDescription></DialogDescription>
       <DialogTrigger asChild>
-        <Button className="dark:bg-amber-400 dark:text-black dark:hover:bg-amber-400/50 hover:bg-amber-400 hover:text-white cursor-pointer px-10 py-2 animate-tracing-border-2">
-          Reinvest
-        </Button>
+        <div className="relative inline-block">
+          <Button className="dark:bg-amber-400  dark:text-black dark:hover:bg-amber-400/50 hover:bg-amber-400 hover:text-white cursor-pointer px-10 py-2 animate-tracing-border-2">
+            Reinvest
+          </Button>
+
+          <span className="absolute -top-3 -left-3 text-xs font-extrabold text-white px-2 py-[2px] rounded-full bg-red-600 shadow-lg ring-2 ring-red-300 animate-wiggle ring-offset-1">
+            <span className=" inline-block">New!</span>
+          </span>
+        </div>
       </DialogTrigger>
+
       <DialogContent type="earnings">
         <DialogHeader>
           <DialogTitle className="text-bold mb-4">REINVEST</DialogTitle>
