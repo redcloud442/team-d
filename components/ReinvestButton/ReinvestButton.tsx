@@ -157,7 +157,7 @@ const ReinvestButton = ({
             Reinvest
           </Button>
 
-          <span className="absolute -top-3 -left-3 text-xs font-extrabold text-white px-2 py-[2px] rounded-full bg-red-600 shadow-lg ring-2 ring-red-300 animate-wiggle ring-offset-1">
+          <span className="absolute -top-3 -left-3 text-xs font-extrabold text-white px-2 py-[2px] rounded-full bg-red-600 shadow-lg ring-2 ring-red-300 animate-bounce ring-offset-1">
             <span className=" inline-block">New!</span>
           </span>
         </div>
