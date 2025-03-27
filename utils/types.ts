@@ -77,6 +77,7 @@ export type ChartDataMember = {
   package_days: number;
   current_amount: number;
   currentPercentage: number;
+  package_percentage: number;
 };
 
 export type DashboardEarnings = {
