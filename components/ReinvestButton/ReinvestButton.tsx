@@ -6,13 +6,11 @@ import { useRole } from "@/utils/context/roleContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { package_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
-import Image from "next/image";
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import { Button } from "../ui/button";
-import { Card } from "../ui/card";
 import {
   Dialog,
   DialogContent,
@@ -49,27 +47,30 @@ const ReinvestButton = ({
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const { toast } = useToast();
 
-  const computationMaturity = (amount: number) => {
-    return amount * (primaryPackage?.package_percentage ?? 0) * 0.01 * 2;
-  };
+  const reinvestmentAmount = useMemo(() => {
+    return amountToReinvest * (primaryPackage?.package_percentage ?? 0) * 0.01;
+  }, [primaryPackage]);
 
-  const sumOfTotal = (amount: number) => {
+  const reinvestmentMaturity = useMemo(() => {
+    return amountToReinvest * (primaryPackage?.package_percentage ?? 0) * 0.01;
+  }, [primaryPackage, amountToReinvest]);
+
+  const maturityIncome = useMemo(() => {
     return (
-      amount * (primaryPackage?.package_percentage ?? 0) * 0.01 * 2 + amount
+      amountToReinvest * (primaryPackage?.package_percentage ?? 0) * 0.01 +
+      amountToReinvest
     );
-  };
+  }, [primaryPackage, amountToReinvest]);
 
-  const reinvestmentAmount = (amount: number) => {
-    return amount * (primaryPackage?.package_percentage ?? 0) * 0.01 + amount;
-  };
-
-  const reinvestmentMaturity = (amount: number) => {
-    return amount * (primaryPackage?.package_percentage ?? 0) * 0.01;
-  };
+  const sumOfTotal = useMemo(() => {
+    return (
+      maturityIncome * (primaryPackage?.package_percentage ?? 0) * 0.01 +
+      maturityIncome
+    );
+  }, [primaryPackage, amountToReinvest]);
 
   const {
     handleSubmit,
-    control,
     reset,
     formState: { isSubmitting },
   } = useForm<FormValues>({
@@ -103,13 +104,14 @@ const ReinvestButton = ({
           amount: Number(data.amountToReinvest),
           is_ready_to_claim: false,
           package_connection_id: uuidv4(),
-          profit_amount: Number(reinvestmentMaturity(data.amountToReinvest)),
+          profit_amount: Number(reinvestmentMaturity),
           package_color: primaryPackage?.package_color || "",
           package_date_created: new Date().toISOString(),
           package_member_id: teamMemberProfile?.alliance_member_id,
           package_days: Number(primaryPackage?.packages_days || 0),
           current_amount: Number(data.amountToReinvest.toFixed(0)),
           currentPercentage: Number(0),
+          package_percentage: Number(primaryPackage?.package_percentage || 0),
         },
         ...chartData.filter(
           (item) => item.package_connection_id !== data.packageConnectionId
@@ -124,7 +126,7 @@ const ReinvestButton = ({
             transaction_description: `Package Reinvested: ${primaryPackage?.package_name}`,
             transaction_details: "",
             transaction_member_id: teamMemberProfile?.alliance_member_id ?? "",
-            transaction_amount: reinvestmentAmount(data.amountToReinvest),
+            transaction_amount: reinvestmentAmount,
             transaction_attachment: "",
           },
         ],
@@ -150,106 +152,123 @@ const ReinvestButton = ({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogDescription></DialogDescription>
       <DialogTrigger asChild>
-        <Button className="dark:bg-amber-400 dark:text-black dark:hover:bg-amber-400/50 hover:bg-amber-400 hover:text-white cursor-pointer px-10 py-2">
+        <Button className="dark:bg-amber-400 dark:text-black dark:hover:bg-amber-400/50 hover:bg-amber-400 hover:text-white cursor-pointer px-10 py-2 animate-tracing-border-2">
           Reinvest
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent type="earnings">
         <DialogHeader>
-          <DialogTitle className="text-bold mb-4">Reinvest Package</DialogTitle>
+          <DialogTitle className="text-bold mb-4">REINVEST</DialogTitle>
         </DialogHeader>
-
+        <div className="flex flex-col items-center justify-center font-bold text-lg sm:text-xl">
+          <p className="text-center">Click &quot;Reinvest&quot; Now!</p>
+          <p className="text-center">
+            Your ₱
+            {amountToReinvest.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}{" "}
+            will become ₱
+            {sumOfTotal.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </p>
+          <p className="text-center"> in 1 month if you roll it back.</p>
+        </div>
         <form className="space-y-2" onSubmit={handleSubmit(handleReinvest)}>
-          <div className="flex flex-col items-center justify-around space-y-2">
-            <Card
-              style={{
-                background: `linear-gradient(110deg, ${primaryPackage.package_color || "#F6DB4E"} 60%, #ED9738)`,
-              }}
-              className={`w-full rounded-lg cursor-pointer shadow-lg  flex flex-col items-center justify-center space-y-4 relative overflow-hidden`}
-            >
-              {/* Responsive Image */}
-              {primaryPackage.package_image && (
-                <div className="w-full relative">
-                  <Image
-                    src={primaryPackage.package_image}
-                    alt={`${primaryPackage.package_name} image`}
-                    width={400}
-                    height={300}
-                    style={{ objectFit: "cover" }}
-                    className="rounded-lg"
-                  />
-                </div>
-              )}
-            </Card>
-          </div>
+          <div className="flex flex-col items-center justify-around space-y-2"></div>
           {/* amount to avail */}
-          <div className="flex gap-2 w-full">
-            <div className="w-full">
-              <label className="font-bold text-center" htmlFor="amount">
-                Amount to reinvest
+          <div className="flex gap-2 w-full items-end justify-center bg-pageColor rounded-lg text-white p-1">
+            <div className="w-full flex flex-col items-center justify-center">
+              <label
+                className="text-[10px] sm:text-xs text-center"
+                htmlFor="amount"
+              >
+                TOTAL REINVESTED
               </label>
-              <Controller
-                name="amountToReinvest"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    id="amountToReinvest"
-                    type="text"
-                    placeholder="Enter amount"
-                    {...field}
-                    className="w-full border border-gray-300 text-center rounded-lg shadow-xs px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                    value={field.value || ""}
-                    readOnly
-                  />
-                )}
+
+              <Input
+                id="totalReinvested"
+                type="text"
+                placeholder="Enter amount"
+                className="w-full text-center rounded-lg shadow-xs border-none px-4 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-sm sm:text-sm p-0"
+                readOnly
+                value={amountToReinvest.toLocaleString("en-US", {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })}
+              />
+            </div>
+            <div className="w-full flex flex-col items-center justify-center">
+              <label
+                className="text-[10px] sm:text-xs text-center "
+                htmlFor="amount"
+              >
+                PROFIT
+              </label>
+              <Input
+                variant="default"
+                id="Maturity"
+                readOnly
+                type="text"
+                className="text-center border-none text-sm md:text-sm sm:text-sm p-0"
+                placeholder="Enter amount"
+                value={reinvestmentAmount.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              />
+            </div>
+            <div className="w-full flex flex-col items-center justify-center">
+              <label
+                className="text-[10px] sm:text-xs text-center "
+                htmlFor="amount"
+              >
+                TOTAL INCOME
+              </label>
+
+              <Input
+                id="amountToReinvest"
+                type="text"
+                placeholder="Enter amount"
+                className="w-full text-center rounded-lg shadow-xs px-4 py-2 border-none focus:ring-blue-500 focus:border-blue-500 text-sm md:text-sm sm:text-sm p-0"
+                value={
+                  maturityIncome.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }) || ""
+                }
+                readOnly
               />
             </div>
           </div>
 
           <div className="flex flex-col gap-2 w-full">
-            <label className="font-bold" htmlFor="Maturity">
-              Maturity Income After 1 month
-            </label>
-            <Input
-              variant="default"
-              id="Maturity"
-              readOnly
-              type="text"
-              className="text-center"
-              placeholder="Enter amount"
-              value={
-                computationMaturity(amountToReinvest).toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }) || ""
-              }
-            />
-          </div>
-
-          <div className="flex flex-col gap-2 w-full">
-            <label className="font-bold" htmlFor="Gross">
-              Total Gross
+            <label
+              className="text-3xl text-center font-extrabold"
+              htmlFor="Gross"
+            >
+              1 Month Income
             </label>
             <Input
               variant="default"
               id="Gross"
               readOnly
               type="text"
-              className="text-center"
+              className="text-center text-2xl md:text-2xl sm:text-2xl font-extrabold"
               placeholder="Gross Income"
-              value={
-                sumOfTotal(amountToReinvest).toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }) || ""
-              }
+              value={sumOfTotal.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             />
           </div>
 
           <Button
             disabled={isSubmitting}
             type="submit"
-            className="w-full rounded-md bg-amber-400 text-black hover:bg-amber-400/50"
+            className="w-full rounded-md bg-amber-400 text-black hover:bg-amber-400/50 animate-tracing-border-2"
             variant="card"
           >
             {isSubmitting ? (

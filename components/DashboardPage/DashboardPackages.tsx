@@ -20,6 +20,7 @@ import { alliance_member_table, package_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import ReinvestButton from "../ReinvestButton/ReinvestButton";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
@@ -86,7 +87,10 @@ const DashboardPackages = ({
             ...data,
             is_ready_to_claim: Number(currentPercentage) === 100,
             currentPercentage: Number(currentPercentage),
-            current_amount: newAmount,
+            current_amount:
+              Number(currentPercentage) === 100
+                ? data.amount + data.profit_amount
+                : newAmount,
           };
           return updated;
         });
@@ -252,6 +256,9 @@ const DashboardPackages = ({
                 <span className="text-xl text-black font-extrabold">
                   {data.package} Plan
                 </span>
+                <span className="text-xl text-black font-extrabold">
+                  {data.package_days} Days {data.package_percentage}% Profit
+                </span>
               </div>
               <Separator />
             </CardContent>
@@ -307,11 +314,11 @@ const DashboardPackages = ({
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
-                  {/* <ReinvestButton
+                  <ReinvestButton
                     primaryPackage={packages}
                     packageConnectionId={data.package_connection_id}
                     amountToReinvest={data.current_amount}
-                  /> */}
+                  />
                 </>
               )}
             </CardFooter>

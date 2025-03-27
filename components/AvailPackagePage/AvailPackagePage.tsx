@@ -165,6 +165,7 @@ const AvailPackagePage = ({
           package_days: Number(selectedPackage?.packages_days || 0),
           current_amount: Number(amount),
           currentPercentage: Number(0),
+          package_percentage: Number(selectedPackage?.package_percentage || 0),
         },
         ...chartData,
       ]);
