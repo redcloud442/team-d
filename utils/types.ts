@@ -200,3 +200,16 @@ export type ModalGuide = {
   isModalOpen: boolean;
   type: "package" | "withdrawal";
 };
+
+export type WithdrawListExportData = {
+  "Requestor Username": string;
+  Status: string;
+  Amount: number;
+  "Bank Account": string;
+  "Bank Name": string;
+  "Account Number": string;
+  "Withdrawal Type": string;
+  "Date Created": string;
+  "Date Updated": string;
+  "Approved By": string;
+};

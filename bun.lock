@@ -27,6 +27,7 @@
         "@supabase/auth-helpers-nextjs": "^0.10.0",
         "@supabase/ssr": "^0.5.2",
         "@tanstack/react-table": "^8.20.5",
+        "@types/react-csv": "^1.1.10",
         "bcryptjs": "^2.4.3",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.1",
@@ -44,6 +45,7 @@
         "react": "^18.3.1",
         "react-confetti": "^6.2.2",
         "react-confetti-explosion": "^2.1.2",
+        "react-csv": "^2.2.2",
         "react-custom-roulette": "^1.4.1",
         "react-day-picker": "^8.10.1",
         "react-dom": "^18.3.1",
@@ -434,6 +436,8 @@
     "@types/prop-types": ["@types/prop-types@15.7.14", "", {}, "sha512-gNMvNH49DJ7OJYv+KAKn0Xp45p8PLl6zo2YnvDIbTd4J6MER2BmWN49TG7n9LvkyihINxeKW8+3bfS2yDC9dzQ=="],
 
     "@types/react": ["@types/react@18.3.18", "", { "dependencies": { "@types/prop-types": "*", "csstype": "^3.0.2" } }, "sha512-t4yC+vtgnkYjNSKlFx1jkAhH8LgTo2N/7Qvi83kdEaUtMDiwpbLAktKDaAMlRcJ5eSxZkH74eEGt1ky31d7kfQ=="],
+
+    "@types/react-csv": ["@types/react-csv@1.1.10", "", { "dependencies": { "@types/react": "*" } }, "sha512-PESAyASL7Nfi/IyBR3ufd8qZkyoS+7jOylKmJxRZUZLFASLo4NZaRsJ8rNP8pCcbIziADyWBbLPD1nPddhsL4g=="],
 
     "@types/react-dom": ["@types/react-dom@18.3.5", "", { "peerDependencies": { "@types/react": "^18.0.0" } }, "sha512-P4t6saawp+b/dFrUr2cvkVsfvPguwsxtH6dNIYRllMsefqFzkZk5UIjzyDOv5g1dXIPdG4Sp1yCR4Z6RCUsG/Q=="],
 
@@ -1054,6 +1058,8 @@
     "react-confetti": ["react-confetti@6.2.3", "", { "dependencies": { "tween-functions": "^1.2.0" }, "peerDependencies": { "react": "^16.3.0 || ^17.0.1 || ^18.0.0 || ^19.0.0" } }, "sha512-Jt6Fy3jE7FrpKxeDQ3oh36Bz6LoYt4o+vU578ghuF//NxADlcauDYvWr24S8hHKnQ90Uv01XXOngnKVBdZ73zQ=="],
 
     "react-confetti-explosion": ["react-confetti-explosion@2.1.2", "", { "dependencies": { "lodash": "^4.17.21", "react-jss": "^10.9.2" }, "peerDependencies": { "react": "^18.x", "react-dom": "^18.x" } }, "sha512-4UzDFBajAGXmF9TSJoRMO2QOBCIXc66idTxH8l7Mkul48HLGtk+tMzK9HYDYsy7Zmw5sEGchi2fbn4AJUuLrZw=="],
+
+    "react-csv": ["react-csv@2.2.2", "", {}, "sha512-RG5hOcZKZFigIGE8LxIEV/OgS1vigFQT4EkaHeKgyuCbUAu9Nbd/1RYq++bJcJJ9VOqO/n9TZRADsXNDR4VEpw=="],
 
     "react-custom-roulette": ["react-custom-roulette@1.4.1", "", { "peerDependencies": { "react": "^18.2.0", "react-dom": "^18.2.0" } }, "sha512-v5Mrww/lbysSNcAF0PHU7KzdY+ljtTysu6A5Hx5s0Fi2V7CIj36Q2Df+l/1izl8yzX06nnQzvgbwSLenm8vYDQ=="],
 

@@ -138,6 +138,11 @@ const data = {
           url: "/admin/testimonials",
           icon: Video,
         },
+        {
+          title: "Export",
+          url: "/admin/export",
+          icon: File,
+        },
       ],
     },
   ],

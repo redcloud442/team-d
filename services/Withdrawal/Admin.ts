@@ -1,4 +1,8 @@
-import { AdminWithdrawaldata, AdminWithdrawalReportData } from "@/utils/types";
+import {
+  AdminWithdrawaldata,
+  AdminWithdrawalReportData,
+  WithdrawListExportData,
+} from "@/utils/types";
 
 export const getAdminWithdrawalRequest = async (params: {
   page: number;
@@ -114,4 +118,31 @@ export const hideUser = async (params: {
   if (!response.ok) throw new Error("Failed to hide user");
 
   return result;
+};
+
+export const getAdminWithdrawalExport = async (params: {
+  type: string;
+  dateFilter: {
+    start: string;
+    end: string;
+  };
+  page: number;
+  limit: number;
+}) => {
+  const response = await fetch("/api/v1/withdraw/list/export", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) throw new Error("Failed to fetch withdrawal export");
+
+  return result as {
+    data: WithdrawListExportData[];
+    totalCount: number;
+  };
 };
