@@ -95,6 +95,9 @@ const ReinvestButton = ({
         amountToReinvest: data.amountToReinvest,
         packageId: data.packageId,
       });
+      const amountBonus = amountToReinvest * 0.01;
+
+      const finalAmount = amountToReinvest + amountBonus;
 
       setChartData([
         {
@@ -109,7 +112,7 @@ const ReinvestButton = ({
           package_date_created: new Date().toISOString(),
           package_member_id: teamMemberProfile?.alliance_member_id,
           package_days: Number(primaryPackage?.packages_days || 0),
-          current_amount: Number(data.amountToReinvest.toFixed(0)),
+          current_amount: Number(finalAmount.toFixed(0)),
           currentPercentage: Number(0),
           package_percentage: Number(primaryPackage?.package_percentage || 0),
         },
@@ -123,10 +126,10 @@ const ReinvestButton = ({
           {
             transaction_id: uuidv4(),
             transaction_date: new Date(),
-            transaction_description: `Package Reinvested: ${primaryPackage?.package_name}`,
+            transaction_description: `Package Reinvested: ${primaryPackage?.package_name} + 1% Bonus`,
             transaction_details: "",
             transaction_member_id: teamMemberProfile?.alliance_member_id ?? "",
-            transaction_amount: reinvestmentAmount,
+            transaction_amount: finalAmount,
             transaction_attachment: "",
           },
         ],
