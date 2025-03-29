@@ -217,10 +217,16 @@
   @keyframes wiggle-color {
     0%,
     100% {
-      transform: rotate(-3deg);
+      color: rgb(15, 235, 52);
+    }
+    25% {
+      color: rgb(230, 45, 20);
     }
     50% {
-      transform: rotate(3deg);
+      color: rgb(204, 12, 211);
+    }
+    75% {
+      color: rgb(102, 178, 255);
     }
   }
 

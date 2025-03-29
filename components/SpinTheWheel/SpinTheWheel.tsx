@@ -191,15 +191,27 @@ export const SpinWheel = ({ prizes }: Props) => {
         }
       }}
     >
-      <DialogTrigger asChild>
+      <DialogTrigger
+        className="
+    fixed
+    top-auto bottom-20 right-4
+    sm:top-44 sm:bottom-auto sm:right-14
+    z-[9999]
+    flex flex-col items-center justify-center
+    animate-pulse rounded-full
+  "
+      >
         <Image
           src="/assets/wheel.png"
           alt="Wheel Logo"
           width={60}
           height={60}
-          className="rounded-full cursor-pointer fixed bottom-18 sm:bottom-24 right-3 animate-pulse z-[9999] pointer-events-auto hover:rotate-180 transition-transform duration-1000"
+          className="cursor-pointer z-[9999]  hover:rotate-180 duration-1000     transition-transform "
           onClick={() => setIsOpen(true)}
         />
+        <p className=" text-sm sm:text-lg font-extrabold animate-wiggle">
+          Spin Here
+        </p>
       </DialogTrigger>
       <DialogContent className="p-1 sm:p-1">
         <DialogHeader>
