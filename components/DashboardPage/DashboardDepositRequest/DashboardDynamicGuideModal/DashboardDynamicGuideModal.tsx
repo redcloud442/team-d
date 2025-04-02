@@ -14,9 +14,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const DashboardWithdrawGuideModal = ({
   type,
@@ -24,19 +23,8 @@ const DashboardWithdrawGuideModal = ({
   type: "avail" | "withdraw" | "deposit" | "register" | "refer";
 }) => {
   const storageKey = "hidden-modal-guides"; // Store hidden types in localStorage
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
-
-  useEffect(() => {
-    const hiddenGuidesStr = localStorage.getItem(storageKey);
-    if (hiddenGuidesStr) {
-      const hiddenGuides = JSON.parse(hiddenGuidesStr) as string[];
-      if (hiddenGuides.includes(type)) {
-        setIsModalOpen(false);
-        setDontShowAgain(true);
-      }
-    }
-  }, [type]);
 
   const handleClose = () => {
     setIsModalOpen(false);
@@ -99,7 +87,7 @@ const DashboardWithdrawGuideModal = ({
         </Carousel>
 
         {/* Checkbox for 'Do not show again' */}
-        <div className="flex items-start gap-2 mt-4">
+        {/* <div className="flex items-start gap-2 mt-4">
           <Input
             type="checkbox"
             id={`dont-show-again-${type}`}
@@ -111,7 +99,7 @@ const DashboardWithdrawGuideModal = ({
             By clicking this, you agree not to see this guide again
             automatically.
           </label>
-        </div>
+        </div> */}
       </DialogContent>
     </Dialog>
   );
