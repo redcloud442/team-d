@@ -130,8 +130,8 @@ const AdminWithdrawalHistoryTable = () => {
                 count: 0,
               },
             },
-            totalPendingWithdrawals: 0,
-            totalApprovedWithdrawals: 0,
+            totalPendingWithdrawal: 0,
+            totalApprovedWithdrawal: 0,
           };
         }
 
@@ -183,8 +183,8 @@ const AdminWithdrawalHistoryTable = () => {
           REJECTED: { data: [], count: 0 },
           PENDING: { data: [], count: 0 },
         },
-        totalPendingWithdrawals: 0,
-        totalApprovedWithdrawals: 0,
+        totalPendingWithdrawal: 0,
+        totalApprovedWithdrawal: 0,
       };
       const sanitizedData = escapeFormData(getValues());
 

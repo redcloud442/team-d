@@ -132,10 +132,9 @@ const WithdrawalTable = () => {
                     count: 0,
                   },
               },
-              totalApprovedWithdrawals:
-                requestData?.totalApprovedWithdrawals || 0,
-              totalPendingWithdrawals:
-                requestData?.totalPendingWithdrawals || 0,
+              totalApprovedWithdrawal:
+                requestData?.totalApprovedWithdrawal || 0,
+              totalPendingWithdrawal: requestData?.totalPendingWithdrawal || 0,
             };
           }
 
@@ -151,9 +150,8 @@ const WithdrawalTable = () => {
                 count: 0,
               },
             },
-            totalApprovedWithdrawals:
-              requestData?.totalApprovedWithdrawals || 0,
-            totalPendingWithdrawals: requestData?.totalPendingWithdrawals || 0,
+            totalApprovedWithdrawal: requestData?.totalApprovedWithdrawal || 0,
+            totalPendingWithdrawal: requestData?.totalPendingWithdrawal || 0,
           };
         }
       );
@@ -192,8 +190,8 @@ const WithdrawalTable = () => {
           REJECTED: { data: [], count: 0 },
           PENDING: { data: [], count: 0 },
         },
-        totalApprovedWithdrawals: 0,
-        totalPendingWithdrawals: 0,
+        totalApprovedWithdrawal: 0,
+        totalPendingWithdrawal: 0,
       };
       const sanitizedData = escapeFormData(getValues());
 
@@ -241,8 +239,8 @@ const WithdrawalTable = () => {
 
       setRequestData({
         ...updatedData,
-        totalApprovedWithdrawals: requestData?.totalApprovedWithdrawals || 0,
-        totalPendingWithdrawals: requestData?.totalPendingWithdrawals || 0,
+        totalApprovedWithdrawal: requestData?.totalApprovedWithdrawal || 0,
+        totalPendingWithdrawal: requestData?.totalPendingWithdrawal || 0,
       });
     } catch (e) {
       if (e instanceof Error) {
@@ -342,7 +340,7 @@ const WithdrawalTable = () => {
             value={
               <>
                 <PhilippinePeso />
-                {requestData?.totalPendingWithdrawals?.toLocaleString("en-US", {
+                {requestData?.totalPendingWithdrawal?.toLocaleString("en-US", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 }) || 0}
@@ -356,13 +354,10 @@ const WithdrawalTable = () => {
             value={
               <>
                 <PhilippinePeso />
-                {requestData?.totalApprovedWithdrawals?.toLocaleString(
-                  "en-US",
-                  {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }
-                ) || 0}
+                {requestData?.totalApprovedWithdrawal?.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }) || 0}
               </>
             }
             description=""

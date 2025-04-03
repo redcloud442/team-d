@@ -92,17 +92,17 @@ export const WithdrawalColumn = (
             },
           },
 
-          totalPendingWithdrawals:
-            Number(prev.totalPendingWithdrawals || 0) -
+          totalPendingWithdrawal:
+            Number(prev.totalPendingWithdrawal || 0) -
             Number(
               updatedItem.alliance_withdrawal_request_amount -
                 updatedItem.alliance_withdrawal_request_fee
             ),
-          totalApprovedWithdrawals:
+          totalApprovedWithdrawal:
             status === "APPROVED"
-              ? (prev?.totalApprovedWithdrawals || 0) +
+              ? (prev?.totalApprovedWithdrawal || 0) +
                 updatedItem.alliance_withdrawal_request_amount
-              : prev?.totalApprovedWithdrawals || 0,
+              : prev?.totalApprovedWithdrawal || 0,
         };
       });
       reset();
