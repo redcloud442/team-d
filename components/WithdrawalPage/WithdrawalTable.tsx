@@ -3,7 +3,7 @@
 import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminWithdrawalRequest } from "@/services/Withdrawal/Admin";
 import { useRole } from "@/utils/context/roleContext";
-import { escapeFormData } from "@/utils/function";
+import { escapeFormData, formatDateToLocal } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminWithdrawaldata } from "@/utils/types";
 import {
@@ -90,7 +90,8 @@ const WithdrawalTable = () => {
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
-      const endDate = startDate ? new Date(startDate) : undefined;
+      const formattedStartDate = startDate ? formatDateToLocal(startDate) : "";
+
       const requestData = await getAdminWithdrawalRequest({
         page: activePage,
         limit: 10,
@@ -100,14 +101,8 @@ const WithdrawalTable = () => {
         userFilter,
         statusFilter: statusFilter,
         dateFilter: {
-          start:
-            startDate && !isNaN(startDate.getTime())
-              ? startDate.toISOString()
-              : undefined,
-          end:
-            endDate && !isNaN(endDate.getTime())
-              ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
-              : undefined,
+          start: formattedStartDate,
+          end: formattedStartDate,
         },
         showHiddenUser,
       });
@@ -137,11 +132,10 @@ const WithdrawalTable = () => {
                     count: 0,
                   },
               },
-              totalWithdrawals: {
-                amount: requestData?.totalWithdrawals?.amount || 0,
-                approvedAmount:
-                  requestData?.totalWithdrawals?.approvedAmount || 0,
-              },
+              totalApprovedWithdrawals:
+                requestData?.totalApprovedWithdrawals || 0,
+              totalPendingWithdrawals:
+                requestData?.totalPendingWithdrawals || 0,
             };
           }
 
@@ -157,11 +151,9 @@ const WithdrawalTable = () => {
                 count: 0,
               },
             },
-            totalWithdrawals: {
-              amount: requestData?.totalWithdrawals?.amount || 0,
-              approvedAmount:
-                requestData?.totalWithdrawals?.approvedAmount || 0,
-            },
+            totalApprovedWithdrawals:
+              requestData?.totalApprovedWithdrawals || 0,
+            totalPendingWithdrawals: requestData?.totalPendingWithdrawals || 0,
           };
         }
       );
@@ -200,6 +192,8 @@ const WithdrawalTable = () => {
           REJECTED: { data: [], count: 0 },
           PENDING: { data: [], count: 0 },
         },
+        totalApprovedWithdrawals: 0,
+        totalPendingWithdrawals: 0,
       };
       const sanitizedData = escapeFormData(getValues());
 
@@ -247,10 +241,8 @@ const WithdrawalTable = () => {
 
       setRequestData({
         ...updatedData,
-        totalWithdrawals: {
-          amount: requestData?.totalWithdrawals?.amount || 0,
-          approvedAmount: requestData?.totalWithdrawals?.approvedAmount || 0,
-        },
+        totalApprovedWithdrawals: requestData?.totalApprovedWithdrawals || 0,
+        totalPendingWithdrawals: requestData?.totalPendingWithdrawals || 0,
       });
     } catch (e) {
       if (e instanceof Error) {
@@ -350,13 +342,10 @@ const WithdrawalTable = () => {
             value={
               <>
                 <PhilippinePeso />
-                {requestData?.totalWithdrawals?.amount?.toLocaleString(
-                  "en-US",
-                  {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }
-                ) || 0}
+                {requestData?.totalPendingWithdrawals?.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }) || 0}
               </>
             }
             description=""
@@ -367,7 +356,7 @@ const WithdrawalTable = () => {
             value={
               <>
                 <PhilippinePeso />
-                {requestData?.totalWithdrawals?.approvedAmount?.toLocaleString(
+                {requestData?.totalApprovedWithdrawals?.toLocaleString(
                   "en-US",
                   {
                     minimumFractionDigits: 2,
