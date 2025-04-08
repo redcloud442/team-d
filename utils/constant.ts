@@ -30,6 +30,7 @@ export const BANK_IMAGE = {
   "QR PH": "/assets/bank/QRPH.png",
   GOTYME: "/assets/bank/GOTYME.jpg",
   BANKO: "/assets/bank/BANKO.png",
+  BYBIT: "/assets/bank/BYBIT.png",
 };
 
 export const BASE_URL = "https://primepinas.com";
