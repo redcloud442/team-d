@@ -59,6 +59,14 @@ const DashboardPackages = ({
     }));
   });
 
+  const chechIfMonthOrDay = (days: number) => {
+    if (days > 30) {
+      return `${days / 30} Months`;
+    } else {
+      return `${days} Days`;
+    }
+  };
+
   useEffect(() => {
     const animationFrames: { [key: string]: number } = {};
 
@@ -257,7 +265,8 @@ const DashboardPackages = ({
                   {data.package} Plan
                 </span>
                 <span className="text-xl text-black font-extrabold">
-                  {data.package_days} Days {data.package_percentage}% Profit
+                  {chechIfMonthOrDay(data.package_days)}{" "}
+                  {data.package_percentage}% Profit
                 </span>
               </div>
               <Separator />
