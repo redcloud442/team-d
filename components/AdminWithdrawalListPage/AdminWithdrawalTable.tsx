@@ -197,12 +197,12 @@ const AdminWithdrawalHistoryTable = () => {
         dateFilter,
         showHiddenUser,
       } = sanitizedData;
+
+      setActivePage(1);
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
-      const endDate = startDate ? new Date(startDate) : undefined;
-
-      setActivePage(1);
+      const formattedStartDate = startDate ? formatDateToLocal(startDate) : "";
 
       const requestData = await getAdminWithdrawalRequest({
         page: activePage,
@@ -214,16 +214,8 @@ const AdminWithdrawalHistoryTable = () => {
         statusFilter: statusFilter || "PENDING",
         showHiddenUser: showHiddenUser,
         dateFilter: {
-          start:
-            startDate && !isNaN(startDate.getTime())
-              ? new Date(
-                  startDate.setDate(startDate.getDate() + 1)
-                ).toISOString()
-              : undefined,
-          end:
-            endDate && !isNaN(endDate.getTime())
-              ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
-              : undefined,
+          start: formattedStartDate,
+          end: formattedStartDate,
         },
       });
 

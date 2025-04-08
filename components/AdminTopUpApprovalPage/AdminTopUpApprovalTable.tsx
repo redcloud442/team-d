@@ -3,7 +3,7 @@
 import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminTopUpRequest } from "@/services/TopUp/Admin";
 import { useRole } from "@/utils/context/roleContext";
-import { escapeFormData } from "@/utils/function";
+import { escapeFormData, formatDateToLocal } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { DialogDescription } from "@radix-ui/react-dialog";
@@ -97,8 +97,8 @@ const AdminTopUpApprovalTable = () => {
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
+      const formattedStartDate = startDate ? formatDateToLocal(startDate) : "";
 
-      const endDate = startDate ? new Date(startDate) : undefined;
       const requestData = await getAdminTopUpRequest({
         page: activePage,
         limit: 10,
@@ -109,17 +109,8 @@ const AdminTopUpApprovalTable = () => {
         userFilter,
         statusFilter: statusFilter ?? "PENDING",
         dateFilter: {
-          start:
-            startDate && !isNaN(startDate.getTime())
-              ? new Date(
-                  startDate.setDate(startDate.getDate() + 1)
-                ).toISOString()
-              : undefined,
-
-          end:
-            endDate && !isNaN(endDate.getTime())
-              ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
-              : undefined,
+          start: formattedStartDate,
+          end: formattedStartDate,
         },
       });
 
@@ -234,8 +225,7 @@ const AdminTopUpApprovalTable = () => {
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
-
-      const endDate = startDate ? new Date(startDate) : undefined;
+      const formattedStartDate = startDate ? formatDateToLocal(startDate) : "";
 
       setActivePage(1);
       const requestData = await getAdminTopUpRequest({
@@ -248,17 +238,8 @@ const AdminTopUpApprovalTable = () => {
         userFilter,
         statusFilter: statusFilter ?? "PENDING",
         dateFilter: {
-          start:
-            startDate && !isNaN(startDate.getTime())
-              ? new Date(
-                  startDate.setDate(startDate.getDate() + 1)
-                ).toISOString()
-              : undefined,
-
-          end:
-            endDate && !isNaN(endDate.getTime())
-              ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
-              : undefined,
+          start: formattedStartDate,
+          end: formattedStartDate,
         },
       });
 
