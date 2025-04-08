@@ -14,7 +14,7 @@ const Page = async () => {
     redirect("/admin");
   }
 
-  const [packages, testimonials, wheel] = await Promise.all([
+  const [packages, testimonials, wheel, reinvestment] = await Promise.all([
     prisma.package_table.findMany({
       where: { package_is_disabled: false },
       select: {
@@ -52,6 +52,18 @@ const Page = async () => {
         alliance_wheel_settings_color: true,
       },
     }),
+    prisma.package_table.findMany({
+      select: {
+        package_id: true,
+        package_percentage: true,
+        package_is_disabled: true,
+        package_name: true,
+        package_description: true,
+        packages_days: true,
+        package_color: true,
+        package_image: true,
+      },
+    }),
   ]);
 
   return (
@@ -59,6 +71,7 @@ const Page = async () => {
       packages={packages}
       testimonials={testimonials}
       wheel={wheel}
+      reinvestment={reinvestment}
     />
   );
 };

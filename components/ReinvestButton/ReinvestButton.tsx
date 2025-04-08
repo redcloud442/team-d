@@ -2,11 +2,12 @@ import { useToast } from "@/hooks/use-toast";
 import { ReinvestPackageHandler } from "@/services/Package/Member";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
+import { BONUS_MAPPING, REINVESTMENT_TYPE } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { package_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { memo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
@@ -19,18 +20,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { Input } from "../ui/input";
-
+import { Separator } from "../ui/separator";
+import ReinvestMonthlyButton from "./ReinvestMonthlyButton";
 const formSchema = z.object({
   packageConnectionId: z.string(),
   packageId: z.string(),
   amountToReinvest: z.number(),
+  type: z.enum(["1 month", "3 months", "5 months"]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 type Props = {
-  primaryPackage: package_table;
+  primaryPackage: package_table[];
   packageConnectionId: string;
   amountToReinvest: number;
 };
@@ -41,80 +43,78 @@ const ReinvestButton = ({
   amountToReinvest,
 }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedReinvestment, setSelectedReinvestment] = useState<{
+    amount: number;
+    bonus: number;
+    months: number;
+    type: "1 month" | "3 months" | "5 months";
+    amountWithbonus: number;
+    amountWithPercentage: number;
+    percentage: number;
+  } | null>(null);
 
   const { teamMemberProfile } = useRole();
   const { chartData, setChartData } = usePackageChartData();
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const { toast } = useToast();
 
-  const reinvestmentAmount = useMemo(() => {
-    return amountToReinvest * (primaryPackage?.package_percentage ?? 0) * 0.01;
-  }, [primaryPackage]);
-
-  const reinvestmentMaturity = useMemo(() => {
-    return amountToReinvest * (primaryPackage?.package_percentage ?? 0) * 0.01;
-  }, [primaryPackage, amountToReinvest]);
-
-  const maturityIncome = useMemo(() => {
-    return (
-      amountToReinvest * (primaryPackage?.package_percentage ?? 0) * 0.01 +
-      amountToReinvest
-    );
-  }, [primaryPackage, amountToReinvest]);
-
-  const sumOfTotal = useMemo(() => {
-    return (
-      maturityIncome * (primaryPackage?.package_percentage ?? 0) * 0.01 +
-      maturityIncome
-    );
-  }, [primaryPackage, amountToReinvest]);
-
   const {
     handleSubmit,
     reset,
+    setValue,
     formState: { isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       packageConnectionId: packageConnectionId,
-      packageId: primaryPackage.package_id ?? "",
+      packageId: "",
       amountToReinvest: amountToReinvest,
     },
   });
 
   const handleReinvest = async (data: FormValues) => {
     try {
+      if (!selectedReinvestment) return;
+
+      const selectedPackage = primaryPackage.find(
+        (item) => item.package_id === data.packageId
+      );
+
       const now = new Date();
       const completionDate = new Date(
         now.getTime() +
-          (primaryPackage?.packages_days ?? 0) * 24 * 60 * 60 * 1000
+          (selectedPackage?.packages_days ?? 0) * 24 * 60 * 60 * 1000
       );
 
       await ReinvestPackageHandler({
         packageConnectionId: data.packageConnectionId,
         amountToReinvest: data.amountToReinvest,
         packageId: data.packageId,
+        type: data.type,
       });
-      const amountBonus = amountToReinvest * 0.01;
+
+      const amountBonus =
+        data.amountToReinvest *
+        BONUS_MAPPING[data.type as keyof typeof BONUS_MAPPING];
 
       const finalAmount = amountToReinvest + amountBonus;
 
       setChartData([
         {
-          package: primaryPackage?.package_name || "",
+          package: selectedPackage?.package_name || "",
           completion: 0,
           completion_date: completionDate.toISOString(),
-          amount: Number(data.amountToReinvest),
+          amount: Number(finalAmount),
           is_ready_to_claim: false,
           package_connection_id: uuidv4(),
-          profit_amount: Number(reinvestmentMaturity),
-          package_color: primaryPackage?.package_color || "",
+          profit_amount: Number(selectedReinvestment.amountWithPercentage),
+          package_color: selectedPackage?.package_color || "",
           package_date_created: new Date().toISOString(),
           package_member_id: teamMemberProfile?.alliance_member_id,
-          package_days: Number(primaryPackage?.packages_days || 0),
+          package_days: Number(selectedPackage?.packages_days || 0),
           current_amount: Number(finalAmount.toFixed(0)),
           currentPercentage: Number(0),
-          package_percentage: Number(primaryPackage?.package_percentage || 0),
+          package_percentage: Number(selectedPackage?.package_percentage || 0),
         },
         ...chartData.filter(
           (item) => item.package_connection_id !== data.packageConnectionId
@@ -126,7 +126,7 @@ const ReinvestButton = ({
           {
             transaction_id: uuidv4(),
             transaction_date: new Date(),
-            transaction_description: `Package Reinvested: ${primaryPackage?.package_name} + 1% Bonus`,
+            transaction_description: `Package Reinvested: ${selectedPackage?.package_name} + 1% Bonus`,
             transaction_details: "",
             transaction_member_id: teamMemberProfile?.alliance_member_id ?? "",
             transaction_amount: finalAmount,
@@ -144,6 +144,7 @@ const ReinvestButton = ({
         description: `Package reinvested successfully`,
       });
     } catch (error) {
+      console.log(error);
       toast({
         title: "Error",
         description: `Error reinvesting package`,
@@ -151,8 +152,41 @@ const ReinvestButton = ({
     }
   };
 
+  const handleReinvestMonthly = (
+    amount: number,
+    bonus: number,
+    months: number,
+    type: "1 month" | "3 months" | "5 months",
+    amountWithbonus: number,
+    amountWithPercentage: number,
+    percentage: number
+  ) => {
+    const packageMapping =
+      REINVESTMENT_TYPE[type as keyof typeof REINVESTMENT_TYPE];
+    setSelectedReinvestment({
+      amount: amount,
+      bonus: bonus,
+      months: months,
+      type: type,
+      amountWithbonus: amountWithbonus,
+      amountWithPercentage: amountWithPercentage,
+      percentage: percentage,
+    });
+    setValue("type", type);
+    setValue("packageId", packageMapping);
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) {
+          setSelectedReinvestment(null);
+          reset();
+        }
+      }}
+    >
       <DialogDescription></DialogDescription>
       <DialogTrigger asChild>
         <div className="relative inline-block">
@@ -166,134 +200,133 @@ const ReinvestButton = ({
         </div>
       </DialogTrigger>
 
-      <DialogContent type="earnings">
+      <DialogContent type="table" className="p-4">
         <DialogHeader>
-          <DialogTitle className="text-bold mb-4">REINVEST</DialogTitle>
+          <DialogTitle className="text-bold text-center mb-4">
+            NEW REINVEST SYSTEM
+          </DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col items-center justify-center font-bold text-lg sm:text-xl">
-          <p className="text-center">Click &quot;Reinvest&quot; Now!</p>
-          <p className="text-center">
-            Your ₱
-            {amountToReinvest.toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}{" "}
-            will become ₱
-            {sumOfTotal.toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
-          </p>
-          <p className="text-center"> in 1 month if you roll it back.</p>
-        </div>
+
         <form className="space-y-2" onSubmit={handleSubmit(handleReinvest)}>
           <div className="flex flex-col items-center justify-around space-y-2"></div>
           {/* amount to avail */}
-          <div className="flex gap-2 w-full items-end justify-center bg-pageColor rounded-lg text-white p-1">
-            <div className="w-full flex flex-col items-center justify-center">
-              <label
-                className="text-[10px] sm:text-xs text-center"
-                htmlFor="amount"
-              >
-                TOTAL REINVESTED
-              </label>
+          {!selectedReinvestment ? (
+            <div className="flex flex-col sm:flex-row w-full gap-2 justify-center bg-pageColor rounded-lg text-white p-0 py-2 px-1">
+              <ReinvestMonthlyButton
+                amountToReinvest={amountToReinvest}
+                percentage={140}
+                bonus={1}
+                months={1}
+                type="1 month"
+                handleReinvestMonthly={handleReinvestMonthly}
+              />
 
-              <Input
-                id="totalReinvested"
-                type="text"
-                placeholder="Enter amount"
-                className="w-full text-center rounded-lg shadow-xs border-none px-4 py-2 focus:ring-blue-500 focus:border-blue-500 text-sm md:text-sm sm:text-sm p-0"
-                readOnly
-                value={amountToReinvest.toLocaleString("en-US", {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                })}
+              <ReinvestMonthlyButton
+                amountToReinvest={amountToReinvest}
+                percentage={420}
+                bonus={3}
+                months={3}
+                type="3 months"
+                handleReinvestMonthly={handleReinvestMonthly}
+              />
+
+              <ReinvestMonthlyButton
+                amountToReinvest={amountToReinvest}
+                percentage={700}
+                bonus={5}
+                months={5}
+                type="5 months"
+                handleReinvestMonthly={handleReinvestMonthly}
               />
             </div>
-            <div className="w-full flex flex-col items-center justify-center">
-              <label
-                className="text-[10px] sm:text-xs text-center "
-                htmlFor="amount"
-              >
-                PROFIT
-              </label>
-              <Input
-                variant="default"
-                id="Maturity"
-                readOnly
-                type="text"
-                className="text-center border-none text-sm md:text-sm sm:text-sm p-0"
-                placeholder="Enter amount"
-                value={reinvestmentAmount.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              />
-            </div>
-            <div className="w-full flex flex-col items-center justify-center">
-              <label
-                className="text-[10px] sm:text-xs text-center "
-                htmlFor="amount"
-              >
-                TOTAL INCOME
-              </label>
-
-              <Input
-                id="amountToReinvest"
-                type="text"
-                placeholder="Enter amount"
-                className="w-full text-center rounded-lg shadow-xs px-4 py-2 border-none focus:ring-blue-500 focus:border-blue-500 text-sm md:text-sm sm:text-sm p-0"
-                value={
-                  maturityIncome.toLocaleString("en-US", {
+          ) : (
+            <div className="space-y-2">
+              <div className="flex justify-between gap-2">
+                <p className="text-center text-lg font-bold">
+                  Reinvestment Amount
+                </p>
+                <p>
+                  ₱{" "}
+                  {amountToReinvest.toLocaleString("en-US", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
-                  }) || ""
-                }
-                readOnly
-              />
+                  })}
+                </p>
+              </div>
+
+              <div className="flex justify-between gap-2">
+                <p className="text-center text-lg font-bold">
+                  Bonus {selectedReinvestment.bonus}%
+                </p>
+                <p>
+                  ₱{" "}
+                  {selectedReinvestment.amountWithbonus.toLocaleString(
+                    "en-US",
+                    {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }
+                  )}
+                </p>
+              </div>
+
+              <div className="flex justify-between gap-2">
+                <p className="text-center text-lg font-bold">
+                  Profit {selectedReinvestment.percentage}%
+                </p>
+                <p>
+                  ₱{" "}
+                  {selectedReinvestment.amountWithPercentage.toLocaleString(
+                    "en-US",
+                    {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }
+                  )}
+                </p>
+              </div>
+              <Separator />
+              <div className="flex justify-between gap-2">
+                <p className="text-center text-lg font-extrabold">Total</p>
+                <p className="text-lg font-extrabold">
+                  ₱{" "}
+                  {selectedReinvestment.amount.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </p>
+              </div>
+
+              <Button
+                disabled={isSubmitting}
+                type="submit"
+                className="w-full rounded-md bg-amber-400 text-black hover:bg-amber-400/50 animate-tracing-border-2"
+                variant="card"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {"Reinvesting ..."}
+                  </>
+                ) : (
+                  "Reinvest"
+                )}
+              </Button>
+              <Button
+                disabled={isSubmitting}
+                type="button"
+                variant="card"
+                onClick={() => setSelectedReinvestment(null)}
+                className="w-full rounded-md"
+              >
+                Cancel
+              </Button>
             </div>
-          </div>
-
-          <div className="flex flex-col gap-2 w-full">
-            <label
-              className="text-3xl text-center font-extrabold"
-              htmlFor="Gross"
-            >
-              1 Month Income
-            </label>
-            <Input
-              variant="default"
-              id="Gross"
-              readOnly
-              type="text"
-              className="text-center text-2xl md:text-2xl sm:text-2xl font-extrabold"
-              placeholder="Gross Income"
-              value={sumOfTotal.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            />
-          </div>
-
-          <Button
-            disabled={isSubmitting}
-            type="submit"
-            className="w-full rounded-md bg-amber-400 text-black hover:bg-amber-400/50 animate-tracing-border-2"
-            variant="card"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                {"Reinvesting ..."}
-              </>
-            ) : (
-              "Reinvest"
-            )}
-          </Button>
+          )}
         </form>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default ReinvestButton;
+export default memo(ReinvestButton);

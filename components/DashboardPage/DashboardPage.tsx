@@ -43,9 +43,15 @@ type Props = {
     alliance_wheel_settings_percentage: number;
     alliance_wheel_settings_color: string;
   }[];
+  reinvestment: package_table[];
 };
 
-const DashboardPage = ({ packages, testimonials, wheel }: Props) => {
+const DashboardPage = ({
+  packages,
+  testimonials,
+  wheel,
+  reinvestment,
+}: Props) => {
   const supabaseClient = createClientSide();
   const { referral } = useRole();
   const { loading } = useUserLoadingStore();
@@ -312,7 +318,7 @@ const DashboardPage = ({ packages, testimonials, wheel }: Props) => {
         {chartData.length > 0 && (
           <div className=" gap-6">
             <DashboardPackages
-              packages={packages[1]}
+              packages={reinvestment}
               teamMemberProfile={teamMemberProfile}
             />
           </div>

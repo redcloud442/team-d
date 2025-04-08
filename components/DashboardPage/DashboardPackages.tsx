@@ -37,7 +37,7 @@ import { Separator } from "../ui/separator";
 
 type DashboardPackagesProps = {
   teamMemberProfile: alliance_member_table;
-  packages: package_table;
+  packages: package_table[];
 };
 
 const DashboardPackages = ({
