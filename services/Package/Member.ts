@@ -86,6 +86,7 @@ export const ReinvestPackageHandler = async (params: {
   packageConnectionId: string;
   amountToReinvest: number;
   packageId: string;
+  type: string;
 }) => {
   const response = await fetch(`/api/v1/package/reinvest`, {
     method: "POST",
