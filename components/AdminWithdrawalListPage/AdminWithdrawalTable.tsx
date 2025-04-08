@@ -3,7 +3,7 @@
 import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminWithdrawalRequest } from "@/services/Withdrawal/Admin";
 import { useRole } from "@/utils/context/roleContext";
-import { escapeFormData } from "@/utils/function";
+import { escapeFormData, formatDateToLocal } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminWithdrawaldata } from "@/utils/types";
 import {
@@ -90,7 +90,8 @@ const AdminWithdrawalHistoryTable = () => {
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
         : undefined;
-      const endDate = startDate ? new Date(startDate) : undefined;
+      const formattedStartDate = startDate ? formatDateToLocal(startDate) : "";
+
       const requestData = await getAdminWithdrawalRequest({
         page: activePage,
         limit: 10,
@@ -101,16 +102,8 @@ const AdminWithdrawalHistoryTable = () => {
         statusFilter: statusFilter || "PENDING",
         showHiddenUser: showHiddenUser,
         dateFilter: {
-          start:
-            startDate && !isNaN(startDate.getTime())
-              ? new Date(
-                  startDate.setDate(startDate.getDate() + 1)
-                ).toISOString()
-              : undefined,
-          end:
-            endDate && !isNaN(endDate.getTime())
-              ? new Date(endDate.setHours(23, 59, 59, 999)).toISOString()
-              : undefined,
+          start: formattedStartDate,
+          end: formattedStartDate,
         },
       });
       setRequestData((prev: AdminWithdrawaldata | null) => {
