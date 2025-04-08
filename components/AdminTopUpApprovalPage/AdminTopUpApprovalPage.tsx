@@ -12,7 +12,7 @@ const AdminTopUpApprovalPage = () => {
         </header>
 
         {/* Table Section */}
-        <section className=" rounded-lg ">
+        <section className=" rounded-lg space-y-4">
           <AdminTopUpApprovalTable />
         </section>
       </div>

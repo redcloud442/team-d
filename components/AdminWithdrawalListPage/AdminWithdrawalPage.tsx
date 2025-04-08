@@ -12,7 +12,7 @@ const AdminWithdrawalHistoryPage = () => {
         </header>
 
         {/* Table Section */}
-        <section className=" rounded-lg ">
+        <section className=" rounded-lg space-y-4 ">
           <AdminWithdrawalHistoryTable />
         </section>
       </div>
