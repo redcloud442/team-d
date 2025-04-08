@@ -108,12 +108,17 @@ export const RECIPT_MAPPING = [
 ];
 
 export const REINVESTMENT_TYPE = {
+  "14 days":
+    process.env.NODE_ENV === "development"
+      ? "0987a46a-a314-4434-a692-9d6e3008e72a"
+      : "14 days",
   "1 month": "a9c736c0-2393-48ef-a885-58d21ebf8fd7",
   "3 months": "fe6a2995-10b2-4c1c-9d16-d33589b3e6cc",
   "5 months": "50fb1c2e-44cc-4091-a625-343f49d6f177",
 };
 
 export const BONUS_MAPPING = {
+  "14 days": 0.005,
   "1 month": 0.01,
   "3 months": 0.03,
   "5 months": 0.05,

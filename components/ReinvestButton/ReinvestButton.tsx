@@ -6,7 +6,7 @@ import { BONUS_MAPPING, REINVESTMENT_TYPE } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { package_table } from "@prisma/client";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { memo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
@@ -26,7 +26,7 @@ const formSchema = z.object({
   packageConnectionId: z.string(),
   packageId: z.string(),
   amountToReinvest: z.number(),
-  type: z.enum(["1 month", "3 months", "5 months"]),
+  type: z.enum(["14 days", "1 month", "3 months", "5 months"]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -47,7 +47,7 @@ const ReinvestButton = ({
     amount: number;
     bonus: number;
     months: number;
-    type: "1 month" | "3 months" | "5 months";
+    type: "14 days" | "1 month" | "3 months" | "5 months";
     amountWithbonus: number;
     amountWithPercentage: number;
     percentage: number;
@@ -156,7 +156,7 @@ const ReinvestButton = ({
     amount: number,
     bonus: number,
     months: number,
-    type: "1 month" | "3 months" | "5 months",
+    type: "14 days" | "1 month" | "3 months" | "5 months",
     amountWithbonus: number,
     amountWithPercentage: number,
     percentage: number
@@ -211,7 +211,15 @@ const ReinvestButton = ({
           <div className="flex flex-col items-center justify-around space-y-2"></div>
           {/* amount to avail */}
           {!selectedReinvestment ? (
-            <div className="flex flex-col sm:flex-row w-full gap-2 justify-center bg-pageColor rounded-lg text-white p-0 py-2 px-1">
+            <div className="flex flex-col sm:flex-row w-full gap-4 justify-center bg-pageColor rounded-lg text-white p-4">
+              <ReinvestMonthlyButton
+                amountToReinvest={amountToReinvest}
+                percentage={70}
+                bonus={0.5}
+                months={0}
+                type="14 days"
+                handleReinvestMonthly={handleReinvestMonthly}
+              />
               <ReinvestMonthlyButton
                 amountToReinvest={amountToReinvest}
                 percentage={140}
@@ -241,6 +249,16 @@ const ReinvestButton = ({
             </div>
           ) : (
             <div className="space-y-2">
+              <Button
+                disabled={isSubmitting}
+                type="button"
+                size="sm"
+                variant="card"
+                onClick={() => setSelectedReinvestment(null)}
+                className="rounded-md absolute top-4 left-4"
+              >
+                <ArrowLeft /> Back
+              </Button>
               <div className="flex justify-between gap-2">
                 <p className="text-center text-lg font-bold">
                   Reinvestment Amount
@@ -286,9 +304,9 @@ const ReinvestButton = ({
                 </p>
               </div>
               <Separator />
-              <div className="flex justify-between gap-2">
-                <p className="text-center text-lg font-extrabold">Total</p>
-                <p className="text-lg font-extrabold">
+              <div className="flex justify-between gap-2 mb-4">
+                <p className="text-center text-xl font-extrabold">Total</p>
+                <p className="text-xl font-extrabold">
                   ₱{" "}
                   {selectedReinvestment.amount.toLocaleString("en-US", {
                     minimumFractionDigits: 2,
@@ -311,15 +329,6 @@ const ReinvestButton = ({
                 ) : (
                   "Reinvest"
                 )}
-              </Button>
-              <Button
-                disabled={isSubmitting}
-                type="button"
-                variant="card"
-                onClick={() => setSelectedReinvestment(null)}
-                className="w-full rounded-md"
-              >
-                Cancel
               </Button>
             </div>
           )}
