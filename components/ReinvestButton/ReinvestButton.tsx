@@ -144,7 +144,6 @@ const ReinvestButton = ({
         description: `Package reinvested successfully`,
       });
     } catch (error) {
-      console.log(error);
       toast({
         title: "Error",
         description: `Error reinvesting package`,
