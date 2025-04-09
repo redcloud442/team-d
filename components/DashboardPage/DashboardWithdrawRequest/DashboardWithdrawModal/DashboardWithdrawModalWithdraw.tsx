@@ -392,17 +392,17 @@ const DashboardWithdrawModalWithdraw = ({
                       field.onChange(value);
 
                       // Set the withdrawal amount based on the selected type
-                      // if (value === "PACKAGE") {
-                      //   setValue(
-                      //     "amount",
-                      //     earnings?.alliance_olympus_earnings.toFixed(2) ?? "0"
-                      //   );
-                      // } else if (value === "REFERRAL") {
-                      //   setValue(
-                      //     "amount",
-                      //     earnings?.alliance_referral_bounty.toFixed(2) ?? "0"
-                      //   );
-                      if (value === "WINNING") {
+                      if (value === "PACKAGE") {
+                        setValue(
+                          "amount",
+                          earnings?.alliance_olympus_earnings.toFixed(2) ?? "0"
+                        );
+                        //  else if (value === "REFERRAL") {
+                        //   setValue(
+                        //     "amount",
+                        //     earnings?.alliance_referral_bounty.toFixed(2) ?? "0"
+                        //   );
+                      } else if (value === "WINNING") {
                         setValue(
                           "amount",
                           earnings?.alliance_winning_earnings.toFixed(2) ?? "0"
@@ -413,32 +413,32 @@ const DashboardWithdrawModalWithdraw = ({
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select Available Balance">
-                        {field.value === "PACKAGE" &&
-                          // ? `Package Earnings ₱ ${(
-                          //     earnings?.alliance_olympus_earnings ?? 0
-                          //   ).toLocaleString("en-US", {
-                          //     minimumFractionDigits: 2,
+                        {field.value === "PACKAGE"
+                          ? `Package Earnings ₱ ${(
+                              earnings?.alliance_olympus_earnings ?? 0
+                            ).toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
 
-                          //     maximumFractionDigits: 2,
-                          //   })}`
-                          // : // : field.value === "REFERRAL"
-                          //   ? `Referral Earnings ₱ ${(
-                          //       earnings?.alliance_referral_bounty ?? 0
-                          //     ).toLocaleString("en-US", {
-                          //       minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}`
+                          : // : // : field.value === "REFERRAL"
+                            //   ? `Referral Earnings ₱ ${(
+                            //       earnings?.alliance_referral_bounty ?? 0
+                            //     ).toLocaleString("en-US", {
+                            //       minimumFractionDigits: 2,
 
-                          //       maximumFractionDigits: 2,
-                          //     })}`
-                          `Winning Earnings ₱ ${(
-                            earnings?.alliance_winning_earnings ?? 0
-                          ).toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}`}
+                            //       maximumFractionDigits: 2,
+                            //     })}`
+                            `Winning Earnings ₱ ${(
+                              earnings?.alliance_winning_earnings ?? 0
+                            ).toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}`}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {/* {!isWithdrawalToday.package && (
+                      {!isWithdrawalToday.package && (
                         <SelectItem className="text-xs" value="PACKAGE">
                           Package Earnings ₱{" "}
                           {earnings?.alliance_olympus_earnings.toLocaleString(
@@ -451,7 +451,7 @@ const DashboardWithdrawModalWithdraw = ({
                         </SelectItem>
                       )}
 
-                      {!isWithdrawalToday.referral && (
+                      {/* {!isWithdrawalToday.referral && (
                         <SelectItem className="text-xs" value="REFERRAL">
                           Referral Earnings ₱{" "}
                           {earnings?.alliance_referral_bounty.toLocaleString(
