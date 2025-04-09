@@ -306,7 +306,7 @@ const DashboardWithdrawModalWithdraw = ({
     <Dialog
       open={open}
       onOpenChange={(isOpen) => {
-        setOpen(!isOpen);
+        setOpen(isOpen);
         if (!isOpen) {
           reset();
         }
@@ -317,18 +317,17 @@ const DashboardWithdrawModalWithdraw = ({
         !isWithdrawalToday.referral ||
         !isWithdrawalToday.winning ? (
           <Button
-            className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2 bg-gray-500"
+            className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2"
             onClick={() => setOpen(true)}
           >
-            {/* Withdraw
+            Withdraw
             <Image
               src="/assets/withdraw.png"
               alt="deposit"
               width={200}
               height={200}
               priority
-            /> */}
-            Withdrawal Under Maintenance
+            />
           </Button>
         ) : (
           <Popover>
@@ -393,17 +392,17 @@ const DashboardWithdrawModalWithdraw = ({
                       field.onChange(value);
 
                       // Set the withdrawal amount based on the selected type
-                      if (value === "PACKAGE") {
-                        setValue(
-                          "amount",
-                          earnings?.alliance_olympus_earnings.toFixed(2) ?? "0"
-                        );
-                        // } else if (value === "REFERRAL") {
-                        //   setValue(
-                        //     "amount",
-                        //     earnings?.alliance_referral_bounty.toFixed(2) ?? "0"
-                        //   );
-                      } else if (value === "WINNING") {
+                      // if (value === "PACKAGE") {
+                      //   setValue(
+                      //     "amount",
+                      //     earnings?.alliance_olympus_earnings.toFixed(2) ?? "0"
+                      //   );
+                      // } else if (value === "REFERRAL") {
+                      //   setValue(
+                      //     "amount",
+                      //     earnings?.alliance_referral_bounty.toFixed(2) ?? "0"
+                      //   );
+                      if (value === "WINNING") {
                         setValue(
                           "amount",
                           earnings?.alliance_winning_earnings.toFixed(2) ?? "0"
@@ -414,32 +413,32 @@ const DashboardWithdrawModalWithdraw = ({
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select Available Balance">
-                        {field.value === "PACKAGE"
-                          ? `Package Earnings ₱ ${(
-                              earnings?.alliance_olympus_earnings ?? 0
-                            ).toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
+                        {field.value === "PACKAGE" &&
+                          // ? `Package Earnings ₱ ${(
+                          //     earnings?.alliance_olympus_earnings ?? 0
+                          //   ).toLocaleString("en-US", {
+                          //     minimumFractionDigits: 2,
 
-                              maximumFractionDigits: 2,
-                            })}`
-                          : // : field.value === "REFERRAL"
-                            //   ? `Referral Earnings ₱ ${(
-                            //       earnings?.alliance_referral_bounty ?? 0
-                            //     ).toLocaleString("en-US", {
-                            //       minimumFractionDigits: 2,
+                          //     maximumFractionDigits: 2,
+                          //   })}`
+                          // : // : field.value === "REFERRAL"
+                          //   ? `Referral Earnings ₱ ${(
+                          //       earnings?.alliance_referral_bounty ?? 0
+                          //     ).toLocaleString("en-US", {
+                          //       minimumFractionDigits: 2,
 
-                            //       maximumFractionDigits: 2,
-                            //     })}`
-                            `Winning Earnings ₱ ${(
-                              earnings?.alliance_winning_earnings ?? 0
-                            ).toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}`}
+                          //       maximumFractionDigits: 2,
+                          //     })}`
+                          `Winning Earnings ₱ ${(
+                            earnings?.alliance_winning_earnings ?? 0
+                          ).toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}`}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {!isWithdrawalToday.package && (
+                      {/* {!isWithdrawalToday.package && (
                         <SelectItem className="text-xs" value="PACKAGE">
                           Package Earnings ₱{" "}
                           {earnings?.alliance_olympus_earnings.toLocaleString(
@@ -463,7 +462,7 @@ const DashboardWithdrawModalWithdraw = ({
                             }
                           ) ?? 0}
                         </SelectItem>
-                      )}
+                      )} */}
 
                       {!isWithdrawalToday.winning && (
                         <SelectItem className="text-xs" value="WINNING">
