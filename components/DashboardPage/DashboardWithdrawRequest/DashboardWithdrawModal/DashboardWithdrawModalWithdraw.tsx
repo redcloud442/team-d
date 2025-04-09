@@ -397,11 +397,11 @@ const DashboardWithdrawModalWithdraw = ({
                           "amount",
                           earnings?.alliance_olympus_earnings.toFixed(2) ?? "0"
                         );
-                      } else if (value === "REFERRAL") {
-                        setValue(
-                          "amount",
-                          earnings?.alliance_referral_bounty.toFixed(2) ?? "0"
-                        );
+                        // } else if (value === "REFERRAL") {
+                        //   setValue(
+                        //     "amount",
+                        //     earnings?.alliance_referral_bounty.toFixed(2) ?? "0"
+                        //   );
                       } else if (value === "WINNING") {
                         setValue(
                           "amount",
@@ -421,20 +421,20 @@ const DashboardWithdrawModalWithdraw = ({
 
                               maximumFractionDigits: 2,
                             })}`
-                          : field.value === "REFERRAL"
-                            ? `Referral Earnings ₱ ${(
-                                earnings?.alliance_referral_bounty ?? 0
-                              ).toLocaleString("en-US", {
-                                minimumFractionDigits: 2,
+                          : // : field.value === "REFERRAL"
+                            //   ? `Referral Earnings ₱ ${(
+                            //       earnings?.alliance_referral_bounty ?? 0
+                            //     ).toLocaleString("en-US", {
+                            //       minimumFractionDigits: 2,
 
-                                maximumFractionDigits: 2,
-                              })}`
-                            : `Winning Earnings ₱ ${(
-                                earnings?.alliance_winning_earnings ?? 0
-                              ).toLocaleString("en-US", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}`}
+                            //       maximumFractionDigits: 2,
+                            //     })}`
+                            `Winning Earnings ₱ ${(
+                              earnings?.alliance_winning_earnings ?? 0
+                            ).toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}`}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
