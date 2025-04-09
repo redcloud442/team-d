@@ -79,7 +79,7 @@ const DashboardDepositModalPackages = ({
     <Dialog
       open={open}
       onOpenChange={(open) => {
-        setOpen(!open);
+        setOpen(open);
         if (!open) {
           setSelectedPackage(null);
         }
