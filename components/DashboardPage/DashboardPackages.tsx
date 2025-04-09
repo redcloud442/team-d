@@ -20,6 +20,7 @@ import { alliance_member_table, package_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import ReinvestButton from "../ReinvestButton/ReinvestButton";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
@@ -147,6 +148,7 @@ const DashboardPackages = ({
         );
 
         const newEarnings = amount + profit_amount;
+
         // Update earnings
         if (earnings) {
           setEarnings({
@@ -322,11 +324,11 @@ const DashboardPackages = ({
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
-                  {/* <ReinvestButton
+                  <ReinvestButton
                     primaryPackage={packages}
                     packageConnectionId={data.package_connection_id}
                     amountToReinvest={data.current_amount}
-                  /> */}
+                  />
                 </>
               )}
             </CardFooter>

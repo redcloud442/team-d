@@ -242,34 +242,42 @@ const DashboardDepositModalDeposit = ({
       <DialogTrigger asChild className={className}>
         {!canUserDeposit ? (
           <Button
-            className=" relative h-60 sm:h-80 flex flex-col gap-8 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl "
+            className=" relative h-60 sm:h-80 flex flex-col gap-2 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl animate-tracing-border-2"
             onClick={() => setOpen(true)}
           >
             <p className="text-lg sm:text-2xl font-bold">Deposit Here </p>
+
             <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
               <Image
                 src="/assets/deposit.png"
                 alt="deposit"
                 width={250}
                 height={250}
-                className="absolute sm:relative bottom-10 sm:bottom-0 sm:left-0 left-2"
+                className="relative sm:relative bottom-0 left-0 mx-auto"
               />
             </div>
+            <span className="text-lg sm:text-2xl font-bold animate-wiggle">
+              Get +5% Bonus
+            </span>
           </Button>
         ) : (
           <Popover>
             <PopoverTrigger asChild>
-              <Button className=" relative h-60 sm:h-80 flex flex-col gap-8 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl ">
-                Deposit Here
+              <Button className=" relative h-60 sm:h-80 flex flex-col gap-2 items-start justify-start sm:justify-center sm:items-center pt-8 sm:pt-0 px-4 text-lg sm:text-2xl animate-tracing-border-2">
+                <p className="text-lg sm:text-2xl font-bold">Deposit Here </p>
+
                 <div className="flex flex-col items-end justify-start sm:justify-center sm:items-center">
                   <Image
                     src="/assets/deposit.png"
                     alt="deposit"
                     width={250}
                     height={250}
-                    className="absolute sm:relative bottom-10 sm:bottom-0 sm:left-0 left-2"
+                    className="relative sm:relative bottom-0 left-0 mx-auto"
                   />
                 </div>
+                <span className="text-lg sm:text-2xl font-bold animate-wiggle">
+                  Get +5% Bonus
+                </span>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[350px]">

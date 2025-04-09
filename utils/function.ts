@@ -234,3 +234,26 @@ export const formatDateToLocal = (date: Date) => {
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
+
+export const newPackageBonus = (amount: number) => {
+  const depositTiers = [{ deposit: 20000, percentage: 0.05 }];
+
+  if (amount < 20000) {
+    return {
+      amount: 0,
+    };
+  }
+
+  const lowestTier = depositTiers
+    .filter((tier) => tier.deposit <= amount)
+    .reduce(
+      (prev, curr) => (curr.deposit > prev.deposit ? curr : prev),
+      depositTiers[0]
+    );
+
+  const depositBonus = lowestTier.percentage * amount;
+
+  return {
+    amount: depositBonus,
+  };
+};

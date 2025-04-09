@@ -79,7 +79,7 @@ const DashboardDepositModalPackages = ({
     <Dialog
       open={open}
       onOpenChange={(open) => {
-        setOpen(open);
+        setOpen(!open);
         if (!open) {
           setSelectedPackage(null);
         }
@@ -107,7 +107,7 @@ const DashboardDepositModalPackages = ({
         <ScrollArea className="h-[600px] sm:h-full">
           <DialogHeader className="text-start text-2xl font-bold">
             <DialogTitle className="text-2xl font-bold mb-4 flex justify-between gap-2">
-              Avail Pr1me Plans
+              Avail Premium Plan
               <DashboardDynamicGuideModal type="avail" />
             </DialogTitle>
             <DialogDescription></DialogDescription>
