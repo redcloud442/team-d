@@ -306,7 +306,7 @@ const DashboardWithdrawModalWithdraw = ({
     <Dialog
       open={open}
       onOpenChange={(isOpen) => {
-        setOpen(isOpen);
+        setOpen(!isOpen);
         if (!isOpen) {
           reset();
         }
@@ -317,17 +317,18 @@ const DashboardWithdrawModalWithdraw = ({
         !isWithdrawalToday.referral ||
         !isWithdrawalToday.winning ? (
           <Button
-            className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2"
+            className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2 bg-gray-500"
             onClick={() => setOpen(true)}
           >
-            Withdraw
+            {/* Withdraw
             <Image
               src="/assets/withdraw.png"
               alt="deposit"
               width={200}
               height={200}
               priority
-            />
+            /> */}
+            Under Maintenance
           </Button>
         ) : (
           <Popover>
