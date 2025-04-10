@@ -36,7 +36,6 @@ import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_earnings_table, alliance_member_table } from "@prisma/client";
 import { AlertCircle, Loader2 } from "lucide-react";
-import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
@@ -320,8 +319,8 @@ const DashboardWithdrawModalWithdraw = ({
             className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2 bg-gray-500"
             onClick={() => setOpen(true)}
           >
-            {/* Withdraw
-            <Image
+            {/* Withdraw */}
+            {/* <Image
               src="/assets/withdraw.png"
               alt="deposit"
               width={200}
@@ -334,15 +333,16 @@ const DashboardWithdrawModalWithdraw = ({
           <Popover>
             <PopoverTrigger asChild>
               <Button className=" relative h-60 sm:h-80 flex flex-col items-start sm:justify-center sm:items-center px-4 text-lg sm:text-2xl border-2">
-                Withdraw
-                <Image
+                {/* Withdraw */}
+                {/* <Image
                   src="/assets/withdraw.png"
                   alt="deposit"
                   width={200}
                   height={200}
                   priority
-                />
+                /> */}
               </Button>
+              Under Maintenance
             </PopoverTrigger>
             <PopoverContent className="w-full">
               <Alert variant={"destructive"}>

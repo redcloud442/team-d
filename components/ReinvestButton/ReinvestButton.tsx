@@ -26,7 +26,7 @@ const formSchema = z.object({
   packageConnectionId: z.string(),
   packageId: z.string(),
   amountToReinvest: z.number(),
-  type: z.enum(["15 days", "14 days", "1 month", "3 months", "5 months"]),
+  type: z.enum(["12 days", "14 days", "1 month", "3 months", "5 months"]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -47,7 +47,7 @@ const ReinvestButton = ({
     amount: number;
     bonus: number;
     months: number;
-    type: "15 days" | "14 days" | "1 month" | "3 months" | "5 months";
+    type: "12 days" | "14 days" | "1 month" | "3 months" | "5 months";
     amountWithbonus: number;
     amountWithPercentage: number;
     percentage: number;
@@ -155,7 +155,7 @@ const ReinvestButton = ({
     amount: number,
     bonus: number,
     months: number,
-    type: "15 days" | "14 days" | "1 month" | "3 months" | "5 months",
+    type: "12 days" | "14 days" | "1 month" | "3 months" | "5 months",
     amountWithbonus: number,
     amountWithPercentage: number,
     percentage: number
@@ -213,10 +213,10 @@ const ReinvestButton = ({
             <div className="flex flex-col sm:flex-row w-full gap-4 justify-center bg-pageColor rounded-lg text-white p-4">
               <ReinvestMonthlyButton
                 amountToReinvest={amountToReinvest}
-                percentage={70}
-                bonus={0.05}
+                percentage={140}
+                bonus={6}
                 months={0}
-                type="14 days"
+                type="12 days"
                 handleReinvestMonthly={handleReinvestMonthly}
               />
               <ReinvestMonthlyButton

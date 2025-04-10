@@ -109,7 +109,7 @@ export const RECIPT_MAPPING = [
 ];
 
 export const REINVESTMENT_TYPE = {
-  "15 days":
+  "12 days":
     process.env.NODE_ENV === "development"
       ? "a82d6bf8-d43a-4399-983f-ac6a5332d9a7"
       : "a82d6bf8-d43a-4399-983f-ac6a5332d9a7",
@@ -123,7 +123,7 @@ export const REINVESTMENT_TYPE = {
 };
 
 export const BONUS_MAPPING = {
-  "15 days": 0.06,
+  "12 days": 0.06,
   "14 days": 0.005,
   "1 month": 0.01,
   "3 months": 0.03,
