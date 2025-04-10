@@ -6,12 +6,12 @@ type Props = {
   percentage: number;
   bonus: number;
   months: number;
-  type: "15 days" | "1 month" | "3 months" | "5 months";
+  type: "15 days" | "14 days" | "1 month" | "3 months" | "5 months";
   handleReinvestMonthly: (
     amount: number,
     bonus: number,
     months: number,
-    type: "15 days" | "1 month" | "3 months" | "5 months",
+    type: "15 days" | "14 days" | "1 month" | "3 months" | "5 months",
     amountWithbonus: number,
     amountWithPercentage: number,
     percentage: number
@@ -48,7 +48,7 @@ const ReinvestMonthlyButton = ({
     >
       <p className="text-md sm:text-xl font-extrabold text-center">
         {months === 0 ? null : months}{" "}
-        {months === 1 ? "Month" : months === 0 ? "15 Days" : "Months"}
+        {months === 1 ? "Month" : months === 0 ? "14 Days" : "Months"}
       </p>
 
       <p className="text-md sm:text-lg text-center">+ {bonus}% Bonus</p>
