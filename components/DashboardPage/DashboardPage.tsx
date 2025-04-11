@@ -214,7 +214,7 @@ const DashboardPage = ({
               <Button
                 onClick={() =>
                   window.open(
-                    "https://www.facebook.com/groups/pr1meofficialgroup/",
+                    "https://www.facebook.com/groups/pr1meofficialgroup2",
                     "_blank"
                   )
                 }
