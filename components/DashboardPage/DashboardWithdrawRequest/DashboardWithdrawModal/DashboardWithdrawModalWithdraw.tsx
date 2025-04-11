@@ -27,11 +27,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { getUserEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
-import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { calculateFinalAmount, escapeFormData } from "@/utils/function";
-import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_earnings_table, alliance_member_table } from "@prisma/client";
 import { AlertCircle, Loader2 } from "lucide-react";
@@ -39,7 +37,6 @@ import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import Turnstile from "react-turnstile";
-import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import DashboardDynamicGuideModal from "../../DashboardDepositRequest/DashboardDynamicGuideModal/DashboardDynamicGuideModal";
 
@@ -80,13 +77,12 @@ const DashboardWithdrawModalWithdraw = ({
 }: Props) => {
   const [open, setOpen] = useState(false);
   const { earnings: earningsState, setEarnings } = useUserEarningsStore();
-  const { setAddTransactionHistory } = useUserTransactionHistoryStore();
+
   const { isWithdrawalToday, setIsWithdrawalToday } =
     useUserHaveAlreadyWithdraw();
 
   const [captchaToken, setCaptchaToken] = useState("");
 
-  const supabase = createClientSide();
   const { toast } = useToast();
 
   const {
@@ -271,23 +267,6 @@ const DashboardWithdrawModalWithdraw = ({
         default:
           break;
       }
-
-      setAddTransactionHistory({
-        data: [
-          {
-            transaction_id: uuidv4(),
-            transaction_date: new Date(),
-            transaction_description: "Withdrawal Pending",
-            transaction_details: `Account Name: ${sanitizedData.accountName} | Account Number: ${sanitizedData.accountNumber}`,
-            transaction_member_id: teamMemberProfile?.alliance_member_id ?? "",
-            transaction_amount: Number(
-              calculateFinalAmount(Number(amount), "TOTAL")
-            ),
-            transaction_attachment: "",
-          },
-        ],
-        count: 1,
-      });
 
       toast({
         title: "Withdrawal Request Successfully",

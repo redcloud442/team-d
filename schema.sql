@@ -2889,6 +2889,18 @@ USING (
 );
 
 
+DROP POLICY IF EXISTS "Allow Read for users" ON alliance_schema.alliance_promo_table;
+CREATE POLICY "Allow Read for users" ON alliance_schema.alliance_promo_table
+AS PERMISSIVE FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM alliance_schema.alliance_member_table amt
+    WHERE amt.alliance_member_user_id = (SELECT auth.uid())
+  )
+);
+
 DROP POLICY IF EXISTS "Allow Read for users" ON alliance_schema.alliance_promo_banner_table;
 CREATE POLICY "Allow Read for users" ON alliance_schema.alliance_promo_banner_table
 AS PERMISSIVE FOR SELECT
