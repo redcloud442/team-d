@@ -25,7 +25,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { logError } from "@/services/Error/ErrorLogs";
 import { getUserEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
@@ -39,6 +38,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import Turnstile from "react-turnstile";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import DashboardDynamicGuideModal from "../../DashboardDepositRequest/DashboardDynamicGuideModal/DashboardDynamicGuideModal";
@@ -83,6 +83,8 @@ const DashboardWithdrawModalWithdraw = ({
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const { isWithdrawalToday, setIsWithdrawalToday } =
     useUserHaveAlreadyWithdraw();
+
+  const [captchaToken, setCaptchaToken] = useState("");
 
   const supabase = createClientSide();
   const { toast } = useToast();
@@ -148,9 +150,20 @@ const DashboardWithdrawModalWithdraw = ({
     try {
       const sanitizedData = escapeFormData(data);
 
+      if (!captchaToken) {
+        toast({
+          title: "Captcha Required",
+          description:
+            "Please verify that you are human by completing the captcha",
+          variant: "destructive",
+        });
+        return;
+      }
+
       await createWithdrawalRequest({
         WithdrawFormValues: sanitizedData,
         teamMemberId: teamMemberProfile.alliance_member_id,
+        captchaToken: captchaToken,
       });
 
       switch (selectedEarnings) {
@@ -285,20 +298,12 @@ const DashboardWithdrawModalWithdraw = ({
       setOpen(false);
     } catch (e) {
       if (e instanceof Error) {
-        await logError(supabase, {
-          errorMessage: e.message,
-          stackTrace: e.stack,
-          stackPath:
-            "components/DashboardPage/DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw.tsx",
+        toast({
+          title: "Error",
+          description: e.message,
+          variant: "destructive",
         });
       }
-      const errorMessage =
-        e instanceof Error ? e.message : "An unexpected error occurred.";
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
     }
   };
 
@@ -308,6 +313,7 @@ const DashboardWithdrawModalWithdraw = ({
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
         if (!isOpen) {
+          setCaptchaToken("");
           reset();
         }
       }}
@@ -676,6 +682,16 @@ const DashboardWithdrawModalWithdraw = ({
             </div>
 
             {/* Submit Button */}
+
+            <div className="w-full flex items-center justify-center">
+              <Turnstile
+                size="flexible"
+                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
+                onVerify={(token) => {
+                  setCaptchaToken(token);
+                }}
+              />
+            </div>
 
             <div className="flex items-center justify-center gap-2">
               <Button
