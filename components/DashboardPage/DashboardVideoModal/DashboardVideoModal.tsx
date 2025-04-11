@@ -14,8 +14,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { alliance_promo_banner_table } from "@prisma/client";
+import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const DashboardVideoModal = ({
   raffle,
@@ -25,7 +26,7 @@ const DashboardVideoModal = ({
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
-
+  const plugin = useRef(Autoplay({ delay: 3000, stopOnInteraction: true }));
   useEffect(() => {
     if (!api) {
       return;
@@ -57,6 +58,7 @@ const DashboardVideoModal = ({
 
         <Carousel
           className="w-full"
+          plugins={[plugin.current]}
           opts={{
             align: "start",
           }}
