@@ -9,12 +9,14 @@ import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings"
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
-import { alliance_testimonial_table, package_table } from "@prisma/client";
+import {
+  alliance_promo_banner_table,
+  alliance_testimonial_table,
+  package_table,
+} from "@prisma/client";
 import { Download, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import RoadmapDailyTask from "../SpinTheWheel/RoadmapDailyTask/RoadmapDailyTask";
-import { SpinWheel } from "../SpinTheWheel/SpinTheWheel";
 import { Button } from "../ui/button";
 import {
   Carousel,
@@ -27,13 +29,14 @@ import DashboardDepositModalDeposit from "./DashboardDepositRequest/DashboardDep
 import DashboardDepositModalPackages from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositPackagesModal";
 import DashboardDepositProfile from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositProfile";
 import DashboardDepositModalRefer from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositRefer";
+import DashboardSpinTheWheelModal from "./DashboardDepositRequest/DashboardDepositModal/DashboardSpinTheWheelModal";
 import DashboardTransactionHistory from "./DashboardDepositRequest/DashboardDepositModal/DashboardTransactionHistory";
+import DashboardRaffle from "./DashboardDepositRequest/DashboardRaffle/DashboardRaffle";
 import DashboardEarningsModal from "./DashboardDepositRequest/EarningsModal/EarningsModal";
 import DashboardPackages from "./DashboardPackages";
 import DashboardVideoModal from "./DashboardVideoModal/DashboardVideoModal";
 import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
 import { TestimonialPage } from "./Testimonial/TestimonialPage";
-
 type Props = {
   packages: package_table[];
   testimonials: alliance_testimonial_table[];
@@ -44,6 +47,7 @@ type Props = {
     alliance_wheel_settings_color: string;
   }[];
   reinvestment: package_table[];
+  raffle: alliance_promo_banner_table[];
 };
 
 const DashboardPage = ({
@@ -51,6 +55,7 @@ const DashboardPage = ({
   testimonials,
   wheel,
   reinvestment,
+  raffle,
 }: Props) => {
   const supabaseClient = createClientSide();
   const { referral } = useRole();
@@ -131,13 +136,24 @@ const DashboardPage = ({
               profile={profile}
             />
 
-            <div>
-              <p className="text-xs font-medium">
-                Username:{profile.user_username}
-              </p>
+            <div className="space-y-1">
+              <div>
+                <p className="text-xs font-medium">
+                  Username:{profile.user_username}
+                </p>
+              </div>
               <p className="text-xs">
                 {profile.user_first_name} {profile.user_last_name}
               </p>
+              {teamMemberProfile.alliance_member_is_premium && (
+                <Image
+                  src="/assets/premium-title.png"
+                  alt="premium"
+                  width={70}
+                  height={70}
+                  className="rounded-lg animate-tracing-border"
+                />
+              )}
             </div>
           </div>
 
@@ -189,7 +205,11 @@ const DashboardPage = ({
                   <RefreshCw />
                 </Button>
               </div>
-              <DashboardVideoModal />
+              <DashboardRaffle />
+
+              {raffle.length > 0 ? (
+                <DashboardVideoModal raffle={raffle} />
+              ) : null}
             </div>
             <div className="flex flex-col items-end gap-2">
               <Button
@@ -274,7 +294,6 @@ const DashboardPage = ({
           </div>
         </div>
 
-        <RoadmapDailyTask />
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
           <div className="flex flex-col gap-4 ">
             <DashboardDepositModalDeposit
@@ -315,6 +334,8 @@ const DashboardPage = ({
           className="w-full"
         />
 
+        <DashboardSpinTheWheelModal wheel={wheel} />
+
         {chartData.length > 0 && (
           <div className=" gap-6">
             <DashboardPackages
@@ -324,7 +345,6 @@ const DashboardPage = ({
           </div>
         )}
 
-        <SpinWheel prizes={wheel} />
         <TestimonialPage alliance_testimonial_url={testimonials} />
       </div>
     </div>
