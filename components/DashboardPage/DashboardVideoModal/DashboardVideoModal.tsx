@@ -2,9 +2,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -52,9 +50,7 @@ const DashboardVideoModal = () => {
       </DialogTrigger>
 
       <DialogContent className="w-[400px] sm:w-[600px] dark:bg-cardColor border-none shadow-none overflow-auto">
-        <DialogHeader>
-          <DialogTitle className="text-start">How to Earn </DialogTitle>
-        </DialogHeader>
+        <DialogHeader></DialogHeader>
         <ScrollArea className="sm:h-full mt-4 rounded-lg">
           <video
             src="/assets/pr1me_crypto_service.mp4"
@@ -66,15 +62,6 @@ const DashboardVideoModal = () => {
           />
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
-        <DialogFooter className="flex justify-center">
-          <Button
-            variant="card"
-            className="w-full h-12 rounded-md cursor-pointer"
-            onClick={handleDeposit}
-          >
-            Deposit Here
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -13,8 +13,6 @@ import { alliance_testimonial_table, package_table } from "@prisma/client";
 import { Download, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import RoadmapDailyTask from "../SpinTheWheel/RoadmapDailyTask/RoadmapDailyTask";
-import { SpinWheel } from "../SpinTheWheel/SpinTheWheel";
 import { Button } from "../ui/button";
 import {
   Carousel,
@@ -27,6 +25,7 @@ import DashboardDepositModalDeposit from "./DashboardDepositRequest/DashboardDep
 import DashboardDepositModalPackages from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositPackagesModal";
 import DashboardDepositProfile from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositProfile";
 import DashboardDepositModalRefer from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositRefer";
+import DashboardSpinTheWheelModal from "./DashboardDepositRequest/DashboardDepositModal/DashboardSpinTheWheelModal";
 import DashboardTransactionHistory from "./DashboardDepositRequest/DashboardDepositModal/DashboardTransactionHistory";
 import DashboardEarningsModal from "./DashboardDepositRequest/EarningsModal/EarningsModal";
 import DashboardPackages from "./DashboardPackages";
@@ -132,9 +131,20 @@ const DashboardPage = ({
             />
 
             <div>
-              <p className="text-xs font-medium">
-                Username:{profile.user_username}
-              </p>
+              <div className="flex items-start justify-between gap-2 sm:flex-row flex-col-reverse">
+                <p className="text-xs font-medium">
+                  Username:{profile.user_username}
+                </p>
+                {teamMemberProfile.alliance_member_is_premium && (
+                  <Image
+                    src="/assets/premium-title.png"
+                    alt="premium"
+                    width={100}
+                    height={100}
+                    className="animate-tracing-border-2 rounded-lg"
+                  />
+                )}
+              </div>
               <p className="text-xs">
                 {profile.user_first_name} {profile.user_last_name}
               </p>
@@ -274,7 +284,6 @@ const DashboardPage = ({
           </div>
         </div>
 
-        <RoadmapDailyTask />
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
           <div className="flex flex-col gap-4 ">
             <DashboardDepositModalDeposit
@@ -315,6 +324,8 @@ const DashboardPage = ({
           className="w-full"
         />
 
+        <DashboardSpinTheWheelModal wheel={wheel} />
+
         {chartData.length > 0 && (
           <div className=" gap-6">
             <DashboardPackages
@@ -324,7 +335,6 @@ const DashboardPage = ({
           </div>
         )}
 
-        <SpinWheel prizes={wheel} />
         <TestimonialPage alliance_testimonial_url={testimonials} />
       </div>
     </div>

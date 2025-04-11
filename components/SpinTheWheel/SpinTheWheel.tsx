@@ -1,13 +1,5 @@
 "use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { handleWheelSpin } from "@/services/Wheel/Member";
 import { useDailyTaskStore } from "@/store/useDailyTaskStore";
@@ -174,104 +166,53 @@ export const SpinWheel = ({ prizes }: Props) => {
           );
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(value) => {
-        if (spinning) return;
-
-        setIsOpen(value);
-
-        if (!value) {
-          setSelectedPrize(null);
-          setShowConfetti(false);
-          setSpinning(false);
-          if (spinSound) {
-            spinSound.pause();
-          }
-        }
-      }}
-    >
-      <DialogTrigger
-        className="
-    fixed
-    top-auto bottom-20 right-4
-    sm:top-44 sm:bottom-auto sm:right-14
-    z-[9999]
-    flex flex-col items-center justify-center
-    animate-pulse rounded-full
-  "
-      >
-        <Image
-          src="/assets/wheel.png"
-          alt="Wheel Logo"
-          width={60}
-          height={60}
-          className="cursor-pointer z-[9999]  hover:rotate-180 duration-1000     transition-transform "
-          onClick={() => setIsOpen(true)}
-        />
-        <p className=" text-sm sm:text-lg font-extrabold animate-wiggle">
-          Spin Here
-        </p>
-      </DialogTrigger>
-      <DialogContent className="p-1 sm:p-1">
-        <DialogHeader>
-          <DialogTitle>
-            Prime Wheel | Spin:{" "}
-            <span className="font-bold text-green-800">
-              {dailyTask?.wheelLog?.alliance_wheel_spin_count ?? 0}
-            </span>
-          </DialogTitle>
-          <DialogDescription>
-            Spin the wheel to earn random rewards!
-          </DialogDescription>
-        </DialogHeader>
-        {showConfetti && <Confetti width={440} height={600} />}
-        <div className="flex flex-col items-center justify-start space-y-6 mt-4">
-          <div className="relative">
-            <Button
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] hover:dark:bg-transparent hover:bg-transparent"
-              disabled={spinning}
-              variant="ghost"
-              onClick={handleSpin}
-            >
-              <Image
-                src="/app-logo.png"
-                alt="Center Logo"
-                width={80}
-                height={80}
-                className="rounded-full cursor-pointer z-[9999]"
-              />
-            </Button>
-            <Wheel
-              mustStartSpinning={spinning}
-              prizeNumber={prizeNumberLogic}
-              data={wheelData}
-              onStopSpinning={handleWheelData}
-              textColors={["#ffffff"]}
+    <div>
+      {showConfetti && <Confetti width={440} height={600} />}
+      <div className="flex flex-col items-center justify-start space-y-6 mt-4">
+        <div className="relative">
+          <Button
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] hover:dark:bg-transparent hover:bg-transparent"
+            disabled={spinning}
+            variant="ghost"
+            onClick={handleSpin}
+          >
+            <Image
+              src="/app-logo.png"
+              alt="Center Logo"
+              width={80}
+              height={80}
+              className="rounded-full cursor-pointer z-[9999]"
             />
-          </div>
-          {selectedPrize && !spinning && (
-            <motion.div
-              className="mt-4 text-2xl font-bold text-center text-green-600"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              {selectedPrize === "NO REWARD"
-                ? "😢 No reward this time."
-                : selectedPrize === "RE-SPIN"
-                  ? "🎉 You won: RE-SPIN 🎉"
-                  : `🎉 You won: ₱ ${Number(selectedPrize).toLocaleString(
-                      "en-US",
-                      {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      }
-                    )} 🎉`}
-            </motion.div>
-          )}
+          </Button>
+          <Wheel
+            mustStartSpinning={spinning}
+            prizeNumber={prizeNumberLogic}
+            data={wheelData}
+            onStopSpinning={handleWheelData}
+            textColors={["#ffffff"]}
+          />
         </div>
-      </DialogContent>
-    </Dialog>
+        {selectedPrize && !spinning && (
+          <motion.div
+            className="mt-4 text-2xl font-bold text-center text-green-600"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            {selectedPrize === "NO REWARD"
+              ? "😢 No reward this time."
+              : selectedPrize === "RE-SPIN"
+                ? "🎉 You won: RE-SPIN 🎉"
+                : `🎉 You won: ₱ ${Number(selectedPrize).toLocaleString(
+                    "en-US",
+                    {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }
+                  )} 🎉`}
+          </motion.div>
+        )}
+      </div>
+    </div>
   );
 };
