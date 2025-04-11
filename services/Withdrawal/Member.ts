@@ -4,11 +4,13 @@ import { WithdrawalRequestData } from "@/utils/types";
 export const createWithdrawalRequest = async (params: {
   WithdrawFormValues: WithdrawalFormValues;
   teamMemberId: string;
+  captchaToken: string;
 }) => {
-  const { WithdrawFormValues } = params;
+  const { WithdrawFormValues, captchaToken } = params;
 
   const data = {
     ...WithdrawFormValues,
+    captchaToken: captchaToken,
   };
 
   const response = await fetch(`/api/v1/withdraw`, {
