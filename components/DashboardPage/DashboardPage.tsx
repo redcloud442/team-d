@@ -205,7 +205,6 @@ const DashboardPage = ({
                   <RefreshCw />
                 </Button>
               </div>
-              <DashboardRaffle />
 
               {raffle.length > 0 ? (
                 <DashboardVideoModal raffle={raffle} />
@@ -293,6 +292,8 @@ const DashboardPage = ({
             </Button>
           </div>
         </div>
+
+        <DashboardRaffle />
 
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
           <div className="flex flex-col gap-4 ">
