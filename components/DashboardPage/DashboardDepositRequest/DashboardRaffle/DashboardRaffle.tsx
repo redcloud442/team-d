@@ -84,7 +84,7 @@ const DashboardRaffle = () => {
               </span>
             </div>
             <span className="font-semibold text-gray-800">
-              Slots:{" "}
+              Remaining Slots:{" "}
               {promo.alliance_promo_maximum_slot -
                 promo.alliance_promo_current_slot}
             </span>
