@@ -22,20 +22,9 @@ const DashboardVideoModal = ({
 }: {
   raffle: alliance_promo_banner_table[];
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
-
-  useEffect(() => {
-    const handleOpen = () => {
-      const isLoggedIn = localStorage.getItem("isModalOpen");
-      if (isLoggedIn === "true" && raffle.length > 0) {
-        setIsModalOpen(true);
-      }
-    };
-
-    handleOpen();
-  }, []);
 
   useEffect(() => {
     if (!api) {
@@ -53,7 +42,7 @@ const DashboardVideoModal = ({
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogTrigger asChild>
         <Button className="w-full max-w-[140px] min-w-[120px] h-7 cursor-pointer">
-          Raffle
+          Banner
         </Button>
       </DialogTrigger>
 
