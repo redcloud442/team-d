@@ -106,23 +106,3 @@ export const ReinvestPackageHandler = async (params: {
 
   return response;
 };
-
-export const getPackages = async () => {
-  const response = await fetch(
-    `http://localhost:9000/api/v1/package/member/list`,
-    {
-      method: "GET",
-    }
-  );
-
-  const result = await response.json();
-
-  console.log(result);
-  if (!response.ok) {
-    throw new Error(
-      result.error || "An error occurred while fetching the packages."
-    );
-  }
-
-  return result as package_table[];
-};

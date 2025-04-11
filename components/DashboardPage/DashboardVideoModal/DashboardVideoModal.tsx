@@ -29,7 +29,7 @@ const DashboardVideoModal = ({
   useEffect(() => {
     const handleOpen = () => {
       const isLoggedIn = localStorage.getItem("isModalOpen");
-      if (isLoggedIn === "true") {
+      if (isLoggedIn === "true" && raffle.length > 0) {
         setIsModalOpen(true);
       }
     };

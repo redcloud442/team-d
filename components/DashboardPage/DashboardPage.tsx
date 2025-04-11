@@ -205,7 +205,11 @@ const DashboardPage = ({
                   <RefreshCw />
                 </Button>
               </div>
-              <DashboardVideoModal raffle={raffle} />
+              <DashboardRaffle />
+
+              {raffle.length > 0 ? (
+                <DashboardVideoModal raffle={raffle} />
+              ) : null}
             </div>
             <div className="flex flex-col items-end gap-2">
               <Button
@@ -289,8 +293,6 @@ const DashboardPage = ({
             </Button>
           </div>
         </div>
-
-        <DashboardRaffle />
 
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
           <div className="flex flex-col gap-4 ">
