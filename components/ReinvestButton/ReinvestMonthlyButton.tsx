@@ -48,7 +48,7 @@ const ReinvestMonthlyButton = ({
     >
       <p className="text-md sm:text-xl font-extrabold text-center">
         {months === 0 ? null : months}{" "}
-        {months === 1 ? "Month" : months === 0 ? "12 Days" : "Months"}
+        {months === 1 ? "Month" : months === 0 ? "14 Days" : "Months"}
       </p>
 
       <p className="text-md sm:text-lg text-center">+ {bonus}% Bonus</p>

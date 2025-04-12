@@ -211,12 +211,21 @@ const ReinvestButton = ({
           {/* amount to avail */}
           {!selectedReinvestment ? (
             <div className="flex flex-col sm:flex-row w-full gap-4 justify-center bg-pageColor rounded-lg text-white p-4">
-              <ReinvestMonthlyButton
+              {/* <ReinvestMonthlyButton
                 amountToReinvest={amountToReinvest}
                 percentage={140}
                 bonus={6}
                 months={0}
                 type="12 days"
+                handleReinvestMonthly={handleReinvestMonthly}
+              /> */}
+
+              <ReinvestMonthlyButton
+                amountToReinvest={amountToReinvest}
+                percentage={70}
+                bonus={0.5}
+                months={0}
+                type="14 days"
                 handleReinvestMonthly={handleReinvestMonthly}
               />
               <ReinvestMonthlyButton
