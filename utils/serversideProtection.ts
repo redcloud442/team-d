@@ -124,6 +124,7 @@ export const protectionMemberUser = async (ip?: string) => {
             alliance_member_date_updated: true,
             alliance_member_is_active: true,
             alliance_member_is_premium: true,
+            alliance_member_is_supreme: true,
             alliance_referral_link_table: {
               select: {
                 alliance_referral_link: true,

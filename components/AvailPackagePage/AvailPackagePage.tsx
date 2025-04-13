@@ -6,7 +6,6 @@ import { useToast } from "@/hooks/use-toast";
 import { createPackageConnection } from "@/services/Package/Member";
 import { useDailyTaskStore } from "@/store/useDailyTaskStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
-import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { escapeFormData } from "@/utils/function";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,7 +42,6 @@ const AvailPackagePage = ({
   const { setEarnings } = useUserEarningsStore();
   const { dailyTask, setDailyTask } = useDailyTaskStore();
   const { chartData, setChartData } = usePackageChartData();
-  const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const [maxAmount, setMaxAmount] = useState(
     earnings?.alliance_combined_earnings ?? 0
   );
@@ -84,6 +82,7 @@ const AvailPackagePage = ({
   });
 
   const amount = watch("amount");
+
   const computation = amount
     ? (Number(amount) * (selectedPackage?.package_percentage ?? 0)) / 100
     : 0;
@@ -169,21 +168,6 @@ const AvailPackagePage = ({
         },
         ...chartData,
       ]);
-
-      setAddTransactionHistory({
-        data: [
-          {
-            transaction_id: uuidv4(),
-            transaction_date: new Date(),
-            transaction_description: `Package Enrolled: ${selectedPackage?.package_name}`,
-            transaction_details: "",
-            transaction_member_id: teamMemberProfile?.alliance_member_id ?? "",
-            transaction_amount: Number(result.amount),
-            transaction_attachment: "",
-          },
-        ],
-        count: 1,
-      });
 
       if (Number(amount) >= 5000) {
         const baseCount = Math.floor(Number(amount) / 5000) * 2;

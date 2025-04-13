@@ -32,7 +32,7 @@ import { handleDepositRequest } from "@/services/TopUp/Member";
 import { useDepositStore } from "@/store/useDepositStore";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
-import { escapeFormData } from "@/utils/function";
+import { escapeFormData, supremePlanBonus } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { alliance_member_table, merchant_table } from "@prisma/client";
@@ -229,6 +229,9 @@ const DashboardDepositModalDeposit = ({
     (option) => option.merchant_id === selectedOption
   );
 
+  const { bonusAmount } = supremePlanBonus(Number(watch("amount")));
+
+  const amountTotal = Number(watch("amount") || 0) + bonusAmount;
   return (
     <Dialog
       open={open}
@@ -256,8 +259,8 @@ const DashboardDepositModalDeposit = ({
                 className="relative sm:relative bottom-0 left-0 mx-auto"
               />
             </div>
-            <span className="text-lg sm:text-2xl font-bold animate-wiggle">
-              Get +5% Bonus
+            <span className="text-lg sm:text-2xl font-bold animate-wiggle text-balance">
+              Get +25% or +50% Bonus
             </span>
           </Button>
         ) : (
@@ -276,7 +279,7 @@ const DashboardDepositModalDeposit = ({
                   />
                 </div>
                 <span className="text-lg sm:text-2xl font-bold animate-wiggle">
-                  Get +5% Bonus
+                  Get +25% or +50% Bonus
                 </span>
               </Button>
             </PopoverTrigger>
@@ -362,6 +365,40 @@ const DashboardDepositModalDeposit = ({
                 <p className="text-primaryRed text-sm mt-1">
                   {errors.amount.message}
                 </p>
+              )}
+            </div>
+
+            <div className="mt-4 bg-amber-100 p-3 rounded-md text-sm text-amber-800">
+              <p className="mb-1">
+                <strong>₱200 - ₱49,999</strong>: +25% Bonus
+              </p>
+              <p className="mb-1">
+                <strong>₱50,000 - ₱1,000,000</strong>: +50% Bonus
+              </p>
+              {bonusAmount > 0 && (
+                <>
+                  <h2 className="text-lg font-bold">Computation</h2>
+                  <p className="mt-2 text-xl">
+                    <strong>Bonus:</strong>{" "}
+                    <span className="font-bold">
+                      ₱{" "}
+                      {bonusAmount.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </p>
+                  <p className="mt-2 text-xl">
+                    <strong>Total:</strong>{" "}
+                    <span className="font-bold">
+                      ₱{" "}
+                      {amountTotal.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </p>
+                </>
               )}
             </div>
 

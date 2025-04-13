@@ -104,10 +104,10 @@ const DashboardDepositModalPackages = ({
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]" type="earnings">
-        <ScrollArea className="h-[600px] sm:h-full">
+        <ScrollArea className="h-[650px] sm:h-[850px]">
           <DialogHeader className="text-start text-2xl font-bold">
             <DialogTitle className="text-2xl font-bold mb-4 flex justify-between gap-2">
-              Avail Premium Plan
+              Avail Supreme Plan
               <DashboardDynamicGuideModal type="avail" />
             </DialogTitle>
             <DialogDescription></DialogDescription>

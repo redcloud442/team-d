@@ -72,6 +72,7 @@ model alliance_member_table {
   alliance_member_date_updated    DateTime?  @db.Timestamptz(3)
   alliance_member_is_active       Boolean   @default(false)
   alliance_member_is_premium      Boolean?   @default(false)
+  alliance_member_is_supreme      Boolean   @default(false)
     
   user_table                      user_table            @relation(fields: [alliance_member_user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
   alliance_table                  alliance_table        @relation(fields: [alliance_member_alliance_id], references: [alliance_id], onDelete: Cascade, onUpdate: Cascade)

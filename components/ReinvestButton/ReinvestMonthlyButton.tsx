@@ -1,17 +1,22 @@
 import { memo } from "react";
 import { Button } from "../ui/button";
-
 type Props = {
   amountToReinvest: number;
   percentage: number;
   bonus: number;
   months: number;
-  type: "12 days" | "14 days" | "1 month" | "3 months" | "5 months";
+  type: "9 days" | "12 days" | "14 days" | "1 month" | "3 months" | "5 months";
   handleReinvestMonthly: (
     amount: number,
     bonus: number,
     months: number,
-    type: "12 days" | "14 days" | "1 month" | "3 months" | "5 months",
+    type:
+      | "9 days"
+      | "12 days"
+      | "14 days"
+      | "1 month"
+      | "3 months"
+      | "5 months",
     amountWithbonus: number,
     amountWithPercentage: number,
     percentage: number
@@ -26,8 +31,10 @@ const ReinvestMonthlyButton = ({
   type,
   handleReinvestMonthly,
 }: Props) => {
+  const bonusChecker = amountToReinvest < 200 ? 0 : bonus;
   const amountWithPercentage = amountToReinvest * (percentage / 100);
-  const amountWithBonus = amountToReinvest * (bonus / 100);
+  const amountWithBonus = amountToReinvest * (bonusChecker / 100);
+
   const amountToReinvestWithBonus =
     amountToReinvest + amountWithBonus + amountWithPercentage;
 
@@ -48,10 +55,14 @@ const ReinvestMonthlyButton = ({
     >
       <p className="text-md sm:text-xl font-extrabold text-center">
         {months === 0 ? null : months}{" "}
-        {months === 1 ? "Month" : months === 0 ? "14 Days" : "Months"}
+        {months === 1 ? "Month" : months === 0 ? "9 Days" : "Months"}
       </p>
 
-      <p className="text-md sm:text-lg text-center">+ {bonus}% Bonus</p>
+      {bonusChecker !== 0 && (
+        <p className="text-md sm:text-lg text-center">
+          + {bonusChecker}% Bonus
+        </p>
+      )}
       <p className="text-md sm:text-lg text-center">+ {percentage}% Profit</p>
 
       <Button
