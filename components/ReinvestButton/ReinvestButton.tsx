@@ -4,6 +4,7 @@ import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { BONUS_MAPPING, REINVESTMENT_TYPE } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
+import { supremePlanBonus } from "@/utils/function";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { package_table } from "@prisma/client";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -26,7 +27,14 @@ const formSchema = z.object({
   packageConnectionId: z.string(),
   packageId: z.string(),
   amountToReinvest: z.number(),
-  type: z.enum(["12 days", "14 days", "1 month", "3 months", "5 months"]),
+  type: z.enum([
+    "6 days",
+    "12 days",
+    "14 days",
+    "1 month",
+    "3 months",
+    "5 months",
+  ]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -47,7 +55,13 @@ const ReinvestButton = ({
     amount: number;
     bonus: number;
     months: number;
-    type: "12 days" | "14 days" | "1 month" | "3 months" | "5 months";
+    type:
+      | "6 days"
+      | "12 days"
+      | "14 days"
+      | "1 month"
+      | "3 months"
+      | "5 months";
     amountWithbonus: number;
     amountWithPercentage: number;
     percentage: number;
@@ -72,6 +86,8 @@ const ReinvestButton = ({
     },
   });
 
+  const { bonusPercentage, bonusAmount } = supremePlanBonus(amountToReinvest);
+
   const handleReinvest = async (data: FormValues) => {
     try {
       if (!selectedReinvestment) return;
@@ -94,10 +110,12 @@ const ReinvestButton = ({
       });
 
       const amountBonus =
-        data.amountToReinvest *
-        BONUS_MAPPING[data.type as keyof typeof BONUS_MAPPING];
+        data.amountToReinvest > 200
+          ? data.amountToReinvest *
+            BONUS_MAPPING[data.type as keyof typeof BONUS_MAPPING]
+          : 0;
 
-      const finalAmount = amountToReinvest + amountBonus;
+      const finalAmount = amountToReinvest + amountBonus + bonusAmount;
 
       setChartData([
         {
@@ -121,21 +139,6 @@ const ReinvestButton = ({
         ),
       ]);
 
-      setAddTransactionHistory({
-        data: [
-          {
-            transaction_id: uuidv4(),
-            transaction_date: new Date(),
-            transaction_description: `Package Reinvested: ${selectedPackage?.package_name} + 1% Bonus`,
-            transaction_details: "",
-            transaction_member_id: teamMemberProfile?.alliance_member_id ?? "",
-            transaction_amount: finalAmount,
-            transaction_attachment: "",
-          },
-        ],
-        count: 1,
-      });
-
       setIsOpen(false);
       reset();
 
@@ -155,7 +158,13 @@ const ReinvestButton = ({
     amount: number,
     bonus: number,
     months: number,
-    type: "12 days" | "14 days" | "1 month" | "3 months" | "5 months",
+    type:
+      | "6 days"
+      | "12 days"
+      | "14 days"
+      | "1 month"
+      | "3 months"
+      | "5 months",
     amountWithbonus: number,
     amountWithPercentage: number,
     percentage: number
@@ -213,15 +222,15 @@ const ReinvestButton = ({
             <div className="flex flex-col sm:flex-row w-full gap-4 justify-center bg-pageColor rounded-lg text-white p-4">
               <ReinvestMonthlyButton
                 amountToReinvest={amountToReinvest}
-                percentage={140}
+                percentage={250}
                 bonus={6}
                 months={0}
-                type="12 days"
+                type="6 days"
                 handleReinvestMonthly={handleReinvestMonthly}
               />
               <ReinvestMonthlyButton
                 amountToReinvest={amountToReinvest}
-                percentage={140}
+                percentage={1250}
                 bonus={1}
                 months={1}
                 type="1 month"
@@ -230,7 +239,7 @@ const ReinvestButton = ({
 
               <ReinvestMonthlyButton
                 amountToReinvest={amountToReinvest}
-                percentage={420}
+                percentage={3750}
                 bonus={3}
                 months={3}
                 type="3 months"
@@ -239,7 +248,7 @@ const ReinvestButton = ({
 
               <ReinvestMonthlyButton
                 amountToReinvest={amountToReinvest}
-                percentage={700}
+                percentage={6250}
                 bonus={5}
                 months={5}
                 type="5 months"
@@ -256,7 +265,7 @@ const ReinvestButton = ({
                 onClick={() => setSelectedReinvestment(null)}
                 className="rounded-md absolute top-4 left-4"
               >
-                <ArrowLeft /> Back
+                <ArrowLeft />
               </Button>
               <div className="flex justify-between gap-2">
                 <p className="text-center text-lg font-bold">
@@ -271,21 +280,38 @@ const ReinvestButton = ({
                 </p>
               </div>
 
-              <div className="flex justify-between gap-2">
-                <p className="text-center text-lg font-bold">
-                  Bonus {selectedReinvestment.bonus}%
-                </p>
-                <p>
-                  ₱{" "}
-                  {selectedReinvestment.amountWithbonus.toLocaleString(
-                    "en-US",
-                    {
+              {amountToReinvest > 200 && (
+                <div className="flex justify-between gap-2">
+                  <p className="text-center text-lg font-bold">
+                    Bonus {selectedReinvestment.bonus}%
+                  </p>
+                  <p>
+                    ₱{" "}
+                    {selectedReinvestment.amountWithbonus.toLocaleString(
+                      "en-US",
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}
+                  </p>
+                </div>
+              )}
+
+              {bonusPercentage !== 0 && (
+                <div className="flex justify-between gap-2">
+                  <p className="text-center text-lg font-bold">
+                    Supreme Plan Bonus {bonusPercentage}%
+                  </p>
+                  <p>
+                    ₱{" "}
+                    {bonusAmount.toLocaleString("en-US", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
-                    }
-                  )}
-                </p>
-              </div>
+                    })}
+                  </p>
+                </div>
+              )}
 
               <div className="flex justify-between gap-2">
                 <p className="text-center text-lg font-bold">

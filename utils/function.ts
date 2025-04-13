@@ -257,3 +257,33 @@ export const newPackageBonus = (amount: number) => {
     amount: depositBonus,
   };
 };
+
+export const supremePlanBonus = (amount: number) => {
+  if (amount < 200) {
+    return {
+      bonusPercentage: 0,
+      bonusAmount: 0,
+    };
+  }
+
+  if (amount >= 200 && amount < 50000) {
+    const bonus = amount * 0.25;
+    return {
+      bonusPercentage: 25,
+      bonusAmount: bonus,
+    };
+  }
+
+  if (amount >= 50000 && amount <= 1000000) {
+    const bonus = amount * 0.5;
+    return {
+      bonusPercentage: 50,
+      bonusAmount: bonus,
+    };
+  }
+
+  return {
+    bonusPercentage: 0,
+    bonusAmount: 0,
+  };
+};
