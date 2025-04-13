@@ -134,3 +134,10 @@ export const BONUS_MAPPING = {
   "3 months": 0.03,
   "5 months": 0.05,
 };
+
+export const RANK_TAG_MAPPING = {
+  "SUPER VIP": "/assets/SUPER-VIP.png",
+  "VIP 3": "/assets/vip3.png",
+  "VIP 2": "/assets/vip2.png",
+  "VIP 1": "/assets/vip1.png",
+};

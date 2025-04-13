@@ -142,6 +142,30 @@ export const handleUpdateUserRestriction = async (params: {
   return response;
 };
 
+export const handleUpdateSuperVip = async (params: {
+  userId: string;
+  type: string;
+}) => {
+  const { userId, type } = params;
+  const response = await fetch(`/api/v1/user/` + userId, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ action: "updateVip", type: type }),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while banning the user."
+    );
+  }
+
+  return response;
+};
+
 export const getAdminUserReinvestedReport = async (params: {
   dateFilter: {
     start: Date | null;
