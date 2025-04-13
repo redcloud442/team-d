@@ -1,4 +1,3 @@
-import { supremePlanBonus } from "@/utils/function";
 import { memo } from "react";
 import { Button } from "../ui/button";
 type Props = {
@@ -6,13 +5,13 @@ type Props = {
   percentage: number;
   bonus: number;
   months: number;
-  type: "6 days" | "12 days" | "14 days" | "1 month" | "3 months" | "5 months";
+  type: "9 days" | "12 days" | "14 days" | "1 month" | "3 months" | "5 months";
   handleReinvestMonthly: (
     amount: number,
     bonus: number,
     months: number,
     type:
-      | "6 days"
+      | "9 days"
       | "12 days"
       | "14 days"
       | "1 month"
@@ -36,10 +35,8 @@ const ReinvestMonthlyButton = ({
   const amountWithPercentage = amountToReinvest * (percentage / 100);
   const amountWithBonus = amountToReinvest * (bonusChecker / 100);
 
-  const { bonusPercentage, bonusAmount } = supremePlanBonus(amountToReinvest);
-
   const amountToReinvestWithBonus =
-    amountToReinvest + amountWithBonus + amountWithPercentage + bonusAmount;
+    amountToReinvest + amountWithBonus + amountWithPercentage;
 
   return (
     <div
@@ -58,7 +55,7 @@ const ReinvestMonthlyButton = ({
     >
       <p className="text-md sm:text-xl font-extrabold text-center">
         {months === 0 ? null : months}{" "}
-        {months === 1 ? "Month" : months === 0 ? "6 Days" : "Months"}
+        {months === 1 ? "Month" : months === 0 ? "9 Days" : "Months"}
       </p>
 
       {bonusChecker !== 0 && (
@@ -67,11 +64,6 @@ const ReinvestMonthlyButton = ({
         </p>
       )}
       <p className="text-md sm:text-lg text-center">+ {percentage}% Profit</p>
-      {bonusPercentage !== 0 && (
-        <p className="text-md sm:text-lg text-center">
-          + {bonusPercentage}% Supreme Plan Bonus
-        </p>
-      )}
 
       <Button
         type="button"

@@ -6,9 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { createPackageConnection } from "@/services/Package/Member";
 import { useDailyTaskStore } from "@/store/useDailyTaskStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
-import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
-import { escapeFormData, supremePlanBonus } from "@/utils/function";
+import { escapeFormData } from "@/utils/function";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   alliance_earnings_table,
@@ -43,7 +42,6 @@ const AvailPackagePage = ({
   const { setEarnings } = useUserEarningsStore();
   const { dailyTask, setDailyTask } = useDailyTaskStore();
   const { chartData, setChartData } = usePackageChartData();
-  const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const [maxAmount, setMaxAmount] = useState(
     earnings?.alliance_combined_earnings ?? 0
   );
@@ -85,11 +83,10 @@ const AvailPackagePage = ({
 
   const amount = watch("amount");
 
-  const { bonusAmount } = supremePlanBonus(Number(amount));
   const computation = amount
     ? (Number(amount) * (selectedPackage?.package_percentage ?? 0)) / 100
     : 0;
-  const sumOfTotal = Number(amount) + computation + bonusAmount;
+  const sumOfTotal = Number(amount) + computation;
 
   const onSubmit = async (data: FormValues) => {
     try {
@@ -157,7 +154,7 @@ const AvailPackagePage = ({
           package: selectedPackage?.package_name || "",
           completion: 0,
           completion_date: completionDate.toISOString(),
-          amount: Number(amount) + bonusAmount,
+          amount: Number(amount),
           is_ready_to_claim: false,
           package_connection_id: uuidv4(),
           profit_amount: Number(computation),
@@ -165,27 +162,12 @@ const AvailPackagePage = ({
           package_date_created: new Date().toISOString(),
           package_member_id: teamMemberProfile?.alliance_member_id,
           package_days: Number(selectedPackage?.packages_days || 0),
-          current_amount: Number(amount) + bonusAmount,
+          current_amount: Number(amount),
           currentPercentage: Number(0),
           package_percentage: Number(selectedPackage?.package_percentage || 0),
         },
         ...chartData,
       ]);
-
-      setAddTransactionHistory({
-        data: [
-          {
-            transaction_id: uuidv4(),
-            transaction_date: new Date(),
-            transaction_description: `Package Enrolled: ${selectedPackage?.package_name}`,
-            transaction_details: "",
-            transaction_member_id: teamMemberProfile?.alliance_member_id ?? "",
-            transaction_amount: Number(result.amount),
-            transaction_attachment: "",
-          },
-        ],
-        count: 1,
-      });
 
       if (Number(amount) >= 5000) {
         const baseCount = Math.floor(Number(amount) / 5000) * 2;
@@ -332,26 +314,6 @@ const AvailPackagePage = ({
                     className="text-center"
                     placeholder="Enter amount"
                     value={computation.toLocaleString() || ""}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2 w-full">
-                  <label className="font-bold" htmlFor="Gross">
-                    Supreme Plan Bonus
-                  </label>
-                  <Input
-                    variant="default"
-                    id="Gross"
-                    readOnly
-                    type="text"
-                    className="text-center"
-                    placeholder="Gross Income"
-                    value={
-                      bonusAmount.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      }) || ""
-                    }
                   />
                 </div>
 

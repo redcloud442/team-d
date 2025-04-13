@@ -117,7 +117,7 @@ export const REINVESTMENT_TYPE = {
     process.env.NODE_ENV === "development"
       ? "0987a46a-a314-4434-a692-9d6e3008e72a"
       : "f3c72305-9292-4e88-a33d-ec2ab061299d",
-  "6 days":
+  "9 days":
     process.env.NODE_ENV === "development"
       ? "ed3f5652-fa9b-48d1-80b7-f5acc4daa21d"
       : "ed3f5652-fa9b-48d1-80b7-f5acc4daa21d",
@@ -129,7 +129,7 @@ export const REINVESTMENT_TYPE = {
 export const BONUS_MAPPING = {
   "12 days": 0.06,
   "14 days": 0.006,
-  "6 days": 0.006,
+  "9 days": 0.06,
   "1 month": 0.01,
   "3 months": 0.03,
   "5 months": 0.05,

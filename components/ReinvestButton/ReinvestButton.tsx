@@ -1,10 +1,8 @@
 import { useToast } from "@/hooks/use-toast";
 import { ReinvestPackageHandler } from "@/services/Package/Member";
 import { usePackageChartData } from "@/store/usePackageChartData";
-import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { BONUS_MAPPING, REINVESTMENT_TYPE } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
-import { supremePlanBonus } from "@/utils/function";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { package_table } from "@prisma/client";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -23,12 +21,13 @@ import {
 } from "../ui/dialog";
 import { Separator } from "../ui/separator";
 import ReinvestMonthlyButton from "./ReinvestMonthlyButton";
+
 const formSchema = z.object({
   packageConnectionId: z.string(),
   packageId: z.string(),
   amountToReinvest: z.number(),
   type: z.enum([
-    "6 days",
+    "9 days",
     "12 days",
     "14 days",
     "1 month",
@@ -56,7 +55,7 @@ const ReinvestButton = ({
     bonus: number;
     months: number;
     type:
-      | "6 days"
+      | "9 days"
       | "12 days"
       | "14 days"
       | "1 month"
@@ -69,7 +68,7 @@ const ReinvestButton = ({
 
   const { teamMemberProfile } = useRole();
   const { chartData, setChartData } = usePackageChartData();
-  const { setAddTransactionHistory } = useUserTransactionHistoryStore();
+
   const { toast } = useToast();
 
   const {
@@ -85,8 +84,6 @@ const ReinvestButton = ({
       amountToReinvest: amountToReinvest,
     },
   });
-
-  const { bonusPercentage, bonusAmount } = supremePlanBonus(amountToReinvest);
 
   const handleReinvest = async (data: FormValues) => {
     try {
@@ -115,7 +112,7 @@ const ReinvestButton = ({
             BONUS_MAPPING[data.type as keyof typeof BONUS_MAPPING]
           : 0;
 
-      const finalAmount = amountToReinvest + amountBonus + bonusAmount;
+      const finalAmount = amountToReinvest + amountBonus;
 
       setChartData([
         {
@@ -159,7 +156,7 @@ const ReinvestButton = ({
     bonus: number,
     months: number,
     type:
-      | "6 days"
+      | "9 days"
       | "12 days"
       | "14 days"
       | "1 month"
@@ -220,17 +217,36 @@ const ReinvestButton = ({
           {/* amount to avail */}
           {!selectedReinvestment ? (
             <div className="flex flex-col sm:flex-row w-full gap-4 justify-center bg-pageColor rounded-lg text-white p-4">
-              <ReinvestMonthlyButton
+              {/* <ReinvestMonthlyButton
                 amountToReinvest={amountToReinvest}
                 percentage={250}
                 bonus={6}
                 months={0}
                 type="6 days"
                 handleReinvestMonthly={handleReinvestMonthly}
+              /> */}
+
+              {/* <ReinvestMonthlyButton
+                amountToReinvest={amountToReinvest}
+                percentage={70}
+                bonus={0.5}
+                months={0}
+                type="14 days"
+                handleReinvestMonthly={handleReinvestMonthly}
               />
+               */}
               <ReinvestMonthlyButton
                 amountToReinvest={amountToReinvest}
-                percentage={1250}
+                percentage={150}
+                bonus={6}
+                months={0}
+                type="9 days"
+                handleReinvestMonthly={handleReinvestMonthly}
+              />
+
+              <ReinvestMonthlyButton
+                amountToReinvest={amountToReinvest}
+                percentage={499.5}
                 bonus={1}
                 months={1}
                 type="1 month"
@@ -239,7 +255,7 @@ const ReinvestButton = ({
 
               <ReinvestMonthlyButton
                 amountToReinvest={amountToReinvest}
-                percentage={3750}
+                percentage={1498.5}
                 bonus={3}
                 months={3}
                 type="3 months"
@@ -248,7 +264,7 @@ const ReinvestButton = ({
 
               <ReinvestMonthlyButton
                 amountToReinvest={amountToReinvest}
-                percentage={6250}
+                percentage={2497.5}
                 bonus={5}
                 months={5}
                 type="5 months"
@@ -294,21 +310,6 @@ const ReinvestButton = ({
                         maximumFractionDigits: 2,
                       }
                     )}
-                  </p>
-                </div>
-              )}
-
-              {bonusPercentage !== 0 && (
-                <div className="flex justify-between gap-2">
-                  <p className="text-center text-lg font-bold">
-                    Supreme Plan Bonus {bonusPercentage}%
-                  </p>
-                  <p>
-                    ₱{" "}
-                    {bonusAmount.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
                   </p>
                 </div>
               )}

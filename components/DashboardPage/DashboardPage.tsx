@@ -151,7 +151,16 @@ const DashboardPage = ({
                   alt="premium"
                   width={70}
                   height={70}
-                  className="rounded-lg animate-tracing-border"
+                  className="rounded-lg "
+                />
+              )}
+              {teamMemberProfile.alliance_member_is_supreme && (
+                <Image
+                  src="/assets/supreme-title.png"
+                  alt="supreme"
+                  width={70}
+                  height={70}
+                  className="rounded-lg"
                 />
               )}
             </div>
