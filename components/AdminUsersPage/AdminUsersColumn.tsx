@@ -81,6 +81,30 @@ export const AdminUsersColumn = (
     }
   };
 
+  const handleAddSuperVip = async (
+    alliance_member_alliance_id: string,
+    type: string
+  ) => {
+    try {
+      setIsOpenModal({
+        open: true,
+        role: "",
+        memberId: alliance_member_alliance_id,
+        type: type,
+      });
+    } catch (e) {
+      if (e instanceof Error) {
+        await logError(supabaseClient, {
+          errorMessage: e.message,
+          stackTrace: e.stack,
+          stackPath: "components/AdminUsersPage/AdminUsersColumn.tsx",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isLoading) {
     <TableLoading />;
   }
@@ -231,6 +255,28 @@ export const AdminUsersColumn = (
         );
       },
     },
+
+    {
+      accessorKey: "alliance_member_is_super_vip",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Super VIP <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const isSuperVip = row.getValue("alliance_member_is_super_vip");
+        return (
+          <div
+            className={`${isSuperVip ? "text-green-500" : "text-red-500"} text-center`}
+          >
+            {isSuperVip ? "YES" : "NO"}
+          </div>
+        );
+      },
+    },
     {
       header: "Actions",
       cell: ({ row }) => {
@@ -313,6 +359,29 @@ export const AdminUsersColumn = (
                   }
                 >
                   Unban User
+                </DropdownMenuItem>
+              )}
+
+              {data.alliance_member_is_super_vip && (
+                <DropdownMenuItem
+                  onClick={() =>
+                    handleAddSuperVip(
+                      data.alliance_member_id,
+                      "REMOVE_SUPER_VIP"
+                    )
+                  }
+                >
+                  Remove Super VIP
+                </DropdownMenuItem>
+              )}
+
+              {!data.alliance_member_is_super_vip && (
+                <DropdownMenuItem
+                  onClick={() =>
+                    handleAddSuperVip(data.alliance_member_id, "ADD_SUPER_VIP")
+                  }
+                >
+                  Add Super VIP
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>

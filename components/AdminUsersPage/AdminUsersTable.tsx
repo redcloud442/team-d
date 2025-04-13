@@ -5,6 +5,7 @@ import { logError } from "@/services/Error/ErrorLogs";
 import {
   getAdminUserRequest,
   handleUpdateRole,
+  handleUpdateSuperVip,
   handleUpdateUserRestriction,
 } from "@/services/User/Admin";
 import { handleGenerateLink } from "@/services/User/User";
@@ -280,6 +281,39 @@ const AdminUsersTable = () => {
     }
   };
 
+  const handleAddSuperVip = async (memberId: string, type: string) => {
+    try {
+      setIsLoading(true);
+      await handleUpdateSuperVip({ userId: memberId, type });
+
+      if (type === "ADD_SUPER_VIP") {
+        setRequestData((prev) =>
+          prev.map((item) =>
+            item.alliance_member_id === memberId
+              ? { ...item, alliance_member_is_super_vip: true }
+              : item
+          )
+        );
+      } else if (type === "REMOVE_SUPER_VIP") {
+        setRequestData((prev) =>
+          prev.map((item) =>
+            item.alliance_member_id === memberId
+              ? { ...item, alliance_member_is_super_vip: false }
+              : item
+          )
+        );
+      }
+
+      setIsOpenModal({ memberId: "", role: "", open: false, type: "" });
+
+      toast({
+        title: `Super VIP ${type === "ADD_SUPER_VIP" ? "Added" : "Removed"}`,
+        description: `Super VIP ${type === "ADD_SUPER_VIP" ? "Added" : "Removed"} Sucessfully`,
+        variant: "success",
+      });
+    } catch (e) {}
+  };
+
   return (
     <Card className="w-full rounded-sm p-4">
       {isOpenModal && (
@@ -308,6 +342,10 @@ const AdminUsersTable = () => {
                 onClick={() => {
                   if (isOpenModal.type === "PROMOTE") {
                     handlePromoteUser(isOpenModal.memberId, isOpenModal.role);
+                  } else if (isOpenModal.type === "ADD_SUPER_VIP") {
+                    handleAddSuperVip(isOpenModal.memberId, isOpenModal.type);
+                  } else if (isOpenModal.type === "REMOVE_SUPER_VIP") {
+                    handleAddSuperVip(isOpenModal.memberId, isOpenModal.type);
                   } else {
                     handleBanUser(isOpenModal.memberId, isOpenModal.type);
                   }

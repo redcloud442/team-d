@@ -7,6 +7,7 @@ import { usePackageChartData } from "@/store/usePackageChartData";
 import { useSponsorStore } from "@/store/useSponsortStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
+import { RANK_TAG_MAPPING } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
 import {
@@ -37,6 +38,7 @@ import DashboardPackages from "./DashboardPackages";
 import DashboardVideoModal from "./DashboardVideoModal/DashboardVideoModal";
 import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
 import { TestimonialPage } from "./Testimonial/TestimonialPage";
+
 type Props = {
   packages: package_table[];
   testimonials: alliance_testimonial_table[];
@@ -137,6 +139,19 @@ const DashboardPage = ({
             />
 
             <div className="space-y-1">
+              {teamMemberProfile.alliance_member_vip_tag && (
+                <Image
+                  src={
+                    RANK_TAG_MAPPING[
+                      teamMemberProfile.alliance_member_vip_tag as keyof typeof RANK_TAG_MAPPING
+                    ]
+                  }
+                  alt="rank"
+                  width={70}
+                  height={70}
+                  className="rounded-lg"
+                />
+              )}
               <div>
                 <p className="text-xs font-medium">
                   Username:{profile.user_username}
