@@ -1,5 +1,4 @@
-import { TopUpFormValues } from "@/components/DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit";
-
+import { DepositRequestFormValues } from "@/utils/schema";
 import { TopUpRequestData } from "@/utils/types";
 
 export const getMemberTopUpRequest = async (params: {
@@ -56,7 +55,7 @@ export const updateTopUpStatus = async (params: {
 };
 
 export const handleDepositRequest = async (params: {
-  TopUpFormValues: TopUpFormValues;
+  TopUpFormValues: DepositRequestFormValues;
   publicUrl: string;
 }) => {
   const response = await fetch(`/api/v1/deposit`, {

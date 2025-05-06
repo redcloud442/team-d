@@ -16,11 +16,10 @@ import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings"
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { formatTime } from "@/utils/function";
 import { ChartDataMember } from "@/utils/types";
-import { alliance_member_table, package_table } from "@prisma/client";
+import { company_member_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import ReinvestButton from "../ReinvestButton/ReinvestButton";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
@@ -36,14 +35,10 @@ import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 
 type DashboardPackagesProps = {
-  teamMemberProfile: alliance_member_table;
-  packages: package_table[];
+  teamMemberProfile: company_member_table;
 };
 
-const DashboardPackages = ({
-  teamMemberProfile,
-  packages,
-}: DashboardPackagesProps) => {
+const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
   const { toast } = useToast();
   const { earnings, setEarnings } = useUserEarningsStore();
   const { chartData, setChartData } = usePackageChartData();
@@ -153,28 +148,30 @@ const DashboardPackages = ({
         if (earnings) {
           setEarnings({
             ...earnings,
-            alliance_earnings_id: earnings.alliance_earnings_id || "",
-            alliance_olympus_wallet: earnings.alliance_olympus_wallet || 0,
-            alliance_olympus_earnings:
-              earnings.alliance_olympus_earnings + newEarnings,
-            alliance_referral_bounty: earnings.alliance_referral_bounty || 0,
-            alliance_combined_earnings:
-              earnings.alliance_combined_earnings + newEarnings,
-            alliance_earnings_member_id:
-              earnings.alliance_earnings_member_id || "",
+            company_earnings_id: earnings.company_earnings_id || "",
+            company_member_wallet: earnings.company_member_wallet || 0,
+            company_package_earnings:
+              earnings.company_package_earnings + newEarnings,
+            company_referral_earnings: earnings.company_referral_earnings || 0,
+            company_combined_earnings:
+              earnings.company_combined_earnings + newEarnings,
+            company_earnings_member_id:
+              earnings.company_earnings_member_id || "",
           });
         }
 
         setAddTransactionHistory({
           data: [
             {
-              transaction_id: uuidv4(),
-              transaction_date: new Date(),
-              transaction_description: ` ${packageData.package} Package Claimed`,
-              transaction_details: "",
-              transaction_amount: newEarnings,
-              transaction_attachment: "",
-              transaction_member_id: teamMemberProfile.alliance_member_id,
+              company_transaction_id: uuidv4(),
+              company_transaction_date: new Date(),
+              company_transaction_description: ` ${packageData.package} Package Claimed`,
+              company_transaction_details: "",
+              company_transaction_amount: newEarnings,
+              company_transaction_attachment: "",
+              company_transaction_member_id:
+                teamMemberProfile.company_member_id,
+              company_transaction_type: "PACKAGE",
             },
           ],
           count: 1,
@@ -324,11 +321,11 @@ const DashboardPackages = ({
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
-                  <ReinvestButton
+                  {/* <ReinvestButton
                     primaryPackage={packages}
                     packageConnectionId={data.package_connection_id}
                     amountToReinvest={data.current_amount}
-                  />
+                  /> */}
                 </>
               )}
             </CardFooter>

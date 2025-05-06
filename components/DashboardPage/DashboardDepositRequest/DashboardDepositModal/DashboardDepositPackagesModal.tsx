@@ -15,8 +15,8 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { getPackageModalData } from "@/services/Package/Member";
 import { createClientSide } from "@/utils/supabase/client";
 import {
-  alliance_earnings_table,
-  alliance_member_table,
+  company_earnings_table,
+  company_member_table,
   package_table,
 } from "@prisma/client";
 import Image from "next/image";
@@ -25,9 +25,9 @@ import DashboardDynamicGuideModal from "../DashboardDynamicGuideModal/DashboardD
 
 type Props = {
   className: string;
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
   packages: package_table[];
-  earnings: alliance_earnings_table | null;
+  earnings: company_earnings_table | null;
   setIsActive: Dispatch<SetStateAction<boolean>>;
 };
 
@@ -46,7 +46,7 @@ const DashboardDepositModalPackages = ({
   const [packages, setPackages] = useState<package_table[]>(initialPackage);
 
   const handlePackageSelect = (pkg: package_table) => {
-    if (earnings?.alliance_combined_earnings === 0) return null;
+    if (earnings?.company_combined_earnings === 0) return null;
     setSelectedPackage(pkg);
   };
 
@@ -57,7 +57,7 @@ const DashboardDepositModalPackages = ({
         const data = await getPackageModalData();
 
         setPackages(data);
-        if (!teamMemberProfile.alliance_member_is_active) {
+        if (!teamMemberProfile.company_member_is_active) {
           setIsActive(true);
         }
       } catch (e) {

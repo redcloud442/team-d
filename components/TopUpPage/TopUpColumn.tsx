@@ -7,6 +7,7 @@ import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { Column, ColumnDef, Row } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
+import Image from "next/image";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Badge } from "../ui/badge";
 import {
@@ -59,10 +60,10 @@ export const TopUpColumn = (
 
         const pendingData = prev.data["PENDING"]?.data ?? [];
         const updatedItem = pendingData.find(
-          (item) => item.alliance_top_up_request_id === requestId
+          (item) => item.company_deposit_request_id === requestId
         );
         const newPendingList = pendingData.filter(
-          (item) => item.alliance_top_up_request_id !== requestId
+          (item) => item.company_deposit_request_id !== requestId
         );
         const currentStatusData = prev.data[status as keyof typeof prev.data];
         const hasExistingData = currentStatusData?.data?.length > 0;
@@ -70,7 +71,7 @@ export const TopUpColumn = (
         const merchantBalance =
           status === "APPROVED"
             ? (prev.merchantBalance || 0) -
-              (updatedItem?.alliance_top_up_request_amount ?? 0)
+              (updatedItem?.company_deposit_request_amount ?? 0)
             : prev.merchantBalance;
 
         if (!updatedItem) return prev;
@@ -306,7 +307,7 @@ export const TopUpColumn = (
                 <DialogTitle>Attachment</DialogTitle>
               </DialogHeader>
               <div className="flex justify-center items-center">
-                <img
+                <Image
                   key={attachmentUrl}
                   src={attachmentUrl}
                   alt="Attachment Preview"
@@ -364,16 +365,16 @@ export const TopUpColumn = (
 
               return (
                 <>
-                  {data.alliance_top_up_request_status === "PENDING" && (
+                  {data.company_deposit_request_status === "PENDING" && (
                     <div className="flex gap-2">
                       <Button
                         className="bg-green-500 hover:bg-green-600 dark:bg-green-500 dark:text-white"
                         onClick={() =>
                           setIsOpenModal({
                             open: true,
-                            requestId: data.alliance_top_up_request_id,
+                            requestId: data.company_deposit_request_id,
                             status: "APPROVED",
-                            amount: data.alliance_top_up_request_amount || 0,
+                            amount: data.company_deposit_request_amount || 0,
                           })
                         }
                       >
@@ -385,7 +386,7 @@ export const TopUpColumn = (
                         onClick={() =>
                           setIsOpenModal({
                             open: true,
-                            requestId: data.alliance_top_up_request_id,
+                            requestId: data.company_deposit_request_id,
                             status: "REJECTED",
                             amount: 0,
                           })

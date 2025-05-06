@@ -47,31 +47,6 @@ const NavBar = () => {
 
         {/* Navigation Links */}
         <div className="hidden items-center space-x-4 md:flex">
-          {teamMemberProfile.alliance_member_role === "MERCHANT" && (
-            <>
-              <Button
-                variant="ghost"
-                onClick={() => handleNavigation("/deposit")}
-              >
-                Deposit
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => handleNavigation("/merchant")}
-              >
-                Merchant
-              </Button>
-            </>
-          )}
-          {teamMemberProfile.alliance_member_role === "ACCOUNTING" && (
-            <Button
-              variant="ghost"
-              onClick={() => handleNavigation("/withdraw")}
-            >
-              Withdrawal
-            </Button>
-          )}
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">

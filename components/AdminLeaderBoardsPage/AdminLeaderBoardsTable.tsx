@@ -55,7 +55,7 @@ const AdminLeaderBoardsPage = () => {
 
         const { totalCount, data } = await getLeaderBoardData({
           leaderBoardType,
-          teamMemberId: teamMemberProfile.alliance_member_id,
+          teamMemberId: teamMemberProfile.company_member_id,
           limit: 10,
           page: activePage,
         });

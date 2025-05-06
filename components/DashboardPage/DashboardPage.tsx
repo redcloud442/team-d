@@ -7,14 +7,10 @@ import { usePackageChartData } from "@/store/usePackageChartData";
 import { useSponsorStore } from "@/store/useSponsortStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
-import { RANK_TAG_MAPPING } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
+import { formatNumberLocale } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import {
-  alliance_promo_banner_table,
-  alliance_testimonial_table,
-  package_table,
-} from "@prisma/client";
+import { package_table } from "@prisma/client";
 import { Download, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -30,35 +26,17 @@ import DashboardDepositModalDeposit from "./DashboardDepositRequest/DashboardDep
 import DashboardDepositModalPackages from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositPackagesModal";
 import DashboardDepositProfile from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositProfile";
 import DashboardDepositModalRefer from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositRefer";
-import DashboardSpinTheWheelModal from "./DashboardDepositRequest/DashboardDepositModal/DashboardSpinTheWheelModal";
 import DashboardTransactionHistory from "./DashboardDepositRequest/DashboardDepositModal/DashboardTransactionHistory";
 import DashboardRaffle from "./DashboardDepositRequest/DashboardRaffle/DashboardRaffle";
 import DashboardEarningsModal from "./DashboardDepositRequest/EarningsModal/EarningsModal";
 import DashboardPackages from "./DashboardPackages";
-import DashboardVideoModal from "./DashboardVideoModal/DashboardVideoModal";
 import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
-import { TestimonialPage } from "./Testimonial/TestimonialPage";
 
 type Props = {
   packages: package_table[];
-  testimonials: alliance_testimonial_table[];
-  wheel: {
-    alliance_wheel_settings_id: string;
-    alliance_wheel_settings_label: string;
-    alliance_wheel_settings_percentage: number;
-    alliance_wheel_settings_color: string;
-  }[];
-  reinvestment: package_table[];
-  raffle: alliance_promo_banner_table[];
 };
 
-const DashboardPage = ({
-  packages,
-  testimonials,
-  wheel,
-  reinvestment,
-  raffle,
-}: Props) => {
+const DashboardPage = ({ packages }: Props) => {
   const supabaseClient = createClientSide();
   const { referral } = useRole();
   const { loading } = useUserLoadingStore();
@@ -69,7 +47,7 @@ const DashboardPage = ({
   const { teamMemberProfile, profile } = useRole();
 
   const [isActive, setIsActive] = useState(
-    teamMemberProfile.alliance_member_is_active
+    teamMemberProfile.company_member_is_active
   );
   const [activeSlide, setActiveSlide] = useState(0);
   const [open, setOpen] = useState(false);
@@ -80,7 +58,7 @@ const DashboardPage = ({
     try {
       setRefresh(true);
       const { totalEarnings, userEarningsData } = await getUserEarnings({
-        memberId: teamMemberProfile.alliance_member_id,
+        memberId: teamMemberProfile.company_member_id,
       });
 
       if (!totalEarnings || !userEarningsData) return;
@@ -139,19 +117,6 @@ const DashboardPage = ({
             />
 
             <div className="space-y-1">
-              {teamMemberProfile.alliance_member_vip_tag && (
-                <Image
-                  src={
-                    RANK_TAG_MAPPING[
-                      teamMemberProfile.alliance_member_vip_tag as keyof typeof RANK_TAG_MAPPING
-                    ]
-                  }
-                  alt="rank"
-                  width={70}
-                  height={70}
-                  className="rounded-lg"
-                />
-              )}
               <div>
                 <p className="text-xs font-medium">
                   Username:{profile.user_username}
@@ -160,24 +125,6 @@ const DashboardPage = ({
               <p className="text-xs">
                 {profile.user_first_name} {profile.user_last_name}
               </p>
-              {teamMemberProfile.alliance_member_is_premium && (
-                <Image
-                  src="/assets/premium-title.png"
-                  alt="premium"
-                  width={70}
-                  height={70}
-                  className="rounded-lg "
-                />
-              )}
-              {teamMemberProfile.alliance_member_is_supreme && (
-                <Image
-                  src="/assets/supreme-title.png"
-                  alt="supreme"
-                  width={70}
-                  height={70}
-                  className="rounded-lg"
-                />
-              )}
             </div>
           </div>
 
@@ -201,14 +148,8 @@ const DashboardPage = ({
               ) : (
                 <p className="text-sm">
                   {"₱ "}
-                  {earnings?.alliance_combined_earnings
-                    ? earnings.alliance_combined_earnings.toLocaleString(
-                        "en-US",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
-                      )
+                  {earnings?.company_combined_earnings
+                    ? formatNumberLocale(earnings.company_combined_earnings)
                     : 0}
                 </p>
               )}
@@ -229,10 +170,6 @@ const DashboardPage = ({
                   <RefreshCw />
                 </Button>
               </div>
-
-              {raffle.length > 0 ? (
-                <DashboardVideoModal raffle={raffle} />
-              ) : null}
             </div>
             <div className="flex flex-col items-end gap-2">
               <Button
@@ -343,11 +280,7 @@ const DashboardPage = ({
               totalEarnings={totalEarnings}
             />
 
-            <DashboardWithdrawModalWithdraw
-              setTransactionOpen={setOpen}
-              teamMemberProfile={teamMemberProfile}
-              earnings={earnings}
-            />
+            <DashboardWithdrawModalWithdraw setTransactionOpen={setOpen} />
           </div>
         </div>
 
@@ -359,18 +292,11 @@ const DashboardPage = ({
           className="w-full"
         />
 
-        <DashboardSpinTheWheelModal wheel={wheel} />
-
         {chartData.length > 0 && (
           <div className=" gap-6">
-            <DashboardPackages
-              packages={reinvestment}
-              teamMemberProfile={teamMemberProfile}
-            />
+            <DashboardPackages teamMemberProfile={teamMemberProfile} />
           </div>
         )}
-
-        <TestimonialPage alliance_testimonial_url={testimonials} />
       </div>
     </div>
   );

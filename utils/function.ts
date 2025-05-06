@@ -287,3 +287,10 @@ export const supremePlanBonus = (amount: number) => {
     bonusAmount: 0,
   };
 };
+
+export const formatNumberLocale = (number: number) => {
+  return number.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};

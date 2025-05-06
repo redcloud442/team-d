@@ -2,10 +2,8 @@
 
 import {
   BookOpen,
-  FerrisWheel,
   File,
   HistoryIcon,
-  Image,
   LayoutDashboardIcon,
   MonitorCheck,
   Package,
@@ -13,10 +11,8 @@ import {
   ReceiptCentIcon,
   Settings2,
   SquareTerminal,
-  Ticket,
   Trophy,
   User,
-  Video,
 } from "lucide-react";
 import * as React from "react";
 
@@ -130,30 +126,11 @@ const data = {
           url: "/admin/packages",
           icon: Package,
         },
-        {
-          title: "Wheel Management",
-          url: "/admin/wheel-management",
-          icon: FerrisWheel,
-        },
-        {
-          title: "Testimonials",
-          url: "/admin/testimonials",
-          icon: Video,
-        },
+
         {
           title: "Export",
           url: "/admin/export",
           icon: File,
-        },
-        {
-          title: "Raffle",
-          url: "/admin/raffle",
-          icon: Ticket,
-        },
-        {
-          title: "Banner",
-          url: "/admin/banner",
-          icon: Image,
         },
       ],
     },

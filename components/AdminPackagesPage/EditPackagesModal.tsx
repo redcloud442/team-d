@@ -17,7 +17,7 @@ import { updatePackagesData } from "@/services/Package/Admin";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { alliance_member_table, package_table } from "@prisma/client";
+import { company_member_table, package_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -25,7 +25,7 @@ import { z } from "zod";
 import FileUpload from "../ui/dropZone";
 
 type Props = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
   selectedPackage: package_table | null;
   handleSelectPackage: () => void;
   setPackages: Dispatch<SetStateAction<package_table[]>>;
@@ -131,7 +131,7 @@ const EditPackagesModal = ({
       };
       const response = await updatePackagesData({
         packageData: packageData,
-        teamMemberId: teamMemberProfile.alliance_member_id,
+        teamMemberId: teamMemberProfile.company_member_id,
         packageId: selectedPackage?.package_id ?? "",
       });
 

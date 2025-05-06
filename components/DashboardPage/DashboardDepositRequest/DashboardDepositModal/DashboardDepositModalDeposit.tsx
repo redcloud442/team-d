@@ -1,17 +1,23 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import FileUpload from "@/components/ui/dropZone";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -32,50 +38,24 @@ import { handleDepositRequest } from "@/services/TopUp/Member";
 import { useDepositStore } from "@/store/useDepositStore";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
-import { escapeFormData, supremePlanBonus } from "@/utils/function";
+import { BANK_IMAGE } from "@/utils/constant";
+import { escapeFormData } from "@/utils/function";
+import { DepositRequestFormValues, depositRequestSchema } from "@/utils/schema";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { alliance_member_table, merchant_table } from "@prisma/client";
-
-import { BANK_IMAGE } from "@/utils/constant";
+import { company_member_table, merchant_table } from "@prisma/client";
 import { AlertCircle, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { NextResponse } from "next/server";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { z } from "zod";
 import DashboardDynamicGuideModal from "../DashboardDynamicGuideModal/DashboardDynamicGuideModal";
 
 type Props = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
   className: string;
 };
-
-const topUpFormSchema = z.object({
-  amount: z
-    .string()
-    .min(3, "Amount is required and must be at least 200 pesos")
-    .max(6, "Amount must be less than 6 digits")
-    .regex(/^\d+$/, "Amount must be a number")
-    .refine((amount) => parseInt(amount, 10) >= 200, {
-      message: "Amount must be at least 200 pesos",
-    }),
-  topUpMode: z.string().min(1, "Top up mode is required"),
-  accountName: z.string().min(1, "Field is required"),
-  accountNumber: z.string().min(1, "Field is required"),
-  file: z
-    .instanceof(File)
-    .refine((file) => !!file, { message: "File is required" })
-    .refine(
-      (file) =>
-        ["image/jpeg", "image/png", "image/jpg"].includes(file.type) &&
-        file.size <= 12 * 1024 * 1024, // 12MB limit
-      { message: "File must be a valid image and less than 12MB." }
-    ),
-});
-
-export type TopUpFormValues = z.infer<typeof topUpFormSchema>;
 
 const DashboardDepositModalDeposit = ({
   className,
@@ -88,15 +68,8 @@ const DashboardDepositModalDeposit = ({
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const { deposit: open, setDeposit: setOpen } = useDepositStore();
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<TopUpFormValues>({
-    resolver: zodResolver(topUpFormSchema),
+  const form = useForm<DepositRequestFormValues>({
+    resolver: zodResolver(depositRequestSchema),
     defaultValues: {
       amount: "",
       topUpMode: "",
@@ -105,6 +78,15 @@ const DashboardDepositModalDeposit = ({
       file: undefined,
     },
   });
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    watch,
+    formState: { isSubmitting },
+  } = form;
 
   useEffect(() => {
     const getOptions = async () => {
@@ -127,7 +109,7 @@ const DashboardDepositModalDeposit = ({
     getOptions();
   }, [open]);
 
-  const onSubmit = async (data: TopUpFormValues) => {
+  const onSubmit = async (data: DepositRequestFormValues) => {
     try {
       const sanitizedData = escapeFormData(data);
       const file = data.file;
@@ -165,13 +147,15 @@ const DashboardDepositModalDeposit = ({
       setAddTransactionHistory({
         data: [
           {
-            transaction_id: uuidv4(),
-            transaction_date: new Date(),
-            transaction_description: "Deposit Pending",
-            transaction_details: `Account Name: ${sanitizedData.accountName} | Account Number: ${sanitizedData.accountNumber}`,
-            transaction_member_id: teamMemberProfile?.alliance_member_id ?? "",
-            transaction_amount: Number(sanitizedData.amount),
-            transaction_attachment: "",
+            company_transaction_id: uuidv4(),
+            company_transaction_date: new Date(),
+            company_transaction_description: "Deposit Pending",
+            company_transaction_details: `Account Name: ${sanitizedData.accountName} | Account Number: ${sanitizedData.accountNumber}`,
+            company_transaction_member_id:
+              teamMemberProfile?.company_member_id ?? "",
+            company_transaction_amount: Number(sanitizedData.amount),
+            company_transaction_attachment: "",
+            company_transaction_type: "DEPOSIT",
           },
         ],
         count: 1,
@@ -204,10 +188,6 @@ const DashboardDepositModalDeposit = ({
     }
   };
 
-  const selectedOption = watch("topUpMode");
-
-  const uploadedFile = watch("file");
-
   const handleCopy = (text: string) => {
     if (!text) {
       toast({
@@ -225,13 +205,16 @@ const DashboardDepositModalDeposit = ({
     });
   };
 
-  const selectedMerchant = topUpOptions.find(
-    (option) => option.merchant_id === selectedOption
-  );
+  //   const selectedOption = watch("topUpMode");
 
-  const { bonusAmount } = supremePlanBonus(Number(watch("amount")));
+  //   const selectedMerchant = topUpOptions.find(
+  //     (option) => option.merchant_id === selectedOption
+  //   );
 
-  const amountTotal = Number(watch("amount") || 0) + bonusAmount;
+  //   const uploadedFile = watch("file");
+
+  //   const amountTotal = Number(watch("amount") || 0) + bonusAmount;
+
   return (
     <Dialog
       open={open}
@@ -259,9 +242,6 @@ const DashboardDepositModalDeposit = ({
                 className="relative sm:relative bottom-0 left-0 mx-auto"
               />
             </div>
-            <span className="text-lg sm:text-2xl font-bold animate-wiggle text-balance">
-              Get +25% or +50% Bonus
-            </span>
           </Button>
         ) : (
           <Popover>
@@ -278,19 +258,12 @@ const DashboardDepositModalDeposit = ({
                     className="relative sm:relative bottom-0 left-0 mx-auto"
                   />
                 </div>
-                <span className="text-lg sm:text-2xl font-bold animate-wiggle">
-                  Get +25% or +50% Bonus
-                </span>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[350px]">
               <Alert variant={"destructive"}>
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Deposit Limit</AlertTitle>
-                <AlertDescription className=" text-break">
-                  Your Deposit Request is under review. Kindly wait for it to be
-                  approved.
-                </AlertDescription>
               </Alert>
             </PopoverContent>
           </Popover>
@@ -305,266 +278,199 @@ const DashboardDepositModalDeposit = ({
             </DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Amount Field */}
-            <div>
-              <Label htmlFor="amount">Amount</Label>
-              <Controller
+          <Form {...form}>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {/* Amount Field */}
+              <FormField
+                control={control}
                 name="amount"
-                control={control}
                 render={({ field }) => (
-                  <Input
-                    variant="default"
-                    type="text"
-                    id="amount"
-                    className="text-center"
-                    placeholder="Deposit Amount"
-                    {...field}
-                    autoFocus
-                    value={field.value}
-                    onChange={(e) => {
-                      let inputValue = e.target.value;
+                  <FormItem>
+                    <FormLabel>Amount</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Amount"
+                        {...field}
+                        onChange={(e) => {
+                          let inputValue = e.target.value;
 
-                      // Allow clearing the value
-                      if (inputValue === "") {
-                        field.onChange("");
-                        return;
-                      }
+                          // Allow clearing the value
+                          if (inputValue === "") {
+                            field.onChange("");
+                            return;
+                          }
 
-                      // Remove non-numeric characters
-                      inputValue = inputValue.replace(/[^0-9.]/g, "");
+                          // Remove non-numeric characters
+                          inputValue = inputValue.replace(/[^0-9.]/g, "");
 
-                      // Ensure only one decimal point
-                      const parts = inputValue.split(".");
-                      if (parts.length > 2) {
-                        inputValue = parts[0] + "." + parts[1];
-                      }
+                          // Ensure only one decimal point
+                          const parts = inputValue.split(".");
+                          if (parts.length > 2) {
+                            inputValue = parts[0] + "." + parts[1];
+                          }
 
-                      // Limit to two decimal places
-                      if (parts[1]?.length > 2) {
-                        inputValue = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                      }
+                          // Limit to two decimal places
+                          if (parts[1]?.length > 2) {
+                            inputValue = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                          }
 
-                      if (inputValue.length > 8) {
-                        inputValue = inputValue.substring(0, 8);
-                      }
+                          if (inputValue.length > 8) {
+                            inputValue = inputValue.substring(0, 8);
+                          }
 
-                      // Update the field value
-                      field.onChange(inputValue);
+                          // Update the field value
+                          field.onChange(inputValue);
 
-                      // Enforce max amount
-                      const numericValue = Number(inputValue);
+                          // Enforce max amount
+                          const numericValue = Number(inputValue);
 
-                      setValue("amount", numericValue.toString());
-                    }}
-                  />
+                          setValue("amount", numericValue.toString());
+                        }}
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              {errors.amount && (
-                <p className="text-primaryRed text-sm mt-1">
-                  {errors.amount.message}
-                </p>
-              )}
-            </div>
 
-            <div className="mt-4 bg-amber-100 p-3 rounded-md text-sm text-amber-800">
-              <p className="mb-1">
-                <strong>₱200 - ₱49,999</strong>: +25% Bonus
-              </p>
-              <p className="mb-1">
-                <strong>₱50,000 - ₱1,000,000</strong>: +50% Bonus
-              </p>
-              {bonusAmount > 0 && (
-                <>
-                  <h2 className="text-lg font-bold">Computation</h2>
-                  <p className="mt-2 text-xl">
-                    <strong>Bonus:</strong>{" "}
-                    <span className="font-bold">
-                      ₱{" "}
-                      {bonusAmount.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
-                  </p>
-                  <p className="mt-2 text-xl">
-                    <strong>Total:</strong>{" "}
-                    <span className="font-bold">
-                      ₱{" "}
-                      {amountTotal.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
-                  </p>
-                </>
-              )}
-            </div>
-
-            {/* Top-Up Mode */}
-            <div>
-              <Label htmlFor="topUpMode">Mode of Payment</Label>
-              <Controller
+              <FormField
+                control={control}
                 name="topUpMode"
-                control={control}
                 render={({ field }) => (
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      onTopUpModeChange(value);
-                    }}
-                    value={field.value}
-                  >
-                    <SelectTrigger className="text-center">
-                      <SelectValue placeholder="Select Mode of Payment" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {topUpOptions.map((option) => (
-                        <SelectItem
-                          key={option.merchant_id}
-                          value={option.merchant_id}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src={
-                                BANK_IMAGE[
-                                  option.merchant_account_type as keyof typeof BANK_IMAGE
-                                ]
-                              }
-                              alt={option.merchant_account_type}
-                              width={40}
-                              height={40}
-                            />
-                            {option.merchant_account_type} -{" "}
-                            {option.merchant_account_name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormItem>
+                    <FormLabel>Mode of Payment</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          onTopUpModeChange(value);
+                        }}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="text-center">
+                          <SelectValue placeholder="Select Mode of Payment" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {topUpOptions.map((option) => (
+                            <SelectItem
+                              key={option.merchant_id}
+                              value={option.merchant_id}
+                            >
+                              <div className="flex items-center gap-2">
+                                <Image
+                                  src={
+                                    BANK_IMAGE[
+                                      option.merchant_account_type as keyof typeof BANK_IMAGE
+                                    ]
+                                  }
+                                  alt={option.merchant_account_type}
+                                  width={40}
+                                  height={40}
+                                />
+                                {option.merchant_account_type} -{" "}
+                                {option.merchant_account_name}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              {errors.topUpMode && (
-                <p className="text-primaryRed text-sm mt-1">
-                  {errors.topUpMode.message}
-                </p>
-              )}
-            </div>
 
-            {selectedMerchant?.merchant_qr_attachment && (
-              <div className="flex flex-col gap-2 justify-center items-center">
-                <p className="text-lg font-bold">QR CODE</p>
-                <Image
-                  src={selectedMerchant.merchant_qr_attachment}
-                  alt="QR Code"
-                  width={200}
-                  height={200}
+              {/* {selectedMerchant?.merchant_qr_attachment && (
+                <div className="flex flex-col gap-2 justify-center items-center">
+                  <p className="text-lg font-bold">QR CODE</p>
+                  <Image
+                    src={selectedMerchant.merchant_qr_attachment}
+                    alt="QR Code"
+                    width={200}
+                    height={200}
+                  />
+                </div>
+              )} */}
+
+              <div className="flex flex-col gap-4">
+                <FormField
+                  control={control}
+                  name="accountName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Account Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="text-center"
+                          readOnly
+                          variant="default"
+                          id="accountName"
+                          placeholder="Account Name"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={control}
+                  name="accountNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Account Number</FormLabel>
+                      <FormControl>
+                        <Input
+                          readOnly
+                          className="text-center"
+                          id="accountNumber"
+                          placeholder="Account Number"
+                          {...field}
+                        />
+                      </FormControl>
+                      <Button
+                        type="button"
+                        onClick={() => handleCopy(watch("accountNumber") || "")}
+                        className="w-20 bg-pageColor text-white h-12"
+                      >
+                        Copy
+                      </Button>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-            )}
 
-            {/* Account Details */}
-            <div className="flex flex-col gap-4">
-              <div className="flex-1">
-                <Label htmlFor="accountName">Account Name</Label>
-                <div className="flex gap-2">
-                  <Controller
-                    name="accountName"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        className="text-center"
-                        readOnly
-                        variant="default"
-                        id="accountName"
-                        placeholder="Account Name"
-                        {...field}
-                      />
-                    )}
-                  />
-                  <Button
-                    type="button"
-                    onClick={() => handleCopy(watch("accountName") || "")}
-                    className="w-20 bg-pageColor text-white h-12"
-                  >
-                    Copy
-                  </Button>
-                </div>
-                {errors.accountName && (
-                  <p className="text-primaryRed text-sm mt-1">
-                    {errors.accountName.message}
-                  </p>
-                )}
-              </div>
-              <div className="flex-1">
-                <Label htmlFor="accountNumber">Account Number</Label>
-                <div className="flex gap-2">
-                  <Controller
-                    name="accountNumber"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        readOnly
-                        className="text-center"
-                        id="accountNumber"
-                        placeholder="Account Number"
-                        {...field}
-                      />
-                    )}
-                  />
-                  <Button
-                    type="button"
-                    onClick={() => handleCopy(watch("accountNumber") || "")}
-                    className="w-20 bg-pageColor text-white h-12"
-                  >
-                    Copy
-                  </Button>
-                </div>
-                {errors.accountNumber && (
-                  <p className="text-primaryRed text-sm mt-1">
-                    {errors.accountNumber.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <Controller
-                name="file"
+              <FormField
                 control={control}
+                name="file"
                 render={({ field }) => (
-                  <FileUpload
-                    label="Upload Receipt"
-                    onFileChange={(file) => field.onChange(file)}
-                  />
+                  <FormItem>
+                    <FormLabel>Upload Receipt</FormLabel>
+                    <FormControl>
+                      <FileUpload
+                        label="Upload Receipt"
+                        onFileChange={(file) => field.onChange(file)}
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              {uploadedFile && !errors.file && (
-                <p className="text-md font-bold text-green-700">
-                  {"File Uploaded Successfully"}
-                </p>
-              )}
 
-              {errors.file && (
-                <p className="text-primaryRed text-sm mt-1">
-                  {errors.file?.message}
-                </p>
-              )}
-            </div>
-
-            <div className="flex justify-center items-center">
               <Button
                 type="submit"
-                className=" bg-pageColor text-white h-12 "
+                className=" bg-pageColor text-white h-12 w-full"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? <Loader2 className="animate-spin" /> : null}{" "}
                 Submit
               </Button>
-            </div>
-          </form>
-          <DialogFooter></DialogFooter>
+            </form>
+          </Form>
         </ScrollArea>
       </DialogContent>
     </Dialog>

@@ -7,8 +7,8 @@ import {
 } from "@/components/ui/card";
 import { ChartDataMember } from "@/utils/types";
 import {
-  alliance_earnings_table,
-  alliance_member_table,
+  company_earnings_table,
+  company_member_table,
   package_table,
 } from "@prisma/client";
 import { Dispatch, SetStateAction } from "react";
@@ -17,10 +17,10 @@ import DashboardDepositModalDeposit from "./DashboardDepositModal/DashboardDepos
 import DashboardDepositModalPackages from "./DashboardDepositModal/DashboardDepositPackagesModal";
 
 type Props = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
   packages: package_table[];
-  earnings: alliance_earnings_table;
-  setEarnings: Dispatch<SetStateAction<alliance_earnings_table | null>>;
+  earnings: company_earnings_table;
+  setEarnings: Dispatch<SetStateAction<company_earnings_table | null>>;
   setChartData: Dispatch<SetStateAction<ChartDataMember[]>>;
   setIsActive: Dispatch<SetStateAction<boolean>>;
 };

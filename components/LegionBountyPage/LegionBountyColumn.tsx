@@ -49,7 +49,7 @@ export const LegionBountyColumn = (): ColumnDef<LegionRequestData>[] => {
       ),
     },
     {
-      accessorKey: "alliance_referral_date",
+      accessorKey: "company_referral_date",
       header: () => (
         <div className="text-center font-bold text-xs w-auto p-0">
           Invite Date
@@ -57,7 +57,7 @@ export const LegionBountyColumn = (): ColumnDef<LegionRequestData>[] => {
       ),
       cell: ({ row }) => (
         <div className="text-center text-[10px] sm:text-[12px]">
-          {formatDateToYYYYMMDD(row.original.alliance_referral_date)}
+          {formatDateToYYYYMMDD(row.original.company_referral_date)}
         </div>
       ),
     },

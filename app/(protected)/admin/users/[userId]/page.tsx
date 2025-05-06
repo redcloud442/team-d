@@ -28,13 +28,13 @@ const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
 
       if (!user) return [null, null, null]; // Stop further queries if user doesn't exist
 
-      const alliance = await tx.alliance_member_table.findFirst({
-        where: { alliance_member_user_id: userId },
+      const alliance = await tx.company_member_table.findFirst({
+        where: { company_member_id: userId },
       });
 
       const earnings = alliance
         ? await tx.dashboard_earnings_summary.findUnique({
-            where: { member_id: alliance.alliance_member_id },
+            where: { member_id: alliance.company_member_id },
           })
         : null;
 
@@ -45,7 +45,7 @@ const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
   const merchantData = allianceData
     ? await prisma.merchant_member_table.findFirst({
         where: {
-          merchant_member_merchant_id: allianceData.alliance_member_id,
+          merchant_member_merchant_id: allianceData.company_member_id,
         },
       })
     : null;

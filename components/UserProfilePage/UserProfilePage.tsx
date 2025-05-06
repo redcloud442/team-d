@@ -20,7 +20,7 @@ const UserProfilePage = ({ userProfile }: Props) => {
 
         <PersonalInformation
           type={
-            userProfile.alliance_member_role as
+            userProfile.company_member_role as
               | "ADMIN"
               | "MEMBER"
               | "ACCOUNTING"

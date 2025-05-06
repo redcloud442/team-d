@@ -4,11 +4,17 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -29,54 +35,30 @@ import { getUserEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
-import { calculateFinalAmount, escapeFormData } from "@/utils/function";
+import { bankData } from "@/utils/constant";
+import { useRole } from "@/utils/context/roleContext";
+import {
+  calculateFinalAmount,
+  escapeFormData,
+  formatNumberLocale,
+} from "@/utils/function";
+import { withdrawalFormSchema, WithdrawalFormValues } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { alliance_earnings_table, alliance_member_table } from "@prisma/client";
 import { AlertCircle, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { Form, useForm, useWatch } from "react-hook-form";
 import Turnstile from "react-turnstile";
-import { z } from "zod";
 import DashboardDynamicGuideModal from "../../DashboardDepositRequest/DashboardDynamicGuideModal/DashboardDynamicGuideModal";
 
 type Props = {
-  teamMemberProfile: alliance_member_table;
-  earnings: alliance_earnings_table | null;
   setTransactionOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-const withdrawalFormSchema = z.object({
-  earnings: z.string(),
-  amount: z
-    .string()
-    .min(2, "Minimum amount is required atleast 50 pesos")
-    .refine((amount) => parseInt(amount.replace(/,/g, ""), 10) >= 50, {
-      message: "Amount must be at least 50 pesos",
-    }),
-
-  bank: z.string().min(1, "Please select a bank"),
-  accountName: z
-    .string()
-    .min(6, "Account name is required")
-    .max(40, "Account name must be at most 24 characters"),
-  accountNumber: z
-    .string()
-    .min(6, "Account number is required")
-    .max(24, "Account number must be at most 24 digits"),
-});
-
-export type WithdrawalFormValues = z.infer<typeof withdrawalFormSchema>;
-
-const bankData = ["Gotyme", "Gcash", "BPI", "PayMaya"];
-
-const DashboardWithdrawModalWithdraw = ({
-  teamMemberProfile,
-  earnings,
-  setTransactionOpen,
-}: Props) => {
+const DashboardWithdrawModalWithdraw = ({ setTransactionOpen }: Props) => {
   const [open, setOpen] = useState(false);
   const { earnings: earningsState, setEarnings } = useUserEarningsStore();
+  const { teamMemberProfile } = useRole();
 
   const { isWithdrawalToday, setIsWithdrawalToday } =
     useUserHaveAlreadyWithdraw();
@@ -85,14 +67,7 @@ const DashboardWithdrawModalWithdraw = ({
 
   const { toast } = useToast();
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    watch,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<WithdrawalFormValues>({
+  const form = useForm<WithdrawalFormValues>({
     mode: "onChange",
     resolver: zodResolver(withdrawalFormSchema),
     defaultValues: {
@@ -104,6 +79,15 @@ const DashboardWithdrawModalWithdraw = ({
     },
   });
 
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = form;
+
   const selectedEarnings = useWatch({ control, name: "earnings" });
   const amount = watch("amount");
 
@@ -111,7 +95,7 @@ const DashboardWithdrawModalWithdraw = ({
     try {
       if (!open || earningsState) return;
       const { userEarningsData } = await getUserEarnings({
-        memberId: teamMemberProfile.alliance_member_id,
+        memberId: teamMemberProfile.company_member_id,
       });
       setEarnings(userEarningsData);
     } catch (e) {
@@ -132,11 +116,11 @@ const DashboardWithdrawModalWithdraw = ({
   const getMaxAmount = () => {
     switch (selectedEarnings) {
       case "PACKAGE":
-        return earnings?.alliance_olympus_earnings ?? 0;
+        return earningsState?.company_package_earnings ?? 0;
       case "REFERRAL":
-        return earnings?.alliance_referral_bounty ?? 0;
+        return earningsState?.company_referral_earnings ?? 0;
       case "WINNING":
-        return earnings?.alliance_winning_earnings ?? 0;
+        return earningsState?.company_combined_earnings ?? 0;
       default:
         return 0;
     }
@@ -158,18 +142,18 @@ const DashboardWithdrawModalWithdraw = ({
 
       await createWithdrawalRequest({
         WithdrawFormValues: sanitizedData,
-        teamMemberId: teamMemberProfile.alliance_member_id,
+        teamMemberId: teamMemberProfile.company_member_id,
         captchaToken: captchaToken,
       });
 
       switch (selectedEarnings) {
         case "PACKAGE":
-          if (earnings) {
+          if (earningsState) {
             let remainingAmount = Number(sanitizedData.amount);
 
             const olympusDeduction = Math.min(
               remainingAmount,
-              earnings.alliance_olympus_earnings
+              earningsState.company_package_earnings
             );
             remainingAmount -= olympusDeduction;
 
@@ -179,12 +163,12 @@ const DashboardWithdrawModalWithdraw = ({
 
             // Update state with new earnings values
             setEarnings({
-              ...earnings,
-              alliance_combined_earnings:
-                earnings.alliance_combined_earnings -
+              ...earningsState,
+              company_combined_earnings:
+                earningsState.company_combined_earnings -
                 Number(sanitizedData.amount),
-              alliance_olympus_earnings:
-                earnings.alliance_olympus_earnings - olympusDeduction,
+              company_package_earnings:
+                earningsState.company_package_earnings - olympusDeduction,
             });
           }
 
@@ -194,7 +178,7 @@ const DashboardWithdrawModalWithdraw = ({
           });
           break;
         case "REFERRAL":
-          if (earnings) {
+          if (earningsState) {
             // Remaining amount to be deducted
 
             let remainingAmount = Number(sanitizedData.amount);
@@ -202,7 +186,7 @@ const DashboardWithdrawModalWithdraw = ({
             // Calculate Referral Bounty deduction
             const referralDeduction = Math.min(
               remainingAmount,
-              earnings.alliance_referral_bounty
+              earningsState.company_referral_earnings
             );
 
             remainingAmount -= referralDeduction;
@@ -213,12 +197,12 @@ const DashboardWithdrawModalWithdraw = ({
 
             // Update state with new earnings values
             setEarnings({
-              ...earnings,
-              alliance_combined_earnings:
-                earnings.alliance_combined_earnings -
+              ...earningsState,
+              company_combined_earnings:
+                earningsState.company_combined_earnings -
                 Number(sanitizedData.amount),
-              alliance_referral_bounty:
-                earnings.alliance_referral_bounty - referralDeduction,
+              company_referral_earnings:
+                earningsState.company_referral_earnings - referralDeduction,
             });
           }
 
@@ -229,7 +213,7 @@ const DashboardWithdrawModalWithdraw = ({
 
           break;
         case "WINNING":
-          if (earnings) {
+          if (earningsState) {
             // Remaining amount to be deducted
 
             let remainingAmount = Number(sanitizedData.amount);
@@ -237,7 +221,7 @@ const DashboardWithdrawModalWithdraw = ({
             // Calculate Referral Bounty deduction
             const winningDeduction = Math.min(
               remainingAmount,
-              earnings.alliance_winning_earnings
+              earningsState.company_combined_earnings
             );
 
             remainingAmount -= winningDeduction;
@@ -248,12 +232,10 @@ const DashboardWithdrawModalWithdraw = ({
 
             // Update state with new earnings values
             setEarnings({
-              ...earnings,
-              alliance_combined_earnings:
-                earnings.alliance_combined_earnings -
+              ...earningsState,
+              company_combined_earnings:
+                earningsState.company_combined_earnings -
                 Number(sanitizedData.amount),
-              alliance_winning_earnings:
-                earnings.alliance_winning_earnings - winningDeduction,
             });
           }
 
@@ -361,318 +343,281 @@ const DashboardWithdrawModalWithdraw = ({
             </DialogDescription>
           </DialogHeader>
 
-          <form
-            onSubmit={handleSubmit(handleWithdrawalRequest)}
-            className="space-y-4 mx-auto"
-          >
-            {/* Earnings Select */}
-            <div>
-              <Label htmlFor="earnings">Your Available Balance</Label>
-              <Controller
+          <Form {...form}>
+            <form
+              onSubmit={handleSubmit(handleWithdrawalRequest)}
+              className="space-y-4 mx-auto"
+            >
+              <FormField
+                control={control}
                 name="earnings"
-                control={control}
                 render={({ field }) => (
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
+                  <FormItem>
+                    <FormLabel>Select Earnings</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
 
-                      // Set the withdrawal amount based on the selected type
-                      if (value === "PACKAGE") {
-                        setValue(
-                          "amount",
-                          earnings?.alliance_olympus_earnings.toFixed(2) ?? "0"
-                        );
-                      } else if (value === "REFERRAL") {
-                        setValue(
-                          "amount",
-                          earnings?.alliance_referral_bounty.toFixed(2) ?? "0"
-                        );
-                      } else if (value === "WINNING") {
-                        setValue(
-                          "amount",
-                          earnings?.alliance_winning_earnings.toFixed(2) ?? "0"
-                        );
-                      }
-                    }}
-                    value={field.value}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Available Balance">
-                        {field.value === "PACKAGE"
-                          ? `Package Earnings ₱ ${(
-                              earnings?.alliance_olympus_earnings ?? 0
-                            ).toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}`
-                          : field.value === "REFERRAL"
-                            ? `Referral Earnings ₱ ${(
-                                earnings?.alliance_referral_bounty ?? 0
-                              ).toLocaleString("en-US", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}`
-                            : `Winning Earnings ₱ ${(
-                                earnings?.alliance_winning_earnings ?? 0
-                              ).toLocaleString("en-US", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}`}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {!isWithdrawalToday.package && (
-                        <SelectItem className="text-xs" value="PACKAGE">
-                          Package Earnings ₱{" "}
-                          {earnings?.alliance_olympus_earnings.toLocaleString(
-                            "en-US",
-                            {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }
-                          ) ?? 0}
-                        </SelectItem>
-                      )}
+                          // Set the withdrawal amount based on the selected type
+                          if (value === "PACKAGE") {
+                            setValue(
+                              "amount",
+                              earningsState?.company_package_earnings.toFixed(
+                                2
+                              ) ?? "0"
+                            );
+                          } else if (value === "REFERRAL") {
+                            setValue(
+                              "amount",
+                              earningsState?.company_referral_earnings.toFixed(
+                                2
+                              ) ?? "0"
+                            );
+                          } else if (value === "WINNING") {
+                            setValue(
+                              "amount",
+                              earningsState?.company_combined_earnings.toFixed(
+                                2
+                              ) ?? "0"
+                            );
+                          }
+                        }}
+                        value={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Available Balance">
+                            {field.value === "PACKAGE"
+                              ? `Package Earnings ₱ ${formatNumberLocale(
+                                  earningsState?.company_package_earnings ?? 0
+                                )}`
+                              : field.value === "REFERRAL"
+                                ? `Referral Earnings ₱ ${formatNumberLocale(
+                                    earningsState?.company_referral_earnings ??
+                                      0
+                                  )}`
+                                : `Winning Earnings ₱ ${formatNumberLocale(
+                                    earningsState?.company_combined_earnings ??
+                                      0
+                                  )}`}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {!isWithdrawalToday.package && (
+                            <SelectItem className="text-xs" value="PACKAGE">
+                              Package Earnings ₱{" "}
+                              {formatNumberLocale(
+                                earningsState?.company_package_earnings ?? 0
+                              )}
+                            </SelectItem>
+                          )}
 
-                      {!isWithdrawalToday.referral && (
-                        <SelectItem className="text-xs" value="REFERRAL">
-                          Referral Earnings ₱{" "}
-                          {earnings?.alliance_referral_bounty.toLocaleString(
-                            "en-US",
-                            {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }
-                          ) ?? 0}
-                        </SelectItem>
-                      )}
+                          {!isWithdrawalToday.referral && (
+                            <SelectItem className="text-xs" value="REFERRAL">
+                              Referral Earnings ₱{" "}
+                              {formatNumberLocale(
+                                earningsState?.company_referral_earnings ?? 0
+                              )}
+                            </SelectItem>
+                          )}
 
-                      {!isWithdrawalToday.winning && (
-                        <SelectItem className="text-xs" value="WINNING">
-                          Winning Earnings ₱{" "}
-                          {earnings?.alliance_winning_earnings.toLocaleString(
-                            "en-US",
-                            {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }
-                          ) ?? 0}
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
+                          {!isWithdrawalToday.winning && (
+                            <SelectItem className="text-xs" value="WINNING">
+                              Winning Earnings ₱{" "}
+                              {earningsState?.company_combined_earnings.toLocaleString(
+                                "en-US",
+                                {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                }
+                              ) ?? 0}
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              {errors.earnings && (
-                <p className="text-primaryRed text-sm mt-1">
-                  {errors.earnings.message}
-                </p>
-              )}
-              <p className="text-sm font-bold text-primaryRed mt-1">
-                {
-                  "Note: You can only withdraw once per type of available balance."
-                }
-              </p>
-            </div>
 
-            {/* Bank Type Select */}
-            <div>
-              <Label htmlFor="bank">Select Your Bank</Label>
-              <Controller
+              <FormField
+                control={control}
                 name="bank"
-                control={control}
                 render={({ field }) => (
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    value={field.value}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Bank" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {bankData.map((bank, index) => (
-                        <SelectItem key={index} value={bank}>
-                          {bank}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormItem>
+                    <FormLabel>Select Bank</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                        value={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Bank" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {bankData.map((bank, index) => (
+                            <SelectItem key={index} value={bank}>
+                              {bank}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              {errors.bank && (
-                <p className="text-primaryRed text-sm mt-1">
-                  {errors.bank.message}
-                </p>
-              )}
-            </div>
 
-            <div className="flex flex-col w-full space-y-2 ">
-              <Label htmlFor="amount">Amount</Label>
-              <div className="flex items-center justify-between w-full gap-2">
-                <Controller
-                  name="amount"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      type="text"
-                      id="amount"
-                      className="w-full grow"
-                      placeholder="Enter amount"
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => {
-                        let value = e.target.value;
+              <FormField
+                control={control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amount</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        id="amount"
+                        className="w-full grow"
+                        placeholder="Enter amount"
+                        {...field}
+                        value={field.value}
+                        onChange={(e) => {
+                          let value = e.target.value;
 
-                        if (value === "") {
-                          field.onChange("");
+                          if (value === "") {
+                            field.onChange("");
+                            return;
+                          }
+
+                          value = value.replace(/[^0-9.]/g, "");
+
+                          const parts = value.split(".");
+                          if (parts.length > 2) {
+                            value = `${parts[0]}.${parts[1]}`;
+                          }
+
+                          // Limit to 2 decimal places
+                          if (parts[1]?.length > 2) {
+                            value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                          }
+
+                          if (value.startsWith("0")) {
+                            value = value.replace(/^0+/, "");
+                          }
+
+                          // Limit total length to 10 characters
+                          if (Math.floor(Number(value)).toString().length > 7) {
+                            value = value.substring(0, 7);
+                          }
+
+                          if (Number(value) > getMaxAmount()) {
+                            value = getMaxAmount()
+                              .toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })
+                              .toString();
+                          }
+                          field.onChange(value);
+                        }}
+                      />
+                    </FormControl>
+                    <Button
+                      type="button"
+                      className="h-12 bg-pageColor text-white"
+                      onClick={() => {
+                        if (!selectedEarnings) {
+                          toast({
+                            title: "Select an earnings",
+                            description: "Please select an earnings",
+                            variant: "destructive",
+                          });
                           return;
                         }
-
-                        value = value.replace(/[^0-9.]/g, "");
-
-                        const parts = value.split(".");
-                        if (parts.length > 2) {
-                          value = `${parts[0]}.${parts[1]}`;
-                        }
-
-                        // Limit to 2 decimal places
-                        if (parts[1]?.length > 2) {
-                          value = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                        }
-
-                        if (value.startsWith("0")) {
-                          value = value.replace(/^0+/, "");
-                        }
-
-                        // Limit total length to 10 characters
-                        if (Math.floor(Number(value)).toString().length > 7) {
-                          value = value.substring(0, 7);
-                        }
-
-                        if (Number(value) > getMaxAmount()) {
-                          value = getMaxAmount()
-                            .toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })
-                            .toString();
-                        }
-                        field.onChange(value);
+                        setValue("amount", formatNumberLocale(getMaxAmount()));
                       }}
-                    />
-                  )}
-                />
-                <Button
-                  type="button"
-                  className="h-12 bg-pageColor text-white"
-                  onClick={() => {
-                    if (!selectedEarnings) {
-                      toast({
-                        title: "Select an earnings",
-                        description: "Please select an earnings",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    setValue(
-                      "amount",
-                      getMaxAmount()
-                        .toLocaleString("en-US", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })
-                        .toString()
-                    );
-                  }}
-                >
-                  MAX
-                </Button>
-              </div>
-              {errors.amount && (
-                <p className="text-primaryRed text-sm mt-1">
-                  {errors.amount.message}
-                </p>
-              )}
-            </div>
+                    >
+                      MAX
+                    </Button>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Account Name */}
-            <div>
-              <Label htmlFor="accountName">Account Name</Label>
-              <Controller
+              <FormField
+                control={control}
                 name="accountName"
-                control={control}
                 render={({ field }) => (
-                  <Input
-                    type="text"
-                    id="accountName"
-                    placeholder="Account Name"
-                    {...field}
-                  />
+                  <FormItem>
+                    <FormLabel>Account Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        id="accountName"
+                        placeholder="Account Name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              {errors.accountName && (
-                <p className="text-primaryRed text-sm mt-1">
-                  {errors.accountName.message}
-                </p>
-              )}
-            </div>
 
-            {/* Account Number */}
-            <div>
-              <Label htmlFor="accountNumber">Account Number</Label>
-              <Controller
+              <FormField
+                control={control}
                 name="accountNumber"
-                control={control}
                 render={({ field }) => (
-                  <Input
-                    type="text"
-                    id="accountNumber"
-                    placeholder="Account Number"
-                    {...field}
-                  />
+                  <FormItem>
+                    <FormLabel>Account Number</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        id="accountNumber"
+                        placeholder="Account Number"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              {errors.accountNumber && (
-                <p className="text-primaryRed text-sm mt-1">
-                  {errors.accountNumber.message}
-                </p>
-              )}
-            </div>
 
-            {/* Amount Input */}
-            <div className="flex flex-col w-full space-y-2 ">
-              <Label htmlFor="amount">Total Net Payout</Label>
-              <div className="flex items-center justify-between w-full gap-2">
-                <Input
-                  id="amount"
-                  className="w-full grow"
-                  readOnly
-                  value={calculateFinalAmount(
-                    Number(amount.replace(/,/g, "") || 0),
-                    selectedEarnings
-                  ).toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+              {/* Amount Input */}
+              <div className="flex flex-col w-full space-y-2 ">
+                <Label htmlFor="amount">Total Net Payout</Label>
+                <div className="flex items-center justify-between w-full gap-2">
+                  <Input
+                    id="amount"
+                    className="w-full grow"
+                    readOnly
+                    value={formatNumberLocale(
+                      calculateFinalAmount(
+                        Number(amount.replace(/,/g, "") || 0),
+                        selectedEarnings
+                      )
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button */}
+
+              <div className="w-full flex items-center justify-center">
+                <Turnstile
+                  size="flexible"
+                  sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
+                  onVerify={(token) => {
+                    setCaptchaToken(token);
+                  }}
                 />
               </div>
-            </div>
 
-            {/* Submit Button */}
-
-            <div className="w-full flex items-center justify-center">
-              <Turnstile
-                size="flexible"
-                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
-                onVerify={(token) => {
-                  setCaptchaToken(token);
-                }}
-              />
-            </div>
-
-            <div className="flex items-center justify-center gap-2">
               <Button
                 disabled={isSubmitting || getMaxAmount() === 0}
                 type="submit"
@@ -687,10 +632,8 @@ const DashboardWithdrawModalWithdraw = ({
                   "Submit"
                 )}
               </Button>
-            </div>
-          </form>
-
-          <DialogFooter></DialogFooter>
+            </form>
+          </Form>
         </ScrollArea>
       </DialogContent>
     </Dialog>

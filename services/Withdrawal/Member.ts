@@ -1,4 +1,4 @@
-import { WithdrawalFormValues } from "@/components/DashboardPage/DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
+import { WithdrawalFormValues } from "@/utils/schema";
 import { WithdrawalRequestData } from "@/utils/types";
 
 export const createWithdrawalRequest = async (params: {

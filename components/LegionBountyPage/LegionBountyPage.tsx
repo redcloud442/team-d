@@ -1,9 +1,9 @@
 "use client";
-import { alliance_member_table } from "@prisma/client";
+import { company_member_table } from "@prisma/client";
 import LegionBountyTable from "./LegionBountyTable";
 
 type Props = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
 };
 
 const LegionBountyPage = ({ teamMemberProfile }: Props) => {

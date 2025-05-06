@@ -8,12 +8,12 @@ import {
 } from "@/services/Dasboard/Admin";
 import { logError } from "@/services/Error/ErrorLogs";
 import { useRole } from "@/utils/context/roleContext";
+import { formatNumberLocale } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminDashboardData, AdminDashboardDataByDate } from "@/utils/types";
 import { format } from "date-fns";
 import {
   CalendarIcon,
-  CoinsIcon,
   Package2Icon,
   PersonStandingIcon,
   PhilippinePeso,
@@ -155,7 +155,7 @@ const AdminDashboardPage = () => {
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(referral.alliance_referral_link);
+      await navigator.clipboard.writeText(referral.company_referral_link);
       toast({ title: "Link copied!", description: "Link copied to clipboard" });
     } catch (err) {}
   };
@@ -256,20 +256,17 @@ const AdminDashboardPage = () => {
 
         <Card className="w-full md:min-w-md">
           <CardHeader>
-            <CardTitle> Total Referral</CardTitle>
+            <CardTitle>Total Referral</CardTitle>
             <CardDescription className="flex gap-x-2 text-xl font-bold">
               <PhilippinePeso />
-              {totalReferral.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {formatNumberLocale(totalReferral)}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap w-full items-center gap-4">
               <Input
                 type="text"
-                value={referral.alliance_referral_link}
+                value={referral.company_referral_link}
                 readOnly
                 className="flex-1 md:flex-2 lg:flex-1"
               />
@@ -327,47 +324,6 @@ const AdminDashboardPage = () => {
               <>
                 <PersonStandingIcon />
                 {adminDashboard?.totalActivatedUser}
-              </>
-            }
-            description=""
-            descriptionClassName="text-sm text-gray-500"
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-1 xl:grid-cols-3 gap-6">
-          <CardAmountAdmin
-            title="Total Spins Purchased"
-            value={
-              <>
-                <CoinsIcon />
-                {adminDashboard?.totalSpinPurchaseCount}
-              </>
-            }
-            description=""
-            descriptionClassName="text-sm text-gray-500"
-          />
-          <CardAmountAdmin
-            title="Spin Purchased Amount"
-            value={
-              <>
-                <CoinsIcon />
-                {adminDashboard?.totalSpinPurchase?.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </>
-            }
-            description=""
-            descriptionClassName="text-sm text-gray-500"
-          />
-          <CardAmountAdmin
-            title="Total Winning Withdrawal"
-            value={
-              <>
-                <PhilippinePeso />
-                {adminDashboard?.totalWinningWithdrawal?.toLocaleString(
-                  "en-US",
-                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-                )}
               </>
             }
             description=""

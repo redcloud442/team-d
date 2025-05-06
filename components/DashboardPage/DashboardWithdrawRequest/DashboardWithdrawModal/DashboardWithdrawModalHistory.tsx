@@ -9,11 +9,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import WithdrawalHistoryTable from "@/components/WithrawalHistoryPage/WithdrawalHistoryTable";
-import { alliance_member_table } from "@prisma/client";
+import { company_member_table } from "@prisma/client";
 import { useState } from "react";
 
 type Props = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
 };
 const DashboardWithdrawModalHistory = ({ teamMemberProfile }: Props) => {
   const [open, setOpen] = useState(false);

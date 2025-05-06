@@ -12,7 +12,6 @@ import {
   getUserSponsor,
   getUserWithdrawalToday,
 } from "@/services/User/User";
-import { useDailyTaskStore } from "@/store/useDailyTaskStore";
 import { useUserLoadingStore } from "@/store/useLoadingStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useSponsorStore } from "@/store/useSponsortStore";
@@ -53,11 +52,10 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const { setIsWithdrawalToday, setCanUserDeposit } =
     useUserHaveAlreadyWithdraw();
   const { setSponsor } = useSponsorStore();
-  const { setDailyTask } = useDailyTaskStore();
 
   const isAdmin = useMemo(
-    () => teamMemberProfile.alliance_member_role === ROLE.ADMIN,
-    [teamMemberProfile.alliance_member_role]
+    () => teamMemberProfile.company_member_role === ROLE.ADMIN,
+    [teamMemberProfile.company_member_role]
   );
   const pathname = usePathname();
   const pathSegments = pathname.split("/").filter(Boolean);
@@ -78,8 +76,8 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         dataWithdrawalToday,
         sponsorData,
       ] = await Promise.all([
-        getUserEarnings({ memberId: teamMemberProfile.alliance_member_id }),
-        getDashboard({ teamMemberId: teamMemberProfile.alliance_member_id }),
+        getUserEarnings({ memberId: teamMemberProfile.company_member_id }),
+        getDashboard({ teamMemberId: teamMemberProfile.company_member_id }),
         getUserWithdrawalToday(),
         getUserSponsor({ userId: profile.user_id }),
       ]);
@@ -101,7 +99,6 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         winning: canWithdrawWinning,
       });
 
-      setDailyTask(dataWithdrawalToday.data.response);
       setSponsor(sponsorData);
     } catch (e) {
       console.error("Failed to fetch transaction data", e);
@@ -110,8 +107,8 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     }
   }, [
     isAdmin,
-    teamMemberProfile.alliance_member_id,
-    teamMemberProfile.alliance_member_user_id,
+    teamMemberProfile.company_member_id,
+    teamMemberProfile.company_member_user_id,
     setLoading,
   ]);
 

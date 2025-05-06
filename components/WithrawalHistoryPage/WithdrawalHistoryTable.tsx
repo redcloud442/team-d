@@ -5,7 +5,7 @@ import { getMemberWithdrawalRequest } from "@/services/Withdrawal/Member";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { WithdrawalRequestData } from "@/utils/types";
-import { alliance_member_table } from "@prisma/client";
+import { company_member_table } from "@prisma/client";
 import {
   ColumnFiltersState,
   getCoreRowModel,
@@ -26,7 +26,7 @@ import { Input } from "../ui/input";
 import { WithdrawalHistoryColumn } from "./WithdrawalHistoryColumn";
 
 type DataTableProps = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
 };
 
 type FilterFormValues = {

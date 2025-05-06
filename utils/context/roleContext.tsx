@@ -1,26 +1,26 @@
 "use client";
 
 import {
-  alliance_member_table,
-  alliance_referral_link_table,
+  company_member_table,
+  company_referral_link_table,
   user_table,
 } from "@prisma/client";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 type RoleContextType = {
   profile: user_table;
-  teamMemberProfile: alliance_member_table;
-  referral: alliance_referral_link_table;
+  teamMemberProfile: company_member_table;
+  referral: company_referral_link_table;
   setProfile: ({ profile }: { profile: user_table }) => void;
   setTeamMemberProfile: ({
     teamMemberProfile,
   }: {
-    teamMemberProfile: alliance_member_table & user_table;
+    teamMemberProfile: company_member_table & user_table;
   }) => void;
   setReferral: ({
     referral,
   }: {
-    referral: alliance_referral_link_table;
+    referral: company_referral_link_table;
   }) => void;
 };
 
@@ -34,8 +34,8 @@ export const RoleProvider = ({
 }: {
   children: ReactNode;
   initialProfile: user_table;
-  initialTeamMemberProfile: alliance_member_table;
-  initialReferral: alliance_referral_link_table;
+  initialTeamMemberProfile: company_member_table;
+  initialReferral: company_referral_link_table;
 }) => {
   const [state, setState] = useState({
     profile: initialProfile,
@@ -50,7 +50,7 @@ export const RoleProvider = ({
   const setTeamMemberProfile = ({
     teamMemberProfile,
   }: {
-    teamMemberProfile: alliance_member_table & user_table;
+    teamMemberProfile: company_member_table & user_table;
   }) => {
     setState((prev) => ({
       ...prev,
@@ -61,7 +61,7 @@ export const RoleProvider = ({
   const setReferral = ({
     referral,
   }: {
-    referral: alliance_referral_link_table;
+    referral: company_referral_link_table;
   }) => {
     setState((prev) => ({
       ...prev,

@@ -4,14 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { createPackageConnection } from "@/services/Package/Member";
-import { useDailyTaskStore } from "@/store/useDailyTaskStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { escapeFormData } from "@/utils/function";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  alliance_earnings_table,
-  alliance_member_table,
+  company_earnings_table,
+  company_member_table,
   package_table,
 } from "@prisma/client";
 import { AlertCircle, Loader2 } from "lucide-react";
@@ -22,9 +21,9 @@ import * as z from "zod";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 type Props = {
-  earnings: alliance_earnings_table | null;
+  earnings: company_earnings_table | null;
   pkg: package_table | [];
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
   setOpen: Dispatch<SetStateAction<boolean>>;
   setSelectedPackage: Dispatch<SetStateAction<package_table | null>>;
   selectedPackage: package_table | null;
@@ -40,10 +39,9 @@ const AvailPackagePage = ({
 }: Props) => {
   const { toast } = useToast();
   const { setEarnings } = useUserEarningsStore();
-  const { dailyTask, setDailyTask } = useDailyTaskStore();
   const { chartData, setChartData } = usePackageChartData();
   const [maxAmount, setMaxAmount] = useState(
-    earnings?.alliance_combined_earnings ?? 0
+    earnings?.company_combined_earnings ?? 0
   );
 
   const formattedMaxAmount = new Intl.NumberFormat("en-PH", {
@@ -102,7 +100,7 @@ const AvailPackagePage = ({
           amount: Number(result.amount),
           packageId: selectedPackage?.package_id || "",
         },
-        teamMemberId: teamMemberProfile.alliance_member_id,
+        teamMemberId: teamMemberProfile.company_member_id,
       });
 
       toast({
@@ -117,33 +115,24 @@ const AvailPackagePage = ({
 
         const olympusDeduction = Math.min(
           remainingAmount,
-          earnings.alliance_olympus_earnings
+          earnings.company_package_earnings
         );
         remainingAmount -= olympusDeduction;
 
         const referralDeduction = Math.min(
           remainingAmount,
-          earnings.alliance_referral_bounty
+          earnings.company_referral_earnings
         );
         remainingAmount -= referralDeduction;
 
-        const winningDeduction = Math.min(
-          remainingAmount,
-          earnings.alliance_winning_earnings
-        );
-
-        remainingAmount -= winningDeduction;
-
         setEarnings({
           ...earnings,
-          alliance_combined_earnings:
-            earnings.alliance_combined_earnings - Number(result.amount),
-          alliance_olympus_earnings:
-            earnings.alliance_olympus_earnings - olympusDeduction,
-          alliance_referral_bounty:
-            earnings.alliance_referral_bounty - referralDeduction,
-          alliance_winning_earnings:
-            earnings.alliance_winning_earnings - winningDeduction,
+          company_combined_earnings:
+            earnings.company_combined_earnings - Number(result.amount),
+          company_package_earnings:
+            earnings.company_package_earnings - olympusDeduction,
+          company_referral_earnings:
+            earnings.company_referral_earnings - referralDeduction,
         });
       }
 
@@ -160,7 +149,7 @@ const AvailPackagePage = ({
           profit_amount: Number(computation),
           package_color: selectedPackage?.package_color || "",
           package_date_created: new Date().toISOString(),
-          package_member_id: teamMemberProfile?.alliance_member_id,
+          package_member_id: teamMemberProfile?.company_member_id,
           package_days: Number(selectedPackage?.packages_days || 0),
           current_amount: Number(amount),
           currentPercentage: Number(0),
@@ -168,20 +157,6 @@ const AvailPackagePage = ({
         },
         ...chartData,
       ]);
-
-      if (Number(amount) >= 5000) {
-        const baseCount = Math.floor(Number(amount) / 5000) * 2;
-        const count = baseCount > 0 ? baseCount : 2;
-
-        setDailyTask({
-          ...dailyTask,
-          wheelLog: {
-            ...dailyTask.wheelLog,
-            alliance_wheel_spin_count:
-              dailyTask.wheelLog.alliance_wheel_spin_count + count,
-          },
-        });
-      }
 
       setSelectedPackage(null);
       setOpen(false);

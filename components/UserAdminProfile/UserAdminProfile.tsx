@@ -122,7 +122,7 @@ const UserAdminProfile = ({ userProfile: initialData, profile }: Props) => {
                   <tbody>
                     {userList.map((user, index) => (
                       <tr
-                        key={user.alliance_member_id}
+                        key={user.company_member_id}
                         className={`border-b dark:border-gray-700 ${
                           index % 2 === 0
                             ? "bg-gray-50 dark:bg-stone-700"
@@ -138,13 +138,13 @@ const UserAdminProfile = ({ userProfile: initialData, profile }: Props) => {
                         <td className="py-3 px-4">{user.user_first_name}</td>
                         <td className="py-3 px-4">{user.user_last_name}</td>
                         <td className="py-3 px-4">
-                          {user.alliance_member_restricted ? "YES" : "NO"}
+                          {user.company_member_restricted ? "YES" : "NO"}
                         </td>
                         <td className="py-3 px-4">
-                          {user.alliance_member_role}
+                          {user.company_member_role}
                         </td>
                         <td className="py-3 px-4">
-                          {user.alliance_member_is_active ? " YES" : "NO"}
+                          {user.company_member_is_active ? " YES" : "NO"}
                         </td>
                       </tr>
                     ))}
@@ -165,7 +165,7 @@ const UserAdminProfile = ({ userProfile: initialData, profile }: Props) => {
 
         {/* Profile Information */}
         <PersonalInformation userProfile={userProfileData} />
-        {userProfileData.alliance_member_role === "MERCHANT" && (
+        {userProfileData.company_member_role === "MERCHANT" && (
           <MerchantBalance profile={profile} userProfile={userProfileData} />
         )}
 

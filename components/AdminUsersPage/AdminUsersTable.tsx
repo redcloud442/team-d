@@ -5,7 +5,6 @@ import { logError } from "@/services/Error/ErrorLogs";
 import {
   getAdminUserRequest,
   handleUpdateRole,
-  handleUpdateSuperVip,
   handleUpdateUserRestriction,
 } from "@/services/User/Admin";
 import { handleGenerateLink } from "@/services/User/User";
@@ -249,16 +248,16 @@ const AdminUsersTable = () => {
       if (type === "BAN") {
         setRequestData((prev) =>
           prev.map((request) =>
-            request.alliance_member_id === memberId
-              ? { ...request, alliance_member_is_restricted: true }
+            request.company_member_id === memberId
+              ? { ...request, company_member_restricted: true }
               : request
           )
         );
       } else if (type === "UNBAN") {
         setRequestData((prev) =>
           prev.map((request) =>
-            request.alliance_member_id === memberId
-              ? { ...request, alliance_member_is_restricted: false }
+            request.company_member_id === memberId
+              ? { ...request, company_member_restricted: false }
               : request
           )
         );
@@ -279,39 +278,6 @@ const AdminUsersTable = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleAddSuperVip = async (memberId: string, type: string) => {
-    try {
-      setIsLoading(true);
-      await handleUpdateSuperVip({ userId: memberId, type });
-
-      if (type === "ADD_SUPER_VIP") {
-        setRequestData((prev) =>
-          prev.map((item) =>
-            item.alliance_member_id === memberId
-              ? { ...item, alliance_member_is_super_vip: true }
-              : item
-          )
-        );
-      } else if (type === "REMOVE_SUPER_VIP") {
-        setRequestData((prev) =>
-          prev.map((item) =>
-            item.alliance_member_id === memberId
-              ? { ...item, alliance_member_is_super_vip: false }
-              : item
-          )
-        );
-      }
-
-      setIsOpenModal({ memberId: "", role: "", open: false, type: "" });
-
-      toast({
-        title: `Super VIP ${type === "ADD_SUPER_VIP" ? "Added" : "Removed"}`,
-        description: `Super VIP ${type === "ADD_SUPER_VIP" ? "Added" : "Removed"} Sucessfully`,
-        variant: "success",
-      });
-    } catch (e) {}
   };
 
   return (
@@ -342,10 +308,6 @@ const AdminUsersTable = () => {
                 onClick={() => {
                   if (isOpenModal.type === "PROMOTE") {
                     handlePromoteUser(isOpenModal.memberId, isOpenModal.role);
-                  } else if (isOpenModal.type === "ADD_SUPER_VIP") {
-                    handleAddSuperVip(isOpenModal.memberId, isOpenModal.type);
-                  } else if (isOpenModal.type === "REMOVE_SUPER_VIP") {
-                    handleAddSuperVip(isOpenModal.memberId, isOpenModal.type);
                   } else {
                     handleBanUser(isOpenModal.memberId, isOpenModal.type);
                   }

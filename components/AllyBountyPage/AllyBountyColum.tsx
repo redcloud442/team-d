@@ -6,7 +6,7 @@ export const AllyBountyColumn = (): ColumnDef<
   user_table & {
     total_bounty_earnings: string;
     package_ally_bounty_log_date_created: Date;
-    alliance_referral_date: Date;
+    company_referral_date: Date;
   }
 >[] => {
   return [
@@ -56,7 +56,7 @@ export const AllyBountyColumn = (): ColumnDef<
       ),
     },
     {
-      accessorKey: "alliance_referral_date",
+      accessorKey: "company_referral_date",
       header: () => (
         <div className="text-center font-bold text-xs w-auto p-0">
           Invite Date
@@ -64,7 +64,7 @@ export const AllyBountyColumn = (): ColumnDef<
       ),
       cell: ({ row }) => (
         <div className="text-center text-[10px] sm:text-[12px]">
-          {formatDateToYYYYMMDD(row.original.alliance_referral_date)}
+          {formatDateToYYYYMMDD(row.original.company_referral_date)}
         </div>
       ),
     },

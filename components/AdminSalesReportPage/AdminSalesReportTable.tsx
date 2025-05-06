@@ -1,7 +1,7 @@
 "use client";
 
 import { adminSalesTotalReportData } from "@/utils/types";
-import { alliance_member_table } from "@prisma/client";
+import { company_member_table } from "@prisma/client";
 import {
   ColumnFiltersState,
   getCoreRowModel,
@@ -18,7 +18,7 @@ import { Card } from "../ui/card";
 import { AdminSalesReportColumn } from "./AdminSalesReportColum";
 
 type DataTableProps = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
   salesReportData: adminSalesTotalReportData;
   isFetchingList: boolean;
 };

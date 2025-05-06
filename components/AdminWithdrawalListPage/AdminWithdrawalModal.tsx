@@ -14,7 +14,7 @@ import {
 
 type Props = {
   user_userName: string;
-  alliance_member_id: string;
+  company_member_id: string;
   hiddenUser: boolean;
   setRequestData: Dispatch<SetStateAction<AdminWithdrawaldata | null>>;
   status: "PENDING" | "APPROVED" | "REJECTED";
@@ -22,7 +22,7 @@ type Props = {
 
 const AdminWithdrawalModal = ({
   user_userName,
-  alliance_member_id,
+  company_member_id,
   hiddenUser,
   setRequestData,
   status,
@@ -36,7 +36,7 @@ const AdminWithdrawalModal = ({
       setIsLoading(true);
 
       const actionType = hiddenUser ? "remove" : "add";
-      await hideUser({ id: alliance_member_id, type: actionType });
+      await hideUser({ id: company_member_id, type: actionType });
 
       setRequestData((prev) => {
         if (!prev) return prev;
@@ -44,10 +44,10 @@ const AdminWithdrawalModal = ({
         const statusList =
           prev.data[status as keyof typeof prev.data]?.data ?? [];
         const updatedItem = statusList.find(
-          (item) => item.alliance_member_id === alliance_member_id
+          (item) => item.company_member_id === company_member_id
         );
         const newStatusList = statusList.filter(
-          (item) => item.alliance_member_id !== alliance_member_id
+          (item) => item.company_member_id !== company_member_id
         );
 
         if (!updatedItem) return prev;

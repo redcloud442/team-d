@@ -16,6 +16,7 @@ import { createClientSide } from "@/utils/supabase/client";
 import { AdminTopUpRequestData, TopUpRequestData } from "@/utils/types";
 import { Column, ColumnDef, Row } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import TableLoading from "../ui/tableLoading";
@@ -60,10 +61,10 @@ export const useAdminTopUpApprovalColumns = (
 
         const pendingData = prev.data["PENDING"]?.data ?? [];
         const updatedItem = pendingData.find(
-          (item) => item.alliance_top_up_request_id === requestId
+          (item) => item.company_deposit_request_id === requestId
         );
         const newPendingList = pendingData.filter(
-          (item) => item.alliance_top_up_request_id !== requestId
+          (item) => item.company_deposit_request_id !== requestId
         );
         const currentStatusData = prev.data[status as keyof typeof prev.data];
         const hasExistingData = currentStatusData?.data?.length > 0;
@@ -71,7 +72,7 @@ export const useAdminTopUpApprovalColumns = (
         const merchantBalance =
           status === "APPROVED"
             ? (prev.merchantBalance || 0) -
-              (updatedItem?.alliance_top_up_request_amount ?? 0)
+              (updatedItem?.company_deposit_request_amount ?? 0)
             : prev.merchantBalance;
 
         if (!updatedItem) return prev;
@@ -133,7 +134,6 @@ export const useAdminTopUpApprovalColumns = (
   const columns: ColumnDef<TopUpRequestData>[] = [
     {
       accessorKey: "user_username",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -153,7 +153,7 @@ export const useAdminTopUpApprovalColumns = (
       ),
     },
     {
-      accessorKey: "alliance_top_up_request_status",
+      accessorKey: "company_deposit_request_status",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -164,7 +164,7 @@ export const useAdminTopUpApprovalColumns = (
         </Button>
       ),
       cell: ({ row }) => {
-        const status = row.getValue("alliance_top_up_request_status") as string;
+        const status = row.getValue("company_deposit_request_status") as string;
         const color = statusColorMap[status.toUpperCase()] || "gray";
         return (
           <div className="flex justify-center items-center">
@@ -175,7 +175,7 @@ export const useAdminTopUpApprovalColumns = (
     },
 
     {
-      accessorKey: "alliance_top_up_request_amount",
+      accessorKey: "company_deposit_request_amount",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -187,7 +187,7 @@ export const useAdminTopUpApprovalColumns = (
       ),
       cell: ({ row }) => {
         const amount = parseFloat(
-          row.getValue("alliance_top_up_request_amount")
+          row.getValue("company_deposit_request_amount")
         );
         const formatted = new Intl.NumberFormat("en-PH", {
           style: "currency",
@@ -197,7 +197,7 @@ export const useAdminTopUpApprovalColumns = (
       },
     },
     {
-      accessorKey: "alliance_top_up_request_type",
+      accessorKey: "company_deposit_request_type",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -209,12 +209,12 @@ export const useAdminTopUpApprovalColumns = (
       ),
       cell: ({ row }) => (
         <div className="text-wrap">
-          {row.getValue("alliance_top_up_request_type")}
+          {row.getValue("company_deposit_request_type")}
         </div>
       ),
     },
     {
-      accessorKey: "alliance_top_up_request_name",
+      accessorKey: "company_deposit_request_name",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -226,12 +226,12 @@ export const useAdminTopUpApprovalColumns = (
       ),
       cell: ({ row }) => (
         <div className="text-wrap">
-          {row.getValue("alliance_top_up_request_name")}
+          {row.getValue("company_deposit_request_name")}
         </div>
       ),
     },
     {
-      accessorKey: "alliance_top_up_request_account",
+      accessorKey: "company_deposit_request_account",
 
       header: ({ column }) => (
         <Button
@@ -244,12 +244,12 @@ export const useAdminTopUpApprovalColumns = (
       ),
       cell: ({ row }) => (
         <div className="text-wrap">
-          {row.getValue("alliance_top_up_request_account")}
+          {row.getValue("company_deposit_request_account")}
         </div>
       ),
     },
     {
-      accessorKey: "alliance_top_up_request_date",
+      accessorKey: "company_deposit_request_date",
 
       header: ({ column }) => (
         <Button
@@ -262,8 +262,8 @@ export const useAdminTopUpApprovalColumns = (
       ),
       cell: ({ row }) => (
         <div className="text-center w-40">
-          {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))},{" "}
-          {formatTime(row.getValue("alliance_top_up_request_date"))}
+          {formatDateToYYYYMMDD(row.getValue("company_deposit_request_date"))},{" "}
+          {formatTime(row.getValue("company_deposit_request_date"))}
         </div>
       ),
     },
@@ -293,7 +293,7 @@ export const useAdminTopUpApprovalColumns = (
     ...(status !== "PENDING"
       ? [
           {
-            accessorKey: "alliance_top_up_request_date_updated",
+            accessorKey: "company_deposit_request_date_updated",
             header: ({ column }: { column: Column<TopUpRequestData> }) => (
               <Button
                 variant="ghost"
@@ -307,13 +307,13 @@ export const useAdminTopUpApprovalColumns = (
             ),
             cell: ({ row }: { row: Row<TopUpRequestData> }) => (
               <div className="text-center w-40">
-                {row.getValue("alliance_top_up_request_date_updated")
+                {row.getValue("company_deposit_request_date_updated")
                   ? formatDateToYYYYMMDD(
-                      row.getValue("alliance_top_up_request_date_updated")
+                      row.getValue("company_deposit_request_date_updated")
                     ) +
                     "," +
                     formatTime(
-                      row.getValue("alliance_top_up_request_date_updated")
+                      row.getValue("company_deposit_request_date_updated")
                     )
                   : ""}
               </div>
@@ -322,11 +322,11 @@ export const useAdminTopUpApprovalColumns = (
         ]
       : []),
     {
-      accessorKey: "alliance_top_up_request_attachment",
+      accessorKey: "company_deposit_request_attachment",
       header: () => <div>Attachment</div>,
       cell: ({ row }) => {
         const attachmentUrl = row.getValue(
-          "alliance_top_up_request_attachment"
+          "company_deposit_request_attachment"
         ) as string;
 
         return (
@@ -341,7 +341,7 @@ export const useAdminTopUpApprovalColumns = (
                 <DialogTitle>Attachment</DialogTitle>
               </DialogHeader>
               <div className="flex justify-center items-center">
-                <img
+                <Image
                   key={attachmentUrl}
                   src={attachmentUrl}
                   alt="Attachment Preview"
@@ -396,14 +396,14 @@ export const useAdminTopUpApprovalColumns = (
         const data = row.original;
         return (
           <>
-            {data.alliance_top_up_request_status === "PENDING" && (
+            {data.company_deposit_request_status === "PENDING" && (
               <div className="flex gap-2">
                 <Button
                   className="bg-green-500 hover:bg-green-600 dark:bg-green-500 dark:text-white"
                   onClick={() =>
                     setIsOpenModal({
                       open: true,
-                      requestId: data.alliance_top_up_request_id,
+                      requestId: data.company_deposit_request_id,
                       status: "APPROVED",
                     })
                   }
@@ -416,7 +416,7 @@ export const useAdminTopUpApprovalColumns = (
                   onClick={() =>
                     setIsOpenModal({
                       open: true,
-                      requestId: data.alliance_top_up_request_id,
+                      requestId: data.company_deposit_request_id,
                       status: "REJECTED",
                     })
                   }

@@ -1,13 +1,12 @@
 // AppLayout.tsx
 import LayoutContent from "@/components/LayoutComponents/LayoutContent";
 import { ThemeProvider } from "@/components/theme-provider/theme-provider";
-
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { RoleProvider } from "@/utils/context/roleContext";
 import { protectionMemberUser } from "@/utils/serversideProtection";
 import {
-  alliance_member_table,
-  alliance_referral_link_table,
+  company_member_table,
+  company_referral_link_table,
   user_table,
 } from "@prisma/client";
 import { redirect } from "next/navigation";
@@ -38,9 +37,9 @@ export default async function AppLayout({
         <RoleProvider
           initialProfile={profile as user_table}
           initialTeamMemberProfile={
-            teamMemberProfile as alliance_member_table & user_table
+            teamMemberProfile as company_member_table & user_table
           }
-          initialReferral={referral as alliance_referral_link_table}
+          initialReferral={referral as company_referral_link_table}
         >
           <LayoutContent>{children}</LayoutContent>
         </RoleProvider>

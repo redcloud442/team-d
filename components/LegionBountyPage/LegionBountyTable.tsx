@@ -11,7 +11,7 @@ import {
 import { getLegionBounty } from "@/services/Bounty/Member";
 import { useIndirectReferralStore } from "@/store/useIndirrectReferralStore";
 import { escapeFormData } from "@/utils/function";
-import { alliance_member_table } from "@prisma/client";
+import { company_member_table } from "@prisma/client";
 import {
   ColumnFiltersState,
   flexRender,
@@ -31,7 +31,7 @@ import TableLoading from "../ui/tableLoading";
 import { LegionBountyColumn } from "./LegionBountyColumn";
 
 type DataTableProps = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
 };
 
 type FilterFormValues = {
@@ -62,7 +62,7 @@ const LegionBountyTable = ({ teamMemberProfile }: DataTableProps) => {
       const { emailFilter } = sanitizedData;
 
       const { data, totalCount } = await getLegionBounty({
-        teamMemberId: teamMemberProfile.alliance_member_id,
+        teamMemberId: teamMemberProfile.company_member_id,
         page: activePage,
         limit: 10,
         columnAccessor: columnAccessor,

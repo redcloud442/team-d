@@ -5,43 +5,37 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { loginValidation } from "@/services/Auth/Auth";
 import { escapeFormData } from "@/utils/function";
+import { LoginFormValues, LoginSchema } from "@/utils/schema";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import { Download } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import Turnstile, { BoundTurnstileObject } from "react-turnstile";
-import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
 import NavigationLoader from "../ui/NavigationLoader";
 import { PasswordInput } from "../ui/passwordInput";
-
-export const LoginSchema = z.object({
-  userName: z
-    .string()
-    .min(6, "Username must be at least 6 characters long")
-    .max(50, "Username must be at most 50 characters long")
-    .regex(
-      /^[a-zA-Z0-9][a-zA-Z0-9._]*$/, // ✅ Allows letters OR numbers at the start
-      "Username must start with a letter or number and can only contain letters, numbers, dots, and underscores"
-    ),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-type LoginFormValues = z.infer<typeof LoginSchema>;
 
 const LoginPage = () => {
   const captcha = useRef<BoundTurnstileObject>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({
+  const form = useForm<LoginFormValues>({
     resolver: zodResolver(LoginSchema),
   });
+
+  const {
+    handleSubmit,
+    control,
+    formState: { isSubmitting },
+  } = form;
 
   const router = useRouter();
   const supabase = createClientSide();
@@ -85,7 +79,7 @@ const LoginPage = () => {
       });
 
       setIsSuccess(true);
-      localStorage.setItem("isModalOpen", "true");
+
       router.push("/dashboard");
     } catch (e) {
       if (e instanceof Error) {
@@ -145,77 +139,73 @@ const LoginPage = () => {
           priority
         />
       </div>
-      <form
-        className="flex flex-col items-center justify-center gap-6 w-full max-w-lg m-4 z-40"
-        onSubmit={handleSubmit(handleSignIn)}
-      >
-        <a
-          href="https://apkfilelinkcreator.cloud/uploads/PrimePinas_v1.1.apk"
-          download="PrimePinas_v1.1.apk"
-          className="w-full cursor-pointer"
+
+      <Form {...form}>
+        <form
+          className="flex flex-col items-center justify-center gap-6 w-full max-w-lg m-4 z-40"
+          onSubmit={handleSubmit(handleSignIn)}
         >
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full h-12 rounded-md bg-background text-white gap-2 cursor-pointer hover:bg-stone-800 hover:text-white"
-          >
-            <Image
-              src="/app-logo.svg"
-              alt="logo"
-              width={35}
-              height={35}
-              priority
+          <FormField
+            control={control}
+            name="userName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input
+                    variant="non-card"
+                    id="username"
+                    placeholder="Username"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <PasswordInput
+                    variant="non-card"
+                    id="password"
+                    placeholder="Password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="w-full flex items-center justify-center">
+            <Turnstile
+              size="flexible"
+              sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
+              onVerify={(token) => {
+                setCaptchaToken(token);
+              }}
             />
-            <span className="text-sm">Download Pr1me App</span>
-            <Download className="w-4 h-4" />
-          </Button>
-        </a>
+          </div>
 
-        <div className="w-full">
-          <Input
-            variant="non-card"
-            id="username"
-            placeholder="Username"
-            {...register("userName")}
-          />
-          {errors.userName && (
-            <p className="text-sm text-red-500">{errors.userName.message}</p>
-          )}
-        </div>
-        <div className="w-full">
-          <PasswordInput
-            variant="non-card"
-            id="password"
-            placeholder="Password"
-            {...register("password")}
-          />
-          {errors.password && (
-            <p className="text-sm text-red-500">{errors.password.message}</p>
-          )}
-        </div>
-
-        <div className="w-full flex items-center justify-center">
-          <Turnstile
-            size="flexible"
-            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
-            onVerify={(token) => {
-              setCaptchaToken(token);
+          <Button
+            disabled={isSubmitting || isLoading}
+            type="submit"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSubmit(handleSignIn);
+              }
             }}
-          />
-        </div>
-
-        <Button
-          disabled={isSubmitting || isLoading}
-          type="submit"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSubmit(handleSignIn);
-            }
-          }}
-        >
-          {isSubmitting || isLoading ? "Processing..." : "Login"}
-        </Button>
-      </form>
+          >
+            {isSubmitting || isLoading ? "Processing..." : "Login"}
+          </Button>
+        </form>
+      </Form>
 
       <Image
         src="/assets/login-page.png"

@@ -53,7 +53,7 @@ export const WithdrawalHistoryColumn =
           const amount = parseFloat(
             row.getValue("alliance_withdrawal_request_amount")
           );
-          const fee = row.original.alliance_withdrawal_request_fee;
+          const fee = row.original.company_withdrawal_request_fee;
           const formatted = new Intl.NumberFormat("en-PH", {
             style: "currency",
             currency: "PHP",

@@ -55,7 +55,7 @@ const AdminCheckUserReferral = ({ userProfile }: Props) => {
     try {
       const { start, end } = data.dateFilter;
       const referralData = await getAdminCheckUserReferral({
-        memberId: userProfile.alliance_member_id,
+        memberId: userProfile.company_member_id,
         dateFilter: {
           start: new Date(start),
           end: new Date(end),

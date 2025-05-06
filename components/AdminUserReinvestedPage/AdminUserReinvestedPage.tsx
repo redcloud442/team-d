@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { cn } from "@/lib/utils";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminUserReinvestedReport } from "@/services/User/Admin";
-import { useRole } from "@/utils/context/roleContext";
 import { adminUserReinvestedReportData } from "@/utils/types";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { format } from "date-fns";
@@ -25,7 +24,7 @@ type FormData = {
 
 const AdminUserReinvestedPage = () => {
   const supabaseClient = createClientComponentClient();
-  const { teamMemberProfile } = useRole();
+
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [page, setPage] = useState(1);
   const [reinvestedReportData, setReinvestedReportData] = useState<

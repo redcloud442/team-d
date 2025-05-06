@@ -1,5 +1,5 @@
 import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
-import { alliance_transaction_table } from "@prisma/client";
+import { company_transaction_table } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Info, Receipt } from "lucide-react";
 import Image from "next/image";
@@ -15,7 +15,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 export const TransactionHistoryColumn =
-  (): ColumnDef<alliance_transaction_table>[] => {
+  (): ColumnDef<company_transaction_table>[] => {
     return [
       {
         accessorKey: "transaction_date",
@@ -37,9 +37,12 @@ export const TransactionHistoryColumn =
           <div className="text-wrap text-lg font-bold">Category</div>
         ),
         cell: ({ row }) => {
-          const details = row.original.transaction_details as string;
-          const description = row.getValue("transaction_description") as string;
-          const attachment = row.original.transaction_attachment as string;
+          const details = row.original.company_transaction_details as string;
+          const description = row.getValue(
+            "company_transaction_description"
+          ) as string;
+          const attachment = row.original
+            .company_transaction_attachment as string;
 
           return (
             <div className="flex flex-col sm:flex-row justify-start items-center gap-4">

@@ -11,19 +11,19 @@ export async function generateMetadata({
   const { referralLink } = await searchParams;
 
   return {
-    title: "Pr1me Register | Join Now",
-    description: "Pr1me ang sagot !",
+    title: "Starter Next Register | Join Now",
+    description: "Starter Next ang sagot !",
     openGraph: {
-      url: `https://primepinas.com/auth/register?referralLink=${referralLink}`,
-      title: `Join Pr1me Now! Referred by ${referralLink}`,
-      description: "Pr1me ang sagot !",
-      siteName: "primepinas.com",
+      url: `https://starternext.com/auth/register?referralLink=${referralLink}`,
+      title: `Join Starter Next Now! Referred by ${referralLink}`,
+      description: "Starter Next ang sagot !",
+      siteName: "starternext.com",
       images: [
         {
-          url: "https://primepinas.com/app-logo.png",
+          url: "https://starternext.com/app-logo.png",
           width: 1200,
           height: 630,
-          alt: "Pr1me Registration Page",
+          alt: "Starter Next Registration Page",
         },
       ],
       type: "website",

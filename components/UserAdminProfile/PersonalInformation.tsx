@@ -68,7 +68,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
   };
 
   useEffect(() => {
-    if (!userProfile.user_id || userProfile.alliance_member_role === "ADMIN")
+    if (!userProfile.user_id || userProfile.company_member_role === "ADMIN")
       return;
     const fetchUserSponsor = async () => {
       try {
@@ -111,14 +111,14 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
                 Sign In as {userProfile.user_username}
               </Button>
               <ActiveTreeModal
-                teamMemberProfile={userProfile.alliance_member_id}
+                teamMemberProfile={userProfile.company_member_id}
               />
             </div>
           )}
         </div>
       </CardHeader>
       <CardContent className="grid grid-cols-1 gap-6 sm:grid-cols-2 p-6">
-        {userProfile.alliance_member_role !== "ADMIN" && (
+        {userProfile.company_member_role !== "ADMIN" && (
           <div>
             <Label className="text-sm font-medium">Sponsor</Label>
             <Input
@@ -166,7 +166,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
           <Input
             id="role"
             type="text"
-            value={userProfile.alliance_member_role || "N/A"}
+            value={userProfile.company_member_role || "N/A"}
             readOnly
             className="mt-1 border-gray-300"
           />

@@ -1,19 +1,19 @@
-import { alliance_transaction_table } from "@prisma/client";
+import { company_transaction_table } from "@prisma/client";
 import { create } from "zustand";
 
 interface userTransactionHistoryState {
   transactionHistory: {
-    data: alliance_transaction_table[];
+    data: company_transaction_table[];
     count: number;
   };
 
   setTransactionHistory: (transactionHistory: {
-    data: alliance_transaction_table[];
+    data: company_transaction_table[];
     count: number;
   }) => void;
 
   setAddTransactionHistory: (transactionHistory: {
-    data: alliance_transaction_table[];
+    data: company_transaction_table[];
     count: number;
   }) => void;
 }

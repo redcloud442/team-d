@@ -1,3 +1,4 @@
+import { formatNumberLocale } from "@/utils/function";
 import { AdminDashboardDataByDate } from "@/utils/types";
 import {
   CoinsIcon,
@@ -20,12 +21,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
         value={
           <>
             <PhilippinePeso />{" "}
-            {Number(
-              adminDashboardDataByDate?.packageEarnings ?? 0
-            ).toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }) ?? 0}
+            {formatNumberLocale(adminDashboardDataByDate?.packageEarnings ?? 0)}
           </>
         }
         description=""
@@ -36,12 +32,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
         value={
           <>
             <PhilippinePeso />{" "}
-            {Number(
-              adminDashboardDataByDate?.totalEarnings ?? 0
-            ).toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }) ?? 0}
+            {formatNumberLocale(adminDashboardDataByDate?.totalEarnings ?? 0)}
           </>
         }
         description=""
@@ -52,12 +43,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
         value={
           <>
             <PhilippinePeso />{" "}
-            {Number(
-              adminDashboardDataByDate?.totalWithdraw ?? 0
-            ).toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }) ?? 0}
+            {formatNumberLocale(adminDashboardDataByDate?.totalWithdraw ?? 0)}
           </>
         }
         description=""
@@ -68,13 +54,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
         value={
           <>
             <PhilippinePeso />{" "}
-            {Number(adminDashboardDataByDate?.directLoot ?? 0).toLocaleString(
-              "en-US",
-              {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }
-            ) ?? 0}
+            {formatNumberLocale(adminDashboardDataByDate?.directLoot ?? 0)}
           </>
         }
         description=""
@@ -85,13 +65,7 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
         value={
           <>
             <PhilippinePeso />{" "}
-            {Number(adminDashboardDataByDate?.indirectLoot ?? 0).toLocaleString(
-              "en-US",
-              {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }
-            ) ?? 0}
+            {formatNumberLocale(adminDashboardDataByDate?.indirectLoot ?? 0)}
           </>
         }
         description=""
@@ -124,7 +98,9 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
         value={
           <>
             <CreditCard />
-            {adminDashboardDataByDate?.totalApprovedWithdrawal ?? 0}
+            {formatNumberLocale(
+              adminDashboardDataByDate?.totalApprovedWithdrawal ?? 0
+            )}
           </>
         }
         description=""
@@ -135,7 +111,9 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
         value={
           <>
             <CreditCard />
-            {adminDashboardDataByDate?.totalApprovedReceipts ?? 0}
+            {formatNumberLocale(
+              adminDashboardDataByDate?.totalApprovedReceipts ?? 0
+            )}
           </>
         }
         description=""
@@ -146,13 +124,10 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
         value={
           <>
             <CreditCard />
-            {(
+            {formatNumberLocale(
               Number(adminDashboardDataByDate?.totalEarnings ?? 0) -
-              Number(adminDashboardDataByDate?.totalWithdraw ?? 0)
-            ).toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+                Number(adminDashboardDataByDate?.totalWithdraw ?? 0)
+            )}
           </>
         }
         description=""
@@ -174,12 +149,9 @@ const AdminDashboardCard = ({ adminDashboardDataByDate }: Props) => {
         value={
           <>
             <PhilippinePeso />
-            {Number(
+            {formatNumberLocale(
               adminDashboardDataByDate?.totalReinvestmentAmount ?? 0
-            ).toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            )}
           </>
         }
         description=""

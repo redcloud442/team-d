@@ -1,4 +1,4 @@
-import { alliance_transaction_table } from "@prisma/client";
+import { company_transaction_table } from "@prisma/client";
 
 export const getTransactionHistory = async (params: {
   limit: number;
@@ -17,7 +17,7 @@ export const getTransactionHistory = async (params: {
   const data = await response.json();
 
   return data as {
-    transactionHistory: alliance_transaction_table[];
+    transactionHistory: company_transaction_table[];
     totalTransactions: number;
   };
 };

@@ -29,7 +29,9 @@ const schema = z.object({
     .max(100000000, "Maximum amount allowed is 1,000,000")
     .transform((value) => Number(value)),
 });
-type Data = z.infer<typeof schema>;
+
+type Raw = z.input<typeof schema>; // → { balance: string }
+type Parsed = z.infer<typeof schema>; // → { balance: number }
 
 const MerchantBalance = ({ userProfile, profile }: Props) => {
   const { toast } = useToast();
@@ -50,11 +52,14 @@ const MerchantBalance = ({ userProfile, profile }: Props) => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<Data>({
+  } = useForm<Raw, string, Parsed>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      balance: "0",
+    },
   });
 
-  const handleUpdateMerchantBalance = async (data: Data) => {
+  const handleUpdateMerchantBalance = async (data: { balance: number }) => {
     try {
       setIsLoading(true);
 

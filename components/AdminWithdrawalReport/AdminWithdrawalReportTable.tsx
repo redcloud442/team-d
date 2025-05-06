@@ -11,7 +11,7 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminWithdrawalTotalReport } from "@/services/Withdrawal/Admin";
 import { createClientSide } from "@/utils/supabase/client";
 import { adminWithdrawalTotalReportData } from "@/utils/types";
-import { alliance_member_table } from "@prisma/client";
+import { company_member_table } from "@prisma/client";
 import {
   ColumnFiltersState,
   getCoreRowModel,
@@ -30,7 +30,7 @@ import { Card } from "../ui/card";
 import { AdminWithdrawalReportColumn } from "./AdminWithdrawalReportColumn";
 
 type DataTableProps = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
   withdrawalReportData: {
     total_amount: number;
     total_request: number;

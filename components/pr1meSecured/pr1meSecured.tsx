@@ -3,49 +3,41 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-
 import { handleSignInAdmin } from "@/services/Auth/Auth";
 import { escapeFormData, userNameToEmail } from "@/utils/function";
+import {
+  LoginFormValues,
+  LoginSchema,
+  OtpFormValues,
+  OtpSchema,
+} from "@/utils/schema";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useRef, useState } from "react";
-import { FieldErrors, SubmitHandler, useForm } from "react-hook-form";
+import {
+  Resolver,
+  ResolverOptions,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form";
 import Turnstile, { BoundTurnstileObject } from "react-turnstile";
-import { z } from "zod";
 import NavigationLoader from "../ui/NavigationLoader";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
 } from "../ui/input-otp";
-import { Label } from "../ui/label";
 import { PasswordInput } from "../ui/passwordInput";
-
-// Zod Schema for Login Form
-export const LoginSchema = z.object({
-  userName: z
-    .string()
-    .min(6, "Username must be at least 6 characters long")
-    .max(20, "Username must be at most 50 characters long")
-    .regex(
-      /^[a-zA-Z][a-zA-Z0-9._]*$/,
-      "Username must start with a letter and can only contain letters, numbers, dots, and underscores"
-    ),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-// Zod Schema for OTP Form
-export const OtpSchema = z.object({
-  otp: z
-    .string()
-    .length(6, "OTP must be 6 digits")
-    .regex(/^\d+$/, "OTP must contain only numbers"),
-});
-
-type LoginFormValues = z.infer<typeof LoginSchema>;
-type OtpFormValues = z.infer<typeof OtpSchema>;
 
 const Pr1meSecured = () => {
   const [step, setStep] = useState<"login" | "verify">("login");
@@ -54,16 +46,36 @@ const Pr1meSecured = () => {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const captcha = useRef<BoundTurnstileObject>(null);
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm<LoginFormValues | OtpFormValues>({
-    resolver: zodResolver(step === "login" ? LoginSchema : OtpSchema),
+  const unionResolver: Resolver<LoginFormValues | OtpFormValues> = async (
+    values,
+    context,
+    options
+  ) => {
+    if (step === "login") {
+      return zodResolver(LoginSchema)(
+        values as LoginFormValues,
+        context,
+        options as ResolverOptions<LoginFormValues>
+      );
+    } else {
+      return zodResolver(OtpSchema)(
+        values as OtpFormValues,
+        context,
+        options as ResolverOptions<OtpFormValues>
+      );
+    }
+  };
+
+  const form = useForm<LoginFormValues | OtpFormValues>({
+    resolver: unionResolver,
   });
+
+  const {
+    handleSubmit,
+    formState: { isSubmitting },
+    reset,
+    control,
+  } = form;
 
   const supabase = createClientSide();
   const { toast } = useToast();
@@ -188,98 +200,102 @@ const Pr1meSecured = () => {
       </div>
 
       {step === "login" ? (
-        <form
-          className="flex flex-col items-center gap-6 w-full max-w-lg m-4 z-40"
-          onSubmit={handleSubmit(
-            handleSignIn as SubmitHandler<
-              { userName: string } | { otp: string }
-            >
-          )}
-        >
-          <div className="w-full">
-            <Input
-              variant="non-card"
-              id="username"
-              placeholder="Username"
-              {...register("userName")}
-            />
-            {(errors as FieldErrors<LoginFormValues>).userName && (
-              <p className="text-sm text-primaryRed">
-                {(errors as FieldErrors<LoginFormValues>).userName?.message}
-              </p>
+        <Form {...form}>
+          <form
+            className="flex flex-col items-center gap-6 w-full max-w-lg m-4 z-40"
+            onSubmit={handleSubmit(
+              handleSignIn as SubmitHandler<LoginFormValues | OtpFormValues>
             )}
-          </div>
-          <div className="w-full">
-            <PasswordInput
-              variant="non-card"
-              id="password"
-              placeholder="Password"
-              {...register("password")}
+          >
+            <FormField
+              control={control}
+              name="userName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input
+                      variant="non-card"
+                      id="username"
+                      placeholder="Username"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {(errors as FieldErrors<LoginFormValues>).password && (
-              <p className="text-sm text-primaryRed">
-                {(errors as FieldErrors<LoginFormValues>).password?.message}
-              </p>
-            )}
-          </div>
-          {/* <HCaptcha
-            ref={captcha}
-            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
-            onVerify={(token) => {
-              setCaptchaToken(token);
-            }}
-          /> */}
-          <Turnstile
-            size="flexible"
-            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
-            onVerify={(token) => {
-              setCaptchaToken(token);
-            }}
-          />
-          <Button disabled={isSubmitting || isLoading} type="submit">
-            {isSubmitting || isLoading ? "Sending OTP..." : "Login"}
-          </Button>
-        </form>
+
+            <FormField
+              control={control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      variant="non-card"
+                      id="password"
+                      placeholder="Password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Turnstile
+              size="flexible"
+              sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
+              onVerify={(token) => {
+                setCaptchaToken(token);
+              }}
+            />
+            <Button disabled={isSubmitting || isLoading} type="submit">
+              {isSubmitting || isLoading ? "Sending OTP..." : "Login"}
+            </Button>
+          </form>
+        </Form>
       ) : (
-        <form
-          className="flex flex-col items-center gap-6 w-full max-w-lg m-4 z-40"
-          onSubmit={handleSubmit(
-            handleVerifyOtp as SubmitHandler<
-              { userName: string } | { otp: string }
-            >
-          )}
-        >
-          <div className="w-full justify-center items-center flex flex-col gap-2">
-            <Label className="dark:text-white text-white" htmlFor="otp">
-              Enter OTP
-            </Label>
-            <InputOTP
-              maxLength={6}
-              value={watch("otp")}
-              onChange={(value) => setValue("otp", value)}
-            >
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-              </InputOTPGroup>
-              <InputOTPSeparator />
-              <InputOTPGroup>
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
-              </InputOTPGroup>
-            </InputOTP>
-            {(errors as FieldErrors<OtpFormValues>).otp && (
-              <p className="text-sm text-primaryRed">
-                {(errors as FieldErrors<OtpFormValues>).otp?.message}
-              </p>
+        <Form {...form}>
+          <form
+            className="flex flex-col items-center gap-6 w-full max-w-lg m-4 z-40"
+            onSubmit={handleSubmit(
+              handleVerifyOtp as SubmitHandler<LoginFormValues | OtpFormValues>
             )}
-          </div>
-          <Button disabled={isSubmitting || isLoading} type="submit">
-            {isSubmitting || isLoading ? "Verifying OTP..." : "Verify OTP"}
-          </Button>
-        </form>
+          >
+            <FormField
+              control={control}
+              name="otp"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>OTP</FormLabel>
+                  <FormControl>
+                    <InputOTP maxLength={6} {...field}>
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                      </InputOTPGroup>
+                      <InputOTPSeparator />
+                      <InputOTPGroup>
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button disabled={isSubmitting || isLoading} type="submit">
+              {isSubmitting || isLoading ? "Verifying OTP..." : "Verify OTP"}
+            </Button>
+          </form>
+        </Form>
       )}
       <Image
         src="/assets/login-page.png"

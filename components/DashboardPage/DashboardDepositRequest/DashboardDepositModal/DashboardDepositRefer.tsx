@@ -12,12 +12,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import TableLoading from "@/components/ui/tableLoading";
 import { useToast } from "@/hooks/use-toast";
 import { DashboardEarnings } from "@/utils/types";
 import {
-  alliance_member_table,
-  alliance_referral_link_table,
+  company_member_table,
+  company_referral_link_table,
 } from "@prisma/client";
 import Image from "next/image";
 import { useState } from "react";
@@ -26,8 +25,8 @@ import DashboardDirectReferral from "./DashboardDirectReferral";
 import DashboardIndirectReferral from "./DashboardIndirectReferral";
 
 type Props = {
-  teamMemberProfile: alliance_member_table;
-  referal: alliance_referral_link_table;
+  teamMemberProfile: company_member_table;
+  referal: company_referral_link_table;
   className: string;
   isActive: boolean;
   totalEarnings: DashboardEarnings | null;
@@ -36,12 +35,10 @@ type Props = {
 const DashboardDepositModalRefer = ({
   teamMemberProfile,
   referal,
-  isActive,
   className,
   totalEarnings,
 }: Props) => {
   const [open, setOpen] = useState(false);
-  const [isFetching, setIsFetching] = useState(false);
 
   const { toast } = useToast();
 
@@ -81,7 +78,6 @@ const DashboardDepositModalRefer = ({
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px] dark:bg-transparent p-0 border-none shadow-none">
-        {isFetching && <TableLoading />}
         <ScrollArea className="h-[610px] sm:h-full ">
           <DialogDescription></DialogDescription>
           <DialogHeader>
@@ -112,13 +108,13 @@ const DashboardDepositModalRefer = ({
                       type="text"
                       readOnly
                       className="text-center"
-                      value={referal.alliance_referral_link}
+                      value={referal.company_referral_link}
                     />
                   </div>
 
                   <Button
                     onClick={() =>
-                      copyToClipboard(referal.alliance_referral_link)
+                      copyToClipboard(referal.company_referral_link)
                     }
                     className="bg-pageColor text-white h-12"
                   >

@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollBar } from "@/components/ui/scroll-area";
 import {
-  alliance_member_table,
-  alliance_referral_link_table,
+  company_member_table,
+  company_referral_link_table,
 } from "@prisma/client";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
@@ -18,8 +18,8 @@ import Image from "next/image";
 import { Dispatch, SetStateAction } from "react";
 
 type Props = {
-  teamMemberProfile: alliance_member_table;
-  referal: alliance_referral_link_table;
+  teamMemberProfile: company_member_table;
+  referal: company_referral_link_table;
   className: string;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;

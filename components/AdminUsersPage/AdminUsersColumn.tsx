@@ -124,7 +124,7 @@ export const AdminUsersColumn = (
       cell: ({ row }) => (
         <div
           onClick={() =>
-            router.push(`/admin/users/${row.original.alliance_member_user_id}`)
+            router.push(`/admin/users/${row.original.company_member_user_id}`)
           }
           className="text-blue-500 text-wrap cursor-pointer hover:underline"
         >
@@ -291,29 +291,29 @@ export const AdminUsersColumn = (
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              {data.alliance_member_role !== "MERCHANT" && (
+              {data.company_member_role !== "MERCHANT" && (
                 <DropdownMenuItem
                   onClick={() =>
-                    handlePromoteToMerchant(data.alliance_member_id, "MERCHANT")
+                    handlePromoteToMerchant(data.company_member_id, "MERCHANT")
                   }
                 >
                   Promote as Merchant
                 </DropdownMenuItem>
               )}
-              {data.alliance_member_role !== "ADMIN" && (
+              {data.company_member_role !== "ADMIN" && (
                 <DropdownMenuItem
                   onClick={() =>
-                    handlePromoteToMerchant(data.alliance_member_id, "ADMIN")
+                    handlePromoteToMerchant(data.company_member_id, "ADMIN")
                   }
                 >
                   Promote as Admin
                 </DropdownMenuItem>
               )}
-              {data.alliance_member_role !== "ACCOUNTING" && (
+              {data.company_member_role !== "ACCOUNTING" && (
                 <DropdownMenuItem
                   onClick={() =>
                     handlePromoteToMerchant(
-                      data.alliance_member_id,
+                      data.company_member_id,
                       "ACCOUNTING"
                     )
                   }
@@ -322,11 +322,11 @@ export const AdminUsersColumn = (
                 </DropdownMenuItem>
               )}
 
-              {data.alliance_member_role !== "ACCOUNTING_HEAD" && (
+              {data.company_member_role !== "ACCOUNTING_HEAD" && (
                 <DropdownMenuItem
                   onClick={() =>
                     handlePromoteToMerchant(
-                      data.alliance_member_id,
+                      data.company_member_id,
                       "ACCOUNTING_HEAD"
                     )
                   }
@@ -335,53 +335,28 @@ export const AdminUsersColumn = (
                 </DropdownMenuItem>
               )}
 
-              {data.alliance_member_role !== "MEMBER" && (
+              {data.company_member_role !== "MEMBER" && (
                 <DropdownMenuItem
                   onClick={() =>
-                    handlePromoteToMerchant(data.alliance_member_id, "MEMBER")
+                    handlePromoteToMerchant(data.company_member_id, "MEMBER")
                   }
                 >
                   Promote as Member
                 </DropdownMenuItem>
               )}
-              {!data.alliance_member_restricted && (
+              {!data.company_member_restricted && (
                 <DropdownMenuItem
-                  onClick={() => handleBanUser(data.alliance_member_id, "BAN")}
+                  onClick={() => handleBanUser(data.company_member_id, "BAN")}
                 >
                   Ban User
                 </DropdownMenuItem>
               )}
 
-              {data.alliance_member_restricted && (
+              {data.company_member_restricted && (
                 <DropdownMenuItem
-                  onClick={() =>
-                    handleBanUser(data.alliance_member_id, "UNBAN")
-                  }
+                  onClick={() => handleBanUser(data.company_member_id, "UNBAN")}
                 >
                   Unban User
-                </DropdownMenuItem>
-              )}
-
-              {data.alliance_member_is_super_vip && (
-                <DropdownMenuItem
-                  onClick={() =>
-                    handleAddSuperVip(
-                      data.alliance_member_id,
-                      "REMOVE_SUPER_VIP"
-                    )
-                  }
-                >
-                  Remove Super VIP
-                </DropdownMenuItem>
-              )}
-
-              {!data.alliance_member_is_super_vip && (
-                <DropdownMenuItem
-                  onClick={() =>
-                    handleAddSuperVip(data.alliance_member_id, "ADD_SUPER_VIP")
-                  }
-                >
-                  Add Super VIP
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>

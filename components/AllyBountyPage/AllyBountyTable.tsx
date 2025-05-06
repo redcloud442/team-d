@@ -11,8 +11,7 @@ import {
 import { getAllyBounty } from "@/services/Bounty/Member";
 import { useDirectReferralStore } from "@/store/useDirectReferralStore";
 import { escapeFormData } from "@/utils/function";
-import { createClientSide } from "@/utils/supabase/client";
-import { alliance_member_table, user_table } from "@prisma/client";
+import { company_member_table, user_table } from "@prisma/client";
 import {
   ColumnFiltersState,
   flexRender,
@@ -32,7 +31,7 @@ import TableLoading from "../ui/tableLoading";
 import { AllyBountyColumn } from "./AllyBountyColum";
 
 type DataTableProps = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
   sponsor?: string;
 };
 
@@ -41,7 +40,6 @@ type FilterFormValues = {
 };
 
 const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
-  const supabaseClient = createClientSide();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -75,7 +73,7 @@ const AllyBountyTable = ({ teamMemberProfile }: DataTableProps) => {
         data: data as unknown as (user_table & {
           total_bounty_earnings: string;
           package_ally_bounty_log_date_created: Date;
-          alliance_referral_date: Date;
+          company_referral_date: Date;
         })[],
         count: totalCount || 0,
       });

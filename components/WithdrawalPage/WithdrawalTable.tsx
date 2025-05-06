@@ -271,7 +271,7 @@ const WithdrawalTable = () => {
     });
 
   const status = watch("statusFilter") as "PENDING" | "APPROVED" | "REJECTED";
-  const role = teamMemberProfile.alliance_member_role;
+  const role = teamMemberProfile.company_member_role;
   const {
     columns,
     isOpenModal,
@@ -333,7 +333,7 @@ const WithdrawalTable = () => {
   const rejectNote = watch("rejectNote");
   return (
     <div className="w-full space-y-4">
-      {teamMemberProfile.alliance_member_role === "ACCOUNTING_HEAD" && (
+      {teamMemberProfile.company_member_role === "ACCOUNTING_HEAD" && (
         <div className="flex flex-wrap gap-4">
           <CardAmountAdmin
             title="Total Pending Withdrawal"

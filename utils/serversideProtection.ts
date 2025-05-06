@@ -1,7 +1,7 @@
 import { logError } from "@/services/Error/ErrorLogs";
 import {
-  alliance_member_table,
-  alliance_referral_link_table,
+  company_member_table,
+  company_referral_link_table,
   user_table,
 } from "@prisma/client";
 import prisma from "./prisma";
@@ -54,18 +54,17 @@ export const protectionAdminUser = async () => {
         user_last_name: true,
         user_date_created: true,
         user_profile_picture: true,
-        alliance_member_table: {
+        company_member_table: {
           select: {
-            alliance_member_id: true,
-            alliance_member_role: true,
-            alliance_member_restricted: true,
-            alliance_member_date_created: true,
-            alliance_member_date_updated: true,
-            alliance_member_is_active: true,
-            alliance_member_is_premium: true,
-            alliance_referral_link_table: {
+            company_member_id: true,
+            company_member_role: true,
+            company_member_restricted: true,
+            company_member_date_created: true,
+            company_member_date_updated: true,
+            company_member_is_active: true,
+            company_referral_link_table: {
               select: {
-                alliance_referral_link: true,
+                company_referral_link: true,
               },
             },
           },
@@ -79,15 +78,15 @@ export const protectionAdminUser = async () => {
 
     const validRoles = new Set(["ADMIN"]);
     if (
-      !validRoles.has(user.alliance_member_table[0]?.alliance_member_role) ||
-      user.alliance_member_table[0]?.alliance_member_restricted
+      !validRoles.has(user.company_member_table[0]?.company_member_role) ||
+      user.company_member_table[0]?.company_member_restricted
     ) {
       return { redirect: "/auth/login" };
     }
     return {
       profile: user as unknown as user_table,
       teamMemberProfile: user
-        .alliance_member_table[0] as unknown as alliance_member_table,
+        .company_member_table[0] as unknown as company_member_table,
     };
   } catch (error) {
     return { redirect: "/error" };
@@ -115,20 +114,17 @@ export const protectionMemberUser = async (ip?: string) => {
         user_last_name: true,
         user_date_created: true,
         user_profile_picture: true,
-        alliance_member_table: {
+        company_member_table: {
           select: {
-            alliance_member_id: true,
-            alliance_member_role: true,
-            alliance_member_restricted: true,
-            alliance_member_date_created: true,
-            alliance_member_date_updated: true,
-            alliance_member_is_active: true,
-            alliance_member_is_premium: true,
-            alliance_member_is_supreme: true,
-            alliance_member_vip_tag: true,
-            alliance_referral_link_table: {
+            company_member_id: true,
+            company_member_role: true,
+            company_member_restricted: true,
+            company_member_date_created: true,
+            company_member_date_updated: true,
+            company_member_is_active: true,
+            company_referral_link_table: {
               select: {
-                alliance_referral_link: true,
+                company_referral_link: true,
               },
             },
           },
@@ -147,27 +143,27 @@ export const protectionMemberUser = async (ip?: string) => {
         "ACCOUNTING",
         "ADMIN",
         "ACCOUNTING_HEAD",
-      ].includes(user.alliance_member_table[0]?.alliance_member_role)
+      ].includes(user.company_member_table[0]?.company_member_role)
     ) {
       return { redirect: "/404" };
     }
 
-    if (user.alliance_member_table[0]?.alliance_member_restricted) {
+    if (user.company_member_table[0]?.company_member_restricted) {
       return { redirect: "/500" };
     }
 
-    if (!user.alliance_member_table[0].alliance_referral_link_table[0]) {
+    if (!user.company_member_table[0].company_referral_link_table[0]) {
       return { redirect: "/500" };
     }
 
     const referral =
-      user.alliance_member_table[0]?.alliance_referral_link_table[0];
+      user.company_member_table[0]?.company_referral_link_table[0];
 
     return {
       profile: user as unknown as user_table,
       teamMemberProfile: user
-        .alliance_member_table[0] as unknown as alliance_member_table,
-      referral: referral as unknown as alliance_referral_link_table,
+        .company_member_table[0] as unknown as company_member_table,
+      referral: referral as unknown as company_referral_link_table,
     };
   } catch (e) {
     if (e instanceof Error) {
@@ -210,16 +206,14 @@ export const protectionMerchantUser = async () => {
         user_last_name: true,
         user_date_created: true,
         user_profile_picture: true,
-        alliance_member_table: {
+        company_member_table: {
           select: {
-            alliance_member_id: true,
-            alliance_member_role: true,
-            alliance_member_restricted: true,
-            alliance_member_date_created: true,
-            alliance_member_date_updated: true,
-            alliance_member_is_premium: true,
-            alliance_member_vip_tag: true,
-            alliance_member_is_active: true,
+            company_member_id: true,
+            company_member_role: true,
+            company_member_restricted: true,
+            company_member_date_created: true,
+            company_member_date_updated: true,
+            company_member_is_active: true,
           },
         },
       },
@@ -229,19 +223,19 @@ export const protectionMerchantUser = async () => {
       return { redirect: "/auth/login" };
     }
 
-    const teamMember = user.alliance_member_table[0];
+    const teamMember = user.company_member_table[0];
 
-    if (!["MERCHANT", "ADMIN"].includes(teamMember.alliance_member_role)) {
+    if (!["MERCHANT", "ADMIN"].includes(teamMember.company_member_role)) {
       return { redirect: "/auth/login" };
     }
 
-    if (teamMember.alliance_member_restricted) {
+    if (teamMember.company_member_restricted) {
       return { redirect: "/auth/login" };
     }
 
     return {
       profile: user as unknown as user_table,
-      teamMemberProfile: teamMember as alliance_member_table,
+      teamMemberProfile: teamMember as company_member_table,
     };
   } catch (e) {
     if (e instanceof Error) {
@@ -284,16 +278,14 @@ export const protectionAccountingUser = async () => {
         user_last_name: true,
         user_date_created: true,
         user_profile_picture: true,
-        alliance_member_table: {
+        company_member_table: {
           select: {
-            alliance_member_id: true,
-            alliance_member_role: true,
-            alliance_member_restricted: true,
-            alliance_member_date_created: true,
-            alliance_member_date_updated: true,
-            alliance_member_is_active: true,
-            alliance_member_is_premium: true,
-            alliance_member_vip_tag: true,
+            company_member_id: true,
+            company_member_role: true,
+            company_member_restricted: true,
+            company_member_date_created: true,
+            company_member_date_updated: true,
+            company_member_is_active: true,
           },
         },
       },
@@ -303,23 +295,23 @@ export const protectionAccountingUser = async () => {
       return { redirect: "/auth/login" };
     }
 
-    const teamMember = user.alliance_member_table[0];
+    const teamMember = user.company_member_table[0];
 
     if (
       !["ADMIN", "ACCOUNTING", "ACCOUNTING_HEAD"].includes(
-        teamMember.alliance_member_role
+        teamMember.company_member_role
       )
     ) {
       return { redirect: "/auth/login" };
     }
 
-    if (teamMember.alliance_member_restricted) {
+    if (teamMember.company_member_restricted) {
       return { redirect: "/auth/login" };
     }
 
     return {
       profile: user as unknown as user_table,
-      teamMemberProfile: teamMember as alliance_member_table,
+      teamMemberProfile: teamMember as company_member_table,
     };
   } catch (e) {
     if (e instanceof Error) {
@@ -353,19 +345,17 @@ export const protectionAllUser = async (ip?: string) => {
         user_last_name: true,
         user_date_created: true,
         user_profile_picture: true,
-        alliance_member_table: {
+        company_member_table: {
           select: {
-            alliance_member_id: true,
-            alliance_member_role: true,
-            alliance_member_restricted: true,
-            alliance_member_date_created: true,
-            alliance_member_date_updated: true,
-            alliance_member_is_active: true,
-            alliance_member_is_premium: true,
-            alliance_member_vip_tag: true,
-            alliance_referral_link_table: {
+            company_member_id: true,
+            company_member_role: true,
+            company_member_restricted: true,
+            company_member_date_created: true,
+            company_member_date_updated: true,
+            company_member_is_active: true,
+            company_referral_link_table: {
               select: {
-                alliance_referral_link: true,
+                company_referral_link: true,
               },
             },
           },
@@ -377,26 +367,26 @@ export const protectionAllUser = async (ip?: string) => {
       return { redirect: "/auth/login" };
     }
 
-    const teamMember = user.alliance_member_table[0];
+    const teamMember = user.company_member_table[0];
 
     if (
       !["MEMBER", "MERCHANT", "ACCOUNTING", "ADMIN"].includes(
-        teamMember.alliance_member_role
+        teamMember.company_member_role
       )
     ) {
       return { redirect: "/" };
     }
-    if (!["ADMIN"].includes(teamMember.alliance_member_role)) {
+    if (!["ADMIN"].includes(teamMember.company_member_role)) {
       return { redirect: "/admin" };
     }
 
-    if (teamMember.alliance_member_restricted) {
+    if (teamMember.company_member_restricted) {
       return { redirect: "/auth/login" };
     }
 
     return {
       profile: user as unknown as user_table,
-      teamMemberProfile: teamMember as unknown as alliance_member_table,
+      teamMemberProfile: teamMember as unknown as company_member_table,
     };
   } catch (e) {
     if (e instanceof Error) {

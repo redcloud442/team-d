@@ -20,15 +20,14 @@ import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData, userNameToEmail } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { alliance_member_table, user_table } from "@prisma/client";
+import { company_member_table, user_table } from "@prisma/client";
 import { CheckCircleIcon, Loader2 } from "lucide-react";
-import Link from "next/link";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 type Props = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
   profile: user_table;
   sponsor: string;
 };
@@ -313,38 +312,6 @@ const DashboardDepositProfile = ({ profile, sponsor }: Props) => {
                   </p>
                 )}
               </div>
-              {teamMemberProfile.alliance_member_role === "MERCHANT" && (
-                <div className="flex w-full justify-center items-center gap-4">
-                  <Link href="/merchant">
-                    <Button
-                      type="button"
-                      variant="card"
-                      className="w-full rounded-md"
-                    >
-                      Create MOP
-                    </Button>
-                  </Link>
-                  <Link href="/deposit">
-                    <Button
-                      type="button"
-                      variant="card"
-                      className="w-full rounded-md"
-                    >
-                      Orders
-                    </Button>
-                  </Link>
-                </div>
-              )}
-
-              {(teamMemberProfile.alliance_member_role === "ACCOUNTING" ||
-                teamMemberProfile.alliance_member_role ===
-                  "ACCOUNTING_HEAD") && (
-                <Link href="/withdraw" className="w-full">
-                  <Button type="button" className="w-full" variant="card">
-                    Withdrawal
-                  </Button>
-                </Link>
-              )}
 
               {/* Submit Button */}
               <div className="flex justify-center">

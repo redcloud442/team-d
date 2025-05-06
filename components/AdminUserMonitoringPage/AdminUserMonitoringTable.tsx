@@ -54,7 +54,7 @@ const AdminUserMonitoringTable = () => {
       const { usernameFilter } = sanitizedData;
 
       const { data, totalCount } = await getUserWithActiveBalance({
-        teamMemberId: teamMemberProfile.alliance_member_id,
+        teamMemberId: teamMemberProfile.company_member_id,
         page: activePage,
         limit: 10,
         columnAccessor: columnAccessor,

@@ -12,7 +12,7 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { getHistoryLog } from "@/services/User/Admin";
 import { createClientSide } from "@/utils/supabase/client";
 import { UserLog } from "@/utils/types";
-import { alliance_member_table } from "@prisma/client";
+import { company_member_table } from "@prisma/client";
 import {
   ColumnFiltersState,
   flexRender,
@@ -33,7 +33,7 @@ import TableLoading from "../ui/tableLoading";
 import { AdminDashboardColumn } from "./AdminDashboardColumn";
 
 type DataTableProps = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
 };
 
 type FilterFormValues = {
@@ -61,7 +61,7 @@ const AdminDashboardTable = ({ teamMemberProfile }: DataTableProps) => {
       setIsFetchingList(true);
 
       const { data, totalCount } = await getHistoryLog(supabaseClient, {
-        teamMemberId: teamMemberProfile.alliance_member_id,
+        teamMemberId: teamMemberProfile.company_member_id,
         page: activePage,
         limit: 10,
         columnAccessor: columnAccessor,

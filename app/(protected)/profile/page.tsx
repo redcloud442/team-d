@@ -26,7 +26,7 @@ const Page = async () => {
 
   const earningsSummary = await prisma.dashboard_earnings_summary.findUnique({
     where: {
-      member_id: teamMemberProfile.alliance_member_id,
+      member_id: teamMemberProfile.company_member_id,
     },
   });
 

@@ -12,7 +12,7 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { getTransactionHistory } from "@/services/Transaction/Transaction";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { createClientSide } from "@/utils/supabase/client";
-import { alliance_member_table } from "@prisma/client";
+import { company_member_table } from "@prisma/client";
 import {
   ColumnFiltersState,
   flexRender,
@@ -30,7 +30,7 @@ import TableLoading from "../ui/tableLoading";
 import { TransactionHistoryColumn } from "./TransactionHistoryColumn";
 
 type DataTableProps = {
-  teamMemberProfile: alliance_member_table;
+  teamMemberProfile: company_member_table;
 };
 
 const TransactionHistoryTable = ({ teamMemberProfile }: DataTableProps) => {

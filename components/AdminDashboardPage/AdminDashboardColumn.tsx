@@ -8,7 +8,6 @@ export const AdminDashboardColumn = (): ColumnDef<UserLog>[] => {
   return [
     {
       accessorKey: "user_email",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -21,7 +20,6 @@ export const AdminDashboardColumn = (): ColumnDef<UserLog>[] => {
     },
     {
       accessorKey: "user_first_name",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -34,7 +32,6 @@ export const AdminDashboardColumn = (): ColumnDef<UserLog>[] => {
     },
     {
       accessorKey: "user_last_name",
-
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -47,7 +44,6 @@ export const AdminDashboardColumn = (): ColumnDef<UserLog>[] => {
     },
     {
       accessorKey: "user_history_log_date_created",
-
       header: ({ column }) => (
         <Button
           variant="ghost"

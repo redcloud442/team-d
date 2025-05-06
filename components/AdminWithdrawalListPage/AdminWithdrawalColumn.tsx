@@ -58,10 +58,10 @@ export const AdminWithdrawalHistoryColumn = (
         // Extract PENDING data and filter out the item being updated
         const pendingData = prev.data["PENDING"]?.data ?? [];
         const updatedItem = pendingData.find(
-          (item) => item.alliance_withdrawal_request_id === requestId
+          (item) => item.company_withdrawal_request_id === requestId
         );
         const newPendingList = pendingData.filter(
-          (item) => item.alliance_withdrawal_request_id !== requestId
+          (item) => item.company_withdrawal_request_id !== requestId
         );
         const currentStatusData = prev.data[status as keyof typeof prev.data];
         const hasExistingData = currentStatusData?.data?.length > 0;
@@ -141,21 +141,21 @@ export const AdminWithdrawalHistoryColumn = (
               hiddenUser={hidden}
               status={status}
               user_userName={row.getValue("user_username")}
-              alliance_member_id={row.original.alliance_member_id}
+              company_member_id={row.original.company_member_id}
             />
           </div>
         </div>
       ),
     },
     {
-      accessorKey: "alliance_member_id",
+      accessorKey: "company_member_id",
       header: () => (
         <Button variant="ghost">
           Show Tree <ArrowUpDown />
         </Button>
       ),
       cell: ({ row }) => {
-        const memberId = row.getValue("alliance_member_id") as string;
+        const memberId = row.getValue("company_member_id") as string;
         return (
           <div className="flex items-center gap-4">
             <ActiveTreeModal teamMemberProfile={memberId} />
@@ -164,7 +164,7 @@ export const AdminWithdrawalHistoryColumn = (
       },
     },
     {
-      accessorKey: "alliance_withdrawal_request_status",
+      accessorKey: "company_withdrawal_request_status",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -176,7 +176,7 @@ export const AdminWithdrawalHistoryColumn = (
       ),
       cell: ({ row }) => {
         const status = row.getValue(
-          "alliance_withdrawal_request_status"
+          "company_withdrawal_request_status"
         ) as string;
         const color = statusColorMap[status.toUpperCase()] || "gray"; // Default to gray if status is undefined
         return (
@@ -188,7 +188,7 @@ export const AdminWithdrawalHistoryColumn = (
     },
 
     {
-      accessorKey: "alliance_withdrawal_request_amount",
+      accessorKey: "company_withdrawal_request_amount",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -200,9 +200,9 @@ export const AdminWithdrawalHistoryColumn = (
       ),
       cell: ({ row }) => {
         const amount = parseFloat(
-          row.getValue("alliance_withdrawal_request_amount")
+          row.getValue("company_withdrawal_request_amount")
         );
-        const fee = row.original.alliance_withdrawal_request_fee;
+        const fee = row.original.company_withdrawal_request_fee;
 
         const formatted = new Intl.NumberFormat("en-PH", {
           style: "currency",
@@ -212,7 +212,7 @@ export const AdminWithdrawalHistoryColumn = (
       },
     },
     {
-      accessorKey: "alliance_withdrawal_request_type",
+      accessorKey: "company_withdrawal_request_type",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -224,12 +224,12 @@ export const AdminWithdrawalHistoryColumn = (
       ),
       cell: ({ row }) => (
         <div className="text-wrap">
-          {row.getValue("alliance_withdrawal_request_type")}
+          {row.getValue("company_withdrawal_request_type")}
         </div>
       ),
     },
     {
-      accessorKey: "alliance_withdrawal_request_bank_name",
+      accessorKey: "company_withdrawal_request_bank_name",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -241,13 +241,12 @@ export const AdminWithdrawalHistoryColumn = (
       ),
       cell: ({ row }) => (
         <div className="text-wrap w-xs">
-          {row.getValue("alliance_withdrawal_request_bank_name")}
+          {row.getValue("company_withdrawal_request_bank_name")}
         </div>
       ),
     },
     {
-      accessorKey: "alliance_withdrawal_request_account",
-
+      accessorKey: "company_withdrawal_request_account",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -259,13 +258,13 @@ export const AdminWithdrawalHistoryColumn = (
       ),
       cell: ({ row }) => (
         <div className="text-wrap">
-          {row.getValue("alliance_withdrawal_request_account")}
+          {row.getValue("company_withdrawal_request_account")}
         </div>
       ),
     },
 
     {
-      accessorKey: "alliance_withdrawal_request_date",
+      accessorKey: "company_withdrawal_request_date",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -278,14 +277,14 @@ export const AdminWithdrawalHistoryColumn = (
       cell: ({ row }) => (
         <div className="text-wrap w-40">
           {formatDateToYYYYMMDD(
-            row.getValue("alliance_withdrawal_request_date")
+            row.getValue("company_withdrawal_request_date")
           )}
-          , {formatTime(row.getValue("alliance_withdrawal_request_date"))}
+          , {formatTime(row.getValue("company_withdrawal_request_date"))}
         </div>
       ),
     },
     {
-      accessorKey: "alliance_withdrawal_request_withdraw_type",
+      accessorKey: "company_withdrawal_request_withdraw_type",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -297,7 +296,7 @@ export const AdminWithdrawalHistoryColumn = (
       ),
       cell: ({ row }) => (
         <div className="text-wrap">
-          {row.getValue("alliance_withdrawal_request_withdraw_type")}
+          {row.getValue("company_withdrawal_request_withdraw_type")}
         </div>
       ),
     },
@@ -319,7 +318,7 @@ export const AdminWithdrawalHistoryColumn = (
     ...(status !== "PENDING"
       ? [
           {
-            accessorKey: "alliance_withdrawal_request_date_updated",
+            accessorKey: "company_withdrawal_request_date_updated",
             header: ({ column }: { column: Column<WithdrawalRequestData> }) => (
               <Button
                 variant="ghost"
@@ -333,13 +332,13 @@ export const AdminWithdrawalHistoryColumn = (
             ),
             cell: ({ row }: { row: Row<WithdrawalRequestData> }) => (
               <div className="text-wrap w-40">
-                {row.getValue("alliance_withdrawal_request_date_updated")
+                {row.getValue("company_withdrawal_request_date_updated")
                   ? formatDateToYYYYMMDD(
-                      row.getValue("alliance_withdrawal_request_date_updated")
+                      row.getValue("company_withdrawal_request_date_updated")
                     ) +
                     " " +
                     formatTime(
-                      row.getValue("alliance_withdrawal_request_date_updated")
+                      row.getValue("company_withdrawal_request_date_updated")
                     )
                   : ""}
               </div>
@@ -350,11 +349,11 @@ export const AdminWithdrawalHistoryColumn = (
     ...(status == "REJECTED"
       ? [
           {
-            accessorKey: "alliance_withdrawal_request_reject_note",
+            accessorKey: "company_withdrawal_request_reject_note",
             header: () => <div>Rejection Note</div>,
             cell: ({ row }: { row: Row<WithdrawalRequestData> }) => {
               const rejectionNote = row.getValue(
-                "alliance_withdrawal_request_reject_note"
+                "company_withdrawal_request_reject_note"
               ) as string;
 
               return rejectionNote ? (
@@ -390,14 +389,14 @@ export const AdminWithdrawalHistoryColumn = (
 
               return (
                 <>
-                  {data.alliance_withdrawal_request_status === "PENDING" && (
+                  {data.company_withdrawal_request_status === "PENDING" && (
                     <div className="flex gap-2">
                       <Button
                         className="bg-green-500 hover:bg-green-600 dark:bg-green-500 dark:text-white "
                         onClick={() =>
                           setIsOpenModal({
                             open: true,
-                            requestId: data.alliance_withdrawal_request_id,
+                            requestId: data.company_withdrawal_request_id,
                             status: "APPROVED",
                           })
                         }
@@ -410,7 +409,7 @@ export const AdminWithdrawalHistoryColumn = (
                         onClick={() =>
                           setIsOpenModal({
                             open: true,
-                            requestId: data.alliance_withdrawal_request_id,
+                            requestId: data.company_withdrawal_request_id,
                             status: "REJECTED",
                           })
                         }
