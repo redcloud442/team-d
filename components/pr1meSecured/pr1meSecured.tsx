@@ -177,28 +177,6 @@ const Pr1meSecured = () => {
     <div className="flex w-full flex-col items-center justify-center sm:justify-center min-h-screen h-full p-10">
       <NavigationLoader visible={isSubmitting || isLoading} />
 
-      <div className="fixed top-20 -right-6  z-10 ">
-        <Image
-          src="/assets/lightning-2.svg"
-          alt="thunder"
-          width={300}
-          height={300}
-          style={{ objectFit: "contain" }}
-          quality={100}
-          className="sm:hidden"
-        />
-      </div>
-
-      <div className="fixed top-[10%]  sm:top-[10%] flex items-center justify-center w-full">
-        <Image
-          src="/app-logo.svg"
-          alt="logo"
-          width={120}
-          height={120}
-          priority
-        />
-      </div>
-
       {step === "login" ? (
         <Form {...form}>
           <form

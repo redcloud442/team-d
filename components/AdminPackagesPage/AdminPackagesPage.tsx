@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import EditPackagesModal from "../AdminPackagesPage/EditPackagesModal";
 import { Card } from "../ui/card";
+import { Separator } from "../ui/separator";
 import CreatePackageModal from "./CreatePackageModal";
 
 const AdminPackageList = () => {
@@ -48,9 +49,12 @@ const AdminPackageList = () => {
   return (
     <div className="container mx-auto p- md:p-10 space-y-6 ">
       <div className="flex justify-between items-center">
-        <h1 className="Title">List of Packages</h1>
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
+          List of Packages
+        </h1>
         <CreatePackageModal setPackages={setPackages} />
       </div>
+      <Separator />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {packages.map((pkg) => (
           <Card

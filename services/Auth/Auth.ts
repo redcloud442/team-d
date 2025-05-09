@@ -1,16 +1,6 @@
+import { RegisterSchemaType } from "@/utils/schema";
 import { createClientSide } from "@/utils/supabase/client";
 import { SupabaseClient } from "@supabase/supabase-js";
-import bcryptjs from "bcryptjs";
-import { z } from "zod";
-
-const registerUserSchema = z.object({
-  userName: z.string().min(6),
-  password: z.string().min(6),
-  firstName: z.string().min(2),
-  lastName: z.string().min(2),
-  referalLink: z.string().min(2),
-  url: z.string().min(2),
-});
 
 export const createTriggerUser = async (params: {
   userName: string;
@@ -34,7 +24,7 @@ export const createTriggerUser = async (params: {
   } = params;
   const supabase = createClientSide();
 
-  const validate = registerUserSchema.safeParse(params);
+  const validate = RegisterSchemaType.safeParse(params);
 
   const checkUserNameResult = await checkUserName({ userName });
 
@@ -48,8 +38,6 @@ export const createTriggerUser = async (params: {
 
   const formatUsername = userName + "@gmail.com";
 
-  const hashedPassword = await bcryptjs.hash(password, 10);
-
   const { data: userData, error: userError } = await supabase.auth.signUp({
     email: formatUsername,
     password,
@@ -62,7 +50,6 @@ export const createTriggerUser = async (params: {
 
   const userParams = {
     userName,
-    password: hashedPassword,
     userId: userData.user?.id,
     firstName,
     lastName,

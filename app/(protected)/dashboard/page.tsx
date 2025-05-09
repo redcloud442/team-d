@@ -2,18 +2,8 @@
 
 import DashboardPage from "@/components/DashboardPage/DashboardPage";
 import prisma from "@/utils/prisma";
-import { protectionMemberUser } from "@/utils/serversideProtection";
-import { redirect } from "next/navigation";
 
 const Page = async () => {
-  const { teamMemberProfile } = await protectionMemberUser();
-
-  if (!teamMemberProfile) return redirect("/auth/login");
-
-  if (teamMemberProfile.company_member_role === "ADMIN") {
-    redirect("/admin");
-  }
-
   const packages = await prisma.package_table.findMany({
     where: { package_is_disabled: false },
     select: {

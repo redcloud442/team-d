@@ -34,6 +34,7 @@ import {
 import CardAmountAdmin from "../ui/CardAmountAdmin";
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Separator } from "../ui/separator";
 import TableLoading from "../ui/tableLoading";
 import AdminDashboardCard from "./AdminDashboardCard";
 import AdminDashboardChart from "./AdminDashboardChart";
@@ -163,10 +164,13 @@ const AdminDashboardPage = () => {
   const endDate = watch("dateFilter.end");
 
   return (
-    <div className="mx-auto w-full md:p-10 space-y-6">
+    <div className="mx-auto w-full max-w-7xl md:p-10 space-y-6">
       {isLoading && <TableLoading />}
       <div className="flex flex-wrap flex-col md:flex-row items-center justify-between">
-        <h1 className="Title">Admin Dashboard</h1>
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
+          Admin Dashboard
+        </h1>
+
         <form
           onSubmit={handleSubmit(handleFetchAdminDashboardData)}
           className="flex flex-wrap items-center gap-4"
@@ -242,6 +246,8 @@ const AdminDashboardPage = () => {
           </Button>
         </form>
       </div>
+      <Separator />
+
       <div className="flex flex-wrap flex-col gap-6">
         <div>
           <AdminDashboardCard

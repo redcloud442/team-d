@@ -76,7 +76,7 @@ const AdminTopUpApprovalTable = () => {
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  const columnAccessor = sorting?.[0]?.id || "alliance_top_up_request_date";
+  const columnAccessor = sorting?.[0]?.id || "company_deposit_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
 

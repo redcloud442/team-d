@@ -81,30 +81,6 @@ export const AdminUsersColumn = (
     }
   };
 
-  const handleAddSuperVip = async (
-    alliance_member_alliance_id: string,
-    type: string
-  ) => {
-    try {
-      setIsOpenModal({
-        open: true,
-        role: "",
-        memberId: alliance_member_alliance_id,
-        type: type,
-      });
-    } catch (e) {
-      if (e instanceof Error) {
-        await logError(supabaseClient, {
-          errorMessage: e.message,
-          stackTrace: e.stack,
-          stackPath: "components/AdminUsersPage/AdminUsersColumn.tsx",
-        });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   if (isLoading) {
     <TableLoading />;
   }
@@ -133,7 +109,7 @@ export const AdminUsersColumn = (
       ),
     },
     {
-      accessorKey: "alliance_member_id",
+      accessorKey: "company_member_id",
       header: () => (
         <Button variant="ghost">
           Access Account Link <ArrowUpDown />
@@ -141,7 +117,7 @@ export const AdminUsersColumn = (
       ),
       cell: ({ row }) => {
         const userName = row.original.user_username as string;
-        const memberId = row.getValue("alliance_member_id") as string;
+        const memberId = row.getValue("company_member_id") as string;
         return (
           <div className="flex items-center gap-4">
             <Button
@@ -157,7 +133,7 @@ export const AdminUsersColumn = (
       },
     },
     {
-      accessorKey: "alliance_member_role",
+      accessorKey: "company_member_role",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -168,7 +144,7 @@ export const AdminUsersColumn = (
       ),
       cell: ({ row }) => (
         <div className="text-center">
-          {(row.getValue("alliance_member_role") as string).replace("_", " ")}
+          {(row.getValue("company_member_role") as string).replace("_", " ")}
         </div>
       ),
     },
@@ -218,7 +194,7 @@ export const AdminUsersColumn = (
       ),
     },
     {
-      accessorKey: "alliance_member_restricted",
+      accessorKey: "company_member_restricted",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -229,13 +205,13 @@ export const AdminUsersColumn = (
       ),
       cell: ({ row }) => (
         <div className="text-center">
-          {row.getValue("alliance_member_restricted") ? "YES" : "NO"}
+          {row.getValue("company_member_restricted") ? "YES" : "NO"}
         </div>
       ),
     },
 
     {
-      accessorKey: "alliance_member_is_active",
+      accessorKey: "company_member_is_active",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -245,34 +221,12 @@ export const AdminUsersColumn = (
         </Button>
       ),
       cell: ({ row }) => {
-        const isActive = row.getValue("alliance_member_is_active");
+        const isActive = row.getValue("company_member_is_active");
         return (
           <div
             className={`${isActive ? "text-green-500" : "text-red-500"} text-center`}
           >
             {isActive ? "YES" : "NO"}
-          </div>
-        );
-      },
-    },
-
-    {
-      accessorKey: "alliance_member_is_super_vip",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Super VIP <ArrowUpDown />
-        </Button>
-      ),
-      cell: ({ row }) => {
-        const isSuperVip = row.getValue("alliance_member_is_super_vip");
-        return (
-          <div
-            className={`${isSuperVip ? "text-green-500" : "text-red-500"} text-center`}
-          >
-            {isSuperVip ? "YES" : "NO"}
           </div>
         );
       },

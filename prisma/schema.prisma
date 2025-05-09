@@ -66,7 +66,7 @@ model company_member_table {
   company_member_date_created    DateTime  @default(now())  @db.Timestamptz(3)
 
   company_member_company_id     String    @db.Uuid
-  company_member_user_id         String    @db.Uuid
+  company_member_user_id         String    @db.Uuid  @unique
   company_member_restricted      Boolean   @default(false)
   company_member_date_updated    DateTime?  @db.Timestamptz(3)
   company_member_is_active       Boolean   @default(false)
@@ -99,6 +99,7 @@ model company_member_table {
 model company_referral_link_table {
   company_referral_link_id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   company_referral_link             String
+  company_referral_code             String    @unique
   company_referral_link_member_id   String    @db.Uuid
 
   company_member_table              company_member_table @relation(fields: [company_referral_link_member_id], references: [company_member_id], onDelete: Cascade, onUpdate: Cascade)

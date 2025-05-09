@@ -13,7 +13,7 @@ const nextConfig = {
     return [
       {
         source: "/api/v1/:path*",
-        destination: `${process.env.NODE_ENV === "development" ? "http://localhost:9000" : "https://loadbalancer.primepinas.com"}/api/v1/:path*`,
+        destination: `${process.env.NODE_ENV === "development" ? "http://localhost:8000" : "https://starternext.com"}/api/v1/:path*`,
       },
     ];
   },

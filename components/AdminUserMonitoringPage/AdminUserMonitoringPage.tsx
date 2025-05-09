@@ -1,3 +1,4 @@
+import { Separator } from "../ui/separator";
 import AdminUserMonitoringTable from "./AdminUserMonitoringTable";
 
 const AdminUserMonitoringPage = () => {
@@ -6,12 +7,16 @@ const AdminUserMonitoringPage = () => {
       <div>
         {/* Page Title */}
         <header className="mb-4">
-          <h1 className="Title">Users With Wallet Balance Page</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
+            Users With Wallet Balance Page
+          </h1>
           <p className="text-gray-600 dark:text-white">
             View all your user with wallet balance that are currently in the
             system
           </p>
         </header>
+
+        <Separator className="my-4" />
 
         {/* Table Section */}
         <section className=" rounded-lg ">

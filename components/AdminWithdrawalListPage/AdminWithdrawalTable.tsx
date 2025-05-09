@@ -69,7 +69,7 @@ const AdminWithdrawalHistoryTable = () => {
   const [isFetchingList, setIsFetchingList] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [hidden, setHidden] = useState(false);
-  const columnAccessor = sorting?.[0]?.id || "alliance_withdrawal_request_date";
+  const columnAccessor = sorting?.[0]?.id || "company_withdrawal_request_date";
   const isAscendingSort =
     sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
 

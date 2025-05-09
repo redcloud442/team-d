@@ -31,9 +31,9 @@ const Page = async () => {
   }
 
   return (
-    <main className="max-w-full min-h-screen flex flex-col items-center justify-center bg-pageColor">
+    <div className="max-w-full min-h-screen flex flex-col items-center justify-center">
       <LoginPage />
-    </main>
+    </div>
   );
 };
 export default Page;

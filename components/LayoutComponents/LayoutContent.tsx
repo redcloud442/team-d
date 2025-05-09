@@ -20,6 +20,7 @@ import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { ROLE } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
+import { createClientSide } from "@/utils/supabase/client";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
@@ -52,6 +53,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const { setIsWithdrawalToday, setCanUserDeposit } =
     useUserHaveAlreadyWithdraw();
   const { setSponsor } = useSponsorStore();
+  const supabase = createClientSide();
 
   const isAdmin = useMemo(
     () => teamMemberProfile.company_member_role === ROLE.ADMIN,

@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Separator } from "../ui/separator";
 import AdminSalesReportTable from "./AdminSalesReportTable";
 
 const months = [
@@ -104,8 +105,12 @@ const AdminSalesReportPage = () => {
     <div className="mx-auto md:p-10">
       <div>
         <header className="mb-4">
-          <h1 className="Title">Sales Report Page</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
+            Sales Report Page
+          </h1>
         </header>
+
+        <Separator className="my-4" />
 
         {/* Table Section */}
 

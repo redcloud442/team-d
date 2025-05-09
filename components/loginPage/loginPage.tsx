@@ -46,18 +46,18 @@ const LoginPage = () => {
 
   const handleSignIn = async (data: LoginFormValues) => {
     try {
-      if (!captchaToken) {
-        if (captcha.current) {
-          captcha.current.reset();
-          captcha.current.execute();
-        }
+      // if (!captchaToken) {
+      //   if (captcha.current) {
+      //     captcha.current.reset();
+      //     captcha.current.execute();
+      //   }
 
-        return toast({
-          title: "Please wait",
-          description: "Refreshing CAPTCHA, please try again.",
-          variant: "destructive",
-        });
-      }
+      //   return toast({
+      //     title: "Please wait",
+      //     description: "Refreshing CAPTCHA, please try again.",
+      //     variant: "destructive",
+      //   });
+      // }
       setIsLoading(true);
       const sanitizedData = escapeFormData(data);
 
@@ -66,7 +66,7 @@ const LoginPage = () => {
       await loginValidation(supabase, {
         userName,
         password,
-        captchaToken,
+        captchaToken: captchaToken || "",
       });
 
       if (captcha.current) {
@@ -104,45 +104,9 @@ const LoginPage = () => {
     <div className="flex w-full flex-col items-center justify-center sm:justify-center min-h-screen h-full p-10">
       <NavigationLoader visible={isSubmitting || isLoading || isSuccess} />
 
-      <div className="fixed top-0 sm:top-20 -right-6  z-10 ">
-        <Image
-          src="/assets/lightning-2.svg"
-          alt="thunder"
-          width={300}
-          height={300}
-          style={{
-            objectFit: "contain",
-          }}
-          quality={100}
-          className="sm:hidden"
-        />
-      </div>
-
-      <div className="fixed -top-12 z-10">
-        <Image
-          src="/assets/lightning.svg"
-          alt="thunder"
-          width={300}
-          height={300}
-          quality={100}
-          className="w-full sm:hidden"
-          priority
-        />
-      </div>
-
-      <div className="absolute top-[10%] sm:top-[10%] flex items-center justify-center w-full">
-        <Image
-          src="/app-logo.svg"
-          alt="logo"
-          width={120}
-          height={120}
-          priority
-        />
-      </div>
-
       <Form {...form}>
         <form
-          className="flex flex-col items-center justify-center gap-6 w-full max-w-lg m-4 z-40"
+          className="flex flex-col justify-center gap-6 w-full max-w-lg m-4 z-40"
           onSubmit={handleSubmit(handleSignIn)}
         >
           <FormField

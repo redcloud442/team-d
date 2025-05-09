@@ -94,6 +94,8 @@ export const RegisterSchema = z
     confirmPassword: z
       .string()
       .min(6, "Confirm Password must be at least 6 characters"),
+    referralLink: z.string().optional(),
+    sponsor: z.string().optional(),
   })
   .superRefine(({ confirmPassword, password }, ctx) => {
     if (confirmPassword !== password) {
@@ -106,3 +108,28 @@ export const RegisterSchema = z
   });
 
 export type RegisterFormData = z.infer<typeof RegisterSchema>;
+
+export const RegisterSchemaType = z.object({
+  firstName: z
+    .string()
+    .min(3, "First name is required")
+    .max(50, "First name must be less than 50 characters"),
+  lastName: z
+    .string()
+    .min(3, "Last name is required")
+    .max(50, "Last name must be less than 50 characters"),
+  userName: z
+    .string()
+    .min(6, "Username must be at least 6 characters long")
+    .max(20, "Username must be at most 50 characters long")
+    .regex(
+      /^[a-zA-Z][a-zA-Z0-9._]*$/,
+      "Username must start with a letter and can only contain letters, numbers, dots, and underscores"
+    ),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  botField: z.string().optional(),
+  referralLink: z.string().optional(),
+  sponsor: z.string().optional(),
+});
+
+export type RegisterFormDataType = z.infer<typeof RegisterSchemaType>;

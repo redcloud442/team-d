@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Separator } from "../ui/separator";
 import AdminUserReinvestedTable from "./AdminUserReinvestedTable";
 
 type FormData = {
@@ -82,8 +83,15 @@ const AdminUserReinvestedPage = () => {
     <div className="mx-auto md:p-10">
       <div>
         <header className="mb-4">
-          <h1 className="Title">User Reinvested Page</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
+            User Reinvested Page
+          </h1>
+          <p className="text-gray-600 dark:text-white">
+            View all your user that have reinvested in the system
+          </p>
         </header>
+
+        <Separator className="my-4" />
 
         {/* Table Section */}
 

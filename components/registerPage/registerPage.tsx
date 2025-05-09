@@ -1,9 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { checkUserName, createTriggerUser } from "@/services/Auth/Auth";
 import { BASE_URL } from "@/utils/constant";
@@ -14,7 +13,7 @@ import { CheckCircleIcon, XCircleIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useController, useForm } from "react-hook-form";
-import Turnstile, { BoundTurnstileObject } from "react-turnstile";
+import { BoundTurnstileObject } from "react-turnstile";
 import {
   Form,
   FormControl,
@@ -28,8 +27,9 @@ import { PasswordInput } from "../ui/passwordInput";
 
 type Props = {
   referralLink: string;
+  userName: string;
 };
-const RegisterPage = ({ referralLink }: Props) => {
+const RegisterPage = ({ referralLink, userName }: Props) => {
   const [isUsernameLoading, setIsUsernameLoading] = useState(false);
   const [isUsernameValidated, setIsUsernameValidated] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -38,12 +38,14 @@ const RegisterPage = ({ referralLink }: Props) => {
   const { toast } = useToast();
 
   const form = useForm<RegisterFormData>({
-    mode: "onBlur",
     resolver: zodResolver(RegisterSchema),
+    defaultValues: {
+      referralLink: referralLink,
+      sponsor: userName,
+    },
   });
 
   const {
-    register,
     handleSubmit,
     formState: { errors, isSubmitting },
     control,
@@ -109,33 +111,34 @@ const RegisterPage = ({ referralLink }: Props) => {
       });
     }
 
-    if (!captchaToken) {
-      if (captcha.current) {
-        captcha.current.reset();
-        captcha.current.execute();
-      }
+    // if (!captchaToken) {
+    //   if (captcha.current) {
+    //     captcha.current.reset();
+    //     captcha.current.execute();
+    //   }
 
-      return toast({
-        title: "Please wait",
-        description: "Refreshing CAPTCHA, please try again.",
-        variant: "destructive",
-      });
-    }
+    //   return toast({
+    //     title: "Please wait",
+    //     description: "Refreshing CAPTCHA, please try again.",
+    //     variant: "destructive",
+    //   });
+    // }
 
     const sanitizedData = escapeFormData(data);
 
-    const { userName, password, firstName, lastName, botField } = sanitizedData;
+    const { userName, firstName, lastName, botField, referralLink } =
+      sanitizedData;
 
     try {
       await createTriggerUser({
         userName: userName,
-        password: password,
         firstName,
         lastName,
         referalLink: referralLink,
         url,
         captchaToken: captchaToken || "",
         botField: botField || "",
+        password: data.password,
       });
 
       if (captcha.current) {
@@ -180,19 +183,31 @@ const RegisterPage = ({ referralLink }: Props) => {
             className="flex flex-col gap-4"
             onSubmit={handleSubmit(handleRegistrationSubmit)}
           >
-            <input
-              type="text"
-              {...register("botField")}
-              style={{ display: "none" }} // Hide from normal users
-              tabIndex={-1} // Skip focus when tabbing
-              autoComplete="off"
+            <FormField
+              control={control}
+              name="botField"
+              render={({ field }) => (
+                <FormItem className="hidden">
+                  <FormLabel>Bot Field</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="botField"
+                      placeholder="Bot Field"
+                      {...field}
+                      hidden
+                      className="pr-10"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <FormField
               control={control}
               name="userName"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>Username</FormLabel>
                   <FormControl>
                     <Input
@@ -206,17 +221,17 @@ const RegisterPage = ({ referralLink }: Props) => {
                       onBlur={() => validateUserName(userNameField.value)}
                       className="pr-10"
                     />
-                    {!isUsernameLoading &&
-                      isUsernameValidated &&
-                      !errors.userName && (
-                        <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3" />
-                      )}
-
-                    {/* Show error icon if validation failed */}
-                    {!isUsernameLoading && errors.userName && (
-                      <XCircleIcon className="w-5 h-5 text-primaryRed absolute right-3" />
-                    )}
                   </FormControl>
+                  {!isUsernameLoading &&
+                    isUsernameValidated &&
+                    !errors.userName && (
+                      <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3 mt-3 top-1/2 -translate-y-1/2" />
+                    )}
+
+                  {/* Show error icon if validation failed */}
+                  {!isUsernameLoading && errors.userName && (
+                    <XCircleIcon className="w-5 h-5 text-primaryRed absolute right-3 pt-5 top-1/2 -translate-y-1/2" />
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -298,19 +313,25 @@ const RegisterPage = ({ referralLink }: Props) => {
               )}
             />
 
-            <div className="relative">
-              <Label htmlFor="sponsor">Sponsor</Label>
-              <div className="flex items-center">
-                <Input
-                  id="sponsor"
-                  readOnly
-                  placeholder="Sponsor"
-                  value={referralLink}
-                  className="pr-10"
-                />
-              </div>
-            </div>
-
+            <FormField
+              control={control}
+              name="sponsor"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sponsor</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="sponsor"
+                      placeholder="Sponsor"
+                      {...field}
+                      className="pr-10"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* 
             <div className="w-full flex flex-1 justify-center">
               <Turnstile
                 size="flexible"
@@ -319,7 +340,7 @@ const RegisterPage = ({ referralLink }: Props) => {
                   setCaptchaToken(token);
                 }}
               />
-            </div>
+            </div> */}
 
             <div className="w-full flex justify-center">
               <Button
@@ -334,7 +355,6 @@ const RegisterPage = ({ referralLink }: Props) => {
           </form>
         </Form>
       </CardContent>
-      <CardFooter></CardFooter>
     </Card>
   );
 };

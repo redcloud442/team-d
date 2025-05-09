@@ -4,10 +4,10 @@ import { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 
 export const metadata: Metadata = {
-  title: "Pr1me Pinas",
-  description: "Pr1me Pinas",
+  title: "Starter Next",
+  description: "Starter Next",
   openGraph: {
-    url: "https://pr1mepinas.com",
+    url: "https://starternext.com",
   },
 };
 const montserrat = Montserrat({

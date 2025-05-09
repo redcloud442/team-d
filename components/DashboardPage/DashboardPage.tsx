@@ -11,7 +11,6 @@ import { useRole } from "@/utils/context/roleContext";
 import { formatNumberLocale } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { package_table } from "@prisma/client";
-import { Download, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
@@ -21,14 +20,11 @@ import {
   CarouselContent,
   CarouselItem,
 } from "../ui/carousel";
-import TableLoading from "../ui/tableLoading";
 import DashboardDepositModalDeposit from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit";
 import DashboardDepositModalPackages from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositPackagesModal";
 import DashboardDepositProfile from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositProfile";
 import DashboardDepositModalRefer from "./DashboardDepositRequest/DashboardDepositModal/DashboardDepositRefer";
 import DashboardTransactionHistory from "./DashboardDepositRequest/DashboardDepositModal/DashboardTransactionHistory";
-import DashboardRaffle from "./DashboardDepositRequest/DashboardRaffle/DashboardRaffle";
-import DashboardEarningsModal from "./DashboardDepositRequest/EarningsModal/EarningsModal";
 import DashboardPackages from "./DashboardPackages";
 import DashboardWithdrawModalWithdraw from "./DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
 
@@ -105,8 +101,6 @@ const DashboardPage = ({ packages }: Props) => {
 
   return (
     <div className="relative min-h-screen h-full mx-auto py-4">
-      {loading && <TableLoading />}
-
       <div className="w-full space-y-4 md:px-10">
         <div className="flex justify-between items-center gap-4">
           <div className="flex items-center justify-between gap-2">
@@ -160,16 +154,7 @@ const DashboardPage = ({ packages }: Props) => {
         <div className="flex flex-col gap-4 justify-center">
           <div className="flex items-start justify-between">
             <div className="flex flex-col items-start gap-2">
-              <div className="flex items-center gap-2">
-                <DashboardEarningsModal />
-                <Button
-                  disabled={refresh}
-                  className="h-7 px-2"
-                  onClick={handleRefresh}
-                >
-                  <RefreshCw />
-                </Button>
-              </div>
+              <div className="flex items-center gap-2"></div>
             </div>
             <div className="flex flex-col items-end gap-2">
               <Button
@@ -183,20 +168,6 @@ const DashboardPage = ({ packages }: Props) => {
               >
                 facebook
               </Button>
-              <a
-                href="https://apkfilelinkcreator.cloud/uploads/PrimePinas_v1.1.apk"
-                download="PrimePinas_v1.1.apk"
-                className="w-full cursor-pointer"
-              >
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full max-w-[120px] h-7 text-white bg-blue-700 cursor-pointer"
-                >
-                  <span className="text-sm">Pr1me App</span>
-                  <Download className="w-4 h-4" />
-                </Button>
-              </a>
             </div>
           </div>
 
@@ -253,8 +224,6 @@ const DashboardPage = ({ packages }: Props) => {
             </Button>
           </div>
         </div>
-
-        <DashboardRaffle />
 
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
           <div className="flex flex-col gap-4 ">

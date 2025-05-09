@@ -2,47 +2,51 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
+import {
+  isAdminRoute,
+  isBypassRoute,
+  isMagicLink,
+  isPrivateRoute,
+  isPublicRoute,
+} from "@/utils/routeMatcher";
+
+import { CompanyMemberRole, RouteAction } from "@/utils/enums";
+import { User } from "@supabase/supabase-js";
+
 export async function updateSession(request: NextRequest) {
   const cookieStore = await cookies();
-  // Check if the session validation has already occurred
+  const pathname = request.nextUrl.pathname;
+
   if (request.headers.get("x-session-checked")) {
     return addSecurityHeaders(NextResponse.next());
   }
 
-  if (request.nextUrl.pathname.startsWith("/api/v1/auth/register")) {
+  if (isBypassRoute(pathname)) {
     return NextResponse.next();
   }
 
-  const supabaseResponse = NextResponse.next({
-    request,
-  });
+  const supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, { ...options, sameSite: true })
             );
           } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
+            // Ignore if called from Server Component.
           }
         },
       },
     }
   );
 
-  const isMagicLinkCallback = request.nextUrl.pathname === "/auth/callback";
-
-  if (isMagicLinkCallback) {
+  if (isMagicLink(pathname)) {
     return addSecurityHeaders(NextResponse.next());
   }
 
@@ -50,53 +54,86 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const publicRoutes = [
-    "/auth/login",
-    "/auth/register",
-    "/api/v1/auth",
-    "/auth/securedPrime",
-    "/api/health",
-    "/",
-  ];
-  const privateRoutes = ["/dashboard", "/api/auth", "/admin"];
-  const currentPath = request.nextUrl.pathname;
+  const action = determineRouteAction({
+    user,
+    role: user?.user_metadata.Role,
+    pathname,
+  });
 
-  if (!user) {
-    // 🔹 If user is NOT logged in and they visit a public route, let them pass
-    if (publicRoutes.some((route) => currentPath.startsWith(route))) {
-      return addSecurityHeaders(NextResponse.next());
-    }
+  console.log("role", user?.user_metadata.Role);
 
-    // 🔹 If user is NOT logged in and tries to access private routes, redirect to login
-    if (privateRoutes.some((route) => currentPath.startsWith(route))) {
+  switch (action) {
+    case RouteAction.ALLOW:
+      supabaseResponse.headers.set("x-session-checked", "true");
+      return addSecurityHeaders(supabaseResponse);
+
+    case RouteAction.REDIRECT_LOGIN: {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/auth/login";
       return addSecurityHeaders(NextResponse.redirect(loginUrl));
     }
-  } else {
-    // 🔹 If user is logged in and visits login/register, send them to /dashboard
-    if (publicRoutes.includes(currentPath)) {
-      if (currentPath !== "/dashboard") {
-        const homeUrl = request.nextUrl.clone();
-        homeUrl.pathname = "/dashboard";
-        return addSecurityHeaders(NextResponse.redirect(homeUrl));
-      }
+
+    case RouteAction.REDIRECT_DASHBOARD: {
+      const homeUrl = request.nextUrl.clone();
+      homeUrl.pathname = "/dashboard";
+      return addSecurityHeaders(NextResponse.redirect(homeUrl));
     }
 
-    // 🔹 If user is logged in and visits a private route, let them pass
-    if (privateRoutes.some((route) => currentPath.startsWith(route))) {
+    case RouteAction.FORBIDDEN:
+      return addSecurityHeaders(
+        NextResponse.redirect(new URL("/", request.url))
+      );
+
+    default:
       return addSecurityHeaders(NextResponse.next());
+  }
+}
+
+type RouteActionParams = {
+  user: User | null;
+  role: CompanyMemberRole | null;
+  pathname: string;
+};
+
+const determineRouteAction = ({
+  user,
+  role,
+  pathname,
+}: RouteActionParams): RouteAction => {
+  if (!user) {
+    if (isPublicRoute(pathname)) return RouteAction.ALLOW;
+
+    // If it's private or admin, block
+    if (isPrivateRoute(pathname) || isAdminRoute(pathname))
+      return RouteAction.REDIRECT_LOGIN;
+
+    // 🔥 NEW: Block ALL other paths
+    return RouteAction.REDIRECT_LOGIN;
+  }
+
+  if (isPublicRoute(pathname)) {
+    if (pathname !== "/dashboard") return RouteAction.REDIRECT_DASHBOARD;
+  }
+
+  if (isPrivateRoute(pathname)) {
+    if (role !== CompanyMemberRole.ADMIN) {
+      return RouteAction.ALLOW;
+    } else {
+      return RouteAction.FORBIDDEN;
     }
   }
 
-  supabaseResponse.headers.set("x-session-checked", "true");
-  return addSecurityHeaders(supabaseResponse);
-}
+  if (isAdminRoute(pathname) && role !== CompanyMemberRole.ADMIN) {
+    return RouteAction.FORBIDDEN;
+  }
 
-function addSecurityHeaders(response: NextResponse) {
+  return RouteAction.ALLOW;
+};
+
+const addSecurityHeaders = (response: NextResponse) => {
   response.headers.set(
     "Strict-Transport-Security",
     "max-age=63072000; includeSubDomains; preload"
   );
   return response;
-}
+};

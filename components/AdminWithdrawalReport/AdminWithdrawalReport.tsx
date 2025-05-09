@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Separator } from "../ui/separator";
 import AdminWithdrawalReportTable from "./AdminWithdrawalReportTable";
 
 type FormData = {
@@ -82,8 +83,15 @@ const AdminWithdrawalReport = () => {
     <div className="mx-auto md:p-10">
       <div>
         <header className="mb-4">
-          <h1 className="Title">Withdrawal Report Page</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
+            Withdrawal Report Page
+          </h1>
+          <p className="text-gray-600 dark:text-white">
+            View all the withdrawal report that are currently in the system.
+          </p>
         </header>
+
+        <Separator className="my-4" />
 
         {/* Table Section */}
 
