@@ -18,41 +18,37 @@ RUN curl -fsSL https://github.com/oven-sh/bun/releases/latest/download/bun-linux
   mv /usr/local/bin/bun-linux-x64/bun /usr/local/bin/bun && \
   rm -rf bun.zip /usr/local/bin/bun-linux-x64
 
-RUN mkdir -p /usr/share/keyrings
-
 RUN apt-get update && apt-get install -y apt-transport-https ca-certificates curl gnupg && \
     curl -sLf --retry 3 --tlsv1.2 --proto "=https" 'https://packages.doppler.com/public/cli/gpg.DE2A7741A397C129.key' | \
     gpg --dearmor -o /usr/share/keyrings/doppler-archive-keyring.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/doppler-archive-keyring.gpg] https://packages.doppler.com/public/cli/deb/debian any-version main" > /etc/apt/sources.list.d/doppler-cli.list && \
     apt-get update && apt-get install -y doppler
-
 # Set working directory
 WORKDIR /usr/src/app
 
 # Copy and install app dependencies
-COPY package.json bun.lock ./ 
+COPY package.json bun.lock ./
 COPY prisma ./prisma/
 RUN bun install
 
-ARG DOPPLER_TOKEN
-ENV DOPPLER_TOKEN=$DOPPLER_TOKEN
+# ✅ Add this to copy the rest of your source code (including pages/ or app/)
+COPY . . 
 
-# ✅ Download secrets into `.env`
-RUN doppler secrets download --no-file --format env > .env
+# Copy and set up entrypoint script
+COPY /scripts/entrypoint_overwrited.sh /usr/src/app/entrypoint.sh
+RUN dos2unix /usr/src/app/entrypoint.sh && chmod +x /usr/src/app/entrypoint.sh
 
-# 🔁 Use env file for Prisma and Bun
-ENV $(cat .env | xargs)
-# Generate Prisma client
-RUN bun prisma generate --schema ./prisma/schema.prisma
+# Environment arguments
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-COPY . .
-
-# Inject Doppler secrets and build
+# ✅ Build after code is copied
 RUN bun run build
 
-# Set runtime environment
 ENV PORT=8080
 EXPOSE 8080
 
-# Run the app
+ENTRYPOINT ["/bin/bash", "/usr/src/app/entrypoint.sh"]
 CMD ["bun", "start"]

@@ -1,7 +1,5 @@
 import LoginPage from "@/components/loginPage/loginPage";
-import { protectionRegisteredUser } from "@/utils/serversideProtection";
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Xeloria Access Login",
@@ -23,12 +21,6 @@ export const metadata: Metadata = {
   },
 };
 const Page = async () => {
-  const result = await protectionRegisteredUser();
-
-  if (result?.redirect) {
-    redirect("/");
-  }
-
   return <LoginPage />;
 };
 export default Page;

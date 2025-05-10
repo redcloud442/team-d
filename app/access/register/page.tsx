@@ -58,6 +58,11 @@ const Page = async ({
               company_referral_code: CODE,
             },
           },
+          AND: [
+            {
+              company_member_is_active: true,
+            },
+          ],
         },
       },
     },

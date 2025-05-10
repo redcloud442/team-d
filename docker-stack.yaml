@@ -2,9 +2,22 @@ version: "3.8"
 services:
   web:
     image: ghcr.io/redcloud442/mithril:prod
-    env_file:
-      - .env.production
-
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: /run/secrets/supabaseUrl
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: /run/secrets/anonKey
+      NEXT_PUBLIC_BASE_URL: /run/secrets/baseUrl
+      SUPABASE_SERVICE_ROLE_KEY: /run/secrets/serviceRoleKey
+      DATABASE_URL: /run/secrets/databaseUrl
+      DIRECT_URL: /run/secrets/directUrl
+    secrets:
+      - databaseUrl
+      - directUrl
+      - supabaseUrl
+      - anonKey
+      - serviceRoleKey
+      - baseUrl
+      - redisUrl
+      - redisToken
     deploy:
       mode: replicated
       replicas: 3
