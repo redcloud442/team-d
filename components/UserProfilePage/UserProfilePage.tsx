@@ -1,6 +1,8 @@
 import { UserRequestdata } from "@/utils/types";
+import ChangePasswordUser from "../UserAdminProfile/ChamgePasswordUser";
 import ChangePassword from "../UserAdminProfile/ChangePassword";
 import PersonalInformation from "../UserAdminProfile/PersonalInformation";
+import PersonalInformationUser from "../UserAdminProfile/PersonalInformationUser";
 
 type Props = {
   userProfile: UserRequestdata;
@@ -18,18 +20,26 @@ const UserProfilePage = ({ userProfile }: Props) => {
           </p>
         </header>
 
-        <PersonalInformation
-          type={
-            userProfile.company_member_role as
-              | "ADMIN"
-              | "MEMBER"
-              | "ACCOUNTING"
-              | "MERCHANT"
-          }
-          userProfile={userProfile}
-        />
-
-        <ChangePassword userProfile={userProfile} />
+        {userProfile.company_member_role !== "ADMIN" ? (
+          <>
+            <PersonalInformationUser userProfile={userProfile} />
+            <ChangePasswordUser userProfile={userProfile} />
+          </>
+        ) : (
+          <>
+            <PersonalInformation
+              type={
+                userProfile.company_member_role as
+                  | "ADMIN"
+                  | "MEMBER"
+                  | "ACCOUNTING"
+                  | "MERCHANT"
+              }
+              userProfile={userProfile}
+            />
+            <ChangePassword userProfile={userProfile} />
+          </>
+        )}
       </div>
     </div>
   );

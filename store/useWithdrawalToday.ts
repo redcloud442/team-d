@@ -4,14 +4,12 @@ interface userHaveAlreadyWithdraw {
   isWithdrawalToday: {
     referral: boolean;
     package: boolean;
-    winning: boolean;
   };
   canUserDeposit: boolean;
 
   setIsWithdrawalToday: (value: {
     referral: boolean;
     package: boolean;
-    winning: boolean;
   }) => void;
   setCanUserDeposit: (value: boolean) => void;
 }
@@ -21,7 +19,6 @@ export const useUserHaveAlreadyWithdraw = create<userHaveAlreadyWithdraw>(
     isWithdrawalToday: {
       referral: false,
       package: false,
-      winning: false,
     },
     canUserDeposit: false,
 
@@ -30,7 +27,6 @@ export const useUserHaveAlreadyWithdraw = create<userHaveAlreadyWithdraw>(
         isWithdrawalToday: {
           referral: isWithdrawalToday.referral,
           package: isWithdrawalToday.package,
-          winning: isWithdrawalToday.winning,
         },
       })),
     setCanUserDeposit: (canUserDeposit) =>

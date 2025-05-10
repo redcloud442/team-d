@@ -1,27 +1,21 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import { ClaimPackageHandler } from "@/services/Package/Member";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
-import { formatTime } from "@/utils/function";
+import { formateMonthDateYearv2, formatTime } from "@/utils/function";
 import { ChartDataMember } from "@/utils/types";
 import { company_member_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import ReusableCard from "../ui/card-reusable";
 import {
   Dialog,
   DialogContent,
@@ -31,8 +25,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import { Separator } from "../ui/separator";
 
 type DashboardPackagesProps = {
   teamMemberProfile: company_member_table;
@@ -53,14 +45,6 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
       current_amount: data.current_amount,
     }));
   });
-
-  const chechIfMonthOrDay = (days: number) => {
-    if (days > 30) {
-      return `${days / 30} Months`;
-    } else {
-      return `${days} Days`;
-    }
-  };
 
   useEffect(() => {
     const animationFrames: { [key: string]: number } = {};
@@ -196,91 +180,76 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
   };
 
   return (
-    <ScrollArea className="w-full pb-10 bg-cardColor p-4 rounded-xl h-[500px]">
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-2 pb-4">
-        <h1 className="text-2xl font-bold text-black">Activated Plan</h1>
-      </div>
-      <Separator className="mb-4" />
-      <div className="flex grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {liveData.map((data) => (
-          <Card
-            key={data.package_connection_id}
-            style={{
-              background: `linear-gradient(110deg, ${
-                data.package_color || "#F6DB4E"
-              } 60%, #ED9738)`,
-            }}
-            className="min-w-[260px] max-w-[500px] h-auto dark:bg-cardColor transition-all duration-300"
-          >
-            <CardHeader>
-              <CardTitle>
-                <div className="text-md text-center rounded-full bg-black p-2">
-                  {data.currentPercentage}%
-                </div>
-              </CardTitle>
-              <CardDescription className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Badge className="dark:bg-black dark:text-white min-w-[80px] text-center flex items-center justify-center">
-                    Amount
-                  </Badge>
-                  <span className="text-lg font-extrabold text-black">
-                    ₱{" "}
-                    {data.amount.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <Badge className="dark:bg-black dark:text-white min-w-[80px] text-center flex items-center justify-center">
-                    Profit
-                  </Badge>
-                  <span className="text-lg font-extrabold text-black">
-                    ₱{" "}
-                    {data.profit_amount.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </span>
-                </div>
-              </CardDescription>
-              <Separator />
-            </CardHeader>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+      {liveData.map((data) => (
+        <ReusableCard
+          key={data.package_connection_id}
+          title={data.package}
+          className="relative p-0"
+        >
+          <div className="flex flex-col xl:flex-row items-center gap-6 p-4">
+            {/* Left: Small GIF */}
+            <div className="flex-shrink-0 flex justify-center">
+              <Image
+                src={data.package_gif || "/fallback.gif"}
+                alt={`${data.package} GIF`}
+                width={300}
+                height={300}
+                unoptimized
+                className="object-contain"
+              />
+            </div>
 
-            <CardContent className="space-y-1 pb-0">
-              <div className="flex flex-col items-center">
-                <Badge className="dark:bg-black dark:text-white dark:hover:bg-black hover:bg-black hover:text-white">
-                  Total Amount
-                </Badge>
-                <span className="text-2xl font-extrabold text-black">
-                  ₱{" "}
-                  {data.current_amount.toLocaleString("en-US", {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  })}
-                </span>
-                <span className="text-xl text-black font-extrabold">
-                  {data.package} Plan
-                </span>
-                <span className="text-xl text-black font-extrabold">
-                  {chechIfMonthOrDay(data.package_days)}{" "}
-                  {data.package_percentage}% Profit
+            {/* Right: Full-size package image */}
+            <div className="flex-grow overflow-visible relative flex flex-col gap-2 z-50">
+              <div className="relative w-full dark:bg-black rounded-full h-10 border border-yellow-500 shadow-inner overflow-hidden">
+                <div
+                  className={cn(
+                    "absolute top-0 left-0 h-full transition-all duration-300 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-100 shadow-md",
+                    data.currentPercentage >= 100
+                      ? "rounded-full"
+                      : "rounded-l-full rounded-r-[6px]" // add slight right rounding for smoother visuals
+                  )}
+                  style={{
+                    width: `${data.currentPercentage}%`,
+                    minWidth: "8px", // ensures rounded corners still appear at low %
+                  }}
+                ></div>
+                <span className="absolute inset-0 flex items-center justify-center font-extrabold text-white tracking-wide drop-shadow text-2xl">
+                  {data.current_amount.toFixed(2)}
                 </span>
               </div>
-              <Separator />
-            </CardContent>
 
-            <CardFooter className="flex-col items-center gap-2 text-sm">
-              <div className="font-extrabold text-sm text-black">
-                {new Intl.DateTimeFormat("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                }).format(new Date(data.completion_date))}
-                , {formatTime(data.completion_date)}
-              </div>
-              {data.is_ready_to_claim && (
-                <>
+              <ReusableCard>
+                <div className="flex flex-col gap-2 text-sm stroke-text-orange uppercase">
+                  <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                    <span className="font-semibold">Date Invested:</span>
+                    <span className="text-white">
+                      {formateMonthDateYearv2(data.package_date_created)}
+                    </span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                    <span className="font-semibold">Amount Invested:</span>
+                    <span className="text-white">{data.amount}</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                    <span className="font-semibold">Generated Income:</span>
+                    <span className="text-white">{data.profit_amount}</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                    <span className="font-semibold">Date Of Claim:</span>
+                    <span className="text-white">
+                      {formateMonthDateYearv2(data.completion_date)}
+                    </span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                    <span className="font-semibold">Time of Claim:</span>
+                    <span className="text-white">
+                      {formatTime(data.completion_date)}
+                    </span>
+                  </div>
+                </div>
+                {data.is_ready_to_claim && (
                   <Dialog
                     open={openDialogId === data.package_connection_id}
                     onOpenChange={(isOpen) =>
@@ -291,8 +260,12 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
                   >
                     <DialogDescription></DialogDescription>
                     <DialogTrigger asChild>
-                      <Button className="dark:bg-black dark:text-white dark:hover:bg-black hover:bg-black hover:text-white cursor-pointer px-10 py-2">
-                        Collect
+                      <Button
+                        variant="card"
+                        className=" font-black text-2xl rounded-full p-5 w-full"
+                        type="submit"
+                      >
+                        CLAIM
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
@@ -321,19 +294,13 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
-                  {/* <ReinvestButton
-                    primaryPackage={packages}
-                    packageConnectionId={data.package_connection_id}
-                    amountToReinvest={data.current_amount}
-                  /> */}
-                </>
-              )}
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-      <ScrollBar className="mt-4" orientation="horizontal" />
-    </ScrollArea>
+                )}
+              </ReusableCard>
+            </div>
+          </div>
+        </ReusableCard>
+      ))}
+    </div>
   );
 };
 

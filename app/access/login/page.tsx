@@ -4,25 +4,24 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Starter Next | Access Your Account",
-  description: "Starter Next",
+  title: "Xeloria Access Login",
+  description: "Log in to your Xeloria account and manage your journey.",
   openGraph: {
-    url: "/auth/login",
-    title: "Starter Next | Access Your Account",
-    description: "Starter Next",
-    siteName: "starternext.com",
+    url: "https://xeloria.io/access/login",
+    title: "Xeloria | Access Your Account",
+    description: "Log in to your Xeloria account and manage your journey.",
+    siteName: "Xeloria",
     images: [
       {
-        url: "/app-logo.png",
+        url: "https://xeloria.io/assets/icons/logo.ico", // ✅ Replace with your actual hosted banner
         width: 1200,
         height: 630,
-        alt: "Starter Next Login Page",
+        alt: "Xeloria Login Page",
       },
     ],
     type: "website",
   },
 };
-
 const Page = async () => {
   const result = await protectionRegisteredUser();
 
@@ -30,10 +29,6 @@ const Page = async () => {
     redirect("/");
   }
 
-  return (
-    <div className="max-w-full min-h-screen flex flex-col items-center justify-center">
-      <LoginPage />
-    </div>
-  );
+  return <LoginPage />;
 };
 export default Page;

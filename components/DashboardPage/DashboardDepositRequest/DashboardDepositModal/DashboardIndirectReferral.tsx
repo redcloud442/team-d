@@ -44,7 +44,7 @@ const DashboardIndirectReferral = ({ teamMemberProfile, count }: Props) => {
           <DialogTitle className=" text-2xl font-bold">
             Multiple Referral
           </DialogTitle>
-          <LegionBountyTable teamMemberProfile={teamMemberProfile} />
+          <LegionBountyTable />
           <DialogFooter className="flex justify-center"></DialogFooter>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>

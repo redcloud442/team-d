@@ -1,15 +1,25 @@
 import { CompanyMemberRole } from "./enums";
 
 export const PUBLIC_ROUTES = [
-  "/auth/login",
-  "/auth/register",
-  "/api/v1/auth",
-  "/auth/securedPrime",
+  "/access/login",
+  "/access/register",
+  "/api/v1/access",
+  "/api/v1/access/securedStarter",
   "/api/health",
-  "/api/v1/auth/callback",
+  "/api/v1/access/callback",
+  "/access/xeloriaAccess",
 ];
 
-export const PRIVATE_ROUTES = ["/dashboard", "/api/v1/auth"];
+export const PRIVATE_ROUTES = [
+  "/dashboard",
+  "/api/v1/access",
+  "/inbox",
+  "/history",
+  "/profile",
+  "/contact",
+  "/withdraw",
+  "/deposit",
+];
 
 export const ADMIN_ROUTES = ["/admin"];
 
@@ -26,11 +36,11 @@ export const isAdminRoute = (pathname: string) => {
 };
 
 export const isMagicLink = (pathname: string) => {
-  return pathname === "/auth/callback";
+  return pathname === "/access/callback";
 };
 
 export const isBypassRoute = (pathname: string) => {
-  return pathname.startsWith("/api/v1/auth/register");
+  return pathname.startsWith("/api/v1/access/register");
 };
 
 export const ROUTE_ROLE_REQUIREMENTS: {

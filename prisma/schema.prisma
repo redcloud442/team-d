@@ -29,12 +29,13 @@ enum ReferralType {
 model user_table {
   user_id               String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   user_date_created     DateTime        @default(now())  @db.Timestamptz(3)
-  user_username         String?
-  user_first_name       String?
-  user_last_name        String?
-  user_email            String          @unique
+  user_username         String
+  user_first_name       String
+  user_last_name        String
+  user_email            String?
+  user_phone_number     String?
   user_profile_picture  String?
-  user_bot_field        String?
+  user_bot_field        Boolean @default(false)
 
   company_member_table company_member_table[]
   user_history_log  user_history_log[]
@@ -133,6 +134,7 @@ model dashboard_earnings_summary {
   member_id              String   @id @map("member_id") @db.Uuid
   total_earnings         Float    @default(0.0) @map("total_earnings")
   total_withdrawals      Float    @default(0.0) @map("total_withdrawals")
+  package_income         Float    @default(0.0) @map("package_income")
   direct_referral_amount Float    @default(0.0) @map("direct_referral_amount")
   indirect_referral_amount Float  @default(0.0) @map("indirect_referral_amount")
   direct_referral_count  Int      @default(0) @map("direct_referral_count")
@@ -254,7 +256,7 @@ model package_table {
   package_percentage Float    @default(0.0)
   packages_days      Int
   package_is_disabled Boolean @default(false)
-  package_color      String?
+  package_gif      String?
   package_image      String?
 
   package_member_connection_table package_member_connection_table[]

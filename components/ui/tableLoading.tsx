@@ -7,7 +7,12 @@ const TableLoading = () => {
     >
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="animate-pulse transition-all duration-1000">
-          <Image src="/app-logo.png" alt="thunder" width={100} height={100} />
+          <Image
+            src="/assets/icons/logo.ico"
+            alt="thunder"
+            width={100}
+            height={100}
+          />
         </div>
       </div>
     </div>

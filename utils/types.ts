@@ -1,6 +1,7 @@
 import {
   company_deposit_request_table,
   company_member_table,
+  company_transaction_table,
   company_withdrawal_request_table,
   dashboard_earnings_summary,
   merchant_member_table,
@@ -72,7 +73,8 @@ export type ChartDataMember = {
   package_connection_id: string;
   package_date_created: string;
   profit_amount: number;
-  package_color: string;
+  package_gif: string;
+  package_image: string;
   package_member_id: string;
   package_days: number;
   current_amount: number;
@@ -84,6 +86,7 @@ export type DashboardEarnings = {
   directReferralAmount: number;
   indirectReferralAmount: number;
   totalEarnings: number;
+  packageEarnings: number;
   withdrawalAmount: number;
   directReferralCount: number;
   indirectReferralCount: number;
@@ -212,4 +215,13 @@ export type WithdrawListExportData = {
   "Date Created": string;
   "Date Updated": string;
   "Approved By": string;
+};
+
+export type HistoryData = {
+  data: company_transaction_table[];
+  count: number;
+};
+
+export type TransactionHistoryData = {
+  data: Partial<Record<"EARNINGS" | "WITHDRAWAL" | "DEPOSIT", HistoryData>>;
 };

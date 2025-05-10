@@ -7,22 +7,15 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { getDashboard } from "@/services/Dasboard/Member";
-import {
-  getUserEarnings,
-  getUserSponsor,
-  getUserWithdrawalToday,
-} from "@/services/User/User";
+import { getUserEarnings, getUserWithdrawalToday } from "@/services/User/User";
 import { useUserLoadingStore } from "@/store/useLoadingStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
-import { useSponsorStore } from "@/store/useSponsortStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { ROLE } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
-import { createClientSide } from "@/utils/supabase/client";
 import { useTheme } from "next-themes";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useCallback, useEffect, useMemo } from "react";
@@ -38,13 +31,14 @@ import DevMode from "../ui/dev-mode";
 import { Separator } from "../ui/separator";
 import { AppSidebar } from "../ui/side-bar";
 import { ModeToggle } from "../ui/toggleDarkmode";
+import TopNavigation from "../ui/top-navigation";
 
 type LayoutContentProps = {
   children: React.ReactNode;
 };
 
 export default function LayoutContent({ children }: LayoutContentProps) {
-  const { teamMemberProfile, profile } = useRole();
+  const { teamMemberProfile } = useRole();
   const { setTheme } = useTheme();
   const { setTotalEarnings } = useUserDashboardEarningsStore();
   const { setEarnings } = useUserEarningsStore();
@@ -52,8 +46,6 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const { setChartData } = usePackageChartData();
   const { setIsWithdrawalToday, setCanUserDeposit } =
     useUserHaveAlreadyWithdraw();
-  const { setSponsor } = useSponsorStore();
-  const supabase = createClientSide();
 
   const isAdmin = useMemo(
     () => teamMemberProfile.company_member_role === ROLE.ADMIN,
@@ -76,20 +68,14 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         { totalEarnings, userEarningsData },
         dashboardData,
         dataWithdrawalToday,
-        sponsorData,
       ] = await Promise.all([
         getUserEarnings({ memberId: teamMemberProfile.company_member_id }),
         getDashboard({ teamMemberId: teamMemberProfile.company_member_id }),
         getUserWithdrawalToday(),
-        getUserSponsor({ userId: profile.user_id }),
       ]);
 
-      const {
-        canWithdrawReferral,
-        canWithdrawPackage,
-        canWithdrawWinning,
-        canUserDeposit,
-      } = dataWithdrawalToday.data;
+      const { canWithdrawReferral, canWithdrawPackage, canUserDeposit } =
+        dataWithdrawalToday.data;
 
       setTotalEarnings(totalEarnings);
       setEarnings(userEarningsData);
@@ -98,53 +84,33 @@ export default function LayoutContent({ children }: LayoutContentProps) {
       setIsWithdrawalToday({
         referral: canWithdrawReferral,
         package: canWithdrawPackage,
-        winning: canWithdrawWinning,
       });
-
-      setSponsor(sponsorData);
     } catch (e) {
       console.error("Failed to fetch transaction data", e);
     } finally {
       setLoading(false);
     }
-  }, [
-    isAdmin,
-    teamMemberProfile.company_member_id,
-    teamMemberProfile.company_member_user_id,
-    setLoading,
-  ]);
+  }, []);
 
   useEffect(() => {
     if (!isAdmin) {
       handleFetchTransaction();
     }
-  }, [isAdmin, handleFetchTransaction]);
+  }, [isAdmin]);
 
   const sidebar = useMemo(() => {
     if (!isAdmin) return null;
     return <AppSidebar />;
   }, [isAdmin]);
 
-  const backgroundImage = useMemo(() => {
-    if (isAdmin) return null;
-    return (
-      <div className="absolute inset-0 -z-10">
-        <Image
-          src="/assets/bg-primary.jpeg"
-          alt="Background"
-          quality={100}
-          fill
-          priority
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-zinc-900/80 dark:bg-zinc-900/90"></div>
-      </div>
-    );
-  }, [isAdmin]);
-
   const mobileNav = useMemo(() => {
     if (isAdmin) return null;
     return <MobileNavBar />;
+  }, [isAdmin]);
+
+  const topNav = useMemo(() => {
+    if (isAdmin) return null;
+    return <TopNavigation />;
   }, [isAdmin]);
 
   const breadcrumbs = useMemo(() => {
@@ -164,12 +130,9 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     return (
       <div className="flex min-h-screen w-full overflow-hidden relative">
         <div className="flex-1 flex flex-col overflow-x-auto relative">
-          {backgroundImage}
-
+          {topNav}
           <div className="pb-24 p-4 relative z-50 grow">{children}</div>
-
           {mobileNav}
-
           <DevMode />
         </div>
       </div>

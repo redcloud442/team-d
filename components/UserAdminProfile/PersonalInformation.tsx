@@ -91,11 +91,13 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
     fetchUserSponsor();
   }, [userProfile.user_id, params.userId]);
 
+  console.log(userProfile);
+
   return (
     <Card className="shadow-md">
       {isLoading && <TableLoading />}
       <CardHeader className=" border-b pb-4">
-        <div className="flex flex-wrap justify-between">
+        <div className="flex flex-wrap justify-between space-y-2">
           <CardTitle className="text-lg font-semibold flex items-center gap-2 ">
             Personal Information
           </CardTitle>
@@ -110,11 +112,9 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
               >
                 Sign In as {userProfile.user_username}
               </Button>
-              <ActiveTreeModal
-                teamMemberProfile={userProfile.company_member_id}
-              />
             </div>
           )}
+          <ActiveTreeModal teamMemberProfile={userProfile.company_member_id} />
         </div>
       </CardHeader>
       <CardContent className="grid grid-cols-1 gap-6 sm:grid-cols-2 p-6">
@@ -176,7 +176,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
           <Input
             id="directCount"
             type="text"
-            value={userProfile.direct_referral_count}
+            value={userProfile.direct_referral_count ?? "N/A"}
             readOnly
             className="mt-1 border-gray-300"
           />
@@ -186,7 +186,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
           <Input
             id="indirectCount"
             type="text"
-            value={userProfile.indirect_referral_count}
+            value={userProfile.indirect_referral_count ?? "N/A"}
             readOnly
             className="mt-1 border-gray-300"
           />

@@ -71,7 +71,7 @@ const MerchantBalance = ({ userProfile, profile }: Props) => {
         userName: profile.user_username || "",
       });
 
-      setMerchantData((prev) => ({
+      setMerchantData((prev: UserRequestdata) => ({
         ...prev,
         merchant_member_balance:
           Number(sanitizedData.balance) + merchantData.merchant_member_balance,

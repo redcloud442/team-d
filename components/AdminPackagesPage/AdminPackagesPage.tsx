@@ -62,7 +62,7 @@ const AdminPackageList = () => {
             style={{
               background: pkg.package_is_disabled
                 ? "gray"
-                : `linear-gradient(110deg, ${pkg.package_color || "#F6DB4E"} 60%, #ED9738)`, // Make package color dominate
+                : `linear-gradient(110deg,"#F6DB4E"} 60%, #ED9738)`, // Make package color dominate
             }}
             className={`border rounded-lg h-auto shadow-md p-6 flex flex-col items-center space-y-4 ${
               pkg.package_is_disabled

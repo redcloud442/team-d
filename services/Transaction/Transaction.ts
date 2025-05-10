@@ -2,6 +2,7 @@ import { company_transaction_table } from "@prisma/client";
 
 export const getTransactionHistory = async (params: {
   limit: number;
+  status: "EARNINGS" | "WITHDRAWAL" | "DEPOSIT";
   page: number;
 }) => {
   const response = await fetch(`/api/v1/transaction`, {

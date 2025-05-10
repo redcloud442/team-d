@@ -17,7 +17,7 @@ type Props = {
   count: number;
 };
 
-const DashboardDirectReferral = ({ teamMemberProfile, count }: Props) => {
+const DashboardDirectReferral = ({ count }: Props) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -44,7 +44,7 @@ const DashboardDirectReferral = ({ teamMemberProfile, count }: Props) => {
           <DialogTitle className=" text-2xl font-bold">
             Direct Referral
           </DialogTitle>
-          <AllyBountyTable teamMemberProfile={teamMemberProfile} />
+          <AllyBountyTable />
           <DialogFooter className="flex justify-center"></DialogFooter>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>

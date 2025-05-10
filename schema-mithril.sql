@@ -41,6 +41,7 @@ WITH
     indirect_referrals AS (
         SELECT 
             package_ally_bounty_member_id AS member_id,
+            COUNT(DISTINCT(package_ally_bounty_from)) AS indirect_referral_count,
             COALESCE(SUM(package_ally_bounty_earnings::DECIMAL), 0) AS indirect_referral_amount
         FROM packages_schema.package_ally_bounty_log
         WHERE package_ally_bounty_type = 'INDIRECT'
@@ -58,12 +59,12 @@ SELECT
     COALESCE(d.direct_referral_amount, 0) AS direct_referral_amount,
     COALESCE(i.indirect_referral_amount, 0) AS indirect_referral_amount,
     COALESCE(e.total_amount + e.total_earnings, 0) AS package_income,
-    COALESCE(d.direct_referral_count, 0) AS direct_referral_count
+    COALESCE(d.direct_referral_count, 0) AS direct_referral_count,
+    COALESCE(i.indirect_referral_count, 0) AS indirect_referral_count
 FROM company_schema.company_member_table m
 LEFT JOIN earnings e ON m.company_member_id = e.member_id
 LEFT JOIN withdrawals w ON m.company_member_id = w.member_id
 LEFT JOIN direct_referrals d ON m.company_member_id = d.member_id
 LEFT JOIN indirect_referrals i ON m.company_member_id = i.member_id;
-
 
 GRANT USAGE, SELECT ON SEQUENCE company_schema.company_referral_code_seq TO PUBLIC, POSTGRES;

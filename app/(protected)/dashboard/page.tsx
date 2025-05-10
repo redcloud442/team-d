@@ -12,7 +12,7 @@ const Page = async () => {
       package_percentage: true,
       packages_days: true,
       package_description: true,
-      package_color: true,
+      package_gif: true,
       package_is_disabled: true,
       package_image: true,
     },

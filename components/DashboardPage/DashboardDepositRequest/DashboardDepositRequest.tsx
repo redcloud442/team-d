@@ -44,18 +44,9 @@ const DashboardDepositRequest = ({
           <div className="flex justify-between gap-4">
             <h1 className="text-xl font-bold">Deposit Now</h1>
             <div className="flex flex-col w-full  gap-2">
-              <DashboardDepositModalDeposit
-                teamMemberProfile={teamMemberProfile}
-                className="deposit-button"
-              />
+              <DashboardDepositModalDeposit />
 
-              <DashboardDepositModalPackages
-                className="package-selection"
-                packages={packages}
-                earnings={earnings}
-                teamMemberProfile={teamMemberProfile}
-                setIsActive={setIsActive}
-              />
+              <DashboardDepositModalPackages packages={packages} />
             </div>
           </div>
         </CardContent>

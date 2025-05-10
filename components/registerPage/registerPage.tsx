@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { checkUserName, createTriggerUser } from "@/services/Auth/Auth";
@@ -12,8 +11,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircleIcon, XCircleIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
-import { useController, useForm } from "react-hook-form";
+import { Resolver, useController, useForm } from "react-hook-form";
 import { BoundTurnstileObject } from "react-turnstile";
+import ReusableCard from "../ui/card-reusable";
 import {
   Form,
   FormControl,
@@ -22,7 +22,6 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import NavigationLoader from "../ui/NavigationLoader";
 import { PasswordInput } from "../ui/passwordInput";
 
 type Props = {
@@ -36,12 +35,16 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const { toast } = useToast();
-
   const form = useForm<RegisterFormData>({
-    resolver: zodResolver(RegisterSchema),
+    resolver: zodResolver(RegisterSchema) as Resolver<RegisterFormData>,
     defaultValues: {
       referralLink: referralLink,
       sponsor: userName,
+      firstName: "",
+      lastName: "",
+      userName: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
@@ -126,8 +129,15 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
 
     const sanitizedData = escapeFormData(data);
 
-    const { userName, firstName, lastName, botField, referralLink } =
-      sanitizedData;
+    const {
+      userName,
+      firstName,
+      lastName,
+      botField,
+      referralLink,
+      email,
+      phoneNumber,
+    } = sanitizedData;
 
     try {
       await createTriggerUser({
@@ -139,6 +149,8 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
         captchaToken: captchaToken || "",
         botField: botField || "",
         password: data.password,
+        email: email || "",
+        phoneNumber: phoneNumber || "",
       });
 
       if (captcha.current) {
@@ -171,167 +183,199 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
   };
 
   return (
-    <Card className="w-full max-w-lg mx-auto p-2">
-      <NavigationLoader visible={isSubmitting || isSuccess} />
-      <CardTitle className="font-bold text-2xl flex items-center justify-between w-full">
-        <p>Register</p>
-      </CardTitle>
+    <ReusableCard title="Register to XELORA!">
+      <Form {...form}>
+        <form
+          className="space-y-4 w-full max-w-lg mx-auto z-40"
+          onSubmit={handleSubmit(handleRegistrationSubmit)}
+        >
+          <FormField
+            control={control}
+            name="botField"
+            render={({ field }) => (
+              <FormItem className="hidden">
+                <FormLabel>Bot Field</FormLabel>
+                <FormControl>
+                  <Input
+                    id="botField"
+                    placeholder="Bot Field"
+                    {...field}
+                    hidden
+                    className="pr-10"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-      <CardContent className="p-4">
-        <Form {...form}>
-          <form
-            className="flex flex-col gap-4"
-            onSubmit={handleSubmit(handleRegistrationSubmit)}
-          >
-            <FormField
-              control={control}
-              name="botField"
-              render={({ field }) => (
-                <FormItem className="hidden">
-                  <FormLabel>Bot Field</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="botField"
-                      placeholder="Bot Field"
-                      {...field}
-                      hidden
-                      className="pr-10"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={control}
+            name="firstName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>First Name</FormLabel>
+                <FormControl>
+                  <Input
+                    id="firstName"
+                    placeholder="First Name"
+                    {...field}
+                    className="pr-10"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={control}
-              name="userName"
-              render={({ field }) => (
-                <FormItem className="relative">
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="userName"
-                      placeholder="Username"
-                      {...field}
-                      onChange={(e) => {
-                        userNameField.onChange(e.target.value);
-                        validateUserName(e.target.value);
-                      }}
-                      onBlur={() => validateUserName(userNameField.value)}
-                      className="pr-10"
-                    />
-                  </FormControl>
-                  {!isUsernameLoading &&
-                    isUsernameValidated &&
-                    !errors.userName && (
-                      <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3 mt-3 top-1/2 -translate-y-1/2" />
-                    )}
+          <FormField
+            control={control}
+            name="lastName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last Name</FormLabel>
+                <FormControl>
+                  <Input
+                    id="lastName"
+                    placeholder="Last Name"
+                    {...field}
+                    className="pr-10"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-                  {/* Show error icon if validation failed */}
-                  {!isUsernameLoading && errors.userName && (
-                    <XCircleIcon className="w-5 h-5 text-primaryRed absolute right-3 pt-5 top-1/2 -translate-y-1/2" />
+          <FormField
+            control={control}
+            name="userName"
+            render={({ field }) => (
+              <FormItem className="relative">
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input
+                    id="userName"
+                    placeholder="Username"
+                    {...field}
+                    onChange={(e) => {
+                      userNameField.onChange(e.target.value);
+                      validateUserName(e.target.value);
+                    }}
+                    onBlur={() => validateUserName(userNameField.value)}
+                    className="pr-10"
+                  />
+                </FormControl>
+                {!isUsernameLoading &&
+                  isUsernameValidated &&
+                  !errors.userName && (
+                    <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3 mt-3 top-1/2 -translate-y-1/2" />
                   )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
-            <FormField
-              control={control}
-              name="firstName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>First Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="firstName"
-                      placeholder="First Name"
-                      {...field}
-                      className="pr-10"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                {/* Show error icon if validation failed */}
+                {!isUsernameLoading && errors.userName && (
+                  <XCircleIcon className="w-5 h-5 text-primaryRed absolute right-3 pt-5 top-1/2 -translate-y-1/2" />
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="lastName"
-                      placeholder="Last Name"
-                      {...field}
-                      className="pr-10"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    id="email"
+                    placeholder="(optional)"
+                    {...field}
+                    className="pr-10"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <PasswordInput
-                      id="password"
-                      placeholder="Password"
-                      {...field}
-                      className="pr-10"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={control}
+            name="phoneNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone Number</FormLabel>
+                <FormControl>
+                  <Input
+                    id="phoneNumber"
+                    placeholder="(optional)"
+                    {...field}
+                    className="pr-10"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <PasswordInput
-                      id="confirmPassword"
-                      placeholder="Confirm Password"
-                      {...field}
-                      className="pr-10"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <PasswordInput
+                    id="password"
+                    placeholder="Password"
+                    {...field}
+                    className="pr-10"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={control}
-              name="sponsor"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sponsor</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="sponsor"
-                      placeholder="Sponsor"
-                      {...field}
-                      className="pr-10"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* 
+          <FormField
+            control={control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm Password</FormLabel>
+                <FormControl>
+                  <PasswordInput
+                    id="confirmPassword"
+                    placeholder="Confirm Password"
+                    {...field}
+                    className="pr-10"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="sponsor"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sponsor</FormLabel>
+                <FormControl>
+                  <Input
+                    id="sponsor"
+                    placeholder="Sponsor"
+                    {...field}
+                    className="pr-10"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* 
             <div className="w-full flex flex-1 justify-center">
               <Turnstile
                 size="flexible"
@@ -342,20 +386,19 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
               />
             </div> */}
 
-            <div className="w-full flex justify-center">
-              <Button
-                variant="card"
-                className="px-4 font-medium"
-                disabled={isSubmitting || isSuccess}
-                type="submit"
-              >
-                Submit
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+          <div className="w-full flex justify-center">
+            <Button
+              variant="card"
+              className=" font-black text-2xl rounded-full p-5"
+              disabled={isSubmitting || isSuccess}
+              type="submit"
+            >
+              Register
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </ReusableCard>
   );
 };
 

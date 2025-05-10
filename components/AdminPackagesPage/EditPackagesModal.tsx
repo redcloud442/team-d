@@ -92,7 +92,7 @@ const EditPackagesModal = ({
         packagePercentage: selectedPackage.package_percentage.toString(),
         packageDays: selectedPackage.packages_days.toString(),
         packageIsDisabled: selectedPackage.package_is_disabled,
-        packageColor: selectedPackage.package_color ?? "",
+        packageColor: selectedPackage.package_gif ?? "#F6DB4E",
       });
     }
   }, [selectedPackage, reset]);

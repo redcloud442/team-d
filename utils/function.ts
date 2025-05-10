@@ -145,7 +145,36 @@ export const formateMonthDateYear = (date: Date | string): string => {
   const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
   const day = String(inputDate.getDate()).padStart(2, "0");
 
-  return `${month}/${day}/${year}`;
+  return `${month} ${day}, ${year}`;
+};
+
+export const formateMonthDateYearv2 = (date: Date | string): string => {
+  const inputDate = typeof date === "string" ? new Date(date) : date;
+
+  if (isNaN(inputDate.getTime())) {
+    return "Invalid date"; // Handle invalid dates gracefully
+  }
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const year = inputDate.getFullYear();
+  const month = monthNames[inputDate.getMonth()]; // Get full month name
+  const day = inputDate.getDate(); // No padding for human-friendly format
+
+  return `${month} ${day}, ${year}`;
 };
 
 export const formatTime = (date: Date | string): string => {
@@ -293,4 +322,26 @@ export const formatNumberLocale = (number: number) => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+};
+
+export const getPhilippinesTime = (
+  date: Date,
+  time: "start" | "end"
+): string => {
+  // Adjust the date to Philippine Time (UTC+8)
+  const philippinesOffset = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+  const adjustedDate = new Date(date.getTime() + philippinesOffset);
+
+  // Set the start or end of the day based on the time parameter
+  if (time === "start") {
+    adjustedDate.setUTCHours(0, 0, 0, 0);
+  } else {
+    adjustedDate.setUTCHours(23, 59, 59, 999);
+  }
+
+  // Convert back to UTC for accurate comparisons
+  const resultDate = new Date(adjustedDate.getTime() - philippinesOffset);
+
+  // Return ISO string for database queries
+  return resultDate.toISOString();
 };

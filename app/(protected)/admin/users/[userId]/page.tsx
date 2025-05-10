@@ -29,7 +29,7 @@ const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
       if (!user) return [null, null, null]; // Stop further queries if user doesn't exist
 
       const alliance = await tx.company_member_table.findFirst({
-        where: { company_member_id: userId },
+        where: { company_member_user_id: userId },
       });
 
       const earnings = alliance

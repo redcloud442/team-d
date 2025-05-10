@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import TopUpHistoryTable from "../TopUpHistoryPage/TopUpHistoryTable";
+import { Separator } from "../ui/separator";
 import { Skeleton } from "../ui/skeleton";
 import WithdrawalHistoryTable from "../WithrawalHistoryPage/WithdrawalHistoryTable";
 import AdminCheckUserReferral from "./AdminCheckUserReferral";
@@ -68,12 +69,14 @@ const UserAdminProfile = ({ userProfile: initialData, profile }: Props) => {
       <div className="w-full flex flex-col gap-6">
         {/* Page Title */}
         <header>
-          <h1 className="Title">User Profile</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
+            User Profile {userProfileData.user_username}
+          </h1>
           <p className="text-gray-600 dark:text-white">
             View all the withdrawal history that are currently in the system.
           </p>
         </header>
-
+        <Separator className="my-4" />
         {/* Search Bar */}
         {/* Search Bar */}
         <form

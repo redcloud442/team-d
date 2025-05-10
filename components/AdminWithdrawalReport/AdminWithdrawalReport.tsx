@@ -45,7 +45,6 @@ const AdminWithdrawalReport = () => {
 
   const onSubmit = async (data: FormData) => {
     try {
-      setIsFetchingList(true);
       const { startDate, endDate } = data.dateFilter;
 
       const { total_amount, total_request } = await getAdminWithdrawalReport({

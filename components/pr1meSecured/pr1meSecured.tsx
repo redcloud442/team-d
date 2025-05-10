@@ -13,7 +13,6 @@ import {
 } from "@/utils/schema";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
 import { useRef, useState } from "react";
 import {
   Resolver,
@@ -21,8 +20,8 @@ import {
   SubmitHandler,
   useForm,
 } from "react-hook-form";
-import Turnstile, { BoundTurnstileObject } from "react-turnstile";
-import NavigationLoader from "../ui/NavigationLoader";
+import { BoundTurnstileObject } from "react-turnstile";
+import ReusableCard from "../ui/card-reusable";
 import {
   Form,
   FormControl,
@@ -82,13 +81,13 @@ const Pr1meSecured = () => {
 
   const handleSignIn = async (data: LoginFormValues) => {
     try {
-      if (!captchaToken) {
-        return toast({
-          title: "Please wait",
-          description: "Captcha is required.",
-          variant: "destructive",
-        });
-      }
+      // if (!captchaToken) {
+      //   return toast({
+      //     title: "Please wait",
+      //     description: "Captcha is required.",
+      //     variant: "destructive",
+      //   });
+      // }
       setIsLoading(true);
 
       const sanitizedData = escapeFormData(data);
@@ -174,13 +173,11 @@ const Pr1meSecured = () => {
   };
 
   return (
-    <div className="flex w-full flex-col items-center justify-center sm:justify-center min-h-screen h-full p-10">
-      <NavigationLoader visible={isSubmitting || isLoading} />
-
+    <ReusableCard className="p-0 space-y-4" title="Secured Login">
       {step === "login" ? (
         <Form {...form}>
           <form
-            className="flex flex-col items-center gap-6 w-full max-w-lg m-4 z-40"
+            className="flex flex-col gap-6 w-full p-10 z-40"
             onSubmit={handleSubmit(
               handleSignIn as SubmitHandler<LoginFormValues | OtpFormValues>
             )}
@@ -223,22 +220,29 @@ const Pr1meSecured = () => {
               )}
             />
 
-            <Turnstile
+            {/* <Turnstile
               size="flexible"
               sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
               onVerify={(token) => {
                 setCaptchaToken(token);
               }}
-            />
-            <Button disabled={isSubmitting || isLoading} type="submit">
-              {isSubmitting || isLoading ? "Sending OTP..." : "Login"}
-            </Button>
+            /> */}
+            <div className="w-full flex justify-center">
+              <Button
+                variant="card"
+                className=" font-black text-2xl rounded-full p-5"
+                disabled={isSubmitting || isLoading}
+                type="submit"
+              >
+                {isSubmitting || isLoading ? "Processing..." : "Login"}
+              </Button>
+            </div>
           </form>
         </Form>
       ) : (
         <Form {...form}>
           <form
-            className="flex flex-col items-center gap-6 w-full max-w-lg m-4 z-40"
+            className="flex flex-col gap-6 w-full max-w-lg m-4 z-40"
             onSubmit={handleSubmit(
               handleVerifyOtp as SubmitHandler<LoginFormValues | OtpFormValues>
             )}
@@ -275,19 +279,7 @@ const Pr1meSecured = () => {
           </form>
         </Form>
       )}
-      <Image
-        src="/assets/login-page.png"
-        alt="background"
-        width={1200}
-        height={1200}
-        style={{
-          objectFit: "none", // Keeps the original size without scaling
-        }}
-        quality={100}
-        priority={true}
-        className="hidden sm:block fixed bottom-64 left-[40%] -rotate-45 z-10 w-full h-full"
-      />
-    </div>
+    </ReusableCard>
   );
 };
 

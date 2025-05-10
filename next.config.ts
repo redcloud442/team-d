@@ -1,9 +1,12 @@
+// next.config.js
+/** @type {import('next').NextConfig} */
+
 const nextConfig = {
   images: {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: `${process.env.NODE_ENV === "development" ? "qkrltxqicdallokpzdif.supabase.co" : "cdn.primepinas.com"}`,
+        hostname: "cmwfujabuwraxsgwuwpr.supabase.co",
         port: "",
         pathname: "/storage/v1/object/public/**",
       },
@@ -13,7 +16,7 @@ const nextConfig = {
     return [
       {
         source: "/api/v1/:path*",
-        destination: `${process.env.NODE_ENV === "development" ? "http://localhost:8000" : "https://starternext.com"}/api/v1/:path*`,
+        destination: `${process.env.NODE_ENV === "development" ? "http://localhost:8000" : "http://localhost:8000"}/api/v1/:path*`,
       },
     ];
   },

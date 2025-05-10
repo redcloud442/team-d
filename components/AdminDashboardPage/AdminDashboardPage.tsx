@@ -8,7 +8,7 @@ import {
 } from "@/services/Dasboard/Admin";
 import { logError } from "@/services/Error/ErrorLogs";
 import { useRole } from "@/utils/context/roleContext";
-import { formatNumberLocale } from "@/utils/function";
+import { formatDateToLocal, formatNumberLocale } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminDashboardData, AdminDashboardDataByDate } from "@/utils/types";
 import { format } from "date-fns";
@@ -56,13 +56,6 @@ const AdminDashboardPage = () => {
   });
 
   const { getValues, control, handleSubmit, watch } = filterMethods;
-
-  const formatDateToLocal = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
 
   const fetchAdminDashboardData = async () => {
     try {

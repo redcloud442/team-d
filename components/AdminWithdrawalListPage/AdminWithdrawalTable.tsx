@@ -52,6 +52,7 @@ type FilterFormValues = {
   rejectNote: string;
   dateFilter: { start: string; end: string };
   showHiddenUser: boolean;
+  showAllDays: boolean;
 };
 
 const AdminWithdrawalHistoryTable = () => {
@@ -86,6 +87,7 @@ const AdminWithdrawalHistoryTable = () => {
         statusFilter,
         dateFilter,
         showHiddenUser,
+        showAllDays,
       } = sanitizedData;
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
@@ -105,6 +107,7 @@ const AdminWithdrawalHistoryTable = () => {
           start: formattedStartDate,
           end: formattedStartDate,
         },
+        showAllDays: showAllDays,
       });
       setRequestData((prev: AdminWithdrawaldata | null) => {
         if (!prev) {
@@ -196,6 +199,7 @@ const AdminWithdrawalHistoryTable = () => {
         statusFilter,
         dateFilter,
         showHiddenUser,
+        showAllDays,
       } = sanitizedData;
 
       setActivePage(1);
@@ -217,6 +221,7 @@ const AdminWithdrawalHistoryTable = () => {
           start: formattedStartDate,
           end: formattedStartDate,
         },
+        showAllDays: showAllDays,
       });
 
       for (const status of statuses) {
@@ -508,6 +513,21 @@ const AdminWithdrawalHistoryTable = () => {
                         />
                       </PopoverContent>
                     </Popover>
+                  )}
+                />
+
+                <Controller
+                  name="showAllDays"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="showAllDays">Show All Days</Label>
+                      <Switch
+                        id="showAllDays"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </div>
                   )}
                 />
 

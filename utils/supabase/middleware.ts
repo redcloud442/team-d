@@ -1,7 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-import { NextResponse, type NextRequest } from "next/server";
-
+import { CompanyMemberRole, RouteAction } from "@/utils/enums";
 import {
   isAdminRoute,
   isBypassRoute,
@@ -9,9 +6,10 @@ import {
   isPrivateRoute,
   isPublicRoute,
 } from "@/utils/routeMatcher";
-
-import { CompanyMemberRole, RouteAction } from "@/utils/enums";
+import { createServerClient } from "@supabase/ssr";
 import { User } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
   const cookieStore = await cookies();
@@ -60,8 +58,6 @@ export async function updateSession(request: NextRequest) {
     pathname,
   });
 
-  console.log("role", user?.user_metadata.Role);
-
   switch (action) {
     case RouteAction.ALLOW:
       supabaseResponse.headers.set("x-session-checked", "true");
@@ -69,7 +65,7 @@ export async function updateSession(request: NextRequest) {
 
     case RouteAction.REDIRECT_LOGIN: {
       const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/auth/login";
+      loginUrl.pathname = "/access/login";
       return addSecurityHeaders(NextResponse.redirect(loginUrl));
     }
 
@@ -103,11 +99,9 @@ const determineRouteAction = ({
   if (!user) {
     if (isPublicRoute(pathname)) return RouteAction.ALLOW;
 
-    // If it's private or admin, block
     if (isPrivateRoute(pathname) || isAdminRoute(pathname))
       return RouteAction.REDIRECT_LOGIN;
 
-    // 🔥 NEW: Block ALL other paths
     return RouteAction.REDIRECT_LOGIN;
   }
 

@@ -6,28 +6,27 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { createClientSide } from "@/utils/supabase/client";
-import { LogOut } from "lucide-react";
+import { History, LogOut, LogOutIcon, Mail, User } from "lucide-react";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import DashboardGuidesModal from "../DashboardPage/DashboardDepositRequest/DashboardGuidesModal/DashboardGuidesModal";
 import { Button } from "./button";
 import { DialogFooter, DialogHeader } from "./dialog";
 
 type NavItem = {
   href: string;
   label: string;
+  icon?: React.ReactNode;
   onClick?: () => void | Promise<void>;
 };
 
 const MobileNavBar = () => {
   const supabase = createClientSide();
-  const pathname = usePathname();
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { setTotalEarnings } = useUserDashboardEarningsStore();
@@ -49,115 +48,86 @@ const MobileNavBar = () => {
   };
 
   const navItems: NavItem[] = [
-    { href: "/guides", label: "Guides" },
     {
-      href: "/",
-      label: "Home",
+      href: "/profile",
+      label: "Profile",
+      icon: <User className="h-8 w-8" />,
     },
     {
-      href: "/auth/login",
+      href: "/inbox",
+      label: "Inbox",
+      icon: <Mail className="h-8 w-8" />,
+    },
+    {
+      href: "/dashboard",
+      label: "Home",
+      icon: (
+        <Image src="/assets/icons/logo.ico" alt="Home" width={45} height={45} />
+      ),
+    },
+    {
+      href: "/history",
+      label: "History",
+      icon: <History className="h-8 w-8" />,
+    },
+    {
+      href: "/logout",
       label: "Logout",
-
+      icon: <LogOutIcon className="h-8 w-8" />,
       onClick: () => setIsModalOpen(true),
     },
   ];
 
-  const handleNavigation = (
-    url: string,
-    onClick?: () => void | Promise<void>
-  ) => {
-    if (onClick) {
-      onClick();
-    } else if (pathname !== url) {
-      router.push(url);
-    }
-  };
-
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 sm:hidden">
-        <ul className="flex justify-between items-end relative z-10 ">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-orange-950 shadow-md border-t-4 border-orange-500">
+        <ul className="flex sm:justify-around justify-between items-center px-4 py-2">
           {navItems.map((item) => (
             <li key={item.href}>
-              <Button
-                onClick={() => handleNavigation(item.href, item.onClick)}
-                variant="ghost"
-                className={cn(
-                  "flex flex-col items-center dark:hover:bg-none dark:text-black dark:hover:text-white font-extrabold"
-                )}
-              >
-                <span
-                  className={cn("text-md", item.label === "Home" && "pb-4")}
+              {item.href === "/logout" ? (
+                <div
+                  onClick={() => setIsModalOpen(true)}
+                  className="flex flex-col gap-1 items-center font-extrabold text-orange-500"
                 >
-                  {item.label}
-                </span>
-              </Button>
+                  {item.icon}
+                  <span className="text-[10px] text-white font-bold">
+                    {item.label}
+                  </span>
+                </div>
+              ) : (
+                <Link
+                  href={item.href}
+                  className="flex flex-col gap-1 items-center font-extrabold text-orange-500"
+                >
+                  {item.icon}
+                  <span className="text-[10px] text-white font-bold">
+                    {item.label}
+                  </span>
+                </Link>
+              )}
             </li>
           ))}
         </ul>
-
-        <div className="fixed -bottom-9 -left-24 transform translate-x-1/2 z-10 flex items-center justify-center">
-          <DashboardGuidesModal />
-        </div>
-
-        {/* Centered Image */}
-        <div className=" fixed block sm:hidden bottom-10 left-1/2 transform -translate-x-1/2 z-10 ">
-          <Image
-            src="/assets/app-logo-bg.svg"
-            alt="Logo"
-            width={70}
-            height={70}
-            className="z-10"
-            priority
-            onClick={() => router.push("/")}
-          />
-        </div>
-
-        <div className="fixed -bottom-3 -right-4 z-10 flex items-center justify-center">
-          <Image
-            src="/assets/logout.png"
-            alt="Logo"
-            width={160}
-            height={160}
-            className="z-10"
-            priority
-            onClick={() => setIsModalOpen(true)}
-          />
-        </div>
-
-        {/* Mobile Navigation Background */}
-
-        <Image
-          src="/assets/mobile-navigation.svg"
-          alt="Mobile Navigation"
-          width={430}
-          height={60}
-          priority
-          style={{
-            objectFit: "cover",
-          }}
-          className="fixed -bottom-2 left-0 right-0 z-0 w-full min-h-[115px] max-h-[115px]"
-        />
       </nav>
-
-      <Button
-        className="hidden sm:block fixed bottom-10 right-4 h-12 w-12 rounded-full p-4 z-50 bg-gray-100 border border-gray-300 shadow-lg hover:shadow-xl transition-transform transform hover:scale-105 dark:bg-cardColor dark:border-gray-700"
-        variant="card"
-        onClick={() => setIsModalOpen(true)}
-      >
-        <LogOut className="w-5 h-5 text-gray-700 dark:text-pageColor" />
-      </Button>
 
       {/* Logout Confirmation Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="z-50">
+        <DialogContent className="z-50 text-center space-y-4">
           <DialogHeader>
-            <DialogTitle>Are you sure you want to log out?</DialogTitle>
+            <div className="flex flex-col items-center space-y-2">
+              <LogOut className="w-10 h-10 text-red-500" />
+              <DialogTitle className="text-xl font-bold">
+                Confirm Logout
+              </DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                Are you sure you want to sign out? You’ll need to log in again
+                to access your account.
+              </DialogDescription>
+            </div>
           </DialogHeader>
-          <DialogDescription />
 
-          <DialogFooter>
-            <Button variant="card" onClick={handleSignOut}>
+          <DialogFooter className="flex justify-center gap-4 pt-4">
+            <Button variant="destructive" onClick={handleSignOut}>
               Continue
             </Button>
           </DialogFooter>

@@ -52,6 +52,7 @@ type FilterFormValues = {
   rejectNote: string;
   dateFilter: { start: string; end: string };
   showHiddenUser: boolean;
+  showAllDays: boolean;
 };
 
 const WithdrawalTable = () => {
@@ -86,6 +87,7 @@ const WithdrawalTable = () => {
         statusFilter,
         dateFilter,
         showHiddenUser,
+        showAllDays,
       } = sanitizedData;
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
@@ -105,6 +107,7 @@ const WithdrawalTable = () => {
           end: formattedStartDate,
         },
         showHiddenUser,
+        showAllDays,
       });
 
       setRequestData(
@@ -201,6 +204,7 @@ const WithdrawalTable = () => {
         statusFilter,
         dateFilter,
         showHiddenUser,
+        showAllDays,
       } = sanitizedData;
       const startDate = dateFilter.start
         ? new Date(dateFilter.start)
@@ -228,6 +232,7 @@ const WithdrawalTable = () => {
               : undefined,
         },
         showHiddenUser,
+        showAllDays,
       });
 
       for (const status of statuses) {

@@ -32,8 +32,8 @@ import { useRole } from "@/utils/context/roleContext";
 const data = {
   teams: [
     {
-      name: "PRIMEPINAS",
-      logo: "/app-logo.png",
+      name: "XELORIA",
+      logo: "/assets/icons/logo.ico",
       plan: "Company",
     },
   ],

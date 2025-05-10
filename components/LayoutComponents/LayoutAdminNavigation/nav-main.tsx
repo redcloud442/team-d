@@ -51,11 +51,11 @@ export function NavMain({
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon className="text-amber-400" />}
-                  <span className="text-md text-amber-400">{item.title}</span>
+                  {item.icon && <item.icon className="text-orange-400" />}
+                  <span className="text-md text-orange-400">{item.title}</span>
                   <ChevronRight
                     size={20}
-                    className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 text-amber-400"
+                    className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 text-orange-400"
                   />
                 </SidebarMenuButton>
               </CollapsibleTrigger>
@@ -64,7 +64,7 @@ export function NavMain({
                   {item.items?.map((subItem) => (
                     <SidebarMenuSubItem
                       key={subItem.title}
-                      className={`${isActive(subItem.url) ? "bg-amber-400/50 rounded-md" : ""}`}
+                      className={`${isActive(subItem.url) ? "bg-orange-400/50 rounded-md" : ""}`}
                     >
                       <Link href={subItem.url}>
                         <Button
@@ -73,7 +73,7 @@ export function NavMain({
                           size="sm"
                         >
                           {subItem.icon && (
-                            <subItem.icon className="text-amber-400" />
+                            <subItem.icon className="text-orange-400" />
                           )}
                           {subItem.title}
                         </Button>

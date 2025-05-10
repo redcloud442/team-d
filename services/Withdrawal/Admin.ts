@@ -17,6 +17,7 @@ export const getAdminWithdrawalRequest = async (params: {
     end: string | undefined;
   };
   showHiddenUser: boolean;
+  showAllDays: boolean;
 }) => {
   const response = await fetch("/api/v1/withdraw/list", {
     method: "POST",

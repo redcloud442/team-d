@@ -99,3 +99,26 @@ export const ReinvestPackageHandler = async (params: {
 
   return response;
 };
+
+export const createPromoPackageConnection = async (params: {
+  packageData: { amount: number; packageId: string };
+  teamMemberId: string;
+}) => {
+  const response = await fetch(`/api/v1/package/connection`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while fetching the package connection."
+    );
+  }
+
+  return result;
+};

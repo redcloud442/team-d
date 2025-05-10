@@ -64,6 +64,12 @@
   color: green; /* Ensure the text color remains green */
 }
 
+.stroke-text-orange {
+  color: white;
+  -webkit-text-stroke: 1px #f97316; /* Tailwind's orange-500 */
+  text-stroke: 1px #f97316;
+}
+
 @layer base {
   :root {
     --radius: 0.5rem;

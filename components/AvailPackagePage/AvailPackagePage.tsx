@@ -6,78 +6,72 @@ import { useToast } from "@/hooks/use-toast";
 import { createPackageConnection } from "@/services/Package/Member";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
-import { escapeFormData } from "@/utils/function";
+import { useRole } from "@/utils/context/roleContext";
+import { escapeFormData, formatNumberLocale } from "@/utils/function";
+import { PromoPackageSchema } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  company_earnings_table,
-  company_member_table,
-  package_table,
-} from "@prisma/client";
-import { AlertCircle, Loader2 } from "lucide-react";
-import { Dispatch, SetStateAction, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { package_table } from "@prisma/client";
+import { Loader2 } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import * as z from "zod";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { Label } from "../ui/label";
 
 type Props = {
-  earnings: company_earnings_table | null;
-  pkg: package_table | [];
-  teamMemberProfile: company_member_table;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  setSelectedPackage: Dispatch<SetStateAction<package_table | null>>;
+  onClick: () => void;
   selectedPackage: package_table | null;
 };
 
-const AvailPackagePage = ({
-  earnings,
-  pkg,
-  teamMemberProfile,
-  setOpen,
-  setSelectedPackage,
-  selectedPackage,
-}: Props) => {
+const AvailPackagePage = ({ onClick, selectedPackage }: Props) => {
+  const { teamMemberProfile } = useRole();
   const { toast } = useToast();
-  const { setEarnings } = useUserEarningsStore();
+  const { earnings, setEarnings } = useUserEarningsStore();
   const { chartData, setChartData } = usePackageChartData();
+
   const [maxAmount, setMaxAmount] = useState(
-    earnings?.company_combined_earnings ?? 0
+    earnings?.company_combined_earnings
   );
+  const [open, setOpen] = useState(false);
 
   const formattedMaxAmount = new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
-  }).format(maxAmount);
+  }).format(maxAmount ?? 0);
 
-  const formSchema = z.object({
-    amount: z
-      .string()
-      .min(3, "Minimum amount is 100 pesos")
-      .refine((val) => Number(val) >= 100, {
-        message: "Minimum amount is 100 pesos",
-      })
-      .refine((val) => parseFloat(val) <= parseFloat(maxAmount.toFixed(2)), {
-        message: `Amount cannot exceed ${formattedMaxAmount}`,
-      }),
-    packageId: z.string(),
+  const packageSchema = PromoPackageSchema(maxAmount ?? 0, formattedMaxAmount);
+
+  const form = useForm<z.infer<typeof packageSchema>>({
+    resolver: zodResolver(packageSchema),
+    defaultValues: {
+      amount: "",
+      packageId: "",
+    },
   });
-
-  type FormValues = z.infer<typeof formSchema>;
 
   const {
     handleSubmit,
     control,
     reset,
-    setValue,
     watch,
-    formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      amount: "",
-      packageId: selectedPackage?.package_id || "",
-    },
-  });
+    formState: { isSubmitting },
+  } = form;
 
   const amount = watch("amount");
 
@@ -86,7 +80,7 @@ const AvailPackagePage = ({
     : 0;
   const sumOfTotal = Number(amount) + computation;
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: z.infer<typeof packageSchema>) => {
     try {
       const result = escapeFormData({ ...data, amount: Number(data.amount) });
       const now = new Date();
@@ -136,7 +130,7 @@ const AvailPackagePage = ({
         });
       }
 
-      setMaxAmount((prev) => prev - result.amount);
+      setMaxAmount((prev) => (prev ?? 0) - result.amount);
 
       setChartData([
         {
@@ -147,18 +141,18 @@ const AvailPackagePage = ({
           is_ready_to_claim: false,
           package_connection_id: uuidv4(),
           profit_amount: Number(computation),
-          package_color: selectedPackage?.package_color || "",
+          package_gif: selectedPackage?.package_gif || "",
           package_date_created: new Date().toISOString(),
           package_member_id: teamMemberProfile?.company_member_id,
           package_days: Number(selectedPackage?.packages_days || 0),
           current_amount: Number(amount),
           currentPercentage: Number(0),
           package_percentage: Number(selectedPackage?.package_percentage || 0),
+          package_image: selectedPackage?.package_image || "",
         },
         ...chartData,
       ]);
 
-      setSelectedPackage(null);
       setOpen(false);
     } catch (e) {
       toast({
@@ -170,174 +164,137 @@ const AvailPackagePage = ({
   };
 
   return (
-    <div className="flex flex-col">
-      <div className="grid grid-cols-1 gap-8">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div>
-            {maxAmount !== 0 ? (
-              <div className="flex flex-col gap-2 p-2">
-                <div className="flex items-center justify-around ">
-                  <div className="flex flex-col items-center justify-center gap-2 w-36">
-                    <label className="font-bold" htmlFor="Profit">
-                      Profit Percentage
-                    </label>
-                    <Input
-                      variant="default"
-                      id="Profit"
-                      type="text"
-                      readOnly
-                      className="text-center"
-                      placeholder="Enter amount"
-                      value={`${selectedPackage?.package_percentage ?? 0} %`}
-                    />
-                  </div>
-                  <div className="flex flex-col items-center justify-center gap-2 w-32">
-                    <label className="font-bold" htmlFor="Days">
-                      No. Days
-                    </label>
-                    <Input
-                      variant="default"
-                      id="Days"
-                      type="text"
-                      className="text-center"
-                      value={Number(selectedPackage?.packages_days) || ""}
-                      readOnly
-                    />
-                  </div>
-                </div>
-                {/* amount to avail */}
-                <div className="flex gap-2 justify-between items-end">
-                  <div>
-                    <label className="font-bold text-center" htmlFor="amount">
-                      Amount to avail
-                    </label>
-                    <Controller
-                      name="amount"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          id="amount"
-                          type="text"
-                          placeholder="Enter amount"
-                          {...field}
-                          className="w-full border border-gray-300 rounded-lg shadow-xs px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                          value={field.value || ""}
-                          onChange={(e) => {
-                            let value = e.target.value;
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          className="absolute right-20 sm:right-32 bottom-10 sm:bottom-20 text-xl sm:text-4xl p-4 sm:p-6 w-min sm:max-w-xs"
+          variant="card"
+          onClick={onClick}
+        >
+          AVAIL
+        </Button>
+      </DialogTrigger>
+      <DialogContent
+        className="bg-orange-950 dark:bg-orange-950"
+        type="earnings"
+      >
+        <DialogHeader>
+          <DialogTitle className="stroke-text-orange">
+            {selectedPackage?.package_name}
+          </DialogTitle>
+        </DialogHeader>
+        <Image
+          src={selectedPackage?.package_image || ""}
+          alt={selectedPackage?.package_name || ""}
+          width={1000}
+          height={1000}
+          unoptimized
+        />
+        <Form {...form}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6 w-full mx-auto flex justify-center items-center"
+          >
+            <div className="flex flex-col gap-4 w-full max-w-xs">
+              <Label className="font-bold text-center" htmlFor="walletBalance">
+                WALLET BALANCE:
+              </Label>
+              <Input
+                variant="non-card"
+                id="walletBalance"
+                readOnly
+                type="text"
+                className="text-center"
+                placeholder="0"
+                value={earnings?.company_combined_earnings || ""}
+              />
 
-                            if (value === "") {
-                              field.onChange("");
-                              return;
-                            }
+              <FormField
+                control={control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold text-center">
+                      AMOUNT TO AVAIL:
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        id="amount"
+                        type="text"
+                        variant="non-card"
+                        className="text-center"
+                        placeholder="Enter amount"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) => {
+                          let value = e.target.value;
 
-                            // Allow only numbers and a single decimal point
-                            value = value.replace(/[^0-9]/g, "");
+                          if (value === "") {
+                            field.onChange("");
+                            return;
+                          }
 
-                            // Prevent multiple decimal points
-                            const parts = value.split(".");
-                            if (parts.length > 2) {
-                              value = parts[0] + "." + parts[1]; // Keep only the first decimal part
-                            }
+                          // Allow only numbers and a single decimal point
+                          value = value.replace(/[^0-9]/g, "");
 
-                            // Ensure it doesn't start with multiple zeros (e.g., "00")
-                            if (
-                              value.startsWith("0") &&
-                              !value.startsWith("0.")
-                            ) {
-                              value = value.replace(/^0+/, "0");
-                            }
+                          // Prevent multiple decimal points
+                          const parts = value.split(".");
+                          if (parts.length > 2) {
+                            value = parts[0] + "." + parts[1]; // Keep only the first decimal part
+                          }
 
-                            // Limit decimal places to 2 (adjust as needed)
-                            if (value.includes(".")) {
-                              const [integerPart, decimalPart] =
-                                value.split(".");
-                              value = `${integerPart}.${decimalPart.slice(0, 2)}`;
-                            }
+                          // Ensure it doesn't start with multiple zeros (e.g., "00")
+                          if (
+                            value.startsWith("0") &&
+                            !value.startsWith("0.")
+                          ) {
+                            value = value.replace(/^0+/, "0");
+                          }
 
-                            field.onChange(value);
-                          }}
-                        />
-                      )}
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      setValue("amount", maxAmount.toFixed(2));
-                    }}
-                    className="h-12 bg-pageColor text-white"
-                  >
-                    Max
-                  </Button>
-                </div>
+                          // Limit decimal places to 2 (adjust as needed)
+                          if (value.includes(".")) {
+                            const [integerPart, decimalPart] = value.split(".");
+                            value = `${integerPart}.${decimalPart.slice(0, 2)}`;
+                          }
 
-                {errors.amount && (
-                  <p className="text-primaryRed text-sm">
-                    {errors.amount.message}
-                  </p>
+                          field.onChange(value);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-                {/* no. days */}
-                <div className="flex flex-col gap-2 w-full">
-                  <label className="font-bold" htmlFor="Maturity">
-                    Maturity Income
-                  </label>
-                  <Input
-                    variant="default"
-                    id="Maturity"
-                    readOnly
-                    type="text"
-                    className="text-center"
-                    placeholder="Enter amount"
-                    value={computation.toLocaleString() || ""}
-                  />
-                </div>
+              />
 
-                <div className="flex flex-col gap-2 w-full">
-                  <label className="font-bold" htmlFor="Gross">
-                    Total Gross
-                  </label>
-                  <Input
-                    variant="default"
-                    id="Gross"
-                    readOnly
-                    type="text"
-                    className="text-center"
-                    placeholder="Gross Income"
-                    value={
-                      sumOfTotal.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      }) || ""
-                    }
-                  />
-                </div>
-                <p className="text-sm font-bold text-primaryRed">
-                  {"Tip: You can Maximize your earnings with Multiple Plan."}
-                </p>
-                <div className="flex items-center justify-center">
-                  <Button
-                    disabled={isSubmitting || maxAmount === 0}
-                    type="submit"
-                    className="py-5 rounded-xl   bg-pageColor text-white"
-                  >
-                    {isSubmitting && <Loader2 className="animate-spin mr-2" />}
-                    Submit
-                  </Button>
-                </div>
+              <Label className="font-bold text-center" htmlFor="totalIncome">
+                TOTAL INCOME AFTER {selectedPackage?.packages_days} DAYS
+              </Label>
+              <Input
+                variant="non-card"
+                id="totalIncome"
+                readOnly
+                type="text"
+                className="text-center"
+                placeholder="Total Income"
+                value={formatNumberLocale(sumOfTotal) || ""}
+              />
+
+              <div className="flex items-center justify-center">
+                <Button
+                  variant="card"
+                  className=" font-black text-2xl rounded-full p-5"
+                  disabled={isSubmitting}
+                  type="submit"
+                >
+                  {isSubmitting && <Loader2 className="animate-spin mr-2" />}
+                  Submit
+                </Button>
               </div>
-            ) : (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Balance</AlertTitle>
-                <AlertDescription>
-                  You don&apos;t have enough balance to avail a package.
-                </AlertDescription>
-              </Alert>
-            )}
-          </div>
-        </form>
-      </div>
-    </div>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

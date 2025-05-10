@@ -10,12 +10,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Label } from "../ui/label";
 import { PasswordInput } from "../ui/passwordInput";
 
+import { ChangePasswordFormValues, ChangePasswordSchema } from "@/utils/schema";
 import crypto from "crypto";
 
 const generateSupabasePassword = (length: number = 32) => {
@@ -27,25 +27,6 @@ const generateSupabasePassword = (length: number = 32) => {
     (byte) => charset[byte % charset.length]
   ).join("");
 };
-
-const ChangePasswordSchema = z
-  .object({
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z
-      .string()
-      .min(6, "Confirm Password must be at least 6 characters"),
-  })
-  .superRefine(({ confirmPassword, password }, ctx) => {
-    if (confirmPassword !== password) {
-      ctx.addIssue({
-        code: "custom",
-        message: "The passwords did not match",
-        path: ["confirmPassword"],
-      });
-    }
-  });
-
-type ChangePasswordFormValues = z.infer<typeof ChangePasswordSchema>;
 
 type Props = {
   userProfile: UserRequestdata;
@@ -75,13 +56,13 @@ const ChangePassword = ({ userProfile, setUserProfile }: Props) => {
     try {
       await changeUserPassword({
         userId: userProfile.user_id,
-        email: userProfile.user_email,
+        email: userProfile.user_email ?? "",
         password: data.password,
       });
 
       reset();
       if (setUserProfile) {
-        setUserProfile((prev) => ({
+        setUserProfile((prev: UserRequestdata) => ({
           ...prev,
         }));
       }

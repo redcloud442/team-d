@@ -11,6 +11,8 @@ export const createTriggerUser = async (params: {
   url: string;
   captchaToken: string;
   botField: string;
+  email: string;
+  phoneNumber: string;
 }) => {
   const {
     userName,
@@ -21,6 +23,8 @@ export const createTriggerUser = async (params: {
     lastName,
     captchaToken,
     botField,
+    email,
+    phoneNumber,
   } = params;
   const supabase = createClientSide();
 
@@ -56,9 +60,11 @@ export const createTriggerUser = async (params: {
     referalLink,
     url,
     botField,
+    email,
+    phoneNumber,
   };
 
-  const response = await fetch(`/api/v1/auth/register`, {
+  const response = await fetch(`/api/v1/access/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -87,7 +93,7 @@ export const loginValidation = async (
 
   const formattedUserName = userName + "@gmail.com";
 
-  const response = await fetch(`/api/v1/auth`, {
+  const response = await fetch(`/api/v1/access`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -115,7 +121,7 @@ export const loginValidation = async (
 };
 
 export const checkUserName = async (params: { userName: string }) => {
-  const response = await fetch(`/api/v1/auth?userName=${params.userName}`, {
+  const response = await fetch(`/api/v1/access?userName=${params.userName}`, {
     method: "GET",
   });
 
@@ -167,7 +173,7 @@ export const handleSignInAdmin = async (params: {
   userName: string;
   password: string;
 }) => {
-  const response = await fetch(`/api/v1/auth/securedPrime`, {
+  const response = await fetch(`/api/v1/access/securedStarter`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

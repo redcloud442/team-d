@@ -1,6 +1,6 @@
-import UserProfilePage from "@/components/UserProfilePage/UserProfilePage";
+import UserProfilePageUser from "@/components/UserProfilePage/UserProfilePageUser";
 import prisma from "@/utils/prisma";
-import { protectionMemberUser } from "@/utils/serversideProtection";
+import { createClientServerSide } from "@/utils/supabase/server";
 import { UserRequestdata } from "@/utils/types";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -14,29 +14,40 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
+  const supabase = await createClientServerSide();
   const {
-    teamMemberProfile,
-    profile,
-    redirect: redirectTo,
-  } = await protectionMemberUser();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (redirectTo || !teamMemberProfile) {
-    return { redirect: redirectTo };
+  if (!user) {
+    redirect("/access/signin");
   }
 
-  const earningsSummary = await prisma.dashboard_earnings_summary.findUnique({
+  const earningsSummary = await prisma.dashboard_earnings_summary.findFirst({
     where: {
-      member_id: teamMemberProfile.company_member_id,
+      member_id: user.user_metadata.CompanyMemberId,
     },
   });
 
-  if (redirectTo) {
-    redirect(redirectTo);
-  }
-
-  if (!teamMemberProfile || !profile) {
+  if (!earningsSummary) {
     redirect("/500");
   }
+
+  const teamMemberProfile = await prisma.company_member_table.findUnique({
+    where: {
+      company_member_id: user.user_metadata.CompanyMemberId,
+    },
+  });
+
+  if (!teamMemberProfile) {
+    redirect("/500");
+  }
+
+  const profile = await prisma.user_table.findUnique({
+    where: {
+      user_id: teamMemberProfile.company_member_user_id,
+    },
+  });
 
   const combinedData = {
     ...teamMemberProfile,
@@ -44,7 +55,7 @@ const Page = async () => {
     ...earningsSummary,
   } as UserRequestdata;
 
-  return <UserProfilePage userProfile={combinedData} />;
+  return <UserProfilePageUser userProfile={combinedData} />;
 };
 
 export default Page;

@@ -8,11 +8,11 @@ import { escapeFormData } from "@/utils/function";
 import { LoginFormValues, LoginSchema } from "@/utils/schema";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import Turnstile, { BoundTurnstileObject } from "react-turnstile";
+import { BoundTurnstileObject } from "react-turnstile";
+import ReusableCard from "../ui/card-reusable";
 import {
   Form,
   FormControl,
@@ -21,7 +21,6 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import NavigationLoader from "../ui/NavigationLoader";
 import { PasswordInput } from "../ui/passwordInput";
 
 const LoginPage = () => {
@@ -29,6 +28,10 @@ const LoginPage = () => {
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(LoginSchema),
+    defaultValues: {
+      userName: "",
+      password: "",
+    },
   });
 
   const {
@@ -84,13 +87,13 @@ const LoginPage = () => {
     } catch (e) {
       if (e instanceof Error) {
         toast({
-          title: "An error occurred",
+          title: "Something went wrong",
           description: e.message,
           variant: "destructive",
         });
       } else {
         toast({
-          title: "An error occurred",
+          title: "Something went wrong",
           description: "An unknown error occurred",
           variant: "destructive",
         });
@@ -101,12 +104,10 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex w-full flex-col items-center justify-center sm:justify-center min-h-screen h-full p-10">
-      <NavigationLoader visible={isSubmitting || isLoading || isSuccess} />
-
+    <ReusableCard title="Welcome to XELORA!">
       <Form {...form}>
         <form
-          className="flex flex-col justify-center gap-6 w-full max-w-lg m-4 z-40"
+          className="flex flex-col justify-center gap-6 w-full max-w-xs mx-auto z-40"
           onSubmit={handleSubmit(handleSignIn)}
         >
           <FormField
@@ -119,7 +120,7 @@ const LoginPage = () => {
                   <Input
                     variant="non-card"
                     id="username"
-                    placeholder="Username"
+                    placeholder="JuanDelaCruz"
                     {...field}
                   />
                 </FormControl>
@@ -147,7 +148,7 @@ const LoginPage = () => {
             )}
           />
 
-          <div className="w-full flex items-center justify-center">
+          {/* <div className="w-full flex items-center justify-center">
             <Turnstile
               size="flexible"
               sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
@@ -155,35 +156,21 @@ const LoginPage = () => {
                 setCaptchaToken(token);
               }}
             />
-          </div>
+          </div> */}
 
-          <Button
-            disabled={isSubmitting || isLoading}
-            type="submit"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSubmit(handleSignIn);
-              }
-            }}
-          >
-            {isSubmitting || isLoading ? "Processing..." : "Login"}
-          </Button>
+          <div className="w-full flex justify-center">
+            <Button
+              variant="card"
+              className=" font-black text-2xl rounded-full p-5"
+              disabled={isSubmitting || isSuccess}
+              type="submit"
+            >
+              {isSubmitting || isSuccess ? "Processing..." : "Login"}
+            </Button>
+          </div>
         </form>
       </Form>
-
-      <Image
-        src="/assets/login-page.png"
-        alt="background"
-        width={1200}
-        height={1200}
-        style={{
-          objectFit: "none", // Keeps the original size without scaling
-        }}
-        quality={100}
-        priority={true}
-        className="hidden sm:block fixed bottom-64 left-[40%] -rotate-45 z-10 w-full h-full"
-      />
-    </div>
+    </ReusableCard>
   );
 };
 

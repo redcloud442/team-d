@@ -53,6 +53,7 @@ const TransactionHistoryTable = ({ teamMemberProfile }: DataTableProps) => {
         await getTransactionHistory({
           page: activePage,
           limit: 10,
+          status: "EARNINGS",
         });
 
       setTransactionHistory({

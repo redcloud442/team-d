@@ -3,11 +3,11 @@ import { z } from "zod";
 export const depositRequestSchema = z.object({
   amount: z
     .string()
-    .min(3, "Amount is required and must be at least 200 pesos")
+    .min(3, "Amount is required and must be at least 500 pesos")
     .max(6, "Amount must be less than 6 digits")
     .regex(/^\d+$/, "Amount must be a number")
-    .refine((amount) => parseInt(amount, 10) >= 200, {
-      message: "Amount must be at least 200 pesos",
+    .refine((amount) => parseInt(amount, 10) >= 500, {
+      message: "Amount must be at least 500 pesos",
     }),
   topUpMode: z.string().min(1, "Top up mode is required"),
   accountName: z.string().min(1, "Field is required"),
@@ -29,11 +29,10 @@ export const withdrawalFormSchema = z.object({
   earnings: z.string(),
   amount: z
     .string()
-    .min(2, "Minimum amount is required atleast 50 pesos")
-    .refine((amount) => parseInt(amount.replace(/,/g, ""), 10) >= 50, {
-      message: "Amount must be at least 50 pesos",
+    .min(3, "Minimum amount is required atleast 500 pesos")
+    .refine((amount) => parseInt(amount.replace(/,/g, ""), 10) >= 500, {
+      message: "Amount must be at least 500 pesos",
     }),
-
   bank: z.string().min(1, "Please select a bank"),
   accountName: z
     .string()
@@ -91,6 +90,19 @@ export const RegisterSchema = z
       ),
     botField: z.string().optional(),
     password: z.string().min(6, "Password must be at least 6 characters"),
+    email: z.preprocess(
+      (val) => (val === "" || val == null ? undefined : val),
+      z.string().email("Invalid email address").optional()
+    ),
+
+    phoneNumber: z.preprocess(
+      (val) => (val === "" || val == null ? undefined : val),
+      z
+        .string()
+        .min(10, "Phone number is required")
+        .max(11, "Phone number must be at most 11 digits")
+        .optional()
+    ),
     confirmPassword: z
       .string()
       .min(6, "Confirm Password must be at least 6 characters"),
@@ -126,6 +138,19 @@ export const RegisterSchemaType = z.object({
       /^[a-zA-Z][a-zA-Z0-9._]*$/,
       "Username must start with a letter and can only contain letters, numbers, dots, and underscores"
     ),
+  email: z.preprocess(
+    (val) => (val === "" || val == null ? undefined : val),
+    z.string().email("Invalid email address").optional()
+  ),
+
+  phoneNumber: z.preprocess(
+    (val) => (val === "" || val == null ? undefined : val),
+    z
+      .string()
+      .min(10, "Phone number is required")
+      .max(11, "Phone number must be at most 11 digits")
+      .optional()
+  ),
   password: z.string().min(6, "Password must be at least 6 characters"),
   botField: z.string().optional(),
   referralLink: z.string().optional(),
@@ -133,3 +158,44 @@ export const RegisterSchemaType = z.object({
 });
 
 export type RegisterFormDataType = z.infer<typeof RegisterSchemaType>;
+
+export const ChangePasswordSchema = z
+  .object({
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z
+      .string()
+      .min(6, "Confirm Password must be at least 6 characters"),
+  })
+  .superRefine(({ confirmPassword, password }, ctx) => {
+    if (confirmPassword !== password) {
+      ctx.addIssue({
+        code: "custom",
+        message: "The passwords did not match",
+        path: ["confirmPassword"],
+      });
+    }
+  });
+
+export type ChangePasswordFormValues = z.infer<typeof ChangePasswordSchema>;
+
+export const PromoPackageSchema = (
+  maxAmount: number,
+  formattedMaxAmount: string
+) => {
+  return z.object({
+    amount: z
+      .string()
+      .min(3, "Minimum amount is 500 pesos")
+      .refine((val) => Number(val) >= 500, {
+        message: "Minimum amount is 500 pesos",
+      })
+      .refine((val) => Number(val) <= Number(maxAmount), {
+        message: `Amount cannot exceed ${maxAmount}`,
+      }),
+    packageId: z.string(),
+  });
+};
+
+export type PromoPackageFormValues = z.infer<
+  ReturnType<typeof PromoPackageSchema>
+>;
