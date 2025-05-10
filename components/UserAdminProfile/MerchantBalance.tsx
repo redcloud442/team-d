@@ -77,7 +77,7 @@ const MerchantBalance = ({ userProfile, profile }: Props) => {
           Number(sanitizedData.balance) + merchantData.merchant_member_balance,
       }));
 
-      setMerchantBalanceHistory((prev) => ({
+      setMerchantBalanceHistory((prev: { data: merchant_balance_log[]; count: number }) => ({
         ...prev,
         data: [
           {

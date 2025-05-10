@@ -27,14 +27,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Docker image for prod
+      - name: Build Docker image with Doppler secrets
         run: |
           docker build \
-            --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" \
-            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
-            --build-arg NEXT_PUBLIC_BASE_URL="${{ secrets.NEXT_PUBLIC_BASE_URL }}" \
-            --build-arg NEXT_PUBLIC_HCAPTCHA_SITE_KEY="${{ secrets.NEXT_PUBLIC_HCAPTCHA_SITE_KEY }}" \
-            -t ghcr.io/redcloud442/pr1me:prod .
+            --build-arg DOPPLER_TOKEN=${{ secrets.DOPPLER_TOKEN }} \
+            -t ghcr.io/redcloud442/mithril:prod .
 
       - name: Verify Docker login
         run: docker info
@@ -44,8 +41,4 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/redcloud442/starter:prod
-
-      - name: Invoke Web Hook
-        run: |
-          curl -X POST -H "Content-Type: application/json" "Authorization: Bearer ${{ secrets.WEBHOOK_TOKEN }}" -d '{"message": "Docker image pushed"}' ${{ secrets.WEBHOOK_URL_CLIENT }}
+          docker push ghcr.io/redcloud442/mithril:prod

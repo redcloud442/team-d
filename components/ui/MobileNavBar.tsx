@@ -10,7 +10,7 @@ import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { createClientSide } from "@/utils/supabase/client";
-import { History, LogOut, LogOutIcon, Mail, User } from "lucide-react";
+import { History, LogOut, LogOutIcon, Mail, User2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -51,7 +51,7 @@ const MobileNavBar = () => {
     {
       href: "/profile",
       label: "Profile",
-      icon: <User className="h-8 w-8" />,
+      icon: <User2 className="h-8 w-8" />,
     },
     {
       href: "/inbox",
