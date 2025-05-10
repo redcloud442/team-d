@@ -9,15 +9,12 @@ RUN apk add --no-cache curl bash openssl libc6-compat && \
 # Set the working directory
 WORKDIR /usr/src/app
 
-ARG DOPPLER_TOKEN
-ENV DOPPLER_TOKEN=$DOPPLER_TOKEN
-
 # Copy application dependencies
 COPY package.json bun.lock ./ 
 COPY prisma ./prisma/
 
 
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Generate Prisma client
 RUN bun prisma generate --schema ./prisma/schema.prisma
@@ -34,6 +31,9 @@ RUN dos2unix /usr/src/app/entrypoint.sh && chmod +x /usr/src/app/entrypoint.sh
 
 RUN curl -Ls https://cli.doppler.com/install.sh | sh && \
     ln -s /root/.doppler/bin/doppler /usr/local/bin/doppler
+
+ARG DOPPLER_TOKEN
+ENV DOPPLER_TOKEN=$DOPPLER_TOKEN
 
 RUN doppler run --mount .env -- bun run build
 
