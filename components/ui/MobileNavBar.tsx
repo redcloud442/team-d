@@ -112,7 +112,7 @@ const MobileNavBar = () => {
 
       {/* Logout Confirmation Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="z-50 text-center space-y-4">
+        <DialogContent className="z-50 text-center space-y-4 bg-orange-950 dark:bg-orange-500">
           <DialogHeader>
             <div className="flex flex-col items-center space-y-2">
               <LogOut className="w-10 h-10 text-red-500" />
@@ -126,7 +126,7 @@ const MobileNavBar = () => {
             </div>
           </DialogHeader>
 
-          <DialogFooter className="flex justify-center gap-4 pt-4">
+          <DialogFooter className="flex justify-center gap-4 pt-4 w-full">
             <Button variant="destructive" onClick={handleSignOut}>
               Continue
             </Button>
