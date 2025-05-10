@@ -13,8 +13,8 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Install Bun
-RUN curl -fsSL https://bun.sh/install | bash && \
-    mv /root/.bun/bin/bun /usr/local/bin
+RUN curl -fsSL https://bun.sh/install | bash -s -- --yes && \
+    install -m 0755 /root/.bun/bin/bun /usr/local/bin/bun
 
 # Install Doppler CLI via official Debian package repo
 RUN wget -q -t3 'https://packages.doppler.com/public/cli/gpg.8004D9FF50437357.key' -O- | gpg --dearmor -o /usr/share/keyrings/doppler.gpg && \
