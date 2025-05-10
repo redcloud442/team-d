@@ -1,37 +1,49 @@
+# Use slim instead of alpine for full glibc compatibility (Bun requires glibc)
+FROM node:20.10-slim
 
-FROM node:20.10-alpine
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+  curl \
+  bash \
+  openssl \
+  wget \
+  ca-certificates \
+  gnupg \
+  dos2unix \
+  && rm -rf /var/lib/apt/lists/*
 
-RUN apk add --no-cache curl bash openssl libc6-compat wget && \
-    curl -fsSL https://bun.sh/install | bash && \
-    mv /root/.bun/bin/bun /usr/local/bin && \
-    wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
-    echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' >> /etc/apk/repositories && \
-    apk update && apk add doppler
+# Install Bun
+RUN curl -fsSL https://bun.sh/install | bash && \
+    mv /root/.bun/bin/bun /usr/local/bin
 
+# Install Doppler CLI via official Debian package repo
+RUN wget -q -t3 'https://packages.doppler.com/public/cli/gpg.8004D9FF50437357.key' -O- | gpg --dearmor -o /usr/share/keyrings/doppler.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/doppler.gpg] https://packages.doppler.com/public/cli/deb/debian any-version main" > /etc/apt/sources.list.d/doppler.list && \
+    apt-get update && apt-get install -y doppler
+
+# Set working directory
 WORKDIR /usr/src/app
 
-# Copy application dependencies
-COPY package.json bun.lock ./ 
+# Copy and install app dependencies
+COPY package.json bun.lock ./
 COPY prisma ./prisma/
-
-
 RUN bun install
 
 # Generate Prisma client
 RUN bun prisma generate --schema ./prisma/schema.prisma
 
-# Copy the rest of the application files
+# Copy rest of the application files
 COPY . .
 
+# Set Doppler token via build arg
 ARG DOPPLER_TOKEN
 ENV DOPPLER_TOKEN=$DOPPLER_TOKEN
 
-RUN doppler run --mount .env -- bun run build
+# Inject Doppler secrets and build
+RUN doppler run --config production --mount .env -- bun run build
 
+# Set runtime environment
 ENV PORT=8080
 EXPOSE 8080
-
-
-ENTRYPOINT ["/bin/bash"]
-
+# Run Bun app
 CMD ["bun", "start"]
