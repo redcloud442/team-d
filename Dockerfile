@@ -23,12 +23,6 @@ RUN bun prisma generate --schema ./prisma/schema.prisma
 # Copy the rest of the application files
 COPY . .
 
-# Copy the entrypoint script
-COPY /scripts/entrypoint_overwrited.sh /usr/src/app/entrypoint.sh
-
-RUN curl -Ls https://cli.doppler.com/install.sh | sh && \
-    ln -s /root/.doppler/bin/doppler /usr/local/bin/doppler
-
 ARG DOPPLER_TOKEN
 ENV DOPPLER_TOKEN=$DOPPLER_TOKEN
 
