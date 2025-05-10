@@ -42,7 +42,7 @@ const DashboardDepositProfile = () => {
       }
 
       const publicUrl =
-        "https://cdn.primepinas.com/storage/v1/object/public/USER_PROFILE/" +
+        "https://cmwfujabuwraxsgwuwpr.supabase.co/storage/v1/object/public/USER_PROFILE/" +
         filePath;
 
       await updateUserProfile({
