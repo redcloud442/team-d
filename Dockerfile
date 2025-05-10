@@ -4,7 +4,9 @@ FROM node:20.10-alpine
 
 RUN apk add --no-cache curl bash openssl libc6-compat && \
     curl -fsSL https://bun.sh/install | bash && \
-    mv /root/.bun/bin/bun /usr/local/bin/
+    mv /root/.bun/bin/bun /usr/local/bin && \
+    curl -Ls https://cli.doppler.com/install.sh | sh && \
+    ln -s /root/.doppler/bin/doppler /usr/local/bin/doppler
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -24,10 +26,6 @@ COPY . .
 
 # Copy the entrypoint script
 COPY /scripts/entrypoint_overwrited.sh /usr/src/app/entrypoint.sh
-
-# Ensure the script is executable
-RUN dos2unix /usr/src/app/entrypoint.sh && chmod +x /usr/src/app/entrypoint.sh
-
 
 RUN curl -Ls https://cli.doppler.com/install.sh | sh && \
     ln -s /root/.doppler/bin/doppler /usr/local/bin/doppler
