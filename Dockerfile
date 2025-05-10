@@ -12,12 +12,13 @@ RUN apt-get update && apt-get install -y \
   dos2unix \
   && rm -rf /var/lib/apt/lists/*
 
-# Install Bun
-RUN curl -fsSL https://bun.sh/download/latest -o bun.tar.gz && \
+# ✅ Install Bun
+RUN curl -fsSL "https://bun.sh/download?platform=linux-x64" -o bun.tar.gz && \
     mkdir -p /usr/local/bun && \
     tar -xzf bun.tar.gz -C /usr/local/bun && \
     ln -s /usr/local/bun/bun /usr/local/bin/bun && \
     rm bun.tar.gz
+
 # Install Doppler CLI via official Debian package repo
 RUN wget -q -t3 'https://packages.doppler.com/public/cli/gpg.8004D9FF50437357.key' -O- | gpg --dearmor -o /usr/share/keyrings/doppler.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/doppler.gpg] https://packages.doppler.com/public/cli/deb/debian any-version main" > /etc/apt/sources.list.d/doppler.list && \
