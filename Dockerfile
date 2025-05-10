@@ -1,13 +1,13 @@
 
 FROM node:20.10-alpine
 
-
-RUN apk add --no-cache curl bash openssl libc6-compat && \
+RUN apk add --no-cache curl bash openssl libc6-compat wget && \
     curl -fsSL https://bun.sh/install | bash && \
     mv /root/.bun/bin/bun /usr/local/bin && \
-    curl -Ls https://cli.doppler.com/install.sh | /bin/bash -s -- --install-path /usr/local/bin
-    
-# Set the working directory
+    wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
+    echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' >> /etc/apk/repositories && \
+    apk update && apk add doppler
+
 WORKDIR /usr/src/app
 
 # Copy application dependencies
