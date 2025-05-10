@@ -5,9 +5,8 @@ FROM node:20.10-alpine
 RUN apk add --no-cache curl bash openssl libc6-compat && \
     curl -fsSL https://bun.sh/install | bash && \
     mv /root/.bun/bin/bun /usr/local/bin && \
-    curl -Ls https://cli.doppler.com/install.sh | sh && \
-    ln -s /root/.doppler/bin/doppler /usr/local/bin/doppler
-
+    curl -Ls https://cli.doppler.com/install.sh | /bin/bash -s -- --install-path /usr/local/bin
+    
 # Set the working directory
 WORKDIR /usr/src/app
 
