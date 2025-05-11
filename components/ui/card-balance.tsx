@@ -61,13 +61,7 @@ const CardBalance = ({
         </div>
       </div>
 
-      <DashboardReinvestPromoPackage
-        className="w-full"
-        teamMemberProfile={teamMemberProfile}
-        packages={packages}
-        setIsActive={setIsActive}
-        active={active}
-      />
+      <DashboardReinvestPromoPackage className="w-full" packages={packages} />
     </ReusableCardBg>
   );
 };

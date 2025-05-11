@@ -9,24 +9,15 @@ import {
 } from "@/components/ui/dialog";
 import PackageCard from "@/components/ui/packageCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { company_member_table, package_table } from "@prisma/client";
-import { Dispatch, SetStateAction, useState } from "react";
+import { package_table } from "@prisma/client";
+import { useState } from "react";
 
 type Props = {
   className: string;
-  teamMemberProfile: company_member_table;
   packages: package_table[];
-  setIsActive: Dispatch<SetStateAction<boolean>>;
-  active: boolean;
 };
 
-const DashboardReinvestPromoPackage = ({
-  className,
-  packages: initialPackage,
-  teamMemberProfile,
-  setIsActive,
-  active,
-}: Props) => {
+const DashboardReinvestPromoPackage = ({ packages: initialPackage }: Props) => {
   const [selectedPackage, setSelectedPackage] = useState<package_table | null>(
     null
   );

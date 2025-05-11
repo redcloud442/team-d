@@ -158,10 +158,10 @@ const DashboardPage = ({ packages }: Props) => {
           <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <ReusableCardBg type="gray" className="p-1">
               <Link
-                href={!canUserDeposit ? "/deposit" : "#"}
+                href={canUserDeposit ? "/deposit" : "#"}
                 className={cn(
                   "flex flex-col items-center transition-opacity",
-                  canUserDeposit && "pointer-events-none opacity-50 grayscale"
+                  !canUserDeposit && "pointer-events-none opacity-50 grayscale"
                 )}
               >
                 <Image
@@ -177,14 +177,14 @@ const DashboardPage = ({ packages }: Props) => {
             <ReusableCardBg type="gray" className="p-1">
               <Link
                 href={
-                  !isWithdrawalToday.package && !isWithdrawalToday.referral
+                  isWithdrawalToday.package && isWithdrawalToday.referral
                     ? "/withdraw"
                     : "#"
                 }
                 className={cn(
                   "flex flex-col items-center transition-opacity",
-                  isWithdrawalToday.package &&
-                    isWithdrawalToday.referral &&
+                  !isWithdrawalToday.package &&
+                    !isWithdrawalToday.referral &&
                     "pointer-events-none opacity-50 grayscale"
                 )}
               >

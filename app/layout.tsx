@@ -4,19 +4,19 @@ import { Lora } from "next/font/google";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Xeloria",
-  description: "Step into Xeloria — Your path to digital prosperity.",
+  title: "Xelora",
+  description: "Step into Xelora — Your path to digital prosperity.",
   openGraph: {
-    title: "Xeloria",
-    description: "Step into Xeloria — Your path to digital prosperity.",
-    url: "https://xeloria.io",
-    siteName: "Xeloria",
+    title: "Xelora",
+    description: "Step into Xelora — Your path to digital prosperity.",
+    url: "https://xelora.io",
+    siteName: "Xelora",
     images: [
       {
-        url: "https://xeloria.io/assets/icons/logo.ico",
+        url: "https://xelora.io/assets/icons/logo.ico",
         width: 1200,
         height: 630,
-        alt: "Xeloria Banner",
+        alt: "Xelora Banner",
       },
     ],
     type: "website",

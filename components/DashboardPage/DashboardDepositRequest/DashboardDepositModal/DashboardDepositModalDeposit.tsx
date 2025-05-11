@@ -82,7 +82,7 @@ const DashboardDepositModalDeposit = () => {
 
   const onSubmit = async (data: DepositRequestFormValues) => {
     try {
-      if (canUserDeposit) {
+      if (!canUserDeposit) {
         toast({
           title: "Error",
           description: "You have already deposited today.",
@@ -316,7 +316,7 @@ const DashboardDepositModalDeposit = () => {
           <Button
             variant="card"
             className=" font-black text-2xl rounded-full p-5"
-            disabled={isSubmitting || canUserDeposit}
+            disabled={isSubmitting || !canUserDeposit}
             type="submit"
           >
             {isSubmitting ? <Loader2 className="animate-spin" /> : null} Submit

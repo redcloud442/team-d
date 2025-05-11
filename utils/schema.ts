@@ -11,8 +11,8 @@ export const depositRequestSchema = z.object({
       message: "Amount must be at least 500 pesos",
     }),
   topUpMode: z.string().min(1, "Top up mode is required"),
-  accountName: z.string().min(1, "Field is required"),
-  accountNumber: z.string().min(1, "Field is required"),
+  accountName: z.string().trim().min(1, "Field is required"),
+  accountNumber: z.string().trim().min(1, "Field is required"),
   file: z
     .instanceof(File)
     .refine((file) => !!file, { message: "File is required" })
@@ -105,7 +105,6 @@ export const RegisterSchema = z
       .trim()
       .min(3, "First name is required")
       .max(50, "First name must be less than 50 characters"),
-
     lastName: z
       .string()
       .trim()
@@ -247,6 +246,7 @@ export const PromoPackageSchema = (
   return z.object({
     amount: z
       .string()
+      .trim()
       .min(3, "Minimum amount is 500 pesos")
       .refine((val) => Number(val) >= 500, {
         message: "Minimum amount is 500 pesos",
