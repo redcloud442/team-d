@@ -3,6 +3,7 @@ import { z } from "zod";
 export const depositRequestSchema = z.object({
   amount: z
     .string()
+    .trim()
     .min(3, "Amount is required and must be at least 500 pesos")
     .max(6, "Amount must be less than 6 digits")
     .regex(/^\d+$/, "Amount must be a number")
@@ -29,6 +30,7 @@ export const withdrawalFormSchema = z.object({
   earnings: z.string(),
   amount: z
     .string()
+    .trim()
     .min(3, "Minimum amount is required atleast 500 pesos")
     .refine((amount) => parseInt(amount.replace(/,/g, ""), 10) >= 500, {
       message: "Amount must be at least 500 pesos",
@@ -36,10 +38,12 @@ export const withdrawalFormSchema = z.object({
   bank: z.string().min(1, "Please select a bank"),
   accountName: z
     .string()
+    .trim()
     .min(6, "Account name is required")
     .max(40, "Account name must be at most 24 characters"),
   accountNumber: z
     .string()
+    .trim()
     .min(6, "Account number is required")
     .max(24, "Account number must be at most 24 digits"),
 });
@@ -50,13 +54,23 @@ export type WithdrawalFormValues = z.infer<typeof withdrawalFormSchema>;
 export const LoginSchema = z.object({
   userName: z
     .string()
+    .trim()
     .min(6, "Username must be at least 6 characters long")
-    .max(20, "Username must be at most 50 characters long")
+    .max(20, "Username must be at most 20 characters long")
     .regex(
       /^[a-zA-Z][a-zA-Z0-9._]*$/,
       "Username must start with a letter and can only contain letters, numbers, dots, and underscores"
-    ),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+    )
+    .refine(
+      (val) => !/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu.test(val),
+      {
+        message: "Username must not contain emojis",
+      }
+    )
+    .refine((val) => !reservedUsernames.includes(val.toLowerCase()), {
+      message: "This username is not allowed",
+    }),
+  password: z.string().trim().min(6, "Password must be at least 6 characters"),
 });
 
 // Zod Schema for OTP Form
@@ -70,42 +84,74 @@ export const OtpSchema = z.object({
 export type LoginFormValues = z.infer<typeof LoginSchema>;
 export type OtpFormValues = z.infer<typeof OtpSchema>;
 
+// Reserved usernames you want to block (add more as needed)
+const reservedUsernames = [
+  "admin",
+  "root",
+  "support",
+  "superuser",
+  "about",
+  "contact",
+  "user",
+  "null",
+  "undefined",
+  "test",
+];
+
 export const RegisterSchema = z
   .object({
     firstName: z
       .string()
+      .trim()
       .min(3, "First name is required")
       .max(50, "First name must be less than 50 characters"),
+
     lastName: z
       .string()
+      .trim()
       .min(3, "Last name is required")
       .max(50, "Last name must be less than 50 characters"),
     userName: z
       .string()
+      .trim()
       .min(6, "Username must be at least 6 characters long")
-      .max(20, "Username must be at most 50 characters long")
+      .max(20, "Username must be at most 20 characters long")
       .regex(
         /^[a-zA-Z][a-zA-Z0-9._]*$/,
         "Username must start with a letter and can only contain letters, numbers, dots, and underscores"
-      ),
+      )
+      .refine(
+        (val) =>
+          !/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu.test(val),
+        {
+          message: "Username must not contain emojis",
+        }
+      )
+      .refine((val) => !reservedUsernames.includes(val.toLowerCase()), {
+        message: "This username is not allowed",
+      }),
     botField: z.string().optional(),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    password: z
+      .string()
+      .trim()
+      .min(6, "Password must be at least 6 characters"),
+    confirmPassword: z
+      .string()
+      .trim()
+      .min(6, "Confirm Password must be at least 6 characters"),
     email: z.preprocess(
       (val) => (val === "" || val == null ? undefined : val),
       z.string().email("Invalid email address").optional()
     ),
-
     phoneNumber: z.preprocess(
       (val) => (val === "" || val == null ? undefined : val),
       z
         .string()
-        .min(10, "Phone number is required")
+        .regex(/^\d+$/, "Phone number must only contain digits")
+        .min(10, "Phone number must be at least 10 digits")
         .max(11, "Phone number must be at most 11 digits")
         .optional()
     ),
-    confirmPassword: z
-      .string()
-      .min(6, "Confirm Password must be at least 6 characters"),
     referralLink: z.string().optional(),
     sponsor: z.string().optional(),
   })
@@ -124,34 +170,46 @@ export type RegisterFormData = z.infer<typeof RegisterSchema>;
 export const RegisterSchemaType = z.object({
   firstName: z
     .string()
+    .trim()
     .min(3, "First name is required")
     .max(50, "First name must be less than 50 characters"),
   lastName: z
     .string()
+    .trim()
     .min(3, "Last name is required")
     .max(50, "Last name must be less than 50 characters"),
   userName: z
     .string()
+    .trim()
     .min(6, "Username must be at least 6 characters long")
-    .max(20, "Username must be at most 50 characters long")
+    .max(20, "Username must be at most 20 characters long")
     .regex(
       /^[a-zA-Z][a-zA-Z0-9._]*$/,
       "Username must start with a letter and can only contain letters, numbers, dots, and underscores"
-    ),
+    )
+    .refine(
+      (val) => !/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu.test(val),
+      {
+        message: "Username must not contain emojis",
+      }
+    )
+    .refine((val) => !reservedUsernames.includes(val.toLowerCase()), {
+      message: "This username is not allowed",
+    }),
   email: z.preprocess(
     (val) => (val === "" || val == null ? undefined : val),
     z.string().email("Invalid email address").optional()
   ),
-
   phoneNumber: z.preprocess(
     (val) => (val === "" || val == null ? undefined : val),
     z
       .string()
-      .min(10, "Phone number is required")
+      .regex(/^\d+$/, "Phone number must only contain digits")
+      .min(10, "Phone number must be at least 10 digits")
       .max(11, "Phone number must be at most 11 digits")
       .optional()
   ),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().trim().min(6, "Password must be at least 6 characters"),
   botField: z.string().optional(),
   referralLink: z.string().optional(),
   sponsor: z.string().optional(),
@@ -161,9 +219,13 @@ export type RegisterFormDataType = z.infer<typeof RegisterSchemaType>;
 
 export const ChangePasswordSchema = z
   .object({
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    password: z
+      .string()
+      .trim()
+      .min(6, "Password must be at least 6 characters"),
     confirmPassword: z
       .string()
+      .trim()
       .min(6, "Confirm Password must be at least 6 characters"),
   })
   .superRefine(({ confirmPassword, password }, ctx) => {

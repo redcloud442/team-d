@@ -108,7 +108,7 @@ const HistoryTable = () => {
   };
 
   return (
-    <ReusableCard type="user" title="Transaction History">
+    <ReusableCard type="user" title="Transaction History" className="p-0">
       <Tabs defaultValue="EARNINGS" onValueChange={handleTabChange}>
         <TabsList className="mb-4">
           <TabsTrigger value="EARNINGS">Earnings</TabsTrigger>

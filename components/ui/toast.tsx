@@ -30,11 +30,11 @@ const toastVariants = cva(
     variants: {
       variant: {
         default:
-          "border bg-white text-neutral-950 stroke-text-orange dark:border-orange-600 dark:bg-neutral-950/90 dark:text-neutral-50",
+          "gamified group border border-orange-500 shadow-md shadow-orange-400 bg-gradient-to-br from-[#1F1F1F] to-[#2B2B2B] text-orange-400 hover:shadow-lg hover:shadow-orange-500 dark:border-orange-600 dark:bg-[#2A2A2A] dark:text-orange-300",
         destructive:
           "destructive group border-red-500 dark:bg-orange-600 bg-orange-600 text-neutral-50 dark:border-red-900 dark:bg-orange-600 dark:text-neutral-50",
         success:
-          "success group border-none shadow-2xs shadow-white bg-[#1E1E1E] text-primaryYellow dark:border-green-900 dark:bg-green-700 dark:text-neutral-50",
+          "gamified group border border-orange-500 shadow-md shadow-orange-400 bg-gradient-to-br from-[#1F1F1F] to-[#2B2B2B] text-orange-400 hover:shadow-lg hover:shadow-orange-500 dark:border-orange-600 dark:bg-[#2A2A2A] dark:text-orange-300",
         reject:
           "reject group border-none shadow-2xs shadow-white bg-[#1E1E1E] text-primaryYellow dark:border-yellow-900 dark:bg-yellow-700 dark:text-neutral-50",
       },

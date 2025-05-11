@@ -80,7 +80,7 @@ const MobileNavBar = () => {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-orange-950 shadow-md border-t-4 border-orange-500">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#190e0a] shadow-md border-t-2 border-orange-500">
         <ul className="flex sm:justify-around justify-between items-center px-4 py-2">
           {navItems.map((item) => (
             <li key={item.href}>
@@ -112,7 +112,7 @@ const MobileNavBar = () => {
 
       {/* Logout Confirmation Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="z-50 text-center space-y-4 bg-orange-950 dark:bg-orange-500">
+        <DialogContent className="z-50 text-center space-y-4 bg-orange-950 dark:bg-orange-950">
           <DialogHeader>
             <div className="flex flex-col items-center space-y-2">
               <LogOut className="w-10 h-10 text-red-500" />

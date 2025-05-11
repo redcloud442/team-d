@@ -3,7 +3,7 @@ import { Button } from "./button";
 
 const TopNavigation = () => {
   return (
-    <nav className="flex relative  justify-between items-center p-2 bg-amber-950">
+    <nav className="flex relative  justify-between items-center p-2 dark: bg-[#190e0a]">
       <div className="flex justify-between items-center px-4 py-2">
         <Link
           href="/dashboard"

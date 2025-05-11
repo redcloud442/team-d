@@ -32,6 +32,8 @@ const HistoryCardList = ({
     return <p className="text-center text-gray-500">No transactions found.</p>;
   }
 
+  console.log(currentStatus);
+
   return (
     <div className="overflow-x-auto rounded-lg border-2 border-orange-500 shadow-md bg-orange-500/10">
       <table className="min-w-full text-sm table-fixed">
