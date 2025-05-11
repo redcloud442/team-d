@@ -3,7 +3,7 @@
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { logError } from "@/services/Error/ErrorLogs";
-import { getUserEarnings } from "@/services/User/User";
+import { getUserWithdrawalToday } from "@/services/User/User";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
@@ -36,7 +36,12 @@ const DashboardPage = ({ packages }: Props) => {
   const { setTotalEarnings } = useUserDashboardEarningsStore();
   const { chartData } = usePackageChartData();
   const { teamMemberProfile, profile } = useRole();
-  const { isWithdrawalToday, canUserDeposit } = useUserHaveAlreadyWithdraw();
+  const {
+    isWithdrawalToday,
+    canUserDeposit,
+    setCanUserDeposit,
+    setIsWithdrawalToday,
+  } = useUserHaveAlreadyWithdraw();
   const [isActive, setIsActive] = useState(
     teamMemberProfile.company_member_is_active
   );
@@ -46,9 +51,8 @@ const DashboardPage = ({ packages }: Props) => {
   const handleRefresh = async () => {
     try {
       setRefresh(true);
-      const { totalEarnings, userEarningsData } = await getUserEarnings({
-        memberId: teamMemberProfile.company_member_id,
-      });
+      const { totalEarnings, userEarningsData, actions } =
+        await getUserWithdrawalToday();
 
       if (!totalEarnings || !userEarningsData) return;
 
@@ -63,6 +67,12 @@ const DashboardPage = ({ packages }: Props) => {
       });
 
       setEarnings(userEarningsData);
+
+      setCanUserDeposit(actions.canUserDeposit);
+      setIsWithdrawalToday({
+        referral: actions.canWithdrawReferral,
+        package: actions.canWithdrawPackage,
+      });
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
@@ -115,20 +125,21 @@ const DashboardPage = ({ packages }: Props) => {
                 </div>
               </DashboardCardBg>
             </div>
-
-            <div className="space-y-1">
-              <div
-                onClick={() =>
-                  handleReferralLink(referral.company_referral_link)
-                }
-                className="text-xl text-center font-bold border-2 p-1 bg-orange-950 border-orange-500 cursor-pointer"
-              >
-                Get you referral link
+            {teamMemberProfile.company_member_is_active && (
+              <div className="space-y-1">
+                <div
+                  onClick={() =>
+                    handleReferralLink(referral.company_referral_link)
+                  }
+                  className="text-xl text-center font-bold border-2 p-1 bg-orange-950 border-orange-500 cursor-pointer"
+                >
+                  Get you referral link
+                </div>
+                <div className="text-[11px] font-bold border-2 p-1 bg-orange-950 border-orange-500 text-balance">
+                  {referral.company_referral_link}
+                </div>
               </div>
-              <div className="text-[11px] font-bold border-2 p-1 bg-orange-950 border-orange-500 text-balance">
-                {referral.company_referral_link}
-              </div>
-            </div>
+            )}
           </div>
         </ReusableCard>
 

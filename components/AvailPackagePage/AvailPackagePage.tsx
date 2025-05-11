@@ -40,7 +40,7 @@ type Props = {
 };
 
 const AvailPackagePage = ({ onClick, selectedPackage }: Props) => {
-  const { teamMemberProfile } = useRole();
+  const { teamMemberProfile, setTeamMemberProfile } = useRole();
   const { toast } = useToast();
   const { earnings, setEarnings } = useUserEarningsStore();
   const { chartData, setChartData } = usePackageChartData();
@@ -152,6 +152,11 @@ const AvailPackagePage = ({ onClick, selectedPackage }: Props) => {
         },
         ...chartData,
       ]);
+
+      setTeamMemberProfile((prev) => ({
+        ...prev,
+        company_member_is_active: false,
+      }));
 
       setOpen(false);
     } catch (e) {

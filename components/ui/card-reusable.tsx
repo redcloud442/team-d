@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"; // or wherever your `cn` utility is
+import Image from "next/image";
 import React from "react";
 import {
   Card,
@@ -25,12 +26,23 @@ const ReusableCard = ({
 }: ReusableCardProps) => {
   return (
     <Card
-      className={`bg-[url('/assets/card/cardbg.png')]  bg-center bg-transparent ${
-        type === "admin"
-          ? "max-w-lg bg-auto"
-          : "max-w-full bg-no-repeat bg-blend-blend h-auto"
-      } border-2 dark:border-orange-600 border-orange-600 p-6`}
+      className={`bg-transparent ${
+        type === "admin" ? "max-w-lg bg-auto" : "max-w-full h-auto"
+      } border-2 dark:border-orange-600 border-orange-600 p-6 relative`}
+      // style={{
+      //   backgroundImage: "url('/assets/card/cardbg.png')",
+      //   backgroundSize: "cover",
+      //   backgroundPosition: "center",
+      //   backgroundRepeat: "no-repeat",
+      // }}
     >
+      <Image
+        src="/assets/card/cardbg.png"
+        alt="cardbg"
+        width={100}
+        height={100}
+        className="w-full h-full object-cover absolute top-0 left-0"
+      />
       {(title || description) && (
         <CardHeader>
           {title && (

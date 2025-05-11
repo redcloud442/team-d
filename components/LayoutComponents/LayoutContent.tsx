@@ -7,7 +7,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { getDashboard } from "@/services/Dasboard/Member";
-import { getUserEarnings, getUserWithdrawalToday } from "@/services/User/User";
+import { getUserWithdrawalToday } from "@/services/User/User";
 import { useUserLoadingStore } from "@/store/useLoadingStore";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
@@ -64,19 +64,14 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     try {
       setLoading(true);
 
-      const [
-        { totalEarnings, userEarningsData },
-        dashboardData,
-        dataWithdrawalToday,
-      ] = await Promise.all([
-        getUserEarnings({ memberId: teamMemberProfile.company_member_id }),
-        getDashboard({ teamMemberId: teamMemberProfile.company_member_id }),
-        getUserWithdrawalToday(),
-      ]);
+      const [dashboardData, { totalEarnings, userEarningsData, actions }] =
+        await Promise.all([
+          getDashboard({ teamMemberId: teamMemberProfile.company_member_id }),
+          getUserWithdrawalToday(),
+        ]);
 
       const { canWithdrawReferral, canWithdrawPackage, canUserDeposit } =
-        dataWithdrawalToday.data;
-
+        actions;
       setTotalEarnings(totalEarnings);
       setEarnings(userEarningsData);
       setChartData(dashboardData);

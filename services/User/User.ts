@@ -47,7 +47,6 @@ export const getUserEarnings = async (params: { memberId: string }) => {
 export const getUserWithdrawalToday = async () => {
   const response = await fetch(`/api/v1/user`, {
     method: "GET",
-    headers: {},
   });
 
   const result = await response.json();
@@ -59,10 +58,11 @@ export const getUserWithdrawalToday = async () => {
   }
 
   return result as {
-    data: {
+    totalEarnings: DashboardEarnings;
+    userEarningsData: company_earnings_table;
+    actions: {
       canWithdrawReferral: boolean;
       canUserDeposit: boolean;
-      canWithdrawWinning: boolean;
       canWithdrawPackage: boolean;
     };
   };

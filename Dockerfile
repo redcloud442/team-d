@@ -31,7 +31,6 @@ COPY package.json bun.lock ./
 COPY prisma ./prisma/
 RUN bun install
 
-# ✅ Add this to copy the rest of your source code (including pages/ or app/)
 COPY . . 
 
 # Copy and set up entrypoint script
