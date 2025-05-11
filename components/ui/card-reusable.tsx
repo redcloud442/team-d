@@ -41,7 +41,7 @@ const ReusableCard = ({
         alt="cardbg"
         width={1000}
         height={1000}
-        className="w-full h-full object-cover absolute top-0 left-0"
+        className="w-full h-full object-cover absolute top-0 left-0 z-0"
       />
       {(title || description) && (
         <CardHeader>
