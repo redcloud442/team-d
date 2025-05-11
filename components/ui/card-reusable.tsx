@@ -39,8 +39,8 @@ const ReusableCard = ({
       <Image
         src="/assets/card/cardbg.png"
         alt="cardbg"
-        width={100}
-        height={100}
+        width={1000}
+        height={1000}
         className="w-full h-full object-cover absolute top-0 left-0"
       />
       {(title || description) && (
