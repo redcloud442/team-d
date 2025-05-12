@@ -7,7 +7,7 @@ export const PUBLIC_ROUTES = [
   "/api/v1/access/securedStarter",
   "/api/health",
   "/api/v1/access/callback",
-  "/access/xeloriaAccess",
+  "/access/xeloraAccess",
 ];
 
 export const PRIVATE_ROUTES = [

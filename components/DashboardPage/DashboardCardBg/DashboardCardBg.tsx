@@ -27,7 +27,7 @@ const ReusableCardBg = ({
     <Card
       className={cn(
         className,
-        ` w-full border dark:border-orange-600 dark:text-black text-black `,
+        ` w-full border dark:border-orange-600 dark:text-black text-black z-50`,
         type === "gradient"
           ? "bg-gradient-to-r from-yellow-300 to-orange-300"
           : type === "gray"

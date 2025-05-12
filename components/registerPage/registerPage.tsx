@@ -8,7 +8,7 @@ import { BASE_URL } from "@/utils/constant";
 import { escapeFormData } from "@/utils/function";
 import { RegisterFormData, RegisterSchema } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircleIcon, XCircleIcon } from "lucide-react";
+import { CheckIcon, XSquareIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { Resolver, useController, useForm } from "react-hook-form";
@@ -183,10 +183,10 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
   };
 
   return (
-    <ReusableCard title="Register to XELORA!">
+    <ReusableCard title="Register to XELORA!" className="p-0">
       <Form {...form}>
         <form
-          className="space-y-4 w-full max-w-lg mx-auto z-40"
+          className="space-y-4 w-full z-40"
           onSubmit={handleSubmit(handleRegistrationSubmit)}
         >
           <FormField
@@ -198,6 +198,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                 <FormControl>
                   <Input
                     id="botField"
+                    variant="non-card"
                     placeholder="Bot Field"
                     {...field}
                     hidden
@@ -218,6 +219,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                 <FormControl>
                   <Input
                     id="firstName"
+                    variant="non-card"
                     placeholder="First Name"
                     {...field}
                     className="pr-10"
@@ -237,6 +239,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                 <FormControl>
                   <Input
                     id="lastName"
+                    variant="non-card"
                     placeholder="Last Name"
                     {...field}
                     className="pr-10"
@@ -256,6 +259,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                 <FormControl>
                   <Input
                     id="userName"
+                    variant="non-card"
                     placeholder="Username"
                     {...field}
                     onChange={(e) => {
@@ -269,12 +273,12 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                 {!isUsernameLoading &&
                   isUsernameValidated &&
                   !errors.userName && (
-                    <CheckCircleIcon className="w-5 h-5 text-green-500 absolute right-3 mt-3 top-1/2 -translate-y-1/2" />
+                    <CheckIcon className="w-5 h-5 text-orange-500 absolute right-3 mt-3 top-1/2 -translate-y-1/2" />
                   )}
 
                 {/* Show error icon if validation failed */}
                 {!isUsernameLoading && errors.userName && (
-                  <XCircleIcon className="w-5 h-5 text-primaryRed absolute right-3 pt-5 top-1/2 -translate-y-1/2" />
+                  <XSquareIcon className="w-5 h-5 text-primaryRed absolute right-3 pt-5 top-1/2 -translate-y-1/2" />
                 )}
                 <FormMessage />
               </FormItem>
@@ -290,6 +294,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                 <FormControl>
                   <Input
                     id="email"
+                    variant="non-card"
                     placeholder="(optional)"
                     {...field}
                     className="pr-10"
@@ -309,6 +314,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                 <FormControl>
                   <Input
                     id="phoneNumber"
+                    variant="non-card"
                     placeholder="(optional)"
                     {...field}
                     className="pr-10"
@@ -328,6 +334,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                 <FormControl>
                   <PasswordInput
                     id="password"
+                    variant="non-card"
                     placeholder="Password"
                     {...field}
                     className="pr-10"
@@ -347,6 +354,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                 <FormControl>
                   <PasswordInput
                     id="confirmPassword"
+                    variant="non-card"
                     placeholder="Confirm Password"
                     {...field}
                     className="pr-10"
@@ -366,6 +374,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                 <FormControl>
                   <Input
                     id="sponsor"
+                    variant="non-card"
                     placeholder="Sponsor"
                     {...field}
                     className="pr-10"

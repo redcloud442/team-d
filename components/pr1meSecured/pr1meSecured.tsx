@@ -67,6 +67,11 @@ const Pr1meSecured = () => {
 
   const form = useForm<LoginFormValues | OtpFormValues>({
     resolver: unionResolver,
+    defaultValues: {
+      userName: "",
+      password: "",
+      otp: "",
+    },
   });
 
   const {
@@ -173,11 +178,11 @@ const Pr1meSecured = () => {
   };
 
   return (
-    <ReusableCard className="p-0 space-y-4" title="Secured Login">
+    <ReusableCard className="p-10 space-y-4" title="Secured Login">
       {step === "login" ? (
         <Form {...form}>
           <form
-            className="flex flex-col gap-6 w-full p-10 z-40"
+            className="flex flex-col gap-6 w-full z-40"
             onSubmit={handleSubmit(
               handleSignIn as SubmitHandler<LoginFormValues | OtpFormValues>
             )}
@@ -242,7 +247,7 @@ const Pr1meSecured = () => {
       ) : (
         <Form {...form}>
           <form
-            className="flex flex-col gap-6 w-full max-w-lg m-4 z-40"
+            className="flex flex-col gap-6 w-full z-40"
             onSubmit={handleSubmit(
               handleVerifyOtp as SubmitHandler<LoginFormValues | OtpFormValues>
             )}
@@ -273,9 +278,16 @@ const Pr1meSecured = () => {
               )}
             />
 
-            <Button disabled={isSubmitting || isLoading} type="submit">
-              {isSubmitting || isLoading ? "Verifying OTP..." : "Verify OTP"}
-            </Button>
+            <div className="w-full flex justify-center">
+              <Button
+                variant="card"
+                className=" font-black text-2xl rounded-full p-5"
+                disabled={isSubmitting || isLoading}
+                type="submit"
+              >
+                {isSubmitting || isLoading ? "Processing..." : "Verify OTP"}
+              </Button>
+            </div>
           </form>
         </Form>
       )}

@@ -50,46 +50,36 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
     const animationFrames: { [key: string]: number } = {};
 
     chartData.forEach((data: ChartDataMember, index: number) => {
-      const startPercentage = data.completion;
-      const finalAmount = data.amount + data.profit_amount;
-      const startTime = performance.now();
+      const animate = () => {
+        const now = Date.now();
+        const startDate = new Date(data.package_date_created).getTime();
+        const completionDate = new Date(data.completion_date).getTime();
+        const totalTime = Math.max(completionDate - startDate, 1); // prevent divide by 0
+        const elapsedTime = Math.max(now - startDate, 0);
 
-      const baseDuration =
-        new Date(data.completion_date).getTime() - new Date().getTime();
+        const percentage = Math.min((elapsedTime / totalTime) * 100, 100);
+        const finalAmount = data.amount + data.profit_amount;
+        const currentAmount = finalAmount * (percentage / 100);
 
-      const animateProgress = (currentTime: number) => {
-        const elapsedTime = currentTime - startTime;
-        const progress = Math.min(elapsedTime / baseDuration, 1);
-
-        const newPercentage =
-          startPercentage + (100 - startPercentage) * progress;
-        const newAmount =
-          data.current_amount + (finalAmount - data.current_amount) * progress;
-
-        const currentPercentage = newPercentage.toFixed(2);
-
-        setLiveData((prev: ChartDataMember[]) => {
+        setLiveData((prev) => {
           const updated = [...prev];
           updated[index] = {
             ...data,
-            is_ready_to_claim: Number(currentPercentage) === 100,
-            currentPercentage: Number(currentPercentage),
-            current_amount:
-              Number(currentPercentage) === 100
-                ? data.amount + data.profit_amount
-                : newAmount,
+            is_ready_to_claim: percentage === 100,
+            currentPercentage: Number(percentage.toFixed(2)),
+            current_amount: currentAmount,
           };
           return updated;
         });
 
-        if (progress < 1) {
+        if (percentage < 100) {
           animationFrames[data.package_connection_id] =
-            requestAnimationFrame(animateProgress);
+            requestAnimationFrame(animate);
         }
       };
 
       animationFrames[data.package_connection_id] =
-        requestAnimationFrame(animateProgress);
+        requestAnimationFrame(animate);
     });
 
     return () => {
@@ -262,18 +252,21 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
                     <DialogTrigger asChild>
                       <Button
                         variant="card"
-                        className=" font-black text-2xl rounded-full p-5 w-full"
+                        className=" font-black text-2xl rounded-full p-5 w-full pt-"
                         type="submit"
                       >
                         CLAIM
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent
+                      type="earnings"
+                      className="bg-amber-950 dark:bg-[#190e0a] dark:border-orange-500 text-white dark:text-white"
+                    >
                       <DialogHeader>
                         <DialogTitle className="text-bold mb-4">
-                          Collect Package
+                          Collect
                         </DialogTitle>
-                        Are you sure you want to collect this package?
+                        Collect this package to gain your earnings
                       </DialogHeader>
                       <DialogFooter>
                         <Button

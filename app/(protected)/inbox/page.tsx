@@ -1,6 +1,6 @@
 const Page = () => {
   return (
-    <div className="flex flex-col items-center justify-center h-[80vh] text-center">
+    <div className="flex flex-col items-center justify-center h-[80vh] text-center z-50">
       <h1 className="text-3xl font-bold text-yellow-400 mb-4">
         🚧 Under Development
       </h1>

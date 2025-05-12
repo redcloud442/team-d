@@ -1,4 +1,4 @@
-import { formatDateToYYYYMMDD, formatNumberLocale } from "@/utils/function";
+import { formateMonthDateYearv2, formatNumberLocale } from "@/utils/function";
 import { company_transaction_table } from "@prisma/client";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
@@ -32,8 +32,6 @@ const HistoryCardList = ({
     return <p className="text-center text-gray-500">No transactions found.</p>;
   }
 
-  console.log(currentStatus);
-
   return (
     <div className="overflow-x-auto rounded-lg border-2 border-orange-500 shadow-md bg-orange-500/10">
       <table className="min-w-full text-sm table-fixed">
@@ -41,6 +39,7 @@ const HistoryCardList = ({
           <tr>
             <th className="px-4 py-3 font-bold w-1/4 text-left">Amount</th>
             <th className="px-4 py-3 font-bold w-1/4 text-left">Date</th>
+            <th className="px-4 py-3 font-bold w-1/4 text-left">Description</th>
             {currentStatus !== "EARNINGS" && (
               <th className="px-4 py-3 font-bold w-1/4 text-left">Details</th>
             )}
@@ -48,33 +47,45 @@ const HistoryCardList = ({
           </tr>
         </thead>
         <tbody className="divide-y divide-[#2b2b2b] text-white font-medium">
-          {data.map((item) => (
-            <tr
-              key={item.company_transaction_id}
-              className="hover:bg-[#1f1f1f] transition-colors"
-            >
-              <td className="px-4 py-3 font-bold text-green-400 whitespace-nowrap">
-                ₱ {formatNumberLocale(item.company_transaction_amount ?? 0)}
-              </td>
-              <td className="px-4 py-3 text-gray-400">
-                {formatDateToYYYYMMDD(item.company_transaction_date)}
-              </td>
-              {currentStatus !== "EARNINGS" && (
-                <td className="px-4 py-3 text-orange-500 text-xs truncate">
-                  {item.company_transaction_details
-                    ?.split(",")
-                    .map((line, idx) => (
-                      <p key={idx} className="text-sm text-white">
-                        {line.trim()}
-                      </p>
-                    ))}
+          {data.map((item) => {
+            const isFailed =
+              item.company_transaction_description.includes("FAILED");
+
+            return (
+              <tr
+                key={item.company_transaction_id}
+                className="hover:bg-[#1f1f1f] transition-colors"
+              >
+                <td
+                  className={`px-4 py-3 font-bold ${
+                    isFailed ? "text-red-400" : "text-green-400"
+                  } whitespace-nowrap`}
+                >
+                  ₱ {formatNumberLocale(item.company_transaction_amount ?? 0)}
                 </td>
-              )}
-              <td className="px-4 py-3 text-orange-500 uppercase text-xs truncate">
-                {item.company_transaction_type}
-              </td>
-            </tr>
-          ))}
+                <td className="px-4 py-3 text-gray-400">
+                  {formateMonthDateYearv2(item.company_transaction_date)}
+                </td>
+                <td className="px-4 py-3 text-gray-400">
+                  {item.company_transaction_description}
+                </td>
+                {currentStatus !== "EARNINGS" && (
+                  <td className="px-4 py-3 text-orange-500 text-xs truncate">
+                    {item.company_transaction_details
+                      ?.split(",")
+                      .map((line, idx) => (
+                        <p key={idx} className="text-sm text-white">
+                          {line.trim()}
+                        </p>
+                      ))}
+                  </td>
+                )}
+                <td className="px-4 py-3 text-orange-500 uppercase text-xs truncate">
+                  {item.company_transaction_type}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 

@@ -26,9 +26,9 @@ const ReusableCard = ({
 }: ReusableCardProps) => {
   return (
     <Card
-      className={`bg-transparent ${
+      className={`bg-black/95 ${
         type === "admin" ? "max-w-lg bg-auto" : "max-w-full h-auto"
-      } border-2 dark:border-orange-600 border-orange-600 p-6 relative`}
+      } border-2 dark:border-orange-600 border-orange-600 p-6 relative z-50`}
       // style={{
       //   backgroundImage: "url('/assets/card/cardbg.png')",
       //   backgroundSize: "cover",

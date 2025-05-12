@@ -91,8 +91,6 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
     fetchUserSponsor();
   }, [userProfile.user_id, params.userId]);
 
-  console.log(userProfile);
-
   return (
     <Card className="shadow-md">
       {isLoading && <TableLoading />}

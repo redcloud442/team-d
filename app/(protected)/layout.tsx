@@ -16,18 +16,18 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const {
-    profile,
-    redirect: redirectTo,
-    teamMemberProfile,
-    referral,
-  } = await protectionMemberUser();
+  let profile = null;
+  let redirectTo = null;
+  let teamMemberProfile = null;
+  let referral = null;
 
-  if (redirectTo) {
-    redirect(redirectTo);
-  }
-
-  if (!profile) {
+  try {
+    const result = await protectionMemberUser();
+    profile = result.profile;
+    redirectTo = result.redirect;
+    teamMemberProfile = result.teamMemberProfile;
+    referral = result.referral;
+  } catch (err) {
     redirect("/500");
   }
 

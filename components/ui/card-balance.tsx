@@ -1,4 +1,3 @@
-import { useRole } from "@/utils/context/roleContext";
 import { formatNumberLocale } from "@/utils/function";
 import { package_table } from "@prisma/client";
 import { RefreshCcw } from "lucide-react";
@@ -18,16 +17,7 @@ type Props = {
   active: boolean;
 };
 
-const CardBalance = ({
-  value,
-  handleClick,
-  refresh,
-  packages,
-  setIsActive,
-  active,
-}: Props) => {
-  const { teamMemberProfile } = useRole();
-
+const CardBalance = ({ value, handleClick, refresh, packages }: Props) => {
   return (
     <ReusableCardBg
       className="p-2 text-center text-xl font-bold"

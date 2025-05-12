@@ -16,6 +16,7 @@ import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { ROLE } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useCallback, useEffect, useMemo } from "react";
@@ -126,7 +127,22 @@ export default function LayoutContent({ children }: LayoutContentProps) {
       <div className="flex min-h-screen w-full overflow-hidden relative">
         <div className="flex-1 flex flex-col overflow-x-auto relative">
           {topNav}
-          <div className="pb-24 p-4 relative z-50 grow">{children}</div>
+
+          <div className="pb-24 p-4 relative grow">
+            <div className="absolute inset-0 -z-10">
+              <Image
+                src="/assets/bg/xeloraBg.png"
+                alt="Xelora Background"
+                fill
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-black opacity-40" />
+            </div>
+
+            <div className="relative z-10">{children}</div>
+          </div>
+
           {mobileNav}
           <DevMode />
         </div>
@@ -177,7 +193,19 @@ export default function LayoutContent({ children }: LayoutContentProps) {
               </Breadcrumb>
             </div>
           </header>
-          <div className="pb-24 p-4 relative z-50 grow">{children}</div>
+          <div className="pb-24 p-4 relative z-50 grow">
+            <div className="absolute inset-0 -z-10">
+              <Image
+                src="/assets/bg/xeloraBg.png"
+                alt="Xelora Background"
+                fill
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-black opacity-40" />
+            </div>
+            {children}
+          </div>
           <ModeToggle />
         </SidebarInset>
       </SidebarProvider>

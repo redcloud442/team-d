@@ -112,22 +112,24 @@ const MobileNavBar = () => {
 
       {/* Logout Confirmation Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="z-50 text-center space-y-4 bg-orange-950 dark:bg-orange-950">
+        <DialogContent
+          type="earnings"
+          className="z-50 text-center dark:bg-[#190e0a] dark:border-orange-500 dark:text-white"
+        >
           <DialogHeader>
-            <div className="flex flex-col items-center space-y-2">
+            <div className="flex flex-col items-center">
               <LogOut className="w-10 h-10 text-red-500" />
               <DialogTitle className="text-xl font-bold">
                 Confirm Logout
               </DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
-                Are you sure you want to sign out? You’ll need to log in again
-                to access your account.
+                Are you sure you want to sign out? You&apos;ll need to log in
+                again to access your account.
               </DialogDescription>
             </div>
           </DialogHeader>
-
           <DialogFooter className="flex justify-center gap-4 pt-4 w-full">
-            <Button variant="destructive" onClick={handleSignOut}>
+            <Button variant="card" className="w-full" onClick={handleSignOut}>
               Continue
             </Button>
           </DialogFooter>

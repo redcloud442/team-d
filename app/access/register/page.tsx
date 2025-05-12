@@ -72,7 +72,7 @@ const Page = async ({
   });
 
   if (!user) {
-    redirect("/auth/login");
+    redirect("/access/login");
   }
 
   return (

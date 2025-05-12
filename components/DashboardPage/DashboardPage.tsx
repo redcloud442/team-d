@@ -90,6 +90,7 @@ const DashboardPage = ({ packages }: Props) => {
     toast({
       title: "Referral link copied to clipboard",
       description: "You can now share it with your friends",
+      variant: "success",
     });
   };
 
@@ -107,9 +108,9 @@ const DashboardPage = ({ packages }: Props) => {
             </div>
           </DashboardCardBg>
 
-          <div className="flex flex-col justify-center items-center gap-4">
-            <div className="flex justify-center items-stretch gap-4">
-              <DashboardCardBg className="min-h-[100px] flex-1 p-2 text-center text-black rounded-sm flex flex-col justify-center">
+          <div className="flex flex-col justify-center items-center sm:items-stretch gap-4">
+            <div className="flex justify-center items-stretch gap-4 flex-grow">
+              <DashboardCardBg className="min-h-[100px] flex-1 p-2 text-center text-black rounded-sm flex flex-col justify-center w-full">
                 <h2 className="text-lg font-bold whitespace-nowrap">
                   {profile.user_username}
                 </h2>
