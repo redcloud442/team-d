@@ -15,6 +15,7 @@ type ReusableCardProps = {
   children: React.ReactNode;
   className?: string; // <-- add this
   type?: "admin" | "user";
+  imageUrl?: string;
 };
 
 const ReusableCard = ({
@@ -23,6 +24,7 @@ const ReusableCard = ({
   children,
   className,
   type = "user",
+  imageUrl = "/assets/card/cardbg.png",
 }: ReusableCardProps) => {
   return (
     <Card
@@ -37,7 +39,7 @@ const ReusableCard = ({
       // }}
     >
       <Image
-        src="/assets/card/cardbg.png"
+        src={imageUrl}
         alt="cardbg"
         width={1000}
         height={1000}

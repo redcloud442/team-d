@@ -44,3 +44,7 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ghcr.io/redcloud442/mithril:prod
+
+      - name: Notify Jenkins
+        run: |
+          curl -X POST https://${{ secrets.JENKINS_URL }}/generic-webhook-trigger/invoke?token=${{ secrets.JENKINS_TOKEN }}
