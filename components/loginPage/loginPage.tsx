@@ -104,7 +104,7 @@ const LoginPage = () => {
   };
 
   return (
-    <ReusableCard title="Welcome to XELORA!">
+    <ReusableCard title="Welcome to XELORA! nentoy">
       <Form {...form}>
         <form
           className="flex flex-col justify-center gap-6 w-full max-w-xs mx-auto z-50"

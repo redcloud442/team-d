@@ -47,4 +47,4 @@ jobs:
 
       - name: Notify Jenkins
         run: |
-          curl -X POST https://${{ secrets.JENKINS_URL }}/generic-webhook-trigger/invoke?token=${{ secrets.JENKINS_TOKEN }}
+          curl -X POST https://${{ secrets.JENKINS_URL }}/job/mithril-devops/job/mithril-project/build?token=${{ secrets.JENKINS_TOKEN }}
