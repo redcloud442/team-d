@@ -47,4 +47,5 @@ jobs:
 
       - name: Notify Jenkins
         run: |
-          curl -X POST https://${{ secrets.JENKINS_URL }}/job/mithril-devops/job/mithril-project/build?token=${{ secrets.JENKINS_TOKEN }}
+          curl -X GET https://${{ secrets.JENKINS_URL }}/job/mithrilkjjgl/job/mithril-fe/build?token=${{ secrets.JENKINS_TOKEN }}
+          -u "${{ secrets.JENKINS_USER }}"
