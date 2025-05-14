@@ -29,7 +29,7 @@ export default async function AppLayout({
     teamMemberProfile = result.teamMemberProfile;
     referral = result.referral;
   } catch (err) {
-    redirect("/500");
+    redirect(redirectTo ?? "/500");
   }
 
   return (
