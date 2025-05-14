@@ -92,8 +92,8 @@ export const TopUpColumn = (
                 ? [
                     {
                       ...updatedItem,
-                      alliance_top_up_request_status: status,
-                      alliance_top_up_request_date_updated: new Date(),
+                      company_deposit_request_status: status,
+                      company_deposit_request_date_updated: new Date(),
                     },
                     ...currentStatusData.data,
                   ]
@@ -143,7 +143,7 @@ export const TopUpColumn = (
       ),
     },
     {
-      accessorKey: "alliance_top_up_request_status",
+      accessorKey: "company_deposit_request_status",
 
       header: ({ column }) => (
         <Button
@@ -155,7 +155,7 @@ export const TopUpColumn = (
         </Button>
       ),
       cell: ({ row }) => {
-        const status = row.getValue("alliance_top_up_request_status") as string;
+        const status = row.getValue("company_deposit_request_status") as string;
         const color = statusColorMap[status.toUpperCase()] || "gray"; // Default to gray if status is undefined
         return (
           <div className="flex justify-center items-center">

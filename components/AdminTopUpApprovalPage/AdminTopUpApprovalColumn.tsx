@@ -93,8 +93,8 @@ export const useAdminTopUpApprovalColumns = (
                 ? [
                     {
                       ...updatedItem,
-                      alliance_top_up_request_status: status,
-                      alliance_top_up_request_date_updated: new Date(),
+                      company_deposit_request_status: status,
+                      company_deposit_request_date_updated: new Date(),
                     },
                     ...currentStatusData.data,
                   ]

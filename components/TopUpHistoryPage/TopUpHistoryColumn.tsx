@@ -23,7 +23,7 @@ const statusColorMap: Record<string, string> = {
 export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
   return [
     {
-      accessorKey: "alliance_top_up_request_status",
+      accessorKey: "company_deposit_request_status",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -33,7 +33,7 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
         </Button>
       ),
       cell: ({ row }) => {
-        const status = row.getValue("alliance_top_up_request_status") as string;
+        const status = row.getValue("company_deposit_request_status") as string;
         const color = statusColorMap[status.toUpperCase()] || "gray"; // Default to gray if status is undefined
         return (
           <div className="flex justify-center items-center">
@@ -46,11 +46,11 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
     },
 
     {
-      accessorKey: "alliance_top_up_request_amount",
+      accessorKey: "company_deposit_request_amount",
       header: () => <Button variant="ghost">Amount</Button>,
       cell: ({ row }) => {
         const amount = parseFloat(
-          row.getValue("alliance_top_up_request_amount")
+          row.getValue("company_deposit_request_amount")
         );
         const formatted = new Intl.NumberFormat("en-PH", {
           style: "currency",
@@ -60,25 +60,25 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
       },
     },
     {
-      accessorKey: "alliance_top_up_request_type",
+      accessorKey: "company_deposit_request_type",
       header: () => <Button variant="ghost">Bank Name</Button>,
       cell: ({ row }) => (
         <div className="text-center">
-          {row.getValue("alliance_top_up_request_type")}
+          {row.getValue("company_deposit_request_type")}
         </div>
       ),
     },
     {
-      accessorKey: "alliance_top_up_request_name",
+      accessorKey: "company_deposit_request_name",
       header: () => <Button variant="ghost">Account Name</Button>,
       cell: ({ row }) => (
         <div className="text-center">
-          {row.getValue("alliance_top_up_request_name")}
+          {row.getValue("company_deposit_request_name")}
         </div>
       ),
     },
     {
-      accessorKey: "alliance_top_up_request_account",
+      accessorKey: "company_deposit_request_account",
       header: () => (
         <Button variant="ghost">
           Bank Account <ArrowUpDown />
@@ -86,12 +86,12 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
       ),
       cell: ({ row }) => (
         <div className="text-center">
-          {row.getValue("alliance_top_up_request_account")}
+          {row.getValue("company_deposit_request_account")}
         </div>
       ),
     },
     {
-      accessorKey: "alliance_top_up_request_date",
+      accessorKey: "company_deposit_request_date",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -102,17 +102,17 @@ export const TopUpHistoryColumn = (): ColumnDef<TopUpRequestData>[] => {
       ),
       cell: ({ row }) => (
         <div className="text-center">
-          {formatDateToYYYYMMDD(row.getValue("alliance_top_up_request_date"))},{" "}
-          {formatTime(row.getValue("alliance_top_up_request_date"))}
+          {formatDateToYYYYMMDD(row.getValue("company_deposit_request_date"))},{" "}
+          {formatTime(row.getValue("company_deposit_request_date"))}
         </div>
       ),
     },
     {
-      accessorKey: "alliance_top_up_request_reject_note",
+      accessorKey: "company_deposit_request_reject_note",
       header: () => <div>Rejection Note</div>,
       cell: ({ row }) => {
         const rejectionNote = row.getValue(
-          "alliance_top_up_request_reject_note"
+          "company_deposit_request_reject_note"
         ) as string;
 
         return rejectionNote ? (
