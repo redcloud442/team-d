@@ -162,7 +162,6 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
         title: "Registration Successful",
       });
 
-      localStorage.setItem("isModalOpen", "true");
       router.push("/dashboard");
     } catch (e) {
       setIsSuccess(false);

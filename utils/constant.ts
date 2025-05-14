@@ -23,7 +23,10 @@ export const BANK_IMAGE = {
   BYBIT: "/assets/bank/BYBIT.png",
 };
 
-export const BASE_URL = "https://localhost:3000";
+export const BASE_URL =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:3000"
+    : "https://pinkful.website";
 
 export const MAX_FILE_SIZE_MB = 12;
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
