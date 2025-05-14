@@ -14,9 +14,11 @@ const TopNavigation = () => {
       </div>
 
       <div>
-        <Button variant="outline" className="rounded-sm text-xs p-2">
-          Contact my sponsor!
-        </Button>
+        <Link href="/contact">
+          <Button variant="outline" className="rounded-sm text-xs p-2">
+            Contact my sponsor!
+          </Button>
+        </Link>
       </div>
     </nav>
   );
