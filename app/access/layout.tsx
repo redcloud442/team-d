@@ -9,7 +9,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         alt="Xelora Background"
         width={1980}
         height={1080}
-        priority
         className="absolute top-0 left-0 w-full h-full object-cover z-0"
       />
       <div className="absolute top-0 left-0 w-full h-full bg-black opacity-40 z-10" />

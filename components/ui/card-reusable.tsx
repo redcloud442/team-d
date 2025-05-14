@@ -24,7 +24,7 @@ const ReusableCard = ({
   children,
   className,
   type = "user",
-  imageUrl = "/assets/card/cardbg.png",
+  imageUrl = "/assets/card/background-card.png",
 }: ReusableCardProps) => {
   return (
     <Card
