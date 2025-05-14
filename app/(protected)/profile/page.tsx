@@ -23,37 +23,29 @@ const Page = async () => {
     redirect("/access/signin");
   }
 
-  const earningsSummary = await prisma.dashboard_earnings_summary.findFirst({
+  const userData = await prisma.user_table.findUnique({
     where: {
-      member_id: user.user_metadata.CompanyMemberId,
+      user_id: user.id,
+    },
+    include: {
+      company_member_table: {
+        include: {
+          dashboard_earnings_summary: true,
+        },
+      },
     },
   });
 
-  if (!earningsSummary) {
+  if (!userData) {
     redirect("/500");
   }
-
-  const teamMemberProfile = await prisma.company_member_table.findUnique({
-    where: {
-      company_member_id: user.user_metadata.CompanyMemberId,
-    },
-  });
-
-  if (!teamMemberProfile) {
-    redirect("/500");
-  }
-
-  const profile = await prisma.user_table.findUnique({
-    where: {
-      user_id: teamMemberProfile.company_member_user_id,
-    },
-  });
 
   const combinedData = {
-    ...teamMemberProfile,
-    ...profile,
-    ...earningsSummary,
-  } as UserRequestdata;
+    ...userData,
+    ...userData.company_member_table[0],
+    ...(userData.company_member_table[0]?.dashboard_earnings_summary?.[0] ||
+      {}),
+  } as unknown as UserRequestdata;
 
   return <UserProfilePageUser userProfile={combinedData} />;
 };

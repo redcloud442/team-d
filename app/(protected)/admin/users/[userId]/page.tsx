@@ -20,35 +20,25 @@ const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
 
   if (!teamMemberProfile) return redirect("/auth/login");
 
-  const [userData, allianceData, earningsData] = await prisma.$transaction(
-    async (tx) => {
-      const user = await tx.user_table.findUnique({
-        where: { user_id: userId },
-      });
-
-      if (!user) return [null, null, null]; // Stop further queries if user doesn't exist
-
-      const alliance = await tx.company_member_table.findFirst({
-        where: { company_member_user_id: userId },
-      });
-
-      const earnings = alliance
-        ? await tx.dashboard_earnings_summary.findUnique({
-            where: { member_id: alliance.company_member_id },
-          })
-        : null;
-
-      return [user, alliance, earnings];
-    }
-  );
-
-  const merchantData = allianceData
-    ? await prisma.merchant_member_table.findFirst({
-        where: {
-          merchant_member_merchant_id: allianceData.company_member_id,
+  const userData = await prisma.user_table.findUnique({
+    where: { user_id: userId },
+    include: {
+      company_member_table: {
+        include: {
+          dashboard_earnings_summary: true,
+          merchant_member_table: true,
         },
-      })
-    : null;
+      },
+    },
+  });
+
+  if (!userData) return redirect("/500");
+
+  const earningsData =
+    userData.company_member_table[0]?.dashboard_earnings_summary[0];
+  const allianceData = userData.company_member_table[0];
+  const merchantData =
+    userData.company_member_table[0]?.merchant_member_table[0];
 
   const combinedData = {
     ...userData,
