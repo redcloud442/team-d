@@ -255,7 +255,7 @@ const DashboardWithdrawModalWithdraw = () => {
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {!isWithdrawalToday.package && (
+                    {isWithdrawalToday.package && (
                       <SelectItem className="text-xs" value="PACKAGE">
                         Trading Earnings ₱{" "}
                         {formatNumberLocale(
@@ -264,7 +264,7 @@ const DashboardWithdrawModalWithdraw = () => {
                       </SelectItem>
                     )}
 
-                    {!isWithdrawalToday.referral && (
+                    {isWithdrawalToday.referral && (
                       <SelectItem className="text-xs" value="REFERRAL">
                         Referral And Matrix Earnings ₱{" "}
                         {formatNumberLocale(
