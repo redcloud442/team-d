@@ -1,11 +1,21 @@
+import Head from "next/head";
 import Image from "next/image";
 import { ReactNode } from "react";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <section className="min-h-screen h-full flex items-center justify-center sm:p-0 p-4">
+      <Head>
+        <link
+          rel="preload"
+          as="image"
+          href="/assets/bg/xeloraBg.webp"
+          imageSrcSet="/assets/bg/xeloraBg.webp"
+          imageSizes="100vw"
+        />
+      </Head>
       <Image
-        src="/assets/bg/xeloraBg.png"
+        src="/assets/bg/xeloraBg.webp"
         alt="Xelora Background"
         width={1980}
         height={1080}

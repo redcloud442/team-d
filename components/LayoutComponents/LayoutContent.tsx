@@ -131,7 +131,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
           <div className="pb-24 p-4 relative grow">
             <div className="absolute inset-0 -z-10">
               <Image
-                src="/assets/bg/xeloraBg.png"
+                src="/assets/bg/xeloraBg.webp"
                 alt="Xelora Background"
                 fill
                 className="object-cover"
@@ -196,7 +196,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
           <div className="pb-24 p-4 relative z-50 grow">
             <div className="absolute inset-0 -z-10">
               <Image
-                src="/assets/bg/xeloraBg.png"
+                src="/assets/bg/xeloraBg.webp"
                 alt="Xelora Background"
                 fill
                 className="object-cover"
