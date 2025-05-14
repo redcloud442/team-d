@@ -1,6 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
-import { Lora } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -23,10 +23,10 @@ export const metadata: Metadata = {
   },
 };
 
-const roboto = Lora({
+const roboto = Poppins({
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "700"],
+  weight: ["400"],
 });
 
 export default function RootLayout({
