@@ -136,7 +136,7 @@ const DashboardPage = ({ packages }: Props) => {
                 >
                   Get you referral link
                 </div>
-                <div className="text-[11px] font-bold border-2 p-1 bg-orange-950 border-orange-500 text-balance">
+                <div className="text-[11px] font-bold border-2 p-1 bg-orange-950 border-orange-500 text-center">
                   {referral.company_referral_link}
                 </div>
               </div>
