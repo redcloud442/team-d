@@ -23,6 +23,7 @@ const PackageCard = ({
         alt={packages.package_name}
         width={1200}
         height={1000}
+        priority
         className={`rounded-md cursor-pointer transition-transform hover:scale-105`}
       />
 

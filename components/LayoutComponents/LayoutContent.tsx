@@ -137,8 +137,6 @@ export default function LayoutContent({ children }: LayoutContentProps) {
                 height={1080}
                 className="absolute top-0 left-0 w-full h-full object-cover z-0"
                 priority
-                placeholder="blur"
-                blurDataURL="/assets/bg/xeloraBg-small.webp"
               />
 
               <div className="absolute inset-0 bg-black opacity-40" />
@@ -206,8 +204,6 @@ export default function LayoutContent({ children }: LayoutContentProps) {
                 height={1080}
                 className="absolute top-0 left-0 w-full h-full object-cover z-0"
                 priority
-                placeholder="blur"
-                blurDataURL="/assets/bg/xeloraBg-small.webp"
               />
 
               <div className="absolute inset-0 bg-black opacity-40" />

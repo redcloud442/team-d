@@ -31,6 +31,7 @@ const CardBalance = ({ value, handleClick, refresh, packages }: Props) => {
           <Button
             variant="ghost"
             className="px-2 bg-red-500 text-white rounded-full"
+            disabled={refresh}
             onClick={handleClick}
           >
             <RefreshCcw />

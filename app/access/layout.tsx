@@ -11,8 +11,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         height={1080}
         className="absolute top-0 left-0 w-full h-full object-cover z-0"
         priority
-        placeholder="blur"
-        blurDataURL="/assets/bg/xeloraBg-small.webp"
       />
 
       <div className="absolute top-0 left-0 w-full h-full bg-black opacity-40 z-10" />

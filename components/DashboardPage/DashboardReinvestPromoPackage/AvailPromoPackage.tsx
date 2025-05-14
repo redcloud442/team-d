@@ -190,7 +190,6 @@ const AvailPromoPackage = ({ onClick, selectedPackage }: Props) => {
             alt={selectedPackage?.package_name || ""}
             width={1000}
             height={1000}
-            unoptimized
           />
         </div>
         <Form {...form}>
