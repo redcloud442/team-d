@@ -262,6 +262,7 @@ const AdminWithdrawalHistoryTable = () => {
         },
         rejectNote: "",
         showHiddenUser: false,
+        showAllDays: false,
       },
     });
 

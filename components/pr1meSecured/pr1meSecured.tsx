@@ -178,7 +178,7 @@ const Pr1meSecured = () => {
   };
 
   return (
-    <ReusableCard className="p-10 space-y-4" title="Secured Login">
+    <ReusableCard className="p-10 space-y-4" title="Welcome to Xelora Access!">
       {step === "login" ? (
         <Form {...form}>
           <form
