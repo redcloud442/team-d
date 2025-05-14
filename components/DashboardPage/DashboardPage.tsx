@@ -178,7 +178,7 @@ const DashboardPage = ({ packages }: Props) => {
             <ReusableCardBg type="gray" className="p-1">
               <Link
                 href={
-                  isWithdrawalToday.package && isWithdrawalToday.referral
+                  isWithdrawalToday.package || isWithdrawalToday.referral
                     ? "/withdraw"
                     : "#"
                 }

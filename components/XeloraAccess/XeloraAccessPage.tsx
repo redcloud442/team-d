@@ -247,7 +247,7 @@ const XeloraAccess = () => {
       ) : (
         <Form {...form}>
           <form
-            className="flex flex-col gap-6 w-full z-40"
+            className="flex flex-col items-center gap-6 w-full z-40"
             onSubmit={handleSubmit(
               handleVerifyOtp as SubmitHandler<LoginFormValues | OtpFormValues>
             )}

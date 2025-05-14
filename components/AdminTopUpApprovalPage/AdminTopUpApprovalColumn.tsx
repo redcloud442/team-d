@@ -345,6 +345,10 @@ export const useAdminTopUpApprovalColumns = (
                   key={attachmentUrl}
                   src={attachmentUrl}
                   alt="Attachment Preview"
+                  width={600}
+                  height={600}
+                  placeholder="blur"
+                  blurDataURL={attachmentUrl}
                   className="object-contain w-[600px] h-[600px]"
                 />
               </div>

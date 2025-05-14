@@ -104,7 +104,7 @@ export const createPromoPackageConnection = async (params: {
   packageData: { amount: number; packageId: string };
   teamMemberId: string;
 }) => {
-  const response = await fetch(`/api/v1/package/connection`, {
+  const response = await fetch(`/api/v1/package/reinvestment`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -116,7 +116,7 @@ export const createPromoPackageConnection = async (params: {
 
   if (!response.ok) {
     throw new Error(
-      result.error || "An error occurred while fetching the package connection."
+      result.error || "An error occurred while creating the package connection."
     );
   }
 
