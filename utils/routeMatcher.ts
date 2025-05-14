@@ -19,6 +19,9 @@ export const PRIVATE_ROUTES = [
   "/contact",
   "/withdraw",
   "/deposit",
+  "/trading",
+  "/matrix",
+  "/referral",
 ];
 
 export const ADMIN_ROUTES = ["/admin"];

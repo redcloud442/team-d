@@ -203,7 +203,7 @@ const DashboardPage = ({ packages }: Props) => {
 
             <ReusableCardBg type="gray" className="p-1">
               <Link
-                href="/packages"
+                href="/trading"
                 className="flex flex-col items-center cursor-pointer"
               >
                 <Image
