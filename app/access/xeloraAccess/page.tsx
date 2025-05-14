@@ -1,4 +1,4 @@
-import Pr1meSecured from "@/components/pr1meSecured/pr1meSecured";
+import XeloraAccess from "@/components/XeloraAccess/XeloraAccessPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,6 +10,6 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  return <Pr1meSecured />;
+  return <XeloraAccess />;
 };
 export default Page;

@@ -9,7 +9,6 @@ import {
   company_referral_link_table,
   user_table,
 } from "@prisma/client";
-import Head from "next/head";
 import { redirect } from "next/navigation";
 
 export default async function AppLayout({
@@ -42,18 +41,7 @@ export default async function AppLayout({
           }
           initialReferral={referral as company_referral_link_table}
         >
-          <LayoutContent>
-            <Head>
-              <link
-                rel="preload"
-                as="image"
-                href="/assets/bg/xeloraBg.webp"
-                imageSrcSet="/assets/bg/xeloraBg.webp"
-                imageSizes="100vw"
-              />
-            </Head>
-            {children}
-          </LayoutContent>
+          <LayoutContent>{children}</LayoutContent>
         </RoleProvider>
       </SidebarProvider>
     </ThemeProvider>

@@ -38,7 +38,7 @@ import {
 } from "../ui/input-otp";
 import { PasswordInput } from "../ui/passwordInput";
 
-const Pr1meSecured = () => {
+const XeloraAccess = () => {
   const [step, setStep] = useState<"login" | "verify">("login");
   const [email, setEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -295,4 +295,4 @@ const Pr1meSecured = () => {
   );
 };
 
-export default Pr1meSecured;
+export default XeloraAccess;

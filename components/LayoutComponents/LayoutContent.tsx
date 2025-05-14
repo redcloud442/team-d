@@ -133,10 +133,14 @@ export default function LayoutContent({ children }: LayoutContentProps) {
               <Image
                 src="/assets/bg/xeloraBg.webp"
                 alt="Xelora Background"
-                fill
-                className="object-cover"
+                width={1980}
+                height={1080}
+                className="absolute top-0 left-0 w-full h-full object-cover z-0"
                 priority
+                placeholder="blur"
+                blurDataURL="/assets/bg/xeloraBg-small.webp"
               />
+
               <div className="absolute inset-0 bg-black opacity-40" />
             </div>
 
@@ -198,10 +202,14 @@ export default function LayoutContent({ children }: LayoutContentProps) {
               <Image
                 src="/assets/bg/xeloraBg.webp"
                 alt="Xelora Background"
-                fill
-                className="object-cover"
+                width={1980}
+                height={1080}
+                className="absolute top-0 left-0 w-full h-full object-cover z-0"
                 priority
+                placeholder="blur"
+                blurDataURL="/assets/bg/xeloraBg-small.webp"
               />
+
               <div className="absolute inset-0 bg-black opacity-40" />
             </div>
             {children}
