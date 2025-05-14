@@ -37,6 +37,7 @@ COPY . .
 COPY /scripts/entrypoint_overwrited.sh /usr/src/app/entrypoint.sh
 RUN dos2unix /usr/src/app/entrypoint.sh && chmod +x /usr/src/app/entrypoint.sh
 
+
 # Environment arguments
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
