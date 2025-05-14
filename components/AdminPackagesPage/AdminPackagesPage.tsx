@@ -7,10 +7,8 @@ import { createClientSide } from "@/utils/supabase/client";
 import { package_table } from "@prisma/client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import EditPackagesModal from "../AdminPackagesPage/EditPackagesModal";
 import { Card } from "../ui/card";
 import { Separator } from "../ui/separator";
-import CreatePackageModal from "./CreatePackageModal";
 
 const AdminPackageList = () => {
   const supabase = createClientSide();
@@ -52,7 +50,7 @@ const AdminPackageList = () => {
         <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
           List of Packages
         </h1>
-        <CreatePackageModal setPackages={setPackages} />
+        {/* <CreatePackageModal setPackages={setPackages} /> */}
       </div>
       <Separator />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -97,14 +95,14 @@ const AdminPackageList = () => {
               {pkg.package_percentage}% Earnings in {pkg.packages_days} Days
             </p>
 
-            {!pkg.package_is_disabled && (
+            {/* {!pkg.package_is_disabled && (
               <EditPackagesModal
                 setPackages={setPackages}
                 teamMemberProfile={teamMemberProfile}
                 selectedPackage={selectedPackage}
                 handleSelectPackage={() => handleSelectPackage(pkg)}
               />
-            )}
+            )} */}
 
             {pkg.package_is_disabled && (
               <div className="text-sm text-gray-500 italic">

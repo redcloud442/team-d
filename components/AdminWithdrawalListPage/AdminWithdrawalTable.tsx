@@ -3,7 +3,11 @@
 import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminWithdrawalRequest } from "@/services/Withdrawal/Admin";
 import { useRole } from "@/utils/context/roleContext";
-import { escapeFormData, formatDateToLocal } from "@/utils/function";
+import {
+  escapeFormData,
+  formatDateToLocal,
+  formatNumberLocale,
+} from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import { AdminWithdrawaldata } from "@/utils/types";
 import {
@@ -340,10 +344,7 @@ const AdminWithdrawalHistoryTable = () => {
         value={
           <>
             <PhilippinePeso />
-            {requestData?.totalPendingWithdrawal.toLocaleString("en-US", {
-              maximumFractionDigits: 2,
-              minimumFractionDigits: 2,
-            })}
+            {formatNumberLocale(requestData?.totalPendingWithdrawal ?? 0)}
           </>
         }
         description=""
@@ -355,10 +356,7 @@ const AdminWithdrawalHistoryTable = () => {
         value={
           <>
             <PhilippinePeso />
-            {requestData?.totalApprovedWithdrawal.toLocaleString("en-US", {
-              maximumFractionDigits: 2,
-              minimumFractionDigits: 2,
-            })}
+            {formatNumberLocale(requestData?.totalApprovedWithdrawal ?? 0)}
           </>
         }
         description=""
