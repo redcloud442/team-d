@@ -75,6 +75,12 @@ export async function updateSession(request: NextRequest) {
       return addSecurityHeaders(NextResponse.redirect(homeUrl));
     }
 
+    case RouteAction.REDIRECT_ADMIN: {
+      const adminUrl = request.nextUrl.clone();
+      adminUrl.pathname = "/admin";
+      return addSecurityHeaders(NextResponse.redirect(adminUrl));
+    }
+
     case RouteAction.FORBIDDEN:
       return addSecurityHeaders(
         NextResponse.redirect(new URL("/", request.url))
@@ -105,6 +111,12 @@ const determineRouteAction = ({
     return RouteAction.REDIRECT_LOGIN;
   }
 
+  // 🟡 REDIRECT ADMIN USERS FROM /dashboard TO /admin
+  if (pathname === "/dashboard" && role === CompanyMemberRole.ADMIN) {
+    return RouteAction.REDIRECT_ADMIN;
+  }
+
+  // Non-admin users visiting public route (e.g. `/`)
   if (isPublicRoute(pathname)) {
     if (pathname !== "/dashboard") return RouteAction.REDIRECT_DASHBOARD;
   }
