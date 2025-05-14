@@ -1,6 +1,7 @@
+"use cache";
 import LegionBountyPage from "@/components/LegionBountyPage/LegionBountyPage";
 
-const page = () => {
+const page = async () => {
   return <LegionBountyPage />;
 };
 

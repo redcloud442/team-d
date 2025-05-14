@@ -5,6 +5,7 @@ interface indirectReferralState {
   indirectReferral: {
     data: LegionRequestData[];
     count: number;
+    lastFetchedAt: number;
   };
 
   setIndirectReferral: (indirectReferral: {
@@ -18,12 +19,14 @@ export const useIndirectReferralStore = create<indirectReferralState>(
     indirectReferral: {
       data: [],
       count: 0,
+      lastFetchedAt: 0,
     },
     setIndirectReferral: (indirectReferral) =>
       set(() => ({
         indirectReferral: {
           data: indirectReferral.data,
           count: indirectReferral.count,
+          lastFetchedAt: Date.now(),
         },
       })),
   })

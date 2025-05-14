@@ -21,6 +21,9 @@ export const getAllyBounty = async (params: {
     headers: {
       "Content-Type": "application/json",
     },
+    next: {
+      revalidate: 60,
+    },
     body: JSON.stringify(urlParams),
   });
 
@@ -57,6 +60,9 @@ export const getLegionBounty = async (params: {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+    },
+    next: {
+      revalidate: 60,
     },
     body: JSON.stringify(urlParams),
   });

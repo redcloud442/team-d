@@ -9,6 +9,7 @@ interface directReferralState {
       company_referral_date: Date;
     })[];
     count: number;
+    lastFetchedAt: number;
   };
 
   setDirectReferral: (directReferral: {
@@ -25,12 +26,14 @@ export const useDirectReferralStore = create<directReferralState>((set) => ({
   directReferral: {
     data: [],
     count: 0,
+    lastFetchedAt: 0,
   },
   setDirectReferral: (directReferral) =>
     set(() => ({
       directReferral: {
         data: directReferral.data,
         count: directReferral.count,
+        lastFetchedAt: Date.now(),
       },
     })),
 }));

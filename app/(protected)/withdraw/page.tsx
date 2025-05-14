@@ -1,12 +1,12 @@
+// app/withdraw/page.tsx
 import WithdrawPage from "@/components/WithdrawPage/WithdrawPage";
 import { getPhilippinesTime } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { createClientServerSide } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
-const page = async () => {
+const Page = async () => {
   const supabase = await createClientServerSide();
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -15,47 +15,45 @@ const page = async () => {
     redirect("/access/login");
   }
 
-  const todayStart = getPhilippinesTime(new Date(new Date()), "start");
-  const todayEnd = getPhilippinesTime(new Date(new Date()), "end");
+  const companyMemberId = user.user_metadata?.CompanyMemberId;
+  if (!companyMemberId) {
+    redirect("/access/login"); // Fallback if ID missing
+  }
 
-  const existingPackageWithdrawal =
-    !!(await prisma.company_withdrawal_request_table.findFirst({
+  const now = new Date();
+  const todayStart = getPhilippinesTime(now, "start");
+  const todayEnd = getPhilippinesTime(now, "end");
+
+  const [packageWithdrawal, referralWithdrawal] = await Promise.all([
+    prisma.company_withdrawal_request_table.findFirst({
       where: {
-        company_withdrawal_request_member_id:
-          user.user_metadata.CompanyMemberId,
-        company_withdrawal_request_status: {
-          in: ["PENDING", "APPROVED"],
-        },
-
+        company_withdrawal_request_member_id: companyMemberId,
+        company_withdrawal_request_status: { in: ["PENDING", "APPROVED"] },
         company_withdrawal_request_withdraw_type: "PACKAGE",
         company_withdrawal_request_date: {
           gte: todayStart,
           lte: todayEnd,
         },
       },
-    }));
-
-  const existingReferralWithdrawal =
-    !!(await prisma.company_withdrawal_request_table.findFirst({
+    }),
+    prisma.company_withdrawal_request_table.findFirst({
       where: {
-        company_withdrawal_request_member_id:
-          user.user_metadata.CompanyMemberId,
-        company_withdrawal_request_status: {
-          in: ["PENDING", "APPROVED"],
-        },
+        company_withdrawal_request_member_id: companyMemberId,
+        company_withdrawal_request_status: { in: ["PENDING", "APPROVED"] },
         company_withdrawal_request_withdraw_type: "REFERRAL",
         company_withdrawal_request_date: {
-          gte: getPhilippinesTime(new Date(new Date()), "start"),
-          lte: getPhilippinesTime(new Date(new Date()), "end"),
+          gte: todayStart,
+          lte: todayEnd,
         },
       },
-    }));
+    }),
+  ]);
 
-  if (existingPackageWithdrawal && existingReferralWithdrawal) {
+  if (packageWithdrawal && referralWithdrawal) {
     redirect("/dashboard");
   }
 
   return <WithdrawPage />;
 };
 
-export default page;
+export default Page;

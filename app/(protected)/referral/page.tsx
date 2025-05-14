@@ -1,6 +1,7 @@
+"use cache";
 import AllyBountyPage from "@/components/AllyBountyPage/AllyBountyPage";
 
-const page = () => {
+const page = async () => {
   return <AllyBountyPage />;
 };
 

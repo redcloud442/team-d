@@ -41,6 +41,18 @@ const AllyBountyTable = () => {
   const fetchAdminRequest = async () => {
     try {
       if (!teamMemberProfile) return;
+
+      const now = Date.now();
+      const SIXTY_SECONDS = 60 * 1000;
+
+      // Skip if data was fetched less than 60 seconds ago
+      if (
+        directReferral.lastFetchedAt &&
+        now - directReferral.lastFetchedAt < SIXTY_SECONDS
+      ) {
+        return;
+      }
+
       setIsFetchingList(true);
 
       const sanitizedData = escapeFormData(getValues());
