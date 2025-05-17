@@ -4,7 +4,7 @@ export const PUBLIC_ROUTES = [
   "/access/login",
   "/access/register",
   "/api/v1/access",
-  "/api/v1/access/securedStarter",
+  "/api/v1/access/xeloraAccess",
   "/api/health",
   "/api/v1/access/callback",
   "/access/xeloraAccess",

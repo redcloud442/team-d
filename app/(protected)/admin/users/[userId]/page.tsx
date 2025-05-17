@@ -1,9 +1,11 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import UserAdminProfile from "@/components/UserAdminProfile/UserAdminProfile";
 import prisma from "@/utils/prisma";
 import { protectionAdminUser } from "@/utils/serversideProtection";
 import { UserRequestdata } from "@/utils/types";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "User Profile Records",
@@ -49,7 +51,19 @@ const Page = async ({ params }: { params: Promise<{ userId: string }> }) => {
 
   if (!combinedData) return redirect("/auth/login");
 
-  return <UserAdminProfile profile={profile} userProfile={combinedData} />;
+  return (
+    <Suspense
+      fallback={
+        <div className="space-y-4">
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full max-w-3xl" />
+          <Skeleton className="h-64 w-full max-w-2xl" />
+        </div>
+      }
+    >
+      <UserAdminProfile profile={profile} userProfile={combinedData} />
+    </Suspense>
+  );
 };
 
 export default Page;

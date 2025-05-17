@@ -1,7 +1,9 @@
 // app/dashboard/page.tsx
 
 import DashboardPage from "@/components/DashboardPage/DashboardPage";
+import { Skeleton } from "@/components/ui/skeleton";
 import prisma from "@/utils/prisma";
+import { Suspense } from "react";
 
 const Page = async () => {
   const packages = await prisma.package_table.findMany({
@@ -18,7 +20,11 @@ const Page = async () => {
     },
   });
 
-  return <DashboardPage packages={packages} />;
+  return (
+    <Suspense fallback={<Skeleton className="h-full w-full" />}>
+      <DashboardPage packages={packages} />
+    </Suspense>
+  );
 };
 
 export default Page;

@@ -1,9 +1,11 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import UserProfilePageUser from "@/components/UserProfilePage/UserProfilePageUser";
 import prisma from "@/utils/prisma";
 import { createClientServerSide } from "@/utils/supabase/server";
 import { UserRequestdata } from "@/utils/types";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Profile Page",
@@ -47,7 +49,19 @@ const Page = async () => {
       {}),
   } as unknown as UserRequestdata;
 
-  return <UserProfilePageUser userProfile={combinedData} />;
+  return (
+    <Suspense
+      fallback={
+        <>
+          <Skeleton className="h-[calc(100vh-10rem)] w-full" />
+          <Skeleton className="h-[calc(100vh-10rem)] w-full" />
+          <Skeleton className="h-[calc(100vh-10rem)] w-full" />
+        </>
+      }
+    >
+      <UserProfilePageUser userProfile={combinedData} />
+    </Suspense>
+  );
 };
 
 export default Page;

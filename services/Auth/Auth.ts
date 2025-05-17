@@ -98,7 +98,9 @@ export const loginValidation = async (
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(params),
+    body: JSON.stringify({
+      userName: userName,
+    }),
   });
 
   const data = await response.json();
@@ -173,7 +175,7 @@ export const handleSignInAdmin = async (params: {
   userName: string;
   password: string;
 }) => {
-  const response = await fetch(`/api/v1/access/securedStarter`, {
+  const response = await fetch(`/api/v1/access/xeloraAccess`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

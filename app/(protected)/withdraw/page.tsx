@@ -1,9 +1,11 @@
 // app/withdraw/page.tsx
+import { Skeleton } from "@/components/ui/skeleton";
 import WithdrawPage from "@/components/WithdrawPage/WithdrawPage";
 import { getPhilippinesTime } from "@/utils/function";
 import prisma from "@/utils/prisma";
 import { createClientServerSide } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 const Page = async () => {
   const supabase = await createClientServerSide();
@@ -53,7 +55,19 @@ const Page = async () => {
     redirect("/dashboard");
   }
 
-  return <WithdrawPage />;
+  return (
+    <Suspense
+      fallback={
+        <div className="space-y-4">
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full max-w-3xl" />
+          <Skeleton className="h-64 w-full max-w-2xl" />
+        </div>
+      }
+    >
+      <WithdrawPage />
+    </Suspense>
+  );
 };
 
 export default Page;
