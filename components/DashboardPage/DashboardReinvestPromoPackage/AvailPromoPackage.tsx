@@ -25,8 +25,8 @@ import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData, formatNumberLocale } from "@/utils/function";
 import { PromoPackageFormValues, PromoPackageSchema } from "@/utils/schema";
+import { package_table } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { package_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -49,9 +49,10 @@ const AvailPromoPackage = ({ onClick, selectedPackage }: Props) => {
     (earnings?.company_referral_earnings ?? 0);
   const [maxAmount, setMaxAmount] = useState(maxReinvestment);
 
-  const formattedMaxAmount = formatNumberLocale(maxAmount);
-
-  const formSchema = PromoPackageSchema(maxAmount, formattedMaxAmount);
+  const formSchema = PromoPackageSchema(
+    maxAmount,
+    earnings?.company_combined_earnings ?? 0
+  );
 
   const form = useForm<PromoPackageFormValues>({
     resolver: zodResolver(formSchema),
@@ -142,7 +143,6 @@ const AvailPromoPackage = ({ onClick, selectedPackage }: Props) => {
           package_connection_id:
             packageConnection.package_member_connection_id || "",
           profit_amount: Number(computation),
-          package_gif: selectedPackage?.package_gif || "",
           package_date_created: new Date().toISOString(),
           package_percentage: selectedPackage?.package_percentage || 0,
           package_member_id: teamMemberProfile?.company_member_id,

@@ -5,6 +5,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import { getUserEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
@@ -27,7 +29,8 @@ import { escapeFormData, formatNumberLocale } from "@/utils/function";
 import { withdrawalFormSchema, WithdrawalFormValues } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 const DashboardWithdrawModalWithdraw = () => {
@@ -49,6 +52,7 @@ const DashboardWithdrawModalWithdraw = () => {
       bank: "",
       accountName: "",
       accountNumber: "",
+      phoneNumber: "",
     },
   });
 
@@ -205,22 +209,97 @@ const DashboardWithdrawModalWithdraw = () => {
     }
   };
 
-  const handleCalculateTotalWithdrawal = () => {
+  const handleCalculateTotalWithdrawal = useMemo(() => {
     const totalWithdrawal = Number(amount) - Number(amount) * 0.1;
     return formatNumberLocale(totalWithdrawal);
+  }, [amount]);
+
+  const handleCalculateVAT = useMemo(() => {
+    const vat = Number(amount) * 0.1;
+    return formatNumberLocale(vat);
+  }, [amount]);
+
+  const handleSelectedBank = (value: string) => {
+    setValue("bank", value);
   };
 
   return (
     <Form {...form}>
       <form
         onSubmit={handleSubmit(handleWithdrawalRequest)}
-        className="space-y-4 w-full"
+        className="space-y-3 w-full"
       >
+        <div className="text-xl font-bold">
+          <span className="text-bg-primary-blue"> 1. SELECT</span> BANK
+        </div>
+        <FormField
+          control={control}
+          name="bank"
+          render={({ field }) => (
+            <div className="grid grid-cols-3 gap-4 mt-2">
+              {bankData.map((option) => {
+                return (
+                  <button
+                    key={option.bank_name}
+                    type="button"
+                    onClick={() => {
+                      field.onChange(option.bank_name);
+
+                      handleSelectedBank(option.bank_name);
+                    }}
+                    className={cn(
+                      "flex flex-col items-center justify-center rounded-xl p-2 transition-all",
+                      field.value === option.bank_name &&
+                        "border border-bg-primary-blue bg-bg-primary/10"
+                    )}
+                  >
+                    {/* Logo */}
+                    <div className="w-14 h-14 rounded-lg overflow-hidden">
+                      <Image
+                        src={"/assets/icons/trading.ico"}
+                        alt={option.bank_name}
+                        width={56}
+                        height={56}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    {/* Bank Name */}
+                    <span className="mt-2 text-xs font-semibold text-white text-center">
+                      {option.bank_name}
+                    </span>
+
+                    {/* Select Button */}
+                    <span
+                      className={cn(
+                        "mt-1 px-2 py-1 rounded-md text-xs font-bold",
+                        field.value === option.bank_name
+                          ? "bg-bg-primary-blue text-black"
+                          : "bg-gray-300 text-black"
+                      )}
+                    >
+                      SELECT
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        />
+
+        <div className="text-xl font-bold">
+          <span className="text-bg-primary-blue"> 2. FILL-UP</span> FORM
+        </div>
+
         <FormField
           control={control}
           name="earnings"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex justify-between items-center">
+              <FormLabel className="space-x-1">
+                <span className="text-bg-primary-blue">-</span>
+                <span>Select Earnings</span>
+              </FormLabel>
               <FormControl>
                 <Select
                   onValueChange={(value) => {
@@ -243,8 +322,8 @@ const DashboardWithdrawModalWithdraw = () => {
                   }}
                   value={field.value}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Income To Withdraw:">
+                  <SelectTrigger className="w-auto rounded-lg">
+                    <SelectValue placeholder="Select Earnings">
                       {field.value === "PACKAGE"
                         ? `₱ ${formatNumberLocale(
                             earningsState?.company_package_earnings ?? 0
@@ -257,7 +336,7 @@ const DashboardWithdrawModalWithdraw = () => {
                   <SelectContent>
                     {isWithdrawalToday.package && (
                       <SelectItem className="text-xs" value="PACKAGE">
-                        Trading Earnings ₱{" "}
+                        Subscription Earnings ₱{" "}
                         {formatNumberLocale(
                           earningsState?.company_package_earnings ?? 0
                         )}
@@ -266,7 +345,7 @@ const DashboardWithdrawModalWithdraw = () => {
 
                     {isWithdrawalToday.referral && (
                       <SelectItem className="text-xs" value="REFERRAL">
-                        Referral And Matrix Earnings ₱{" "}
+                        Referral And Unilevel Earnings ₱{" "}
                         {formatNumberLocale(
                           earningsState?.company_referral_earnings ?? 0
                         )}
@@ -283,49 +362,23 @@ const DashboardWithdrawModalWithdraw = () => {
 
         <FormField
           control={control}
-          name="bank"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  value={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select E-Wallet / Bank" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {bankData.map((bank, index) => (
-                      <SelectItem key={index} value={bank}>
-                        {bank}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
           name="accountName"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex justify-between items-center">
+              <FormLabel className="space-x-1">
+                <span className="text-bg-primary-blue">-</span>
+                <span>Full Name</span>
+              </FormLabel>
               <FormControl>
                 <Input
                   type="text"
                   id="accountName"
                   variant="non-card"
-                  placeholder="Account Name:"
+                  className="rounded-lg w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
+                  placeholder="Full Name:"
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
@@ -334,17 +387,44 @@ const DashboardWithdrawModalWithdraw = () => {
           control={control}
           name="accountNumber"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex justify-between items-center">
+              <FormLabel className="space-x-1">
+                <span className="text-bg-primary-blue">-</span>
+                <span>Account Number</span>
+              </FormLabel>
               <FormControl>
                 <Input
                   type="text"
                   variant="non-card"
+                  className="rounded-lg w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
                   id="accountNumber"
                   placeholder="Account Number:"
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="phoneNumber"
+          render={({ field }) => (
+            <FormItem className="flex justify-between items-center">
+              <FormLabel className="space-x-1">
+                <span className="text-bg-primary-blue">-</span>
+                <span>Phone Number</span>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  variant="non-card"
+                  className="rounded-lg w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
+                  id="phoneNumber"
+                  placeholder="Phone Number:"
+                  {...field}
+                />
+              </FormControl>
             </FormItem>
           )}
         />
@@ -353,98 +433,120 @@ const DashboardWithdrawModalWithdraw = () => {
           control={control}
           name="amount"
           render={({ field }) => (
-            <FormItem className="relative">
-              <FormControl>
-                <Input
-                  type="text"
-                  id="amount"
-                  variant="non-card"
-                  placeholder="Request amount:"
-                  {...field}
-                  value={field.value}
-                  onChange={(e) => {
-                    let value = e.target.value;
+            <FormItem className="flex justify-between items-center">
+              <FormLabel className="space-x-1">
+                <span className="text-bg-primary-blue">-</span>
+                <span>Balance</span>
+              </FormLabel>
+              <div className="flex flex-col items-start relative">
+                <div className="flex items-center gap-2">
+                  <FormControl>
+                    <Input
+                      type="text"
+                      id="amount"
+                      variant="non-card"
+                      className="rounded-lg w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
+                      placeholder="Balance amount:"
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => {
+                        let value = e.target.value;
 
-                    if (value === "") {
-                      field.onChange("");
-                      return;
-                    }
+                        if (value === "") {
+                          field.onChange("");
+                          return;
+                        }
 
-                    value = value.replace(/[^0-9.]/g, "");
+                        value = value.replace(/[^0-9.]/g, "");
 
-                    const parts = value.split(".");
-                    if (parts.length > 2) {
-                      value = `${parts[0]}.${parts[1]}`;
-                    }
+                        const parts = value.split(".");
+                        if (parts.length > 2) {
+                          value = `${parts[0]}.${parts[1]}`;
+                        }
 
-                    // Limit to 2 decimal places
-                    if (parts[1]?.length > 2) {
-                      value = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                    }
+                        // Limit to 2 decimal places
+                        if (parts[1]?.length > 2) {
+                          value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                        }
 
-                    if (value.startsWith("0")) {
-                      value = value.replace(/^0+/, "");
-                    }
+                        if (value.startsWith("0")) {
+                          value = value.replace(/^0+/, "");
+                        }
 
-                    // Limit total length to 10 characters
-                    if (Math.floor(Number(value)).toString().length > 7) {
-                      value = value.substring(0, 7);
-                    }
+                        // Limit total length to 10 characters
+                        if (Math.floor(Number(value)).toString().length > 7) {
+                          value = value.substring(0, 7);
+                        }
 
-                    if (Number(value) > getMaxAmount()) {
-                      value = getMaxAmount()
-                        .toLocaleString("en-US", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })
-                        .toString();
-                    }
-                    field.onChange(value);
-                  }}
-                />
-              </FormControl>
-              <Button
-                type="button"
-                size="sm"
-                className=" bg-white stroke-text-orange border-2 rounded-xl text-xs  absolute right-2 top-1 p-0  px-2 py-0 border-orange-500"
-                onClick={() => {
-                  if (!selectedEarnings) {
-                    toast({
-                      title: "No Income To Withdraw",
-                      description: "Please select an earnings",
-                      variant: "destructive",
-                    });
-                    return;
-                  }
-                  setValue("amount", formatNumberLocale(getMaxAmount()));
-                }}
-              >
-                MAX
-              </Button>
-              <FormMessage />
+                        if (Number(value) > getMaxAmount()) {
+                          value = getMaxAmount()
+                            .toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })
+                            .toString();
+                        }
+                        field.onChange(value);
+                      }}
+                    />
+                  </FormControl>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className=" rounded-lg px-2 py-0 bg-bg-primary-blue"
+                    onClick={() => {
+                      if (!selectedEarnings) {
+                        toast({
+                          title: "No Income To Withdraw",
+                          description: "Please select an earnings",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      setValue("amount", formatNumberLocale(getMaxAmount()));
+                    }}
+                  >
+                    MAX
+                  </Button>
+                </div>
+                <FormMessage />
+              </div>
             </FormItem>
           )}
         />
 
-        {/* Amount Input */}
-        <div className="flex flex-col w-full space-y-2 ">
-          <div className="flex items-start justify-center w-full gap-2 border-2 bg-transparent rounded-md h-40 p-2 border-orange-600">
-            <span className="text-xs stroke-text-orange">
-              10% TAX FOR EVERY WITHDRAWAL
-            </span>
-          </div>
+        <div className="flex justify-between items-center">
+          <Label className="space-x-1">
+            <span className="text-bg-primary-blue">-</span>
+            <span>Total VAT</span>
+          </Label>
+
+          <Input
+            type="text"
+            variant="non-card"
+            className="rounded-lg w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
+            id="phoneNumber"
+            placeholder="Phone Number:"
+            value={handleCalculateTotalWithdrawal}
+            readOnly
+          />
         </div>
 
-        <div className="flex flex-col w-full space-y-2 ">
-          <div className="flex flex-col items-center justify-center w-full gap-2 border-2 bg-transparent rounded-md p-2 border-orange-600">
-            <Label>TOTAL WITHDRAWAL:</Label>
-            <div className="flex justify-between items-center gap-2">
-              <span className="text-sm text-orange-600 font-black">₱</span>
-              <span className="text-xs stroke-text-orange">
-                {handleCalculateTotalWithdrawal()}
-              </span>
-            </div>
-          </div>
+        <div className="flex justify-between items-center">
+          <Label className="space-x-1">
+            <span className="text-bg-primary-blue">-</span>
+            <span>Amount to Recieve</span>
+          </Label>
+
+          <Input
+            type="text"
+            variant="non-card"
+            className="rounded-lg w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
+            id="phoneNumber"
+            placeholder="Phone Number:"
+            value={handleCalculateVAT}
+            readOnly
+          />
         </div>
 
         {/* Submit Button */}
@@ -460,9 +562,8 @@ const DashboardWithdrawModalWithdraw = () => {
         </div> */}
         <div className="w-full flex justify-center">
           <Button
-            variant="card"
-            className=" font-black text-2xl rounded-full p-5"
-            disabled={isSubmitting || getMaxAmount() === 0}
+            className=" font-black rounded-lg p-4"
+            disabled={isSubmitting}
             type="submit"
           >
             {isSubmitting ? <Loader2 className="animate-spin" /> : null} Submit

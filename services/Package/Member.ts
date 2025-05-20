@@ -1,4 +1,4 @@
-import { package_table } from "@prisma/client";
+import { package_table } from "@/utils/types";
 
 export const createPackageConnection = async (params: {
   packageData: { amount: number; packageId: string };

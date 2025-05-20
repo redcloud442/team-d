@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import WithdrawalHistoryTable from "@/components/WithrawalHistoryPage/WithdrawalHistoryTable";
-import { company_member_table } from "@prisma/client";
+import { company_member_table } from "@/utils/types";
 import { useState } from "react";
 
 type Props = {

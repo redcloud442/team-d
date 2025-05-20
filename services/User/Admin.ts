@@ -1,10 +1,10 @@
 import { escapeFormData } from "@/utils/function";
 import {
   adminUserReinvestedReportData,
+  user_table,
   UserLog,
   UserRequestdata,
 } from "@/utils/types";
-import { user_table } from "@prisma/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const getAdminUserRequest = async (params: {

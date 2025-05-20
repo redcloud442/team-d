@@ -8,11 +8,11 @@ import { escapeFormData } from "@/utils/function";
 import { LoginFormValues, LoginSchema } from "@/utils/schema";
 import { createClientSide } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BoundTurnstileObject } from "react-turnstile";
-import ReusableCard from "../ui/card-reusable";
 import {
   Form,
   FormControl,
@@ -83,7 +83,7 @@ const LoginPage = () => {
 
       setIsSuccess(true);
 
-      router.push("/dashboard");
+      router.push("/digi-dash");
     } catch (e) {
       if (e instanceof Error) {
         toast({
@@ -104,73 +104,112 @@ const LoginPage = () => {
   };
 
   return (
-    <ReusableCard title="Welcome to XELORA!">
-      <Form {...form}>
-        <form
-          className="flex flex-col justify-center gap-6 w-full max-w-xs mx-auto z-50"
-          onSubmit={handleSubmit(handleSignIn)}
-        >
-          <FormField
-            control={control}
-            name="userName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input
-                    variant="non-card"
-                    id="username"
-                    placeholder="JuanDelaCruz"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+    <>
+      <Image
+        src="/assets/bg/LoginBg.webp"
+        alt="Digi Wealth Logo"
+        width={220}
+        height={220}
+        priority
+        className="absolute bottom-0 right-0 object-cover z-30"
+      />
+
+      <Image
+        src="/assets/bg/LoginBg.webp"
+        alt="Digi Wealth Logo"
+        width={220}
+        height={220}
+        priority
+        className="absolute top-0 left-0 object-cover z-30 rotate-180"
+      />
+      <div className="relative z-50 w-full flex flex-col items-center space-y-2 pb-10">
+        {/* Logo */}
+        <div className="flex flex-col items-center justify-center">
+          <Image
+            src="/assets/icons/IconGif.webp"
+            alt="DigiWealth Logo"
+            width={150}
+            height={150}
+            className="w-40 h-auto"
+            priority
           />
 
-          <FormField
-            control={control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <PasswordInput
-                    variant="non-card"
-                    id="password"
-                    placeholder="Password"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* <div className="w-full flex items-center justify-center">
-            <Turnstile
-              size="flexible"
-              sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
-              onVerify={(token) => {
-                setCaptchaToken(token);
-              }}
-            />
-          </div> */}
-
-          <div className="w-full flex justify-center">
-            <Button
-              variant="card"
-              className=" font-black text-2xl rounded-full p-5"
-              disabled={isSubmitting || isSuccess}
-              type="submit"
-            >
-              {isSubmitting || isSuccess ? "Processing..." : "Login"}
-            </Button>
+          {/* Title */}
+          <div className="flex items-center justify-center">
+            <span className="text-xl font-black text-bg-primary-blue">
+              DIGI
+            </span>
+            <span className="text-xl font-black text-white">WEALTH</span>
           </div>
-        </form>
-      </Form>
-    </ReusableCard>
+          <div className="flex items-center justify-center text-white space-x-1">
+            <span className="text-md font-black">Create</span>
+            <span className="text-md text-bg-primary-blue font-black">
+              Wealth
+            </span>
+            <span className="text-md font-black">through</span>
+            <span className="text-md font-black text-bg-primary-blue  ">
+              Digital
+            </span>
+          </div>
+        </div>
+
+        {/* Login Form */}
+        <Form {...form}>
+          <form
+            onSubmit={handleSubmit(handleSignIn)}
+            className="w-full space-y-4 max-w-3xs z-50"
+          >
+            <FormField
+              control={control}
+              name="userName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-white">Username</FormLabel>
+                  <FormControl>
+                    <Input
+                      variant="non-card"
+                      placeholder="Username"
+                      {...field}
+                      className="bg-white text-black"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-white">Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      variant="non-card"
+                      placeholder="••••••••"
+                      {...field}
+                      className="bg-white text-black z-50"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="w-full flex justify-center">
+              <Button
+                className="rounded-sm font-black p-4"
+                disabled={isSubmitting || isSuccess}
+                type="submit"
+              >
+                {isSubmitting || isSuccess ? "Logging in..." : "LOGIN"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+    </>
   );
 };
 

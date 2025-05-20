@@ -7,8 +7,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollBar } from "@/components/ui/scroll-area";
-import { UserRequestdata } from "@/utils/types";
-import { merchant_balance_log } from "@prisma/client";
+import { merchant_balance_log, UserRequestdata } from "@/utils/types";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Dispatch, SetStateAction, useState } from "react";

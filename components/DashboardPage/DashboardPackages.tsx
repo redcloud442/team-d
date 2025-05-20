@@ -1,21 +1,16 @@
 "use client";
 
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 import { ClaimPackageHandler } from "@/services/Package/Member";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
-import { formateMonthDateYearv2, formatTime } from "@/utils/function";
-import { ChartDataMember } from "@/utils/types";
-import { company_member_table } from "@prisma/client";
-import { Loader2 } from "lucide-react";
-import Image from "next/image";
+import { ChartDataMember, company_member_table } from "@/utils/types";
+import { ArrowDown, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "../ui/button";
-import ReusableCard from "../ui/card-reusable";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 type DashboardPackagesProps = {
   teamMemberProfile: company_member_table;
@@ -170,130 +166,94 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-      {liveData.map((data) => (
-        <ReusableCard
-          key={data.package_connection_id}
-          title={data.package}
-          className="relative p-0"
-        >
-          <div className="flex flex-col xl:flex-row items-center gap-6 p-4">
-            {/* Left: Small GIF */}
-            <div className="flex-shrink-0 flex justify-center">
-              <Image
-                src={data.package_gif || "/fallback.gif"}
-                alt={`${data.package} GIF`}
-                width={300}
-                height={300}
-                unoptimized
-                className="object-contain"
-              />
+    <ScrollArea className="w-full h-fit px-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {liveData.map((data, index) => (
+          <div
+            key={index}
+            className="flex flex-col items-center justify-between border-2 border-bg-primary-blue max-w-[150px] "
+          >
+            <div className="border-b-2 border-bg-primary-blue w-full text-center">
+              <h1 className="text-lg font-bold ">{data.package}</h1>
             </div>
 
-            {/* Right: Full-size package image */}
-            <div className="flex-grow overflow-visible relative flex flex-col gap-2 z-50">
-              <div className="relative w-full dark:bg-black rounded-full h-10 border border-yellow-500 shadow-inner overflow-hidden">
-                <div
-                  className={cn(
-                    "absolute top-0 left-0 h-full transition-all duration-300 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-100 shadow-md",
-                    data.currentPercentage >= 100
-                      ? "rounded-full"
-                      : "rounded-l-full rounded-r-[6px]" // add slight right rounding for smoother visuals
-                  )}
-                  style={{
-                    width: `${data.currentPercentage}%`,
-                    minWidth: "8px", // ensures rounded corners still appear at low %
-                  }}
-                ></div>
-                <span className="absolute inset-0 flex items-center justify-center font-extrabold text-white tracking-wide drop-shadow text-2xl">
+            <div className="flex flex-col items-center justify-between gap-4 border-b-2 border-bg-primary-blue w-full">
+              <div className="flex flex-col items-center justify-between gap-4 p-4">
+                <h1 className="text-lg font-bold ">
                   {data.current_amount.toFixed(2)}
-                </span>
+                </h1>
+
+                <ArrowDown className="w-8 h-8 text-bg-primary-blue" />
+
+                <h1 className="text-lg font-bold text-bg-primary-blue">
+                  {data.amount.toFixed(2)}
+                </h1>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1 p-2">
+              <div className="text-xs space-x-1">
+                <span>DAILY EARN:</span>
+                <span>{data.currentPercentage.toFixed(2)}%</span>
+              </div>
+              <div className="text-xs space-x-1">
+                <span>PROFIT:</span>
+                <span>{data.currentPercentage.toFixed(2)}%</span>
               </div>
 
-              <ReusableCard>
-                <div className="flex flex-col gap-2 text-sm stroke-text-orange uppercase">
-                  <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
-                    <span className="font-semibold">Date Invested:</span>
-                    <span className="text-white">
-                      {formateMonthDateYearv2(data.package_date_created)}
-                    </span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
-                    <span className="font-semibold">Amount Invested:</span>
-                    <span className="text-white">{data.amount}</span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
-                    <span className="font-semibold">Generated Income:</span>
-                    <span className="text-white">{data.profit_amount}</span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
-                    <span className="font-semibold">Date Of Claim:</span>
-                    <span className="text-white">
-                      {formateMonthDateYearv2(data.completion_date)}
-                    </span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
-                    <span className="font-semibold">Time of Claim:</span>
-                    <span className="text-white">
-                      {formatTime(data.completion_date)}
-                    </span>
-                  </div>
-                </div>
-                {data.is_ready_to_claim && (
-                  <Dialog
-                    open={openDialogId === data.package_connection_id}
-                    onOpenChange={(isOpen) =>
-                      setOpenDialogId(
-                        isOpen ? data.package_connection_id : null
-                      )
-                    }
-                  >
-                    <DialogDescription></DialogDescription>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="card"
-                        className=" font-black text-2xl rounded-full p-5 w-full pt-"
-                        type="submit"
-                      >
-                        CLAIM
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent
-                      type="earnings"
-                      className="bg-amber-950 dark:bg-[#190e0a] dark:border-orange-500 text-white dark:text-white"
-                    >
-                      <DialogHeader>
-                        <DialogTitle className="text-bold mb-4">
-                          Collect
-                        </DialogTitle>
-                        Collect this package to gain your earnings
-                      </DialogHeader>
-                      <DialogFooter>
-                        <Button
-                          disabled={isLoading === data.package_connection_id}
-                          onClick={() => handleClaimPackage(data)}
-                          className="w-full"
-                          variant="card"
-                        >
-                          {isLoading === data.package_connection_id ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                              {"Collecting ..."}
-                            </>
-                          ) : (
-                            "Collect"
-                          )}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                )}
-              </ReusableCard>
+              <div className="text-xs space-x-1">
+                <span>DAYS LEFT:</span>
+                <span className="text-bg-primary-blue">0</span>
+                <span>Days</span>
+              </div>
             </div>
+
+            <Dialog
+              open={openDialogId === data.package_connection_id}
+              onOpenChange={(isOpen) =>
+                setOpenDialogId(isOpen ? data.package_connection_id : null)
+              }
+            >
+              <DialogDescription></DialogDescription>
+              <DialogTrigger asChild>
+                <Button
+                  className=" font-black rounded-md px-2 m-2"
+                  type="submit"
+                  disabled={!data.is_ready_to_claim}
+                >
+                  {data.is_ready_to_claim ? "COMPLETE" : "GENERATING..."}
+                </Button>
+              </DialogTrigger>
+              <DialogContent type="earnings">
+                <DialogHeader>
+                  <DialogTitle className="text-bold mb-4">Collect</DialogTitle>
+                  Collect this package to gain your earnings
+                </DialogHeader>
+                <DialogFooter>
+                  <Button
+                    disabled={isLoading === data.package_connection_id}
+                    onClick={() => handleClaimPackage(data)}
+                    className="w-full"
+                    variant="card"
+                  >
+                    {isLoading === data.package_connection_id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {"Collecting ..."}
+                      </>
+                    ) : (
+                      "Collect"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
-        </ReusableCard>
-      ))}
-    </div>
+        ))}
+      </div>
+
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
   );
 };
 

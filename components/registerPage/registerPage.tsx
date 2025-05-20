@@ -8,12 +8,11 @@ import { BASE_URL } from "@/utils/constant";
 import { escapeFormData } from "@/utils/function";
 import { RegisterFormData, RegisterSchema } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckIcon, XSquareIcon } from "lucide-react";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { Resolver, useController, useForm } from "react-hook-form";
 import { BoundTurnstileObject } from "react-turnstile";
-import ReusableCard from "../ui/card-reusable";
 import {
   Form,
   FormControl,
@@ -23,6 +22,14 @@ import {
   FormMessage,
 } from "../ui/form";
 import { PasswordInput } from "../ui/passwordInput";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Separator } from "../ui/separator";
 
 type Props = {
   referralLink: string;
@@ -151,6 +158,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
         password: data.password,
         email: email || "",
         phoneNumber: phoneNumber || "",
+        gender: data.gender || "",
       });
 
       if (captcha.current) {
@@ -182,207 +190,297 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
   };
 
   return (
-    <ReusableCard title="Register to XELORA!" className="p-0">
+    <>
+      {/* <Image
+        src="/assets/bg/LoginBg.webp"
+        alt="Digi Wealth Logo"
+        width={450}
+        height={450}
+        priority
+        className="absolute sm:w-full sm:h-full -bottom-1/4 sm:bottom-0 right-0 object-cover z-40 rotate-70"
+      />
+
+      <Image
+        src="/assets/bg/LoginBg.webp"
+        alt="Digi Wealth Logo"
+        width={220}
+        height={220}
+        priority
+        className="absolute sm:w-full sm:h-full -top-20 right-0 object-cover z-40 -rotate-90"
+      /> */}
+
       <Form {...form}>
         <form
-          className="space-y-4 w-full z-40"
+          className="space-y-1 w-full z-40"
           onSubmit={handleSubmit(handleRegistrationSubmit)}
         >
-          <FormField
-            control={control}
-            name="botField"
-            render={({ field }) => (
-              <FormItem className="hidden">
-                <FormLabel>Bot Field</FormLabel>
-                <FormControl>
-                  <Input
-                    id="botField"
-                    variant="non-card"
-                    placeholder="Bot Field"
-                    {...field}
-                    hidden
-                    className="pr-10"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="flex items-center justify-start">
+            <Image
+              src="/assets/icons/IconGif.webp"
+              alt="DigiWealth Logo"
+              width={100}
+              height={100}
+              className="w-24 h-auto"
+              priority
+            />
 
-          <FormField
-            control={control}
-            name="firstName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>First Name</FormLabel>
-                <FormControl>
-                  <Input
-                    id="firstName"
-                    variant="non-card"
-                    placeholder="First Name"
-                    {...field}
-                    className="pr-10"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* Title */}
+            <div className="flex flex-col items-start justify-center">
+              <div className="flex items-center justify-center">
+                <span className="text-md font-black text-bg-primary-blue">
+                  DIGI
+                </span>
+                <span className="text-md font-black text-white">WEALTH</span>
+              </div>
+              <div className="flex items-center justify-center text-white space-x-1">
+                <span className="text-2xl font-black">CREATE ACCOUNT</span>
+              </div>
+            </div>
+          </div>
 
-          <FormField
-            control={control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Last Name</FormLabel>
-                <FormControl>
-                  <Input
-                    id="lastName"
-                    variant="non-card"
-                    placeholder="Last Name"
-                    {...field}
-                    className="pr-10"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <h1 className="text-md text-white font-black px-4 pt-2">
+            Account Information
+          </h1>
+          <Separator className="mb-4" />
+          <div className="flex flex-col gap-2 items-center justify-center">
+            <FormField
+              control={control}
+              name="botField"
+              render={({ field }) => (
+                <FormItem className="hidden">
+                  <FormLabel>Bot Field</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="botField"
+                      variant="non-card"
+                      placeholder="Bot Field"
+                      {...field}
+                      hidden
+                      className="pr-10"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="relative">
+              <FormField
+                control={control}
+                name="userName"
+                render={({ field }) => (
+                  <FormItem className="relative ">
+                    <FormLabel className="text-start">Username</FormLabel>
+                    <FormControl>
+                      <Input
+                        id="userName"
+                        variant="non-card"
+                        placeholder="Username"
+                        {...field}
+                        onChange={(e) => {
+                          userNameField.onChange(e.target.value);
+                          validateUserName(e.target.value);
+                        }}
+                        onBlur={() => validateUserName(userNameField.value)}
+                        className="pr-10"
+                      />
+                    </FormControl>
 
-          <FormField
-            control={control}
-            name="userName"
-            render={({ field }) => (
-              <FormItem className="relative">
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input
-                    id="userName"
-                    variant="non-card"
-                    placeholder="Username"
-                    {...field}
-                    onChange={(e) => {
-                      userNameField.onChange(e.target.value);
-                      validateUserName(e.target.value);
-                    }}
-                    onBlur={() => validateUserName(userNameField.value)}
-                    className="pr-10"
-                  />
-                </FormControl>
-                {!isUsernameLoading &&
-                  isUsernameValidated &&
-                  !errors.userName && (
-                    <CheckIcon className="w-5 h-5 text-orange-500 absolute right-3 mt-3 top-1/2 -translate-y-1/2" />
-                  )}
-
-                {/* Show error icon if validation failed */}
-                {!isUsernameLoading && errors.userName && (
-                  <XSquareIcon className="w-5 h-5 text-primaryRed absolute right-3 pt-5 top-1/2 -translate-y-1/2" />
+                    <FormMessage />
+                  </FormItem>
                 )}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              />
+              {!isUsernameLoading &&
+                isUsernameValidated &&
+                !errors.userName && (
+                  <div className="w-7 h-7 absolute -right-10 mt-3 top-1/2 -translate-y-1/2 bg-bg-primary-blue rounded-full z-50"></div>
+                )}
 
-          <FormField
-            control={control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    id="email"
-                    variant="non-card"
-                    placeholder="(optional)"
-                    {...field}
-                    className="pr-10"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              {/* Show error icon if validation failed */}
+              {isUsernameValidated && !isUsernameLoading && errors.userName && (
+                <div className="w-7 h-7 absolute -right-10 mt-3 top-1/2 -translate-y-1/2 bg-bg-primary-blue rounded-full z-50"></div>
+              )}
+            </div>
 
-          <FormField
-            control={control}
-            name="phoneNumber"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone Number</FormLabel>
-                <FormControl>
-                  <Input
-                    id="phoneNumber"
-                    variant="non-card"
-                    placeholder="(optional)"
-                    {...field}
-                    className="pr-10"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-start">Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      id="password"
+                      variant="non-card"
+                      placeholder="Password"
+                      {...field}
+                      className=""
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <PasswordInput
-                    id="password"
-                    variant="non-card"
-                    placeholder="Password"
-                    {...field}
-                    className="pr-10"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-start">Confirm Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      id="confirmPassword"
+                      variant="non-card"
+                      placeholder="Confirm Password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-          <FormField
-            control={control}
-            name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
-                <FormControl>
-                  <PasswordInput
-                    id="confirmPassword"
-                    variant="non-card"
-                    placeholder="Confirm Password"
-                    {...field}
-                    className="pr-10"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <h1 className="text-md text-white font-black px-4 pt-2">
+            Membership Information
+          </h1>
+          <Separator className="mb-4" />
 
-          <FormField
-            control={control}
-            name="sponsor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Sponsor</FormLabel>
-                <FormControl>
-                  <Input
-                    id="sponsor"
-                    variant="non-card"
-                    placeholder="Sponsor"
-                    {...field}
-                    className="pr-10"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="grid grid-cols-2 gap-2 items-center justify-center px-4 gap-x-4">
+            <FormField
+              control={control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="firstName"
+                      variant="non-card"
+                      placeholder="First Name"
+                      {...field}
+                      className="pr-10"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="lastName"
+                      variant="non-card"
+                      placeholder="Last Name"
+                      {...field}
+                      className="pr-10"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="phoneNumber"
+                      variant="non-card"
+                      placeholder="Phone Number"
+                      {...field}
+                      className="pr-10"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gender</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue
+                          className="text-center"
+                          placeholder="Gender"
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="MALE">Male</SelectItem>
+                        <SelectItem value="FEMALE">Female</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <h1 className="text-md text-white font-black px-4 pt-2">
+            Your Sponsor Information
+          </h1>
+          <Separator className="mb-4" />
+
+          <div className="flex items-center justify-center gap-4 px-4">
+            <FormField
+              control={control}
+              name="referralLink"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Referral Code</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="referralLink"
+                      variant="non-card"
+                      placeholder="Referral Code"
+                      readOnly
+                      {...field}
+                      className="p-0"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="sponsor"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sponsor</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="sponsor"
+                      variant="non-card"
+                      placeholder="Sponsor"
+                      readOnly
+                      {...field}
+                      className="p-0"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           {/* 
             <div className="w-full flex flex-1 justify-center">
               <Turnstile
@@ -394,19 +492,18 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
               />
             </div> */}
 
-          <div className="w-full flex justify-center">
+          <div className="w-full flex justify-center mt-4">
             <Button
-              variant="card"
-              className=" font-black text-2xl rounded-full p-5"
+              className=" font-black rounded-md p-4"
               disabled={isSubmitting || isSuccess}
               type="submit"
             >
-              Register
+              REGISTER
             </Button>
           </div>
         </form>
       </Form>
-    </ReusableCard>
+    </>
   );
 };
 

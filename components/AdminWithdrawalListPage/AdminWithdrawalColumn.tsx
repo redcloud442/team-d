@@ -2,8 +2,11 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { updateWithdrawalStatus } from "@/services/Withdrawal/Admin";
 import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
-import { AdminWithdrawaldata, WithdrawalRequestData } from "@/utils/types";
-import { user_table } from "@prisma/client";
+import {
+  AdminWithdrawaldata,
+  WithdrawalRequestData,
+  user_table,
+} from "@/utils/types";
 import { Column, ColumnDef, Row } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";

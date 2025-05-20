@@ -1,4 +1,4 @@
-import { company_transaction_table } from "@prisma/client";
+import { company_transaction_table } from "@/utils/types";
 import { create } from "zustand";
 
 interface userTransactionHistoryState {

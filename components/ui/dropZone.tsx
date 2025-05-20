@@ -1,7 +1,10 @@
+"use client";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils"; // Utility for merging classes, or replace with classNames if preferred
-import React, { useCallback } from "react";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 type FileUploadProps = {
@@ -13,9 +16,19 @@ const FileUpload: React.FC<FileUploadProps> = ({
   label = "File",
   onFileChange,
 }) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      onFileChange(acceptedFiles[0] || null);
+      const file = acceptedFiles[0] || null;
+      onFileChange(file);
+
+      if (file) {
+        const preview = URL.createObjectURL(file);
+        setPreviewUrl(preview);
+      } else {
+        setPreviewUrl(null);
+      }
     },
     [onFileChange]
   );
@@ -23,32 +36,56 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".png", ".jpg", ".jpeg"],
+      "image/*": [".png", ".jpg", ".jpeg", ".webp"],
     },
     multiple: false,
   });
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 flex flex-col items-center justify-center">
       <Label>{label}</Label>
-      <div
-        {...getRootProps()}
-        className={cn(
-          "rounded-md h-10 w-full border-2 border-orange-500 bg-orange-950 flex items-center justify-center text-center cursor-pointer",
-          isDragActive && "border-blue-500 bg-blue-50"
-        )}
-      >
-        <Input
-          variant="non-card"
-          {...getInputProps()}
-          className="hidden"
-          type="file"
-        />
+      {!previewUrl && (
+        <div
+          {...getRootProps()}
+          className={cn(
+            "rounded-md h-32 w-40 border-2 flex items-center justify-center text-center cursor-pointer transition",
+            isDragActive
+              ? "border-blue-500 bg-blue-100"
+              : "border-gray-300 bg-gray-50"
+          )}
+        >
+          <Input
+            variant="non-card"
+            {...getInputProps()}
+            className="hidden"
+            type="file"
+          />
+          <p className="text-xs text-gray-600">Drag or click to upload</p>
+        </div>
+      )}
 
-        <h1 className="text-md font-bold stroke-text-orange">
-          CLICK HERE TO UPLOAD RECEIPT
-        </h1>
-      </div>
+      {previewUrl && (
+        <div className="">
+          <Input
+            variant="non-card"
+            {...getInputProps()}
+            className="hidden"
+            type="file"
+          />
+          <div {...getRootProps()}>
+            <Image
+              src={previewUrl}
+              alt="Preview"
+              width={200}
+              height={200}
+              className="max-w-lg h-full object-contain border-2 rounded-md"
+            />
+          </div>
+          <p className="text-md font-bold text-gray-400 text-center">
+            Click Here to Reupload
+          </p>
+        </div>
+      )}
     </div>
   );
 };

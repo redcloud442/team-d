@@ -1,4 +1,4 @@
-import { company_earnings_table } from "@prisma/client";
+import { company_earnings_table } from "@/utils/types";
 import { create } from "zustand";
 
 interface userEarningsState {

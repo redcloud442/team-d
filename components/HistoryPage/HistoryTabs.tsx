@@ -1,4 +1,4 @@
-import { company_transaction_table } from "@prisma/client";
+import { company_transaction_table } from "@/utils/types";
 import { ColumnDef, Table as ReactTable } from "@tanstack/react-table";
 import { Dispatch, SetStateAction } from "react";
 import ReusableTable from "../ReusableTable/ReusableTable";

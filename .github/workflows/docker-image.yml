@@ -31,9 +31,8 @@ jobs:
         run: |
           docker build \
               --build-arg NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} \
-              --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }} \
-              --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }} \
-              -t ghcr.io/redcloud442/mithril:prod .
+              --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+              -t ghcr.io/redcloud442/team-d:prod .
 
       - name: Verify Docker login
         run: docker info
@@ -43,7 +42,7 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/redcloud442/mithril:prod
+          docker push ghcr.io/redcloud442/team-d:prod
 
       - name: Notify Jenkins
         run: |

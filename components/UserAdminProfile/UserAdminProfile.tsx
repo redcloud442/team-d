@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { getUserByUsername } from "@/services/User/Admin";
+import { useRole } from "@/utils/context/roleContext";
 import { UserRequestdata } from "@/utils/types";
-import { user_table } from "@prisma/client";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -21,11 +21,11 @@ import PersonalInformation from "./PersonalInformation";
 
 type Props = {
   userProfile: UserRequestdata;
-  profile: user_table;
 };
 
-const UserAdminProfile = ({ userProfile: initialData, profile }: Props) => {
+const UserAdminProfile = ({ userProfile: initialData }: Props) => {
   const { toast } = useToast();
+  const { profile } = useRole();
   const [userProfileData] = useState<UserRequestdata>(initialData);
 
   const [isLoading, setIsLoading] = useState(false);

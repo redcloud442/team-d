@@ -4,7 +4,7 @@ import {
   company_member_table,
   company_referral_link_table,
   user_table,
-} from "@prisma/client";
+} from "@/utils/types";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 type RoleContextType = {

@@ -1,5 +1,5 @@
 "use client";
-import { company_member_table } from "@prisma/client";
+import { company_member_table } from "@/utils/types";
 import WithdrawalHistoryTable from "./WithdrawalHistoryTable";
 
 type Props = {

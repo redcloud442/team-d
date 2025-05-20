@@ -3,16 +3,14 @@ import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/services/Error/ErrorLogs";
 import { changeUserPassword } from "@/services/User/User";
 import { createClientSide } from "@/utils/supabase/client";
-import { UserRequestdata } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { PasswordInput } from "../ui/passwordInput";
 
+import { useRole } from "@/utils/context/roleContext";
 import { ChangePasswordFormValues, ChangePasswordSchema } from "@/utils/schema";
-import ReusableCard from "../ui/card-reusable";
 import {
   Form,
   FormControl,
@@ -21,14 +19,9 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-
-type Props = {
-  userProfile: UserRequestdata;
-  setUserProfile?: Dispatch<SetStateAction<UserRequestdata>>;
-};
-
-const ChangePasswordUser = ({ userProfile, setUserProfile }: Props) => {
+const ChangePasswordUser = () => {
   const { toast } = useToast();
+  const { profile } = useRole();
   const form = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(ChangePasswordSchema),
     defaultValues: {
@@ -49,17 +42,13 @@ const ChangePasswordUser = ({ userProfile, setUserProfile }: Props) => {
   const onSubmit = async (data: ChangePasswordFormValues) => {
     try {
       await changeUserPassword({
-        userId: userProfile.user_id,
-        email: userProfile.user_email ?? "",
+        userId: profile.user_id,
+        email: profile.user_email ?? "",
         password: data.password,
       });
 
       reset();
-      if (setUserProfile) {
-        setUserProfile((prev: UserRequestdata) => ({
-          ...prev,
-        }));
-      }
+
       toast({
         title: "Password Change Successfully",
       });
@@ -79,25 +68,22 @@ const ChangePasswordUser = ({ userProfile, setUserProfile }: Props) => {
   };
 
   return (
-    <ReusableCard title="Change Password">
+    <div className=" container mx-auto flex flex-col items-center justify-center">
       <Form {...form}>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 pt-4 gap-4"
+          className="flex flex-col gap-4 text-2xl pt-4"
         >
           <FormField
             control={control}
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">
-                  New Password
-                </FormLabel>
+                <FormLabel>New Password</FormLabel>
                 <FormControl>
                   <PasswordInput
                     id="password"
-                    variant="non-card"
-                    className="mt-1 border-gray-300"
+                    className="text-center"
                     {...field}
                   />
                 </FormControl>
@@ -111,14 +97,11 @@ const ChangePasswordUser = ({ userProfile, setUserProfile }: Props) => {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">
-                  Confirm Password
-                </FormLabel>
+                <FormLabel>Confirm New Password</FormLabel>
                 <FormControl>
                   <PasswordInput
                     id="confirmPassword"
-                    variant="non-card"
-                    className="mt-1 border-gray-300"
+                    className="text-center"
                     {...field}
                   />
                 </FormControl>
@@ -132,16 +115,15 @@ const ChangePasswordUser = ({ userProfile, setUserProfile }: Props) => {
             <Button
               disabled={isSubmitting}
               type="submit"
-              variant="card"
-              className=" font-black text-2xl rounded-full p-5"
+              className=" font-black text-2xl rounded-xl p-5"
             >
               {isSubmitting && <Loader2 className="animate-spin" />}
-              Save Changes
+              Save
             </Button>
           </div>
         </form>
       </Form>
-    </ReusableCard>
+    </div>
   );
 };
 

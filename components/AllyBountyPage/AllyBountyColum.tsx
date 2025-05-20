@@ -1,68 +1,49 @@
 import { formatDateToYYYYMMDD, formatTime } from "@/utils/function";
-import { user_table } from "@prisma/client";
-import { ColumnDef } from "@tanstack/react-table";
+import { user_table } from "@/utils/types";
+import { ColumnDefinition } from "../ReusableCardList/ReusableCardList";
 
-export const AllyBountyColumn = (): ColumnDef<
-  user_table & {
-    total_bounty_earnings: string;
-    package_ally_bounty_log_date_created: Date;
-    company_referral_date: Date;
-  }
->[] => {
+export type AllyBountyRow = user_table & {
+  total_bounty_earnings: string;
+  package_ally_bounty_log_date_created: Date;
+  company_referral_date: Date;
+};
+
+export const AllyBountyColumn = (): ColumnDefinition<AllyBountyRow>[] => {
   return [
     {
-      // Index column
-      id: "package_ally_bounty_log_date_created",
-      header: () => (
-        <div className="text-start text-xs font-bold p-0">Date</div>
-      ),
-      cell: ({ row }) => (
+      header: "Date",
+      render: (item: AllyBountyRow) => (
         <div className="text-start text-[10px] sm:text-[12px]">
-          {formatDateToYYYYMMDD(
-            row.original.package_ally_bounty_log_date_created
-          )}
-          , {formatTime(row.original.package_ally_bounty_log_date_created)}
-        </div>
-      ),
-    },
-
-    {
-      accessorKey: "user_username",
-      header: () => (
-        <div className="text-start text-xs font-bold p-0">Username</div>
-      ),
-      cell: ({ row }) => (
-        <div className="text-start text-[10px] sm:text-[12px]">
-          {row.getValue("user_username")}
+          {formatDateToYYYYMMDD(item.package_ally_bounty_log_date_created)},{" "}
+          {formatTime(item.package_ally_bounty_log_date_created)}
         </div>
       ),
     },
     {
-      accessorKey: "total_bounty_earnings",
-      header: () => (
-        <div className="text-start text-xs font-bold p-0">Amount</div>
+      header: "Username",
+      render: (item: AllyBountyRow) => (
+        <div className="text-start text-[10px] sm:text-[12px]">
+          {item.user_username}
+        </div>
       ),
-      cell: ({ row }) => (
+    },
+    {
+      header: "Amount",
+      render: (item: AllyBountyRow) => (
         <div className="text-start text-[10px] sm:text-[12px]">
           ₱{" "}
-          {Number(row.getValue("total_bounty_earnings")).toLocaleString(
-            "en-US",
-            {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }
-          )}
+          {Number(item.total_bounty_earnings).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
         </div>
       ),
     },
     {
-      accessorKey: "company_referral_date",
-      header: () => (
-        <div className="text-start font-bold text-xs p-0">Invite Date</div>
-      ),
-      cell: ({ row }) => (
+      header: "Invite Date",
+      render: (item: AllyBountyRow) => (
         <div className="text-start text-[10px] sm:text-[12px]">
-          {formatDateToYYYYMMDD(row.original.company_referral_date)}
+          {formatDateToYYYYMMDD(item.company_referral_date)}
         </div>
       ),
     },

@@ -16,7 +16,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, InputProps>(
         <Input
           ref={ref}
           type={showPassword ? "text" : "password"}
-          className={cn("hide-password-toggle pr-10", className)}
+          className={cn("hide-password-toggle", className)}
           {...props}
         />
         <Button
@@ -28,12 +28,12 @@ const PasswordInput = React.forwardRef<HTMLInputElement, InputProps>(
         >
           {showPassword ? (
             <EyeIcon
-              className="h-4 w-4 dark:text-white text-white cursor-pointer"
+              className="h-4 w-4 dark:text-black text-black cursor-pointer"
               aria-hidden="true"
             />
           ) : (
             <EyeOffIcon
-              className="h-4 w-4 dark:text-white text-white cursor-pointer"
+              className="h-4 w-4 dark:text-black text-black cursor-pointer"
               aria-hidden="true"
             />
           )}

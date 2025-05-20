@@ -1,6 +1,4 @@
-import { LegionRequestData } from "@/utils/types";
-import { user_table } from "@prisma/client";
-
+import { LegionRequestData, user_table } from "@/utils/types";
 export const getAllyBounty = async (params: {
   page: number;
   limit: number;

@@ -13,6 +13,7 @@ export const createTriggerUser = async (params: {
   botField: string;
   email: string;
   phoneNumber: string;
+  gender: string;
 }) => {
   const {
     userName,
@@ -25,6 +26,7 @@ export const createTriggerUser = async (params: {
     botField,
     email,
     phoneNumber,
+    gender,
   } = params;
   const supabase = createClientSide();
 
@@ -62,9 +64,10 @@ export const createTriggerUser = async (params: {
     botField,
     email,
     phoneNumber,
+    gender,
   };
 
-  const response = await fetch(`/api/v1/access/register`, {
+  const response = await fetch(`/api/v1/auth/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -93,7 +96,7 @@ export const loginValidation = async (
 
   const formattedUserName = userName + "@gmail.com";
 
-  const response = await fetch(`/api/v1/access`, {
+  const response = await fetch(`/api/v1/auth`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -123,7 +126,7 @@ export const loginValidation = async (
 };
 
 export const checkUserName = async (params: { userName: string }) => {
-  const response = await fetch(`/api/v1/access?userName=${params.userName}`, {
+  const response = await fetch(`/api/v1/auth?userName=${params.userName}`, {
     method: "GET",
   });
 
@@ -175,7 +178,7 @@ export const handleSignInAdmin = async (params: {
   userName: string;
   password: string;
 }) => {
-  const response = await fetch(`/api/v1/access/xeloraAccess`, {
+  const response = await fetch(`/api/v1/auth/xeloraAccess`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

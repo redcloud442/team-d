@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { user_table } from "@prisma/client";
+import { user_table } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 

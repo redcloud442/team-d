@@ -10,8 +10,10 @@ import {
 import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminWithdrawalTotalReport } from "@/services/Withdrawal/Admin";
 import { createClientSide } from "@/utils/supabase/client";
-import { adminWithdrawalTotalReportData } from "@/utils/types";
-import { company_member_table } from "@prisma/client";
+import {
+  adminWithdrawalTotalReportData,
+  company_member_table,
+} from "@/utils/types";
 import {
   ColumnFiltersState,
   getCoreRowModel,

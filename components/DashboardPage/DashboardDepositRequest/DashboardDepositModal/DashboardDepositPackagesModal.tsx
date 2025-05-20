@@ -1,20 +1,29 @@
 "use client";
 
 import PackageCard from "@/components/ui/packageCard";
-import { package_table } from "@prisma/client";
-import { useState } from "react";
+import { package_table } from "@/utils/types";
+import { useRouter } from "next/navigation";
 
 type Props = {
-  packages: package_table[];
+  packages: (package_table & {
+    package_features_table: {
+      package_features_description: { text: string; value: string }[];
+    }[];
+  })[];
 };
 
 const DashboardDepositModalPackages = ({ packages }: Props) => {
-  const [selectedPackage, setSelectedPackage] = useState<package_table | null>(
-    null
-  );
+  const router = useRouter();
 
-  const handlePackageSelect = (pkg: package_table) => {
-    setSelectedPackage(pkg);
+  const generateRandomNumberAndLetter = () => {
+    return Math.floor(Math.random() * 10000000000000000);
+  };
+
+  const handlePackageClick = (pkg: package_table) => {
+    const transactionId = `TR-${pkg.package_id}-${generateRandomNumberAndLetter()}`;
+    router.push(
+      `/subscription/avail?transaction_id=${encodeURIComponent(transactionId)}`
+    );
   };
 
   return (
@@ -23,8 +32,7 @@ const DashboardDepositModalPackages = ({ packages }: Props) => {
         <PackageCard
           key={pkg.package_id}
           packages={pkg}
-          selectedPackage={selectedPackage}
-          onClick={() => handlePackageSelect(pkg)}
+          onClick={() => handlePackageClick(pkg)}
         />
       ))}
 

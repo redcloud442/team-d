@@ -1,5 +1,5 @@
 import { formateMonthDateYearv2, formatNumberLocale } from "@/utils/function";
-import { company_transaction_table } from "@prisma/client";
+import { company_transaction_table } from "@/utils/types";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 
@@ -33,9 +33,9 @@ const HistoryCardList = ({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border-2 border-orange-500 shadow-md bg-orange-500/10">
+    <div className="overflow-x-auto rounded-lg border border-blue-500 shadow-md bg-blue-500/5">
       <table className="min-w-full text-sm table-fixed">
-        <thead className="bg-[#1a1a1a] text-white uppercase text-xs">
+        <thead className="bg-[#0f172a] text-white uppercase text-xs">
           <tr>
             <th className="px-4 py-3 font-bold w-1/4 text-left">Amount</th>
             <th className="px-4 py-3 font-bold w-1/4 text-left">Date</th>
@@ -46,31 +46,32 @@ const HistoryCardList = ({
             <th className="px-4 py-3 font-bold w-1/4 text-left">Type</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#2b2b2b] text-white font-medium">
+
+        <tbody className="divide-y divide-blue-700/20 text-white font-medium">
           {data.map((item) => {
             const isFailed =
-              item.company_transaction_description.includes("FAILED");
+              item.company_transaction_description.includes("REJECTED");
 
             return (
               <tr
                 key={item.company_transaction_id}
-                className="hover:bg-[#1f1f1f] transition-colors"
+                className="hover:bg-blue-900/30 transition-colors duration-200"
               >
                 <td
-                  className={`px-4 py-3 font-bold ${
+                  className={`px-4 py-3 font-bold whitespace-nowrap ${
                     isFailed ? "text-red-400" : "text-green-400"
-                  } whitespace-nowrap`}
+                  }`}
                 >
                   ₱ {formatNumberLocale(item.company_transaction_amount ?? 0)}
                 </td>
                 <td className="px-4 py-3 text-gray-400">
                   {formateMonthDateYearv2(item.company_transaction_date)}
                 </td>
-                <td className="px-4 py-3 text-gray-400">
+                <td className="px-4 py-3 text-gray-300">
                   {item.company_transaction_description}
                 </td>
                 {currentStatus !== "EARNINGS" && (
-                  <td className="px-4 py-3 text-orange-500 text-xs truncate">
+                  <td className="px-4 py-3 text-blue-400 text-xs truncate">
                     {item.company_transaction_details
                       ?.split(",")
                       .map((line, idx) => (
@@ -80,7 +81,7 @@ const HistoryCardList = ({
                       ))}
                   </td>
                 )}
-                <td className="px-4 py-3 text-orange-500 uppercase text-xs truncate">
+                <td className="px-4 py-3 text-blue-300 uppercase text-xs truncate">
                   {item.company_transaction_type}
                 </td>
               </tr>
@@ -94,7 +95,7 @@ const HistoryCardList = ({
           <Button
             onClick={onLoadMore}
             disabled={isLoading}
-            className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-2 rounded-full"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-full transition"
           >
             {isLoading ? "Loading..." : "Load More"}
           </Button>

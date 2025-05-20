@@ -6,7 +6,6 @@ interface userHaveAlreadyWithdraw {
     package: boolean;
   };
   canUserDeposit: boolean;
-
   setIsWithdrawalToday: (value: {
     referral: boolean;
     package: boolean;

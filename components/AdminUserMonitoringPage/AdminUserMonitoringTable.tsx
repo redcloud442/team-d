@@ -5,7 +5,7 @@ import { getUserWithActiveBalance } from "@/services/User/Admin";
 import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { user_table } from "@prisma/client";
+import { user_table } from "@/utils/types";
 import {
   ColumnFiltersState,
   getCoreRowModel,

@@ -16,7 +16,6 @@ import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { ROLE } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
 import { useTheme } from "next-themes";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useCallback, useEffect, useMemo } from "react";
@@ -28,7 +27,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "../ui/breadcrumb";
-import DevMode from "../ui/dev-mode";
 import { Separator } from "../ui/separator";
 import { AppSidebar } from "../ui/side-bar";
 import { ModeToggle } from "../ui/toggleDarkmode";
@@ -128,27 +126,13 @@ export default function LayoutContent({ children }: LayoutContentProps) {
         <div className="flex-1 flex flex-col overflow-x-auto relative">
           {topNav}
 
-          <div className="pb-24 p-4 relative grow">
-            <div className="absolute inset-0 -z-10">
-              <Image
-                src="/assets/bg/xeloraBg.webp"
-                alt="Xelora Background"
-                width={1980}
-                height={1080}
-                className="absolute top-0 left-0 w-full h-full object-cover z-0"
-                priority
-                placeholder="blur"
-                blurDataURL="/assets/bg/xeloraBg-small.webp"
-              />
-
-              <div className="absolute inset-0 bg-black opacity-40" />
-            </div>
-
-            <div className="relative z-10">{children}</div>
+          <div className="p-4 relative grow bg-bg-primary">
+            <div className="relative z-10 pb-16">{children}</div>
           </div>
 
           {mobileNav}
-          <DevMode />
+
+          {/* <DevMode /> */}
         </div>
       </div>
     );
@@ -197,21 +181,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
               </Breadcrumb>
             </div>
           </header>
-          <div className="pb-24 p-4 relative z-50 grow">
-            <div className="absolute inset-0 -z-10">
-              <Image
-                src="/assets/bg/xeloraBg.webp"
-                alt="Xelora Background"
-                width={1980}
-                height={1080}
-                className="absolute top-0 left-0 w-full h-full object-cover z-0"
-                priority
-                placeholder="blur"
-                blurDataURL="/assets/bg/xeloraBg-small.webp"
-              />
-
-              <div className="absolute inset-0 bg-black opacity-40" />
-            </div>
+          <div className="pb-24 p-4 relative z-50 grow bg-bg-primary">
             {children}
           </div>
           <ModeToggle />

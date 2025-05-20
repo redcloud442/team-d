@@ -1,15 +1,15 @@
+import { merchant_table } from "@/utils/types";
 import DashboardDepositModalDeposit from "../DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit";
-import ReusableCard from "../ui/card-reusable";
 
-const DepositPage = () => {
+const DepositPage = ({ options }: { options: merchant_table[] }) => {
   return (
-    <ReusableCard
-      type="user"
-      title="Deposit Request"
-      className="flex items-start justify-center h-full"
-    >
-      <DashboardDepositModalDeposit />
-    </ReusableCard>
+    <>
+      <div className="space-x-1">
+        <span className="text-2xl font-bold">MAKE A</span>
+        <span className="text-2xl font-bold text-bg-primary-blue">DEPOSIT</span>
+      </div>
+      <DashboardDepositModalDeposit options={options} />
+    </>
   );
 };
 

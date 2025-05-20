@@ -1,6 +1,4 @@
-import { PackagesFormValues } from "@/components/AdminPackagesPage/EditPackagesModal";
-
-import { package_table } from "@prisma/client";
+import { package_table } from "@/utils/types";
 
 export const getAdminPackages = async () => {
   const response = await fetch(`/api/v1/package/list`, {
@@ -23,33 +21,33 @@ export const getAdminPackages = async () => {
   return data as package_table[];
 };
 
-export const updatePackagesData = async (params: {
-  packageData: PackagesFormValues;
-  packageId: string;
-  teamMemberId: string;
-}) => {
-  const { packageId } = params;
+// export const updatePackagesData = async (params: {
+//   packageData: PackagesFormValues;
+//   packageId: string;
+//   teamMemberId: string;
+// }) => {
+//   const { packageId } = params;
 
-  const response = await fetch(`/api/v1/package/` + packageId, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(params),
-  });
+//   const response = await fetch(`/api/v1/package/` + packageId, {
+//     method: "PUT",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(params),
+//   });
 
-  const result = await response.json();
+//   const result = await response.json();
 
-  if (!response.ok) {
-    throw new Error(
-      result.error || "An error occurred while creating the top-up request."
-    );
-  }
+//   if (!response.ok) {
+//     throw new Error(
+//       result.error || "An error occurred while creating the top-up request."
+//     );
+//   }
 
-  const { data } = result;
+//   const { data } = result;
 
-  return data;
-};
+//   return data;
+// };
 
 export const createPackage = async (params: {
   packageName: string;

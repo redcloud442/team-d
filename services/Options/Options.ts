@@ -1,4 +1,4 @@
-import { merchant_table, user_table } from "@prisma/client";
+import { merchant_table, user_table } from "@/utils/types";
 
 export const getUserOptionsMerchant = async (params: {
   page: number;

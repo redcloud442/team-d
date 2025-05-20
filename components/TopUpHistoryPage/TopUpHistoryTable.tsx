@@ -4,8 +4,7 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { getMemberTopUpRequest } from "@/services/TopUp/Member";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { TopUpRequestData } from "@/utils/types";
-import { company_member_table } from "@prisma/client";
+import { company_member_table, TopUpRequestData } from "@/utils/types";
 import {
   ColumnFiltersState,
   getCoreRowModel,

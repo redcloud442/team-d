@@ -7,6 +7,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -18,22 +19,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import { logError } from "@/services/Error/ErrorLogs";
-import { getMerchantOptions } from "@/services/Options/Options";
 import { handleDepositRequest } from "@/services/TopUp/Member";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { escapeFormData } from "@/utils/function";
 import { DepositRequestFormValues, depositRequestSchema } from "@/utils/schema";
 import { createClientSide } from "@/utils/supabase/client";
+import { merchant_table } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { merchant_table } from "@prisma/client";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-const DashboardDepositModalDeposit = () => {
+const DashboardDepositModalDeposit = ({
+  options: topUpOptions,
+}: {
+  options: merchant_table[];
+}) => {
   const supabaseClient = createClientSide();
-  const [topUpOptions, setTopUpOptions] = useState<merchant_table[]>([]);
+  const [selectedBank, setSelectedBank] = useState<merchant_table | null>(null);
+
   const { canUserDeposit, setCanUserDeposit } = useUserHaveAlreadyWithdraw();
 
   const { toast } = useToast();
@@ -57,28 +64,6 @@ const DashboardDepositModalDeposit = () => {
     watch,
     formState: { isSubmitting },
   } = form;
-
-  const file = watch("file");
-
-  useEffect(() => {
-    const getOptions = async () => {
-      try {
-        const options = await getMerchantOptions();
-        setTopUpOptions(options);
-      } catch (e) {
-        if (e instanceof Error) {
-          await logError(supabaseClient, {
-            errorMessage: e.message,
-            stackTrace: e.stack,
-            stackPath:
-              "components/DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit.tsx",
-          });
-        }
-      }
-    };
-
-    getOptions();
-  }, []);
 
   const onSubmit = async (data: DepositRequestFormValues) => {
     try {
@@ -111,8 +96,8 @@ const DashboardDepositModalDeposit = () => {
       });
 
       toast({
-        title: "Deposit Request Successfully",
-        description: "Please wait for your request to be approved.",
+        title: "Request Successfully Submitted  ",
+        description: "Our team will review your request and get back to you.",
       });
 
       reset();
@@ -135,8 +120,13 @@ const DashboardDepositModalDeposit = () => {
     }
   };
 
+  const options = topUpOptions.filter(
+    (option) =>
+      selectedBank?.merchant_account_type === option.merchant_account_type
+  );
+
   const onTopUpModeChange = (value: string) => {
-    const selectedOption = topUpOptions.find(
+    const selectedOption = options.find(
       (option) => option.merchant_id === value
     );
     if (selectedOption) {
@@ -145,16 +135,86 @@ const DashboardDepositModalDeposit = () => {
     }
   };
 
+  const handleSelectedBank = (value: string) => {
+    const selectedOption = topUpOptions.find(
+      (option) => option.merchant_id === value
+    );
+    if (selectedOption) {
+      setSelectedBank(selectedOption);
+    }
+  };
+
+  const handleCopy = (value: string) => {
+    navigator.clipboard.writeText(value);
+    toast({
+      title: "Copied to clipboard",
+    });
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full">
         {/* Amount Field */}
+        <div className="text-xl font-bold">
+          <span className="text-bg-primary-blue"> 1. SELECT</span> BANK
+        </div>
+        <div className="grid grid-cols-3 gap-4 mt-2">
+          {topUpOptions.map((option) => {
+            return (
+              <button
+                key={option.merchant_id}
+                type="button"
+                onClick={() => {
+                  handleSelectedBank(option.merchant_id);
+                }}
+                className={cn(
+                  "flex flex-col items-center justify-center rounded-xl p-2 transition-all",
+                  selectedBank && "border-bg-primary-blue bg-bg-primary/10"
+                )}
+              >
+                {/* Logo */}
+                <div className="w-14 h-14 rounded-lg overflow-hidden">
+                  <Image
+                    src={option.merchant_qr_attachment || ""}
+                    alt={option.merchant_account_name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Bank Name */}
+                <span className="mt-2 text-xs font-semibold text-white text-center">
+                  {option.merchant_account_name}
+                </span>
+
+                {/* Select Button */}
+                <span
+                  className={cn(
+                    "mt-1 px-2 py-1 rounded-md text-xs font-bold",
+                    selectedBank
+                      ? "bg-bg-primary-blue text-black"
+                      : "bg-gray-300 text-black"
+                  )}
+                >
+                  SELECT
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="text-xl font-bold">
+          <span className="text-bg-primary-blue"> 2. SELECT</span>
+          <span> DIGIWealth MOP</span>
+        </div>
 
         <FormField
           control={control}
           name="topUpMode"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex justify-between items-center">
+              <FormLabel className="space-x-1">
+                <span className="text-bg-primary-blue">-</span>
+                <span>SELECT MOP</span>
+              </FormLabel>
               <FormControl>
                 <Select
                   onValueChange={(value) => {
@@ -163,121 +223,149 @@ const DashboardDepositModalDeposit = () => {
                   }}
                   value={field.value}
                 >
-                  <SelectTrigger className="text-center">
-                    <SelectValue placeholder="Select Mode of Payment" />
+                  <SelectTrigger className="text-center w-fit h-6 rounded-lg">
+                    <SelectValue placeholder="Select MOP Account" />
                   </SelectTrigger>
                   <SelectContent>
-                    {topUpOptions.map((option) => (
+                    {options.map((option, index) => (
                       <SelectItem
                         key={option.merchant_id}
                         value={option.merchant_id}
                       >
                         <div className="flex items-center gap-2">
-                          {option.merchant_account_type} -{" "}
-                          {option.merchant_account_name}
+                          {index + 1}. {option.merchant_account_name}
                         </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
-
         <FormField
           control={control}
           name="accountName"
           render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input
-                  readOnly
-                  className="w-full"
-                  variant="non-card"
-                  id="accountName"
-                  placeholder="Account Name:"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
+            <FormItem className="flex flex-col items-start">
+              <FormLabel className="space-x-1">
+                <span className="text-bg-primary-blue">-</span>
+                <span>Account Name</span>
+              </FormLabel>
+              <div className="flex items-center gap-2">
+                <FormControl>
+                  <Input
+                    readOnly
+                    variant="non-card"
+                    className="w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
+                    id="accountName"
+                    placeholder="Account Name:"
+                    {...field}
+                  />
+                </FormControl>
+                <Button
+                  type="button"
+                  onClick={() => handleCopy(field.value)}
+                  className="p-4 rounded-lg"
+                >
+                  COPY
+                </Button>
+              </div>
             </FormItem>
           )}
         />
-
         <FormField
           control={control}
           name="accountNumber"
           render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input
-                  readOnly
-                  variant="non-card"
-                  id="accountNumber"
-                  placeholder="Account Number:"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
+            <FormItem className="flex flex-col items-start">
+              <FormLabel className="space-x-1">
+                <span className="text-bg-primary-blue">-</span>
+                <span>Account Number</span>
+              </FormLabel>
+              <div className="flex items-center gap-2">
+                <FormControl>
+                  <Input
+                    readOnly
+                    className="w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
+                    variant="non-card"
+                    id="accountNumber"
+                    placeholder="Account Number"
+                    {...field}
+                  />
+                </FormControl>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(field.value);
+                  }}
+                  className="p-4 rounded-lg"
+                >
+                  COPY
+                </Button>
+              </div>
             </FormItem>
           )}
         />
-
         <FormField
           control={control}
           name="amount"
           render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input
-                  placeholder="Amount Deposited:"
-                  variant="non-card"
-                  {...field}
-                  onChange={(e) => {
-                    let inputValue = e.target.value;
+            <FormItem className="flex items-center justify-between">
+              <FormLabel className="space-x-1">
+                <span className="text-bg-primary-blue">-</span>
+                <span>Amount to Send</span>
+              </FormLabel>
+              <div className="flex flex-col items-center gap-2">
+                <FormControl>
+                  <Input
+                    placeholder="Amount:"
+                    className="w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
+                    variant="non-card"
+                    {...field}
+                    onChange={(e) => {
+                      let inputValue = e.target.value;
 
-                    // Allow clearing the value
-                    if (inputValue === "") {
-                      field.onChange("");
-                      return;
-                    }
+                      // Allow clearing the value
+                      if (inputValue === "") {
+                        field.onChange("");
+                        return;
+                      }
 
-                    // Remove non-numeric characters
-                    inputValue = inputValue.replace(/[^0-9.]/g, "");
+                      // Remove non-numeric characters
+                      inputValue = inputValue.replace(/[^0-9.]/g, "");
 
-                    // Ensure only one decimal point
-                    const parts = inputValue.split(".");
-                    if (parts.length > 2) {
-                      inputValue = parts[0] + "." + parts[1];
-                    }
+                      // Ensure only one decimal point
+                      const parts = inputValue.split(".");
+                      if (parts.length > 2) {
+                        inputValue = parts[0] + "." + parts[1];
+                      }
 
-                    // Limit to two decimal places
-                    if (parts[1]?.length > 2) {
-                      inputValue = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                    }
+                      // Limit to two decimal places
+                      if (parts[1]?.length > 2) {
+                        inputValue = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                      }
 
-                    if (inputValue.length > 8) {
-                      inputValue = inputValue.substring(0, 8);
-                    }
+                      if (inputValue.length > 8) {
+                        inputValue = inputValue.substring(0, 8);
+                      }
 
-                    // Update the field value
-                    field.onChange(inputValue);
+                      // Update the field value
+                      field.onChange(inputValue);
 
-                    // Enforce max amount
-                    const numericValue = Number(inputValue);
+                      // Enforce max amount
+                      const numericValue = Number(inputValue);
 
-                    setValue("amount", numericValue.toString());
-                  }}
-                />
-              </FormControl>
+                      setValue("amount", numericValue.toString());
+                    }}
+                  />
+                </FormControl>
 
-              <FormMessage />
+                <FormMessage />
+              </div>
             </FormItem>
           )}
         />
-
         {/* {selectedMerchant?.merchant_qr_attachment && (
                 <div className="flex flex-col gap-2 justify-center items-center">
                   <p className="text-lg font-bold">QR CODE</p>
@@ -289,6 +377,10 @@ const DashboardDepositModalDeposit = () => {
                   />
                 </div>
               )} */}
+        <div className="text-xl font-bold">
+          <span className="text-bg-primary-blue"> 3. UPLOAD</span>
+          <span> YOUR RECEIPT</span>
+        </div>
 
         <FormField
           control={control}
@@ -305,17 +397,14 @@ const DashboardDepositModalDeposit = () => {
             </FormItem>
           )}
         />
-
-        {file && (
+        {/* {file && (
           <h1 className="rounded-md h-10 w-full border-2 border-orange-500 bg-orange-950 flex items-center justify-center text-green-500">
             FILE UPLOADED SUCCESSFULLY
           </h1>
-        )}
-
+        )} */}
         <div className="w-full flex justify-center">
           <Button
-            variant="card"
-            className=" font-black text-2xl rounded-full p-5"
+            className=" font-black  p-4"
             disabled={isSubmitting || !canUserDeposit}
             type="submit"
           >

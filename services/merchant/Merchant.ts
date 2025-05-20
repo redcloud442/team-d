@@ -1,4 +1,4 @@
-import { merchant_balance_log, merchant_table } from "@prisma/client";
+import { merchant_balance_log, merchant_table } from "@/utils/types";
 
 export const handleUpdateBalance = async (params: {
   amount: number;

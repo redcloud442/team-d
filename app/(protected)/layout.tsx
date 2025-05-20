@@ -1,15 +1,16 @@
-// AppLayout.tsx
 import LayoutContent from "@/components/LayoutComponents/LayoutContent";
 import { ThemeProvider } from "@/components/theme-provider/theme-provider";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RoleProvider } from "@/utils/context/roleContext";
-import { protectionMemberUser } from "@/utils/serversideProtection";
+import { createClientServerSide } from "@/utils/supabase/server";
 import {
   company_member_table,
   company_referral_link_table,
   user_table,
-} from "@prisma/client";
+} from "@/utils/types";
+
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
@@ -18,30 +19,62 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let profile = null;
-  let redirectTo = null;
-  let teamMemberProfile = null;
-  let referral = null;
+  const supabase = await createClientServerSide();
+  const { data: authData } = await supabase.auth.getUser();
+
+  if (!authData.user) {
+    redirect("/login");
+  }
+
+  const handleGetUser = async () => {
+    const result = await fetch(
+      `${process.env.API_URL}/api/v1/user/user-profile/${authData.user.id}`,
+      {
+        method: "GET",
+        headers: {
+          cookie: (await cookies()).toString(),
+        },
+      }
+    );
+
+    if (!result.ok) {
+      throw new Error("Failed to fetch user data");
+    }
+
+    const data = await result.json();
+
+    const profile = data ?? null;
+    const teamMemberProfile = data?.company_member_table?.[0] ?? null;
+    const referral =
+      data?.company_member_table?.[0]?.company_referral_link_table?.[0] ?? null;
+
+    if (!profile || !teamMemberProfile || !referral) {
+      throw new Error("Incomplete user data");
+    }
+
+    return { profile, teamMemberProfile, referral };
+  };
+
+  let profile: user_table | null = null;
+  let teamMemberProfile: (company_member_table & user_table) | null = null;
+  let referral: company_referral_link_table | null = null;
 
   try {
-    const result = await protectionMemberUser();
-    profile = result.profile;
-    redirectTo = result.redirect;
-    teamMemberProfile = result.teamMemberProfile;
-    referral = result.referral;
-  } catch (err) {
-    redirect(redirectTo ?? "/500");
+    const data = await handleGetUser();
+    profile = data.profile;
+    teamMemberProfile = data.teamMemberProfile;
+    referral = data.referral;
+  } catch (error) {
+    redirect("/500");
   }
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light">
       <SidebarProvider>
         <RoleProvider
-          initialProfile={profile as user_table}
-          initialTeamMemberProfile={
-            teamMemberProfile as company_member_table & user_table
-          }
-          initialReferral={referral as company_referral_link_table}
+          initialProfile={profile!}
+          initialTeamMemberProfile={teamMemberProfile!}
+          initialReferral={referral!}
         >
           <Suspense
             fallback={<Skeleton className="h-[calc(100vh-10rem)] w-full" />}

@@ -10,12 +10,12 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-cardColor font-bold text-md text-black shadow-sm cursor-pointer rounded-md ",
+          "bg-bg-primary-blue rounded-sm font-bold text-md text-black shadow-sm cursor-pointer ",
         card: "bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-extrabold text-lg px-8 py-2 rounded-full shadow-md hover:brightness-110 transition duration-300",
         destructive:
           "bg-red-500 text-neutral-50 shadow-xs hover:bg-red-500/90 dark:bg-red-900 dark:text-neutral-50 dark:hover:bg-red-900/90",
         outline:
-          "border border-orange-500 bg-white shadow-xs hover:bg-neutral-100 hover:text-neutral-900 dark:border-orange-500 dark:bg-neutral-950 dark:hover:bg-neutral-800 dark:hover:text-neutral-50 rounded-md cursor-pointer",
+          "border border-bg-primary-blue bg-bg-primary shadow-xs hover:bg-neutral-100 hover:text-neutral-900 dark:border-bg-primary-blue dark:bg-bg-primary dark:hover:bg-neutral-800 dark:hover:text-neutral-50 rounded-md cursor-pointer",
         secondary:
           "bg-neutral-100 text-neutral-900 shadow-xs hover:bg-neutral-100/80 dark:bg-neutral-800 dark:text-neutral-50 dark:hover:bg-neutral-800/80",
         ghost:
@@ -23,7 +23,7 @@ const buttonVariants = cva(
         link: "text-neutral-900 underline-offset-4 hover:underline dark:text-neutral-50 cursor-pointer",
       },
       size: {
-        default: "h-8 px-10 rounded-xl ",
+        default: "h-8",
         sm: "h-8 rounded-md px-3 text-xs",
         lg: "h-10 rounded-md px-8",
         icon: "h-9 w-9",

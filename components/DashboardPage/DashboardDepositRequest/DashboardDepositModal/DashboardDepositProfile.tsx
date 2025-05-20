@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import TableLoading from "@/components/ui/tableLoading";
 import { useToast } from "@/hooks/use-toast";
@@ -7,14 +7,11 @@ import { updateUserProfile } from "@/services/User/User";
 import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
-import { User } from "lucide-react";
 import { useRef, useState } from "react";
 
 const DashboardDepositProfile = () => {
-  const { profile } = useRole();
-  const [avatarUrl, setAvatarUrl] = useState(
-    profile.user_profile_picture || ""
-  );
+  const { profile, setProfile } = useRole();
+
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
@@ -42,7 +39,7 @@ const DashboardDepositProfile = () => {
       }
 
       const publicUrl =
-        "https://cmwfujabuwraxsgwuwpr.supabase.co/storage/v1/object/public/USER_PROFILE/" +
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/USER_PROFILE/` +
         filePath;
 
       await updateUserProfile({
@@ -50,7 +47,12 @@ const DashboardDepositProfile = () => {
         profilePicture: publicUrl,
       });
 
-      setAvatarUrl(publicUrl);
+      setProfile({
+        profile: {
+          ...profile,
+          user_profile_picture: publicUrl,
+        },
+      });
 
       toast({
         title: "Profile Picture Updated Successfully",
@@ -79,18 +81,9 @@ const DashboardDepositProfile = () => {
 
   return (
     <>
-      <Avatar
-        onClick={() => inputRef.current?.click()}
-        className="rounded-full w-20 h-20"
-      >
-        <AvatarImage
-          src={avatarUrl}
-          alt={`${profile.user_first_name} ${profile.user_last_name}`}
-        />
-        <AvatarFallback className="text-white w-20 h-20 rounded-full mb-4 cursor-pointer">
-          <User className="w-14 h-14" />
-        </AvatarFallback>
-      </Avatar>
+      <Button onClick={() => inputRef.current?.click()} size="sm">
+        UPLOAD PICTURE
+      </Button>
 
       <Input
         ref={inputRef}

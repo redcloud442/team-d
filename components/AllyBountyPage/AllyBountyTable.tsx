@@ -4,19 +4,10 @@ import { getAllyBounty } from "@/services/Bounty/Member";
 import { useDirectReferralStore } from "@/store/useDirectReferralStore";
 import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData } from "@/utils/function";
-import { user_table } from "@prisma/client";
-import {
-  ColumnFiltersState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
+import { user_table } from "@/utils/types";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import ReusableTable from "../ReusableTable/ReusableTable";
+import GenericTableList from "../ReusableCardList/ReusableCardList";
 import { AllyBountyColumn } from "./AllyBountyColum";
 
 type FilterFormValues = {
@@ -24,19 +15,14 @@ type FilterFormValues = {
 };
 
 const AllyBountyTable = () => {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
 
   const { teamMemberProfile } = useRole();
   const { directReferral, setDirectReferral } = useDirectReferralStore();
 
-  const columnAccessor = sorting?.[0]?.id || "user_date_created";
-  const isAscendingSort =
-    sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
+  const columnAccessor = "user_date_created";
+  const isAscendingSort = true;
 
   const fetchAdminRequest = async () => {
     try {
@@ -83,24 +69,6 @@ const AllyBountyTable = () => {
 
   const columns = AllyBountyColumn();
 
-  const table = useReactTable({
-    data: directReferral.data,
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
-  });
-
   const { getValues } = useForm<FilterFormValues>({
     defaultValues: {
       emailFilter: "",
@@ -109,19 +77,17 @@ const AllyBountyTable = () => {
 
   useEffect(() => {
     fetchAdminRequest();
-  }, [teamMemberProfile, activePage, sorting]);
-
-  const pageCount = Math.ceil(directReferral.count / 10);
+  }, [teamMemberProfile, activePage]);
 
   return (
-    <ReusableTable
-      table={table}
+    <GenericTableList
+      data={directReferral.data}
+      count={directReferral.count}
+      isLoading={isFetchingList}
+      onLoadMore={() => setActivePage(activePage + 1)}
       columns={columns}
-      activePage={activePage}
-      totalCount={directReferral.count}
-      isFetchingList={isFetchingList}
-      setActivePage={setActivePage}
-      pageCount={pageCount}
+      emptyMessage="No data found."
+      getRowId={(item) => item.user_id}
     />
   );
 };

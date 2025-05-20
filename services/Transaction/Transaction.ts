@@ -1,4 +1,4 @@
-import { company_transaction_table } from "@prisma/client";
+import { company_transaction_table } from "@/utils/types";
 
 export const getTransactionHistory = async (params: {
   limit: number;

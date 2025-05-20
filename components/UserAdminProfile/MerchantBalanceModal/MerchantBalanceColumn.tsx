@@ -1,5 +1,5 @@
 import { formateMonthDateYear } from "@/utils/function";
-import { merchant_balance_log } from "@prisma/client";
+import { merchant_balance_log } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const MerchantBalanceColumn = (): ColumnDef<merchant_balance_log>[] => {

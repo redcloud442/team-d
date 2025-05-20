@@ -1,33 +1,34 @@
 import { CompanyMemberRole } from "./enums";
 
 export const PUBLIC_ROUTES = [
-  "/access/login",
-  "/access/register",
-  "/api/v1/access",
-  "/api/v1/access/xeloraAccess",
+  "/login",
+  "/register/",
+  "/api/v1/auth",
+  "/api/v1/auth/digiAuth",
   "/api/health",
-  "/api/v1/access/callback",
-  "/access/xeloraAccess",
+  "/api/v1/auth/callback",
+  "/digiAuth",
 ];
 
 export const PRIVATE_ROUTES = [
-  "/dashboard",
+  "/digi-dash",
   "/api/v1/access",
-  "/inbox",
   "/history",
   "/profile",
-  "/contact",
-  "/withdraw",
-  "/deposit",
-  "/trading",
-  "/matrix",
+  "/request/withdraw",
+  "/request/deposit",
+  "/subscription",
+  "/unilevel",
   "/referral",
+  "/unilevel",
+  "/change-password",
+  "/logout",
 ];
 
 export const ADMIN_ROUTES = ["/admin"];
 
 export const isPublicRoute = (pathname: string) => {
-  return PUBLIC_ROUTES.includes(pathname);
+  return PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
 };
 
 export const isPrivateRoute = (pathname: string) => {
@@ -39,17 +40,17 @@ export const isAdminRoute = (pathname: string) => {
 };
 
 export const isMagicLink = (pathname: string) => {
-  return pathname === "/access/callback";
+  return pathname === "/callback";
 };
 
 export const isBypassRoute = (pathname: string) => {
-  return pathname.startsWith("/api/v1/access/register");
+  return pathname.startsWith("/api/v1/auth/register");
 };
 
 export const ROUTE_ROLE_REQUIREMENTS: {
   path: string;
   role?: CompanyMemberRole;
 }[] = [
-  { path: "/dashboard" },
+  { path: "/digi-dash" },
   { path: "/admin", role: CompanyMemberRole.ADMIN },
 ];

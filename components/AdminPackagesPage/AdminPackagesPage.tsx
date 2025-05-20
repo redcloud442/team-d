@@ -4,7 +4,7 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminPackages } from "@/services/Package/Admin";
 import { useRole } from "@/utils/context/roleContext";
 import { createClientSide } from "@/utils/supabase/client";
-import { package_table } from "@prisma/client";
+import { package_table } from "@/utils/types";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Card } from "../ui/card";

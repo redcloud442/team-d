@@ -1,7 +1,6 @@
 "use client";
 
-import { adminSalesTotalReportData } from "@/utils/types";
-import { company_member_table } from "@prisma/client";
+import { adminSalesTotalReportData, company_member_table } from "@/utils/types";
 import {
   ColumnFiltersState,
   getCoreRowModel,

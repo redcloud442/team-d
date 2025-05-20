@@ -11,8 +11,7 @@ import {
 import { logError } from "@/services/Error/ErrorLogs";
 import { getHistoryLog } from "@/services/User/Admin";
 import { createClientSide } from "@/utils/supabase/client";
-import { UserLog } from "@/utils/types";
-import { company_member_table } from "@prisma/client";
+import { company_member_table, UserLog } from "@/utils/types";
 import {
   ColumnFiltersState,
   flexRender,

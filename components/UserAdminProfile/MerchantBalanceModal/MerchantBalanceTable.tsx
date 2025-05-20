@@ -14,8 +14,7 @@ import TableLoading from "@/components/ui/tableLoading";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getMerchantBalanceHistory } from "@/services/merchant/Merchant";
 import { createClientSide } from "@/utils/supabase/client";
-import { UserRequestdata } from "@/utils/types";
-import { merchant_balance_log } from "@prisma/client";
+import { merchant_balance_log, UserRequestdata } from "@/utils/types";
 import {
   ColumnFiltersState,
   flexRender,

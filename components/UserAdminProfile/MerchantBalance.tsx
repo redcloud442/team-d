@@ -3,9 +3,12 @@ import { logError } from "@/services/Error/ErrorLogs";
 import { handleUpdateBalance } from "@/services/merchant/Merchant";
 import { escapeFormData } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
-import { UserRequestdata } from "@/utils/types";
+import {
+  merchant_balance_log,
+  user_table,
+  UserRequestdata,
+} from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { merchant_balance_log, user_table } from "@prisma/client";
 import { PhilippinePeso } from "lucide-react";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -77,19 +80,21 @@ const MerchantBalance = ({ userProfile, profile }: Props) => {
           Number(sanitizedData.balance) + merchantData.merchant_member_balance,
       }));
 
-      setMerchantBalanceHistory((prev: { data: merchant_balance_log[]; count: number }) => ({
-        ...prev,
-        data: [
-          {
-            merchant_balance_log_id: uuidv4(),
-            merchant_balance_log_date: new Date(),
-            merchant_balance_log_amount: Number(sanitizedData.balance),
-            merchant_balance_log_user: userProfile.user_username || "",
-          },
-          ...prev.data,
-        ],
-        count: prev.count + 1,
-      }));
+      setMerchantBalanceHistory(
+        (prev: { data: merchant_balance_log[]; count: number }) => ({
+          ...prev,
+          data: [
+            {
+              merchant_balance_log_id: uuidv4(),
+              merchant_balance_log_date: new Date(),
+              merchant_balance_log_amount: Number(sanitizedData.balance),
+              merchant_balance_log_user: userProfile.user_username || "",
+            },
+            ...prev.data,
+          ],
+          count: prev.count + 1,
+        })
+      );
       toast({
         title: "Merchant Balance Updated Successfully",
       });

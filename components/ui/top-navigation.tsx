@@ -1,24 +1,37 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Button } from "./button";
+import { usePathname } from "next/navigation";
 
 const TopNavigation = () => {
+  const pathname = usePathname();
   return (
-    <nav className="flex relative  justify-between items-center p-2 dark: bg-[#190e0a]">
-      <div className="flex justify-between items-center px-4 py-2">
-        <Link
-          href="/dashboard"
-          className="bg-gradient-to-b from-yellow-400 to-orange-500 bg-clip-text text-transparent font-bold text-lg"
-        >
-          XELORA
+    <nav
+      className={`flex bg-bg-primary pt-4 ${
+        pathname === "/digi-dash" ? "justify-center" : "justify-start"
+      }`}
+    >
+      <div
+        className={`flex items-end relative ${
+          pathname === "/digi-dash"
+            ? "-translate-x-8 justify-center"
+            : "translate-x-1"
+        }`}
+      >
+        <Link href="/digi-dash">
+          <Image
+            src="/assets/icons/IconGif.webp"
+            alt="DigiWealth Logo"
+            width={100}
+            height={100}
+            className="w-20 h-auto"
+            priority
+          />
         </Link>
-      </div>
 
-      <div>
-        <Link href="/contact">
-          <Button variant="outline" className="rounded-sm text-xs p-2">
-            Contact my sponsor!
-          </Button>
-        </Link>
+        <div className="flex items-center justify-center absolute bottom-1 left-12">
+          <span className="text-xs font-black text-bg-primary-blue">DIGI</span>
+          <span className="text-xs font-black text-white">WEALTH</span>
+        </div>
       </div>
     </nav>
   );

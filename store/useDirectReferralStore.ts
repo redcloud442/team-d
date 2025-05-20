@@ -1,4 +1,4 @@
-import { user_table } from "@prisma/client";
+import { user_table } from "@/utils/types";
 import { create } from "zustand";
 
 interface directReferralState {

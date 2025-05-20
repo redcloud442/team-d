@@ -1,5 +1,8 @@
-import { DashboardEarnings, HeirarchyData } from "@/utils/types";
-import { company_earnings_table } from "@prisma/client";
+import {
+  DashboardEarnings,
+  HeirarchyData,
+  company_earnings_table,
+} from "@/utils/types";
 
 export const getUserSponsor = async (params: { userId: string }) => {
   const response = await fetch(`/api/v1/user/sponsor`, {

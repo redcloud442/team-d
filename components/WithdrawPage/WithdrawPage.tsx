@@ -1,15 +1,16 @@
 import DashboardWithdrawModalWithdraw from "../DashboardPage/DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
-import ReusableCard from "../ui/card-reusable";
 
 const WithdrawPage = () => {
   return (
-    <ReusableCard
-      type="user"
-      title="Withdraw Request"
-      className="flex items-start justify-center h-full"
-    >
+    <>
+      <div className="space-x-1">
+        <span className="text-2xl font-bold text-bg-primary-blue">
+          WITHDRAW
+        </span>
+        <span className="text-2xl font-bold ">REQUEST</span>
+      </div>
       <DashboardWithdrawModalWithdraw />
-    </ReusableCard>
+    </>
   );
 };
 

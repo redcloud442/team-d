@@ -26,7 +26,7 @@ export const BANK_IMAGE = {
 export const BASE_URL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3000"
-    : "https://www.pinkful.website";
+    : "https://www.digi-wealth.vip";
 
 export const MAX_FILE_SIZE_MB = 12;
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -34,4 +34,9 @@ export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 export const ACTIVE = "ACTIVE";
 export const ENDED = "ENDED";
 
-export const bankData = ["Gotyme", "Gcash", "BPI", "PayMaya"];
+export const bankData = [
+  { bank_name: "Gotyme", bank_image: BANK_IMAGE.GOTYME },
+  { bank_name: "Gcash", bank_image: BANK_IMAGE.GOTYME },
+  { bank_name: "BPI", bank_image: BANK_IMAGE.GOTYME },
+  { bank_name: "PayMaya", bank_image: BANK_IMAGE.GOTYME },
+];

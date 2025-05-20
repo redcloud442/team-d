@@ -18,7 +18,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { createClientSide } from "@/utils/supabase/client";
-import { user_table } from "@prisma/client";
+import { user_table } from "@/utils/types";
 import { useRouter } from "next/navigation";
 
 export function NavUser({ user }: { user: user_table }) {

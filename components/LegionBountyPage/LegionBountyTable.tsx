@@ -4,18 +4,9 @@ import { getLegionBounty } from "@/services/Bounty/Member";
 import { useIndirectReferralStore } from "@/store/useIndirrectReferralStore";
 import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData } from "@/utils/function";
-import {
-  ColumnFiltersState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import ReusableTable from "../ReusableTable/ReusableTable";
+import GenericTableList from "../ReusableCardList/ReusableCardList";
 import { LegionBountyColumn } from "./LegionBountyColumn";
 
 type FilterFormValues = {
@@ -23,10 +14,6 @@ type FilterFormValues = {
 };
 
 const LegionBountyTable = () => {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
 
@@ -34,9 +21,8 @@ const LegionBountyTable = () => {
 
   const { indirectReferral, setIndirectReferral } = useIndirectReferralStore();
 
-  const columnAccessor = sorting?.[0]?.id || "user_date_created";
-  const isAscendingSort =
-    sorting?.[0]?.desc === undefined ? true : !sorting[0].desc;
+  const columnAccessor = "user_date_created";
+  const isAscendingSort = true;
 
   const fetchAdminRequest = async () => {
     try {
@@ -79,24 +65,6 @@ const LegionBountyTable = () => {
 
   const columns = LegionBountyColumn();
 
-  const table = useReactTable({
-    data: indirectReferral.data || [],
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
-  });
-
   const { getValues } = useForm<FilterFormValues>({
     defaultValues: {
       emailFilter: "",
@@ -105,19 +73,17 @@ const LegionBountyTable = () => {
 
   useEffect(() => {
     fetchAdminRequest();
-  }, [activePage, sorting, teamMemberProfile]);
-
-  const pageCount = Math.ceil(indirectReferral.count / 10);
+  }, [activePage, teamMemberProfile]);
 
   return (
-    <ReusableTable
-      table={table}
+    <GenericTableList
+      data={indirectReferral.data}
+      count={indirectReferral.count}
+      isLoading={isFetchingList}
+      onLoadMore={() => setActivePage(activePage + 1)}
       columns={columns}
-      activePage={activePage}
-      totalCount={indirectReferral.count}
-      isFetchingList={isFetchingList}
-      setActivePage={setActivePage}
-      pageCount={pageCount}
+      emptyMessage="No data found."
+      getRowId={(item) => item.user_id}
     />
   );
 };
