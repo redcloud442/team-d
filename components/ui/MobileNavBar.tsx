@@ -12,12 +12,6 @@ import { Button } from "./button";
 import { DialogFooter, DialogHeader } from "./dialog";
 import { Separator } from "./separator";
 
-type NavItem = {
-  href: string;
-  label: string;
-  onClick?: () => void | Promise<void>;
-};
-
 const MobileNavBar = () => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,7 +37,9 @@ const MobileNavBar = () => {
         <ul className="flex items-center justify-between sm:justify-around px-4 py-3 space-x-2 relative">
           <div className="flex items-center justify-center gap-x-2">
             <li className="text-white text-xs font-bold">
-              <span className="text-bg-primary-blue">DIGI</span>WEALTH
+              <Link href="/digi-dash">
+                <span className="text-bg-primary-blue">DIGI</span>WEALTH
+              </Link>
             </li>
 
             {/* Change Password */}

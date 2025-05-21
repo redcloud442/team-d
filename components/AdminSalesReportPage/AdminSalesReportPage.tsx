@@ -172,7 +172,7 @@ const AdminSalesReportPage = () => {
                   <Button
                     type="submit"
                     variant={"card"}
-                    className="w-full md:w-auto h-12 rounded-md"
+                    className="w-full md:w-auto rounded-md"
                   >
                     Submit
                   </Button>

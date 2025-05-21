@@ -68,11 +68,11 @@ const ChangePasswordUser = () => {
   };
 
   return (
-    <div className=" container mx-auto flex flex-col items-center justify-center">
+    <div className="w-full flex justify-center">
       <Form {...form}>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 text-2xl pt-4"
+          className="flex flex-col w-full max-w-xs sm:max-w-4xl gap-4 text-2xl pt-4"
         >
           <FormField
             control={control}

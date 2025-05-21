@@ -152,221 +152,225 @@ const DashboardDepositModalDeposit = ({
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full">
-        {/* Amount Field */}
-        <div className="text-xl font-bold">
-          <span className="text-bg-primary-blue"> 1. SELECT</span> BANK
-        </div>
-        <div className="grid grid-cols-3 gap-4 mt-2">
-          {topUpOptions.map((option) => {
-            return (
-              <button
-                key={option.merchant_id}
-                type="button"
-                onClick={() => {
-                  handleSelectedBank(option.merchant_id);
-                }}
-                className={cn(
-                  "flex flex-col items-center justify-center rounded-xl p-2 transition-all",
-                  selectedBank && "border-bg-primary-blue bg-bg-primary/10"
-                )}
-              >
-                {/* Logo */}
-                <div className="w-14 h-14 rounded-lg overflow-hidden">
-                  <Image
-                    src={option.merchant_qr_attachment || ""}
-                    alt={option.merchant_account_name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                {/* Bank Name */}
-                <span className="mt-2 text-xs font-semibold text-white text-center">
-                  {option.merchant_account_name}
-                </span>
-
-                {/* Select Button */}
-                <span
-                  className={cn(
-                    "mt-1 px-2 py-1 rounded-md text-xs font-bold",
-                    selectedBank
-                      ? "bg-bg-primary-blue text-black"
-                      : "bg-gray-300 text-black"
-                  )}
-                >
-                  SELECT
-                </span>
-              </button>
-            );
-          })}
-        </div>
-        <div className="text-xl font-bold">
-          <span className="text-bg-primary-blue"> 2. SELECT</span>
-          <span> DIGIWealth MOP</span>
-        </div>
-
-        <FormField
-          control={control}
-          name="topUpMode"
-          render={({ field }) => (
-            <FormItem className="flex justify-between items-center">
-              <FormLabel className="space-x-1">
-                <span className="text-bg-primary-blue">-</span>
-                <span>SELECT MOP</span>
-              </FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    onTopUpModeChange(value);
-                  }}
-                  value={field.value}
-                >
-                  <SelectTrigger className="text-center w-fit h-6 rounded-lg">
-                    <SelectValue placeholder="Select MOP Account" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {options.map((option, index) => (
-                      <SelectItem
-                        key={option.merchant_id}
-                        value={option.merchant_id}
-                      >
-                        <div className="flex items-center gap-2">
-                          {index + 1}. {option.merchant_account_name}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="accountName"
-          render={({ field }) => (
-            <FormItem className="flex flex-col items-start">
-              <FormLabel className="space-x-1">
-                <span className="text-bg-primary-blue">-</span>
-                <span>Account Name</span>
-              </FormLabel>
-              <div className="flex items-center gap-2">
-                <FormControl>
-                  <Input
-                    readOnly
-                    variant="non-card"
-                    className="w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
-                    id="accountName"
-                    placeholder="Account Name:"
-                    {...field}
-                  />
-                </FormControl>
-                <Button
-                  type="button"
-                  onClick={() => handleCopy(field.value)}
-                  className="p-4 rounded-lg"
-                >
-                  COPY
-                </Button>
-              </div>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="accountNumber"
-          render={({ field }) => (
-            <FormItem className="flex flex-col items-start">
-              <FormLabel className="space-x-1">
-                <span className="text-bg-primary-blue">-</span>
-                <span>Account Number</span>
-              </FormLabel>
-              <div className="flex items-center gap-2">
-                <FormControl>
-                  <Input
-                    readOnly
-                    className="w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
-                    variant="non-card"
-                    id="accountNumber"
-                    placeholder="Account Number"
-                    {...field}
-                  />
-                </FormControl>
-                <Button
+    <div className="w-full flex justify-center">
+      <Form {...form}>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 w-full max-w-md sm:max-w-4xl"
+        >
+          {/* Amount Field */}
+          <div className="text-xl font-bold">
+            <span className="text-bg-primary-blue"> 1. SELECT</span> BANK
+          </div>
+          <div className="grid grid-cols-3 gap-4 mt-2">
+            {topUpOptions.map((option) => {
+              return (
+                <button
+                  key={option.merchant_id}
                   type="button"
                   onClick={() => {
-                    navigator.clipboard.writeText(field.value);
+                    handleSelectedBank(option.merchant_id);
                   }}
-                  className="p-4 rounded-lg"
+                  className={cn(
+                    "flex flex-col items-center justify-center rounded-xl p-2 transition-all",
+                    selectedBank && "border-bg-primary-blue bg-bg-primary/10"
+                  )}
                 >
-                  COPY
-                </Button>
-              </div>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="amount"
-          render={({ field }) => (
-            <FormItem className="flex items-center justify-between">
-              <FormLabel className="space-x-1">
-                <span className="text-bg-primary-blue">-</span>
-                <span>Amount to Send</span>
-              </FormLabel>
-              <div className="flex flex-col items-center gap-2">
+                  {/* Logo */}
+                  <div className="w-14 h-14 rounded-lg overflow-hidden">
+                    <Image
+                      src={option.merchant_qr_attachment || ""}
+                      alt={option.merchant_account_name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Bank Name */}
+                  <span className="mt-2 text-xs font-semibold text-white text-center">
+                    {option.merchant_account_name}
+                  </span>
+
+                  {/* Select Button */}
+                  <span
+                    className={cn(
+                      "mt-1 px-2 py-1 rounded-md text-xs font-bold",
+                      selectedBank
+                        ? "bg-bg-primary-blue text-black"
+                        : "bg-gray-300 text-black"
+                    )}
+                  >
+                    SELECT
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="text-xl font-bold">
+            <span className="text-bg-primary-blue"> 2. SELECT</span>
+            <span> DIGIWealth MOP</span>
+          </div>
+
+          <FormField
+            control={control}
+            name="topUpMode"
+            render={({ field }) => (
+              <FormItem className="flex justify-between items-center">
+                <FormLabel className="space-x-1">
+                  <span className="text-bg-primary-blue">-</span>
+                  <span>SELECT MOP</span>
+                </FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Amount:"
-                    className="w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
-                    variant="non-card"
-                    {...field}
-                    onChange={(e) => {
-                      let inputValue = e.target.value;
-
-                      // Allow clearing the value
-                      if (inputValue === "") {
-                        field.onChange("");
-                        return;
-                      }
-
-                      // Remove non-numeric characters
-                      inputValue = inputValue.replace(/[^0-9.]/g, "");
-
-                      // Ensure only one decimal point
-                      const parts = inputValue.split(".");
-                      if (parts.length > 2) {
-                        inputValue = parts[0] + "." + parts[1];
-                      }
-
-                      // Limit to two decimal places
-                      if (parts[1]?.length > 2) {
-                        inputValue = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                      }
-
-                      if (inputValue.length > 8) {
-                        inputValue = inputValue.substring(0, 8);
-                      }
-
-                      // Update the field value
-                      field.onChange(inputValue);
-
-                      // Enforce max amount
-                      const numericValue = Number(inputValue);
-
-                      setValue("amount", numericValue.toString());
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      onTopUpModeChange(value);
                     }}
-                  />
+                    value={field.value}
+                  >
+                    <SelectTrigger className="text-center w-fit h-6 rounded-lg">
+                      <SelectValue placeholder="Select MOP Account" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {options.map((option, index) => (
+                        <SelectItem
+                          key={option.merchant_id}
+                          value={option.merchant_id}
+                        >
+                          <div className="flex items-center gap-2">
+                            {index + 1}. {option.merchant_account_name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="accountName"
+            render={({ field }) => (
+              <FormItem className="flex flex-col items-start">
+                <FormLabel className="space-x-1">
+                  <span className="text-bg-primary-blue">-</span>
+                  <span>Account Name</span>
+                </FormLabel>
+                <div className="flex items-center gap-2">
+                  <FormControl>
+                    <Input
+                      readOnly
+                      variant="non-card"
+                      className="w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
+                      id="accountName"
+                      placeholder="Account Name:"
+                      {...field}
+                    />
+                  </FormControl>
+                  <Button
+                    type="button"
+                    onClick={() => handleCopy(field.value)}
+                    className="p-4 rounded-lg"
+                  >
+                    COPY
+                  </Button>
+                </div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="accountNumber"
+            render={({ field }) => (
+              <FormItem className="flex flex-col items-start">
+                <FormLabel className="space-x-1">
+                  <span className="text-bg-primary-blue">-</span>
+                  <span>Account Number</span>
+                </FormLabel>
+                <div className="flex items-center gap-2">
+                  <FormControl>
+                    <Input
+                      readOnly
+                      className="w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
+                      variant="non-card"
+                      id="accountNumber"
+                      placeholder="Account Number"
+                      {...field}
+                    />
+                  </FormControl>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(field.value);
+                    }}
+                    className="p-4 rounded-lg"
+                  >
+                    COPY
+                  </Button>
+                </div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="amount"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-between">
+                <FormLabel className="space-x-1">
+                  <span className="text-bg-primary-blue">-</span>
+                  <span>Amount to Send</span>
+                </FormLabel>
+                <div className="flex flex-col items-center gap-2">
+                  <FormControl>
+                    <Input
+                      placeholder="Amount:"
+                      className="w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
+                      variant="non-card"
+                      {...field}
+                      onChange={(e) => {
+                        let inputValue = e.target.value;
 
-                <FormMessage />
-              </div>
-            </FormItem>
-          )}
-        />
-        {/* {selectedMerchant?.merchant_qr_attachment && (
+                        // Allow clearing the value
+                        if (inputValue === "") {
+                          field.onChange("");
+                          return;
+                        }
+
+                        // Remove non-numeric characters
+                        inputValue = inputValue.replace(/[^0-9.]/g, "");
+
+                        // Ensure only one decimal point
+                        const parts = inputValue.split(".");
+                        if (parts.length > 2) {
+                          inputValue = parts[0] + "." + parts[1];
+                        }
+
+                        // Limit to two decimal places
+                        if (parts[1]?.length > 2) {
+                          inputValue = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                        }
+
+                        if (inputValue.length > 8) {
+                          inputValue = inputValue.substring(0, 8);
+                        }
+
+                        // Update the field value
+                        field.onChange(inputValue);
+
+                        // Enforce max amount
+                        const numericValue = Number(inputValue);
+
+                        setValue("amount", numericValue.toString());
+                      }}
+                    />
+                  </FormControl>
+
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+          {/* {selectedMerchant?.merchant_qr_attachment && (
                 <div className="flex flex-col gap-2 justify-center items-center">
                   <p className="text-lg font-bold">QR CODE</p>
                   <Image
@@ -377,42 +381,44 @@ const DashboardDepositModalDeposit = ({
                   />
                 </div>
               )} */}
-        <div className="text-xl font-bold">
-          <span className="text-bg-primary-blue"> 3. UPLOAD</span>
-          <span> YOUR RECEIPT</span>
-        </div>
+          <div className="text-xl font-bold">
+            <span className="text-bg-primary-blue"> 3. UPLOAD</span>
+            <span> YOUR RECEIPT</span>
+          </div>
 
-        <FormField
-          control={control}
-          name="file"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <FileUpload
-                  label=""
-                  onFileChange={(file) => field.onChange(file)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* {file && (
+          <FormField
+            control={control}
+            name="file"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUpload
+                    label=""
+                    onFileChange={(file) => field.onChange(file)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* {file && (
           <h1 className="rounded-md h-10 w-full border-2 border-orange-500 bg-orange-950 flex items-center justify-center text-green-500">
             FILE UPLOADED SUCCESSFULLY
           </h1>
         )} */}
-        <div className="w-full flex justify-center">
-          <Button
-            className=" font-black  p-4"
-            disabled={isSubmitting || !canUserDeposit}
-            type="submit"
-          >
-            {isSubmitting ? <Loader2 className="animate-spin" /> : null} Submit
-          </Button>
-        </div>
-      </form>
-    </Form>
+          <div className="w-full flex justify-center">
+            <Button
+              className=" font-black  p-4"
+              disabled={isSubmitting || !canUserDeposit}
+              type="submit"
+            >
+              {isSubmitting ? <Loader2 className="animate-spin" /> : null}{" "}
+              Submit
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 };
 

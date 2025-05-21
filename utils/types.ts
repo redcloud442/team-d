@@ -24,6 +24,7 @@ export type company_withdrawal_request_table = {
   company_withdrawal_request_approved_by: string | null;
   company_withdrawal_request_date_updated: Date | null;
   company_withdrawal_request_reject_note: string | null;
+  company_withdrawal_request_phone_number: string | null;
 };
 
 export type company_deposit_request_table = {

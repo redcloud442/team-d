@@ -13,7 +13,7 @@ const DashboardCards = () => {
           {
             label: "DEPOSIT",
             href: "/request/deposit",
-            disabled: canUserDeposit,
+            disabled: !canUserDeposit,
           },
           { label: "SUBSCRIBE", href: "/subscription" },
           { label: "HISTORY", href: "/history/deposit" },
@@ -27,7 +27,7 @@ const DashboardCards = () => {
           {
             label: "WITHDRAW",
             href: "/request/withdraw",
-            disabled: isWithdrawalToday.referral && isWithdrawalToday.package,
+            disabled: !isWithdrawalToday.referral && !isWithdrawalToday.package,
           },
           { label: "HISTORY", href: "/history/withdrawal" },
         ]}

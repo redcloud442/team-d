@@ -109,7 +109,7 @@ const AdminWithdrawalReport = () => {
                         variant={"card"}
                         className={cn(
                           "w-full rounded-md flex-1 justify-start text-left font-normal",
-                          !dateFilter.startDate && "text-muted-foreground"
+                          !dateFilter.startDate && "text-black"
                         )}
                       >
                         <CalendarIcon />
@@ -152,7 +152,7 @@ const AdminWithdrawalReport = () => {
                         variant={"card"}
                         className={cn(
                           "w-full rounded-md  justify-start text-left font-normal flex-1",
-                          !dateFilter.endDate && "text-muted-foreground"
+                          !dateFilter.endDate && "text-black"
                         )}
                       >
                         <CalendarIcon />

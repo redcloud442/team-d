@@ -265,7 +265,23 @@ export const AdminWithdrawalHistoryColumn = (
         </div>
       ),
     },
-
+    {
+      accessorKey: "company_withdrawal_request_phone_number",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          className="p-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "desc")}
+        >
+          Phone Number <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-wrap w-xs">
+          {row.getValue("company_withdrawal_request_phone_number")}
+        </div>
+      ),
+    },
     {
       accessorKey: "company_withdrawal_request_date",
       header: ({ column }) => (

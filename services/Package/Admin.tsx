@@ -1,11 +1,8 @@
 import { package_table } from "@/utils/types";
 
 export const getAdminPackages = async () => {
-  const response = await fetch(`/api/v1/package/list`, {
+  const response = await fetch(`/api/v1/package/get-all/list`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
   });
 
   const result = await response.json();

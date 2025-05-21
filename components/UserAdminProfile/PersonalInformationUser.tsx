@@ -28,70 +28,72 @@ const PersonalInformationLayout = () => {
   }, [profile.user_id, sponsor]);
 
   return (
-    <div className="flex flex-col justify-center items-center gap-4 max-w-sm mx-auto text-xl">
-      <Avatar className="w-32 h-32">
-        <AvatarImage
-          className="w-32 h-32"
-          src={profile.user_profile_picture ?? ""}
+    <div className="w-full flex justify-center">
+      <div className="flex flex-col items-center gap-4 w-full max-w-xs sm:max-w-4xl text-xl">
+        <Avatar className="w-32 h-32">
+          <AvatarImage
+            className="w-32 h-32"
+            src={profile.user_profile_picture ?? ""}
+          />
+          <AvatarFallback className="dark:bg-gray-300">
+            <User2 className="w-16 h-16" />
+          </AvatarFallback>
+        </Avatar>
+        <DashboardDepositProfile />
+        <Label>Sponsor Name</Label>
+        <Input
+          id="sponsor"
+          type="text"
+          value={sponsor ?? ""}
+          readOnly
+          className="text-center"
         />
-        <AvatarFallback className="dark:bg-gray-300">
-          <User2 className="w-16 h-16" />
-        </AvatarFallback>
-      </Avatar>
-      <DashboardDepositProfile />
-      <Label>Sponsor Name</Label>
-      <Input
-        id="sponsor"
-        type="text"
-        value={sponsor ?? ""}
-        readOnly
-        className="text-center"
-      />
 
-      <Label>First Name</Label>
-      <Input
-        id="firstName"
-        type="text"
-        value={profile.user_first_name || ""}
-        readOnly
-        className="text-center"
-      />
+        <Label>First Name</Label>
+        <Input
+          id="firstName"
+          type="text"
+          value={profile.user_first_name || ""}
+          readOnly
+          className="text-center"
+        />
 
-      <Label>Last Name</Label>
-      <Input
-        id="lastName"
-        type="text"
-        value={profile.user_last_name || ""}
-        readOnly
-        className="text-center"
-      />
+        <Label>Last Name</Label>
+        <Input
+          id="lastName"
+          type="text"
+          value={profile.user_last_name || ""}
+          readOnly
+          className="text-center"
+        />
 
-      <Label>Username</Label>
-      <Input
-        id="userName"
-        type="text"
-        value={profile.user_username || ""}
-        readOnly
-        className="text-center"
-      />
+        <Label>Username</Label>
+        <Input
+          id="userName"
+          type="text"
+          value={profile.user_username || ""}
+          readOnly
+          className="text-center"
+        />
 
-      <Label>Contact No.</Label>
-      <Input
-        id="contactNo"
-        type="text"
-        value={profile.user_phone_number || ""}
-        readOnly
-        className="text-center"
-      />
+        <Label>Contact No.</Label>
+        <Input
+          id="contactNo"
+          type="text"
+          value={profile.user_phone_number || ""}
+          readOnly
+          className="text-center"
+        />
 
-      <Label>Gender</Label>
-      <Input
-        id="gender"
-        type="text"
-        value={profile.user_gender || ""}
-        readOnly
-        className="text-center"
-      />
+        <Label>Gender</Label>
+        <Input
+          id="gender"
+          type="text"
+          value={profile.user_gender || ""}
+          readOnly
+          className="text-center"
+        />
+      </div>
     </div>
   );
 };

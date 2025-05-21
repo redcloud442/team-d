@@ -4,9 +4,7 @@ import { toast } from "@/hooks/use-toast";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
-import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { useRole } from "@/utils/context/roleContext";
-import { useRouter } from "next/navigation";
 import DashboardCards from "./DashboardComponents/DashboardCards";
 import DashboardCommunity from "./DashboardComponents/DashboardCommunity";
 import DashboardNavigation from "./DashboardComponents/DashboardNavigation";
@@ -15,12 +13,10 @@ import DashboardSocket from "./DashboardComponents/DashboardSocket";
 import DashboardPackages from "./DashboardPackages";
 
 const DashboardPage = () => {
-  const router = useRouter();
   const { earnings } = useUserEarningsStore();
   const { totalEarnings } = useUserDashboardEarningsStore();
   const { chartData } = usePackageChartData();
-  const { teamMemberProfile, profile, referral } = useRole();
-  const { isWithdrawalToday, canUserDeposit } = useUserHaveAlreadyWithdraw();
+  const { teamMemberProfile } = useRole();
 
   const handleReferralLink = (referralLink: string) => {
     navigator.clipboard.writeText(referralLink);

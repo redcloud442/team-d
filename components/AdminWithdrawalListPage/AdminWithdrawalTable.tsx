@@ -449,7 +449,7 @@ const AdminWithdrawalHistoryTable = () => {
                 type="submit"
                 disabled={isFetchingList}
                 size="sm"
-                className="h-12 rounded-md"
+                className="rounded-md"
                 variant="card"
               >
                 <Search />
@@ -459,7 +459,7 @@ const AdminWithdrawalHistoryTable = () => {
                 onClick={handleFilter}
                 disabled={isFetchingList}
                 size="sm"
-                className="h-12 rounded-md"
+                className="rounded-md"
               >
                 <RefreshCw />
                 Refresh

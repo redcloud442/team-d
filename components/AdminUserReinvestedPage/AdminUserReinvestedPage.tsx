@@ -109,7 +109,7 @@ const AdminUserReinvestedPage = () => {
                         variant={"card"}
                         className={cn(
                           "w-full rounded-md md:max-w-xl: justify-start text-left font-normal flex-1",
-                          !dateFilter.start && "text-muted-foreground"
+                          !dateFilter.start && "text-black"
                         )}
                       >
                         <CalendarIcon />
@@ -150,7 +150,7 @@ const AdminUserReinvestedPage = () => {
                         variant={"card"}
                         className={cn(
                           "w-full rounded-md md:max-w-sm: justify-start text-left font-normal flex-1",
-                          !dateFilter.end && "text-muted-foreground"
+                          !dateFilter.end && "text-black"
                         )}
                       >
                         <CalendarIcon />

@@ -343,7 +343,7 @@ const AdminUsersTable = () => {
               disabled={isFetchingList}
               size="sm"
               variant="card"
-              className="w-full h-12 sm:w-auto"
+              className="w-full sm:w-auto"
             >
               <Search />
             </Button>
@@ -352,7 +352,7 @@ const AdminUsersTable = () => {
               onClick={fetchAdminRequest}
               disabled={isFetchingList}
               size="sm"
-              className="w-full h-12 sm:w-auto"
+              className="w-full sm:w-auto"
             >
               <RefreshCw className="mr-2" />
               Refresh

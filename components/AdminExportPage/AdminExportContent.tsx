@@ -172,7 +172,7 @@ const AdminExportContent = () => {
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal rounded-md h-12",
+                        "w-full justify-start text-left font-normal rounded-md ",
                         !field.value && "text-muted-foreground"
                       )}
                     >
@@ -204,7 +204,7 @@ const AdminExportContent = () => {
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal rounded-md h-12",
+                        "w-full justify-start text-left font-normal rounded-md ",
                         !field.value && "text-muted-foreground"
                       )}
                     >
@@ -234,7 +234,7 @@ const AdminExportContent = () => {
 
       {/* Submit + CSV Download */}
       <div className="flex gap-4 mt-4">
-        <Button className="w-full h-12 rounded-md" type="submit">
+        <Button className="w-full rounded-md" type="submit">
           Generate CSV
         </Button>
       </div>

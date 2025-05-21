@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { logError } from "@/services/Error/ErrorLogs";
 import { getAdminWithdrawalTotalReport } from "@/services/Withdrawal/Admin";
+import { formatNumberLocale } from "@/utils/function";
 import { createClientSide } from "@/utils/supabase/client";
 import {
   adminWithdrawalTotalReportData,
@@ -140,11 +141,7 @@ const AdminWithdrawalReportTable = ({
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold">Total Amount: </span>
             <span className="text-sm font-bold text-green-500">
-              ₱{" "}
-              {withdrawalReportData.total_amount.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              ₱ {formatNumberLocale(withdrawalReportData.total_amount)}
             </span>
           </div>
         </div>
@@ -183,11 +180,7 @@ const AdminWithdrawalReportTable = ({
               <SelectItem value="30">30</SelectItem>
             </SelectContent>
           </Select>
-          <Button
-            className="flex-1 h-12 rounded-md"
-            variant={"card"}
-            type="submit"
-          >
+          <Button className="flex-1 rounded-md" variant={"card"} type="submit">
             Submit
           </Button>
         </form>
