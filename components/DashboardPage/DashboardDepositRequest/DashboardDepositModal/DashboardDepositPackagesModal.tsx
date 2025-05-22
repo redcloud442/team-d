@@ -27,19 +27,21 @@ const DashboardDepositModalPackages = ({ packages }: Props) => {
   };
 
   return (
-    <div className="grid sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-      {packages.map((pkg) => (
-        <PackageCard
-          key={pkg.package_id}
-          packages={pkg}
-          onClick={() => handlePackageClick(pkg)}
-        />
-      ))}
+    <div className="flex flex-col justify-center items-center">
+      <div className="flex flex-col justify-center max-w-md gap-4">
+        {packages.map((pkg) => (
+          <PackageCard
+            key={pkg.package_id}
+            packages={pkg}
+            onClick={() => handlePackageClick(pkg)}
+          />
+        ))}
 
-      {/* <AvailPackagePage
+        {/* <AvailPackagePage
         setSelectedPackage={setSelectedPackage}
         selectedPackage={selectedPackage}
       /> */}
+      </div>
     </div>
   );
 };

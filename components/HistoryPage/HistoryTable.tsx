@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import HistoryCardList from "./HistoryCardList";
 
 type Props = {
-  type: "withdrawal" | "deposit" | "earnings";
+  type: "withdrawal" | "deposit" | "earnings" | "referral";
 };
 
 const HistoryTable = ({ type }: Props) => {
@@ -22,7 +22,11 @@ const HistoryTable = ({ type }: Props) => {
   const [activePage, setActivePage] = useState(1);
   const [isFetchingList, setIsFetchingList] = useState(false);
 
-  const statusKey = type.toUpperCase() as "EARNINGS" | "WITHDRAWAL" | "DEPOSIT";
+  const statusKey = type.toUpperCase() as
+    | "EARNINGS"
+    | "WITHDRAWAL"
+    | "DEPOSIT"
+    | "REFERRAL";
 
   const fetchRequest = async () => {
     try {
@@ -42,16 +46,19 @@ const HistoryTable = ({ type }: Props) => {
           EARNINGS: { data: [], count: 0 },
           WITHDRAWAL: { data: [], count: 0 },
           DEPOSIT: { data: [], count: 0 },
+          REFERRAL: { data: [], count: 0 },
         };
+
+        const merged = [
+          ...(activePage > 1 ? (initialData?.[statusKey]?.data ?? []) : []),
+          ...transactionHistory,
+        ];
 
         return {
           data: {
             ...initialData,
             [statusKey]: {
-              data: [
-                ...(initialData?.[statusKey]?.data ?? []),
-                ...transactionHistory,
-              ],
+              data: merged,
               count: totalTransactions,
             },
           },
@@ -74,12 +81,10 @@ const HistoryTable = ({ type }: Props) => {
   useEffect(() => {
     if (!teamMemberProfile) return;
     fetchRequest();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [teamMemberProfile]);
+  }, [teamMemberProfile, activePage]);
 
   const handleLoadMore = async () => {
     setActivePage((prev) => prev + 1);
-    await fetchRequest();
   };
 
   return (

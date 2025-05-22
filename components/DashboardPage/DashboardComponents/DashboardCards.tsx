@@ -7,7 +7,7 @@ const DashboardCards = () => {
   return (
     <div className="px-6">
       <DashboardCard
-        imageSrc="/assets/icons/deposit.ico"
+        imageSrc="/assets/icons/deposit.webp"
         imageAlt="Deposit"
         buttons={[
           {
@@ -21,7 +21,7 @@ const DashboardCards = () => {
       />
 
       <DashboardCard
-        imageSrc="/assets/icons/withdraw.ico"
+        imageSrc="/assets/icons/withdraw.webp"
         imageAlt="Withdraw"
         buttons={[
           {
@@ -34,12 +34,12 @@ const DashboardCards = () => {
       />
 
       <DashboardCard
-        imageSrc="/assets/icons/referral.ico"
+        imageSrc="/assets/icons/referral.webp"
         imageAlt="Referral"
         buttons={[
           { label: "REFERRAL", href: "/referral" },
           { label: "UNILEVEL", href: "/unilevel" },
-          { label: "HISTORY", href: "/history/earnings" },
+          { label: "HISTORY", href: "/history/referral" },
         ]}
       />
     </div>

@@ -4,11 +4,11 @@ export const depositRequestSchema = z.object({
   amount: z
     .string()
     .trim()
-    .min(3, "Deposit at least 500 pesos")
+    .min(3, "Deposit at least 150 pesos")
     .max(6, "Amount must be less than 6 digits")
     .regex(/^\d+$/, "Amount must be a number")
-    .refine((amount) => parseInt(amount, 10) >= 500, {
-      message: "Amount must be at least 500 pesos",
+    .refine((amount) => parseInt(amount, 10) >= 150, {
+      message: "Amount must be at least 100 pesos",
     }),
   topUpMode: z.string().min(1, "MOP is required"),
   accountName: z.string().trim().min(1, "Field is required"),
@@ -31,9 +31,9 @@ export const withdrawalFormSchema = z.object({
   amount: z
     .string()
     .trim()
-    .min(3, "Minimum amount is required atleast 500 pesos")
-    .refine((amount) => parseInt(amount.replace(/,/g, ""), 10) >= 500, {
-      message: "Amount must be at least 500 pesos",
+    .min(3, "Minimum amount is required atleast 100 pesos")
+    .refine((amount) => parseInt(amount.replace(/,/g, ""), 10) >= 100, {
+      message: "Amount must be at least 100 pesos",
     }),
   bank: z.string().min(1, "Please select a bank"),
   accountName: z

@@ -170,11 +170,10 @@ export const formateMonthDateYearv2 = (date: Date | string): string => {
     "December",
   ];
 
-  const year = inputDate.getFullYear();
   const month = monthNames[inputDate.getMonth()]; // Get full month name
   const day = inputDate.getDate(); // No padding for human-friendly format
 
-  return `${month} ${day}, ${year}`;
+  return `${month} ${day}`;
 };
 
 export const formatTime = (date: Date | string): string => {
@@ -344,4 +343,20 @@ export const getPhilippinesTime = (
 
   // Return ISO string for database queries
   return resultDate.toISOString();
+};
+
+export const colorPicker = (text: string) => {
+  if (text.toUpperCase().includes("REJECTED")) {
+    return "text-red-500";
+  }
+
+  if (text.toUpperCase().includes("PENDING")) {
+    return "text-yellow-500";
+  }
+
+  if (text.toUpperCase().includes("APPROVED")) {
+    return "text-green-500";
+  }
+
+  return "text-gray-400";
 };

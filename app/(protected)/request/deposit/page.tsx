@@ -16,6 +16,9 @@ const getInitialData = async (
     }),
     fetch(`${process.env.API_URL}/api/v1/merchant`, {
       headers: { cookie: cookieHeader },
+      next: {
+        revalidate: 60,
+      },
     }),
   ]);
 
@@ -50,7 +53,7 @@ const Page = async () => {
   if (depositData) redirect("/digi-dash");
 
   return (
-    <Suspense fallback={<Skeleton className="h-screen w-full" />}>
+    <Suspense fallback={<Skeleton className="min-h-screen h-full w-full" />}>
       <DepositPage options={merchantData.data as merchant_table[]} />
     </Suspense>
   );

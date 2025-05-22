@@ -28,16 +28,6 @@ const LegionBountyTable = () => {
     try {
       if (!teamMemberProfile) return;
 
-      const now = Date.now();
-      const SIXTY_SECONDS = 60 * 1000;
-
-      // Skip if data was fetched less than 60 seconds ago
-      if (
-        indirectReferral.lastFetchedAt &&
-        now - indirectReferral.lastFetchedAt < SIXTY_SECONDS
-      ) {
-        return;
-      }
       setIsFetchingList(true);
 
       const sanitizedData = escapeFormData(getValues());
@@ -53,8 +43,13 @@ const LegionBountyTable = () => {
         search: emailFilter,
       });
 
+      const mergedData = [
+        ...(activePage > 1 ? (indirectReferral.data ?? []) : []),
+        ...data,
+      ];
+
       setIndirectReferral({
-        data: data || [],
+        data: mergedData,
         count: totalCount || 0,
       });
     } catch (e) {
@@ -75,15 +70,19 @@ const LegionBountyTable = () => {
     fetchAdminRequest();
   }, [activePage, teamMemberProfile]);
 
+  const handleLoadMore = () => {
+    setActivePage((prev) => prev + 1);
+  };
+
   return (
     <GenericTableList
       data={indirectReferral.data}
       count={indirectReferral.count}
       isLoading={isFetchingList}
-      onLoadMore={() => setActivePage(activePage + 1)}
+      onLoadMore={handleLoadMore}
       columns={columns}
       emptyMessage="No data found."
-      getRowId={(item) => item.user_id}
+      getRowId={(item) => item.package_ally_bounty_log_id}
     />
   );
 };

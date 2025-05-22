@@ -5,22 +5,22 @@ const DashboardCommunity = () => {
     <div>
       <div className="space-x-1 font-bold text-lg">
         <span>Join our</span>
-        <span className="text-bg-primary-blue">DigiWealth</span>
+        <span className="text-bg-primary-blue">DIGIWEALTH</span>
         <span>Community!</span>
       </div>
 
       <div className="grid grid-cols-2 gap-4 px-6">
         <DashboardCommunityCard
-          imageSrc="/assets/icons/trading.ico"
+          imageSrc="/assets/icons/facebook.webp"
           imageAlt="Trading"
-          href="/trading"
+          href="https://www.facebook.com/digiwealth.ph"
           label="JOIN"
         />
 
         <DashboardCommunityCard
-          imageSrc="/assets/icons/trading.ico"
+          imageSrc="/assets/icons/telegram.svg"
           imageAlt="Trading"
-          href="/trading"
+          href="https://t.me/digiwealthph"
           label="JOIN"
         />
       </div>

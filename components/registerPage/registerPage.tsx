@@ -52,6 +52,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
       userName: "",
       password: "",
       confirmPassword: "",
+      phoneNumber: "",
     },
   });
 
@@ -167,10 +168,11 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
 
       setIsSuccess(true);
       toast({
-        title: "Registration Successful",
+        title: "DIGIWEALTH Account Created",
+        description: "Please wait while we redirect you to your dashboard.",
       });
 
-      router.push("/dashboard");
+      router.push("/digi-dash");
     } catch (e) {
       setIsSuccess(false);
       if (e instanceof Error) {
@@ -242,103 +244,107 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
             Account Information
           </h1>
           <Separator className="mb-4" />
-          <div className="flex flex-col gap-2 items-center justify-center">
-            <FormField
-              control={control}
-              name="botField"
-              render={({ field }) => (
-                <FormItem className="hidden">
-                  <FormLabel>Bot Field</FormLabel>
-                  <FormControl>
-                    <Input
-                      id="botField"
-                      variant="non-card"
-                      placeholder="Bot Field"
-                      {...field}
-                      hidden
-                      className="pr-10"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="relative">
+
+          <div className="w-full flex justify-center">
+            <div className="flex flex-col gap-2 max-w-lg">
               <FormField
                 control={control}
-                name="userName"
+                name="botField"
                 render={({ field }) => (
-                  <FormItem className="relative ">
-                    <FormLabel className="text-start">Username</FormLabel>
+                  <FormItem className="hidden">
+                    <FormLabel>Bot Field</FormLabel>
                     <FormControl>
                       <Input
-                        id="userName"
+                        id="botField"
                         variant="non-card"
-                        placeholder="Username"
+                        placeholder="Bot Field"
                         {...field}
-                        onChange={(e) => {
-                          userNameField.onChange(e.target.value);
-                          validateUserName(e.target.value);
-                        }}
-                        onBlur={() => validateUserName(userNameField.value)}
+                        hidden
                         className="pr-10"
                       />
                     </FormControl>
-
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              {!isUsernameLoading &&
-                isUsernameValidated &&
-                !errors.userName && (
-                  <div className="w-7 h-7 absolute -right-10 mt-3 top-1/2 -translate-y-1/2 bg-bg-primary-blue rounded-full z-50"></div>
+              <div className="relative">
+                <FormField
+                  control={control}
+                  name="userName"
+                  render={({ field }) => (
+                    <FormItem className="relative ">
+                      <FormLabel className="text-start">Username</FormLabel>
+                      <FormControl>
+                        <Input
+                          id="userName"
+                          variant="non-card"
+                          placeholder="Username"
+                          {...field}
+                          onChange={(e) => {
+                            userNameField.onChange(e.target.value);
+                            validateUserName(e.target.value);
+                          }}
+                          onBlur={() => validateUserName(userNameField.value)}
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div
+                  className={`w-7 h-7 absolute -right-10 mt-3 top-1/2 -translate-y-1/2  border-2 rounded-full z-50 ${
+                    !isUsernameLoading &&
+                    isUsernameValidated &&
+                    !errors.userName
+                      ? " bg-bg-primary-blue "
+                      : "bg-transparent"
+                  }`}
+                ></div>
+              </div>
+
+              <FormField
+                control={control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-start">Password</FormLabel>
+                    <FormControl>
+                      <PasswordInput
+                        id="password"
+                        variant="non-card"
+                        placeholder="Password"
+                        {...field}
+                        className=""
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
 
-              {/* Show error icon if validation failed */}
-              {isUsernameValidated && !isUsernameLoading && errors.userName && (
-                <div className="w-7 h-7 absolute -right-10 mt-3 top-1/2 -translate-y-1/2 bg-bg-primary-blue rounded-full z-50"></div>
-              )}
+              <FormField
+                control={control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-start">
+                      Confirm Password
+                    </FormLabel>
+                    <FormControl>
+                      <PasswordInput
+                        id="confirmPassword"
+                        variant="non-card"
+                        placeholder="Confirm Password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-
-            <FormField
-              control={control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-start">Password</FormLabel>
-                  <FormControl>
-                    <PasswordInput
-                      id="password"
-                      variant="non-card"
-                      placeholder="Password"
-                      {...field}
-                      className=""
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-start">Confirm Password</FormLabel>
-                  <FormControl>
-                    <PasswordInput
-                      id="confirmPassword"
-                      variant="non-card"
-                      placeholder="Confirm Password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
 
           <h1 className="text-md text-white font-black px-4 pt-2">

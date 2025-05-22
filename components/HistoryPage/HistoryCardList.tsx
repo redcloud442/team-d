@@ -1,7 +1,13 @@
-import { formateMonthDateYearv2, formatNumberLocale } from "@/utils/function";
+import {
+  colorPicker,
+  formateMonthDateYearv2,
+  formatNumberLocale,
+  formatTime,
+} from "@/utils/function";
 import { company_transaction_table } from "@/utils/types";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
+import HistoryReceipt from "./HistoryReceipt";
 
 type Props = {
   data: company_transaction_table[];
@@ -37,52 +43,65 @@ const HistoryCardList = ({
       <table className="min-w-full text-sm table-fixed">
         <thead className="bg-[#0f172a] text-white uppercase text-xs">
           <tr>
-            <th className="px-4 py-3 font-bold w-1/4 text-left">Amount</th>
-            <th className="px-4 py-3 font-bold w-1/4 text-left">Date</th>
-            <th className="px-4 py-3 font-bold w-1/4 text-left">Description</th>
-            {currentStatus !== "EARNINGS" && (
-              <th className="px-4 py-3 font-bold w-1/4 text-left">Details</th>
+            <th className="px-4 py-3 font-bold w-full sm:w-1/3 text-left">
+              Date
+            </th>
+            {["WITHDRAWAL", "DEPOSIT"].includes(currentStatus) && (
+              <th className="px-4 py-3 font-bold w-1/4 sm:w-1/3 text-left">
+                Receipt
+              </th>
             )}
-            <th className="px-4 py-3 font-bold w-1/4 text-left">Type</th>
+            {["REFERRAL"].includes(currentStatus) && (
+              <th className="px-4 py-3 font-bold w-full sm:w-1/3 text-left">
+                Username
+              </th>
+            )}
+
+            <th className="px-4 py-3 font-bold w-full sm:w-1/3 text-left">
+              {currentStatus === "REFERRAL" ? "Type" : "Status"}
+            </th>
+            <th className="px-4 py-3 font-bold w-full sm:w-1/3 text-left">
+              Amount
+            </th>
           </tr>
         </thead>
 
         <tbody className="divide-y divide-blue-700/20 text-white font-medium">
-          {data.map((item) => {
-            const isFailed =
-              item.company_transaction_description.includes("REJECTED");
-
+          {data.map((item, index) => {
             return (
               <tr
                 key={item.company_transaction_id}
                 className="hover:bg-blue-900/30 transition-colors duration-200"
               >
-                <td
-                  className={`px-4 py-3 font-bold whitespace-nowrap ${
-                    isFailed ? "text-red-400" : "text-green-400"
-                  }`}
-                >
-                  ₱ {formatNumberLocale(item.company_transaction_amount ?? 0)}
+                <td className="px-4 py-3 text-bg-primary-blue">
+                  {index + 1}
+                  {". "}
+                  {formateMonthDateYearv2(item.company_transaction_date)},{" "}
+                  {formatTime(item.company_transaction_date)}
                 </td>
-                <td className="px-4 py-3 text-gray-400">
-                  {formateMonthDateYearv2(item.company_transaction_date)}
-                </td>
-                <td className="px-4 py-3 text-gray-300">
-                  {item.company_transaction_description}
-                </td>
-                {currentStatus !== "EARNINGS" && (
-                  <td className="px-4 py-3 text-blue-400 text-xs truncate">
-                    {item.company_transaction_details
-                      ?.split(",")
-                      .map((line, idx) => (
-                        <p key={idx} className="text-sm text-white">
-                          {line.trim()}
-                        </p>
-                      ))}
+                {["WITHDRAWAL", "DEPOSIT"].includes(currentStatus) && (
+                  <td className="px-4 py-3 text-bg-primary-blue">
+                    <HistoryReceipt selectedTransaction={item} />
                   </td>
                 )}
-                <td className="px-4 py-3 text-blue-300 uppercase text-xs truncate">
-                  {item.company_transaction_type}
+
+                {["REFERRAL"].includes(currentStatus) && (
+                  <td className="px-4 py-3">
+                    {item.company_transaction_details}
+                  </td>
+                )}
+
+                <td
+                  className={`px-4 py-3 ${colorPicker(
+                    item.company_transaction_description
+                  )}`}
+                >
+                  {item.company_transaction_description}
+                </td>
+                <td
+                  className={`px-4 py-3 font-bold whitespace-nowrap text-gray-400`}
+                >
+                  ₱ {formatNumberLocale(item.company_transaction_amount ?? 0)}
                 </td>
               </tr>
             );

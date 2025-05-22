@@ -30,6 +30,7 @@ import { merchant_table } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -38,6 +39,7 @@ const DashboardDepositModalDeposit = ({
 }: {
   options: merchant_table[];
 }) => {
+  const router = useRouter();
   const supabaseClient = createClientSide();
   const [selectedBank, setSelectedBank] = useState<merchant_table | null>(null);
 
@@ -61,7 +63,6 @@ const DashboardDepositModalDeposit = ({
     handleSubmit,
     setValue,
     reset,
-    watch,
     formState: { isSubmitting },
   } = form;
 
@@ -96,13 +97,17 @@ const DashboardDepositModalDeposit = ({
       });
 
       toast({
-        title: "Request Successfully Submitted  ",
-        description: "Our team will review your request and get back to you.",
+        title: "Request Successfully Submitted",
+        description: "You will be redirected shortly",
       });
 
       reset();
 
-      setCanUserDeposit(true);
+      setCanUserDeposit(false);
+
+      setTimeout(() => {
+        router.push("/digi-dash");
+      }, 1000);
     } catch (e) {
       if (e instanceof Error) {
         await logError(supabaseClient, {
@@ -173,13 +178,16 @@ const DashboardDepositModalDeposit = ({
                   }}
                   className={cn(
                     "flex flex-col items-center justify-center rounded-xl p-2 transition-all",
-                    selectedBank && "border-bg-primary-blue bg-bg-primary/10"
+                    selectedBank &&
+                      " border-2 border-bg-primary-blue bg-bg-primary/10"
                   )}
                 >
                   {/* Logo */}
                   <div className="w-14 h-14 rounded-lg overflow-hidden">
                     <Image
-                      src={option.merchant_qr_attachment || ""}
+                      src={"/assets/icons/facebook.webp"}
+                      width={100}
+                      height={100}
                       alt={option.merchant_account_name}
                       className="w-full h-full object-cover"
                     />
@@ -397,7 +405,7 @@ const DashboardDepositModalDeposit = ({
                     onFileChange={(file) => field.onChange(file)}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-center" />
               </FormItem>
             )}
           />

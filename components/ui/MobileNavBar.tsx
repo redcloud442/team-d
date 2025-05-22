@@ -56,17 +56,17 @@ const MobileNavBar = () => {
             </li>
           </div>
           {/* Highlighted Center Home */}
-          <li className="border-2 border-bg-primary-blue bg-bg-primary rounded-full absolute bottom-[0.5px] left-1/2 -translate-x-1/2 w-18 h-18 flex items-center justify-center z-50 active:scale-105 transition-all duration-300">
-            <Link
-              href="/digi-dash"
-              className="text-white text-center text-[12px] font-bold leading-tight  z-50"
-            >
+          <Link
+            href="/digi-dash"
+            className="text-white text-center text-[12px] font-bold leading-tight  z-50"
+          >
+            <li className="border-2 border-bg-primary-blue bg-bg-primary rounded-full absolute bottom-[0.5px] left-1/2 -translate-x-1/2 w-18 h-18 flex items-center justify-center z-50 active:scale-105 transition-all duration-300">
               <div className="flex flex-col items-center leading-none">
                 <span className="text-bg-primary-blue">DIGI</span>
                 <span>HOME</span>
               </div>
-            </Link>
-          </li>
+            </li>
+          </Link>
 
           {/* Profile */}
           <div className="flex items-center justify-center gap-x-2">

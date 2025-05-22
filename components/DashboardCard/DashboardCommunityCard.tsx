@@ -25,7 +25,7 @@ const DashboardCommunityCard = ({
 
         {/* Right: Buttons */}
       </div>
-      <Link href={href}>
+      <Link href={href} target="_blank">
         <Button className="bg-bg-primary-blue text-black text-md font-black px-4 h-6 rounded-md hover:brightness-110 transition">
           {label}
         </Button>

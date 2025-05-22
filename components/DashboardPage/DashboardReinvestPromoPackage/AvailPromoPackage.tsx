@@ -150,6 +150,7 @@ const AvailPromoPackage = ({ onClick, selectedPackage }: Props) => {
           current_amount: Number(amount),
           package_image: selectedPackage?.package_image || "",
           currentPercentage: 0,
+          package_is_highlight: selectedPackage?.package_is_highlight || false,
         },
         ...chartData,
       ]);

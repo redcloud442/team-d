@@ -48,7 +48,7 @@ const Page = async ({ searchParams }: Props) => {
   return (
     <Suspense
       fallback={
-        <div className="flex justify-center items-center h-screen">
+        <div className="flex justify-center items-center h-[80vh]">
           <p className="text-2xl font-bold">Creating your transaction...</p>
           <Loader2 className="w-10 h-10 animate-spin" />
         </div>

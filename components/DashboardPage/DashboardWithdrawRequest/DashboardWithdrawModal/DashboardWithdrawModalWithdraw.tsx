@@ -1,4 +1,5 @@
 "use client";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -28,12 +29,15 @@ import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData, formatNumberLocale } from "@/utils/function";
 import { withdrawalFormSchema, WithdrawalFormValues } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 const DashboardWithdrawModalWithdraw = () => {
+  const router = useRouter();
+
   const [open, setOpen] = useState(false);
   const { earnings: earningsState, setEarnings } = useUserEarningsStore();
   const { teamMemberProfile } = useRole();
@@ -103,6 +107,26 @@ const DashboardWithdrawModalWithdraw = () => {
 
   const handleWithdrawalRequest = async (data: WithdrawalFormValues) => {
     try {
+      if (!isWithdrawalToday.referral) {
+        toast({
+          title: "Invalid Request",
+          description:
+            "You have already made a Referral withdrawal request today.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!isWithdrawalToday.package) {
+        toast({
+          title: "Invalid Request",
+          description:
+            "You have already made a Subscription withdrawal request today.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const sanitizedData = escapeFormData(data);
 
       await createWithdrawalRequest({
@@ -183,10 +207,13 @@ const DashboardWithdrawModalWithdraw = () => {
 
       toast({
         title: "Withdrawal Request Successfully",
-        description: "Please wait for it to be approved",
+        description: "You will be redirected shortly",
       });
 
       reset();
+      setTimeout(() => {
+        router.push("/digi-dash");
+      }, 1000);
       setOpen(false);
     } catch (e) {
       if (e instanceof Error) {
@@ -223,58 +250,73 @@ const DashboardWithdrawModalWithdraw = () => {
           <div className="text-xl font-bold">
             <span className="text-bg-primary-blue"> 1. SELECT</span> BANK
           </div>
+          {!isWithdrawalToday.referral ||
+            (!isWithdrawalToday.package && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Notice</AlertTitle>
+                <AlertDescription>
+                  You have already made a{" "}
+                  {!isWithdrawalToday.referral ? "Referral " : "Subscription "}
+                  withdrawal request today. Try again tomorrow.
+                </AlertDescription>
+              </Alert>
+            ))}
           <FormField
             control={control}
             name="bank"
             render={({ field }) => (
-              <div className="grid grid-cols-3 gap-4 mt-2">
-                {bankData.map((option) => {
-                  return (
-                    <button
-                      key={option.bank_name}
-                      type="button"
-                      onClick={() => {
-                        field.onChange(option.bank_name);
+              <FormItem>
+                <FormMessage />
+                <div className="grid grid-cols-3 gap-4 mt-2">
+                  {bankData.map((option) => {
+                    return (
+                      <button
+                        key={option.bank_name}
+                        type="button"
+                        onClick={() => {
+                          field.onChange(option.bank_name);
 
-                        handleSelectedBank(option.bank_name);
-                      }}
-                      className={cn(
-                        "flex flex-col items-center justify-center rounded-xl p-2 transition-all",
-                        field.value === option.bank_name &&
-                          "border border-bg-primary-blue bg-bg-primary/10"
-                      )}
-                    >
-                      {/* Logo */}
-                      <div className="w-14 h-14 rounded-lg overflow-hidden">
-                        <Image
-                          src={"/assets/icons/trading.ico"}
-                          alt={option.bank_name}
-                          width={56}
-                          height={56}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-
-                      {/* Bank Name */}
-                      <span className="mt-2 text-xs font-semibold text-white text-center">
-                        {option.bank_name}
-                      </span>
-
-                      {/* Select Button */}
-                      <span
+                          handleSelectedBank(option.bank_name);
+                        }}
                         className={cn(
-                          "mt-1 px-2 py-1 rounded-md text-xs font-bold",
-                          field.value === option.bank_name
-                            ? "bg-bg-primary-blue text-black"
-                            : "bg-gray-300 text-black"
+                          "flex flex-col items-center justify-center rounded-xl p-2 transition-all",
+                          field.value === option.bank_name &&
+                            "border border-bg-primary-blue bg-bg-primary/10"
                         )}
                       >
-                        SELECT
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+                        {/* Logo */}
+                        <div className="w-14 h-14 rounded-lg overflow-hidden">
+                          <Image
+                            src={"/assets/icons/trading.ico"}
+                            alt={option.bank_name}
+                            width={56}
+                            height={56}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+
+                        {/* Bank Name */}
+                        <span className="mt-2 text-xs font-semibold text-white text-center">
+                          {option.bank_name}
+                        </span>
+
+                        {/* Select Button */}
+                        <span
+                          className={cn(
+                            "mt-1 px-2 py-1 rounded-md text-xs font-bold",
+                            field.value === option.bank_name
+                              ? "bg-bg-primary-blue text-black"
+                              : "bg-gray-300 text-black"
+                          )}
+                        >
+                          SELECT
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </FormItem>
             )}
           />
 
@@ -325,23 +367,19 @@ const DashboardWithdrawModalWithdraw = () => {
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {isWithdrawalToday.package && (
-                        <SelectItem className="text-xs" value="PACKAGE">
-                          Subscription Earnings ₱{" "}
-                          {formatNumberLocale(
-                            earningsState?.company_package_earnings ?? 0
-                          )}
-                        </SelectItem>
-                      )}
+                      <SelectItem className="text-xs" value="PACKAGE">
+                        Subscription Earnings ₱{" "}
+                        {formatNumberLocale(
+                          earningsState?.company_package_earnings ?? 0
+                        )}
+                      </SelectItem>
 
-                      {isWithdrawalToday.referral && (
-                        <SelectItem className="text-xs" value="REFERRAL">
-                          Referral And Unilevel Earnings ₱{" "}
-                          {formatNumberLocale(
-                            earningsState?.company_referral_earnings ?? 0
-                          )}
-                        </SelectItem>
-                      )}
+                      <SelectItem className="text-xs" value="REFERRAL">
+                        Referral And Unilevel Earnings ₱{" "}
+                        {formatNumberLocale(
+                          earningsState?.company_referral_earnings ?? 0
+                        )}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -470,12 +508,7 @@ const DashboardWithdrawModalWithdraw = () => {
                           }
 
                           if (Number(value) > getMaxAmount()) {
-                            value = getMaxAmount()
-                              .toLocaleString("en-US", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })
-                              .toString();
+                            value = getMaxAmount().toString();
                           }
                           field.onChange(value);
                         }}
@@ -494,7 +527,7 @@ const DashboardWithdrawModalWithdraw = () => {
                           });
                           return;
                         }
-                        setValue("amount", formatNumberLocale(getMaxAmount()));
+                        setValue("amount", getMaxAmount().toFixed(2));
                       }}
                     >
                       MAX
@@ -518,7 +551,7 @@ const DashboardWithdrawModalWithdraw = () => {
               className="rounded-lg w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
               id="totalVAT"
               placeholder="Total VAT:"
-              value={handleCalculateTotalWithdrawal}
+              value={handleCalculateVAT}
               readOnly
             />
           </div>
@@ -535,7 +568,7 @@ const DashboardWithdrawModalWithdraw = () => {
               className="rounded-lg w-fit bg-bg-primary-blue text-black dark:placeholder:text-black"
               id="amountToRecieve"
               placeholder="Amount to Recieve:"
-              value={handleCalculateVAT}
+              value={handleCalculateTotalWithdrawal}
               readOnly
             />
           </div>

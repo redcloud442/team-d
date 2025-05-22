@@ -243,7 +243,7 @@ export const AdminWithdrawalHistoryColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap w-xs">
+        <div className="text-wrap">
           {row.getValue("company_withdrawal_request_bank_name")}
         </div>
       ),
@@ -277,7 +277,7 @@ export const AdminWithdrawalHistoryColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="text-wrap w-xs">
+        <div className="text-wrap">
           {row.getValue("company_withdrawal_request_phone_number")}
         </div>
       ),

@@ -15,7 +15,7 @@ export async function generateMetadata({
     description:
       "Join DIGIWEALTH now — your path to digital prosperity begins here!",
     openGraph: {
-      url: `https://www.digi-wealth.vip/access/register?CODE=${CODE}`,
+      url: `https://www.digi-wealth.vip/access/register/${CODE}`,
       title: `JOIN DIGIWEALTH!`,
       description:
         "Unlock exclusive rewards and opportunities by joining DIGIWEALTH today.",

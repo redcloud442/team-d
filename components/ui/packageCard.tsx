@@ -34,7 +34,7 @@ const PackageCard = ({ packages, onClick }: Props) => {
 
       {/* Right: Info */}
       <div className=" text-white">
-        <div className="flex flex-col justify-center items-center">
+        <div className="flex flex-col justify-center items-center sm:items-start">
           {packages.package_is_popular && (
             <p className="text-[9px] font-semibold">MOST POPULAR</p>
           )}

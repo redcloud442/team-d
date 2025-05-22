@@ -7,18 +7,19 @@ import { cookies } from "next/headers";
 import { Suspense } from "react";
 
 const page = async () => {
-  const packages = await fetch("http://localhost:8000/api/v1/package", {
+  const packages = await fetch(`${process.env.API_URL}/api/v1/package`, {
     method: "GET",
     headers: {
       cookie: (await cookies()).toString(),
     },
+    next: { revalidate: 60 },
     credentials: "include",
   });
 
   const { data } = (await packages.json()) || [];
 
   return (
-    <Suspense fallback={<Skeleton className="h-full w-full" />}>
+    <Suspense fallback={<Skeleton className="h-screen w-full" />}>
       <PackagePage
         packages={
           data as (package_table & {

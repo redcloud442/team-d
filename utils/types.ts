@@ -58,6 +58,7 @@ export type company_transaction_table = {
   company_transaction_member_id: string;
   company_transaction_type: string;
   company_transaction_attachment: string | null;
+  company_transaction_note: string | null;
 };
 
 export type merchant_member_table = {
@@ -180,7 +181,9 @@ export type LegionRequestData = user_table &
   company_member_table & {
     total_bounty_earnings: string;
     package_ally_bounty_log_date_created: Date;
+    package_ally_bounty_log_id: string;
     company_referral_date: Date;
+    referrer_username: string;
   };
 
 export type UserLog = user_table & user_history_log;
@@ -206,6 +209,8 @@ export type ChartDataMember = {
   current_amount: number;
   currentPercentage: number;
   package_percentage: number;
+  package_days_remaining?: number;
+  package_is_highlight: boolean;
 };
 
 export type DashboardEarnings = {
@@ -349,5 +354,7 @@ export type HistoryData = {
 };
 
 export type TransactionHistoryData = {
-  data: Partial<Record<"EARNINGS" | "WITHDRAWAL" | "DEPOSIT", HistoryData>>;
+  data: Partial<
+    Record<"EARNINGS" | "WITHDRAWAL" | "DEPOSIT" | "REFERRAL", HistoryData>
+  >;
 };

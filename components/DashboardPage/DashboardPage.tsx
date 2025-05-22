@@ -5,6 +5,7 @@ import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useRole } from "@/utils/context/roleContext";
+import { formatNumberLocale } from "@/utils/function";
 import DashboardCards from "./DashboardComponents/DashboardCards";
 import DashboardCommunity from "./DashboardComponents/DashboardCommunity";
 import DashboardNavigation from "./DashboardComponents/DashboardNavigation";
@@ -28,29 +29,24 @@ const DashboardPage = () => {
 
   const totalEarningsMap = [
     {
-      label: "Total Available Balance",
+      label: "Available Balance",
       key: "total_available_balance",
       value: earnings?.company_combined_earnings,
     },
     {
-      label: "Total Income",
-      key: "total_earnings",
-      value: totalEarnings?.totalEarnings,
+      label: "Subscription Earnings",
+      key: "package_income",
+      value: totalEarnings?.packageEarnings,
     },
     {
-      label: "Total Direct Referral Income",
+      label: "Direct Referral Earnings",
       key: "direct_referral_amount",
       value: totalEarnings?.directReferralAmount,
     },
     {
-      label: "Total Unilevel Income",
+      label: "Unilevel Earnings",
       key: "indirect_referral_amount",
       value: totalEarnings?.indirectReferralAmount,
-    },
-    {
-      label: "Total Maturity Income",
-      key: "package_income",
-      value: totalEarnings?.packageEarnings,
     },
   ];
 
@@ -69,7 +65,7 @@ const DashboardPage = () => {
               <div key={item.key} className="mb-3 text-center">
                 <div className="text-sm mb-1">{item.label}</div>
                 <div className="bg-white text-black py-1 rounded-lg font-semibold text-lg">
-                  ₱ {item.value ?? 0}
+                  ₱ {formatNumberLocale(item.value ?? 0)}
                 </div>
               </div>
             ))}

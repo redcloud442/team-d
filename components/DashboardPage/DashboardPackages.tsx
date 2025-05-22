@@ -7,7 +7,7 @@ import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { ChartDataMember, company_member_table } from "@/utils/types";
-import { ArrowDown, Loader2 } from "lucide-react";
+import { ArrowDown, Crown, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "../ui/button";
@@ -135,13 +135,14 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
             {
               company_transaction_id: uuidv4(),
               company_transaction_date: new Date(),
-              company_transaction_description: ` ${packageData.package} Package Claimed`,
+              company_transaction_description: ` ${packageData.package} Collected`,
               company_transaction_details: "",
               company_transaction_amount: newEarnings,
               company_transaction_attachment: "",
               company_transaction_member_id:
                 teamMemberProfile.company_member_id,
-              company_transaction_type: "PACKAGE",
+              company_transaction_type: "EARNINGS",
+              company_transaction_note: null,
             },
           ],
           count: 1,
@@ -150,6 +151,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
         // Update total earnings
         setTotalEarnings({
           ...totalEarnings!,
+          packageEarnings: totalEarnings!.packageEarnings + newEarnings,
           totalEarnings: totalEarnings!.totalEarnings + newEarnings,
         });
       }
@@ -165,17 +167,26 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
     }
   };
 
+  const dailyEarn = (totalAmount: number, numberOfDays: number) => {
+    const dailyEarn = totalAmount / numberOfDays;
+    return dailyEarn;
+  };
+
   return (
     <ScrollArea className="w-full h-fit px-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="flex gap-4">
         {liveData.map((data, index) => (
           <div
             key={index}
-            className="flex flex-col items-center justify-between border-2 border-bg-primary-blue max-w-[150px] "
+            className="flex flex-col items-center justify-between border-2 border-bg-primary-blue max-w-[150px] relative mt-10"
           >
             <div className="border-b-2 border-bg-primary-blue w-full text-center">
               <h1 className="text-lg font-bold ">{data.package}</h1>
             </div>
+
+            {data.package_is_highlight && (
+              <Crown className="absolute w-10 h-10 text-bg-primary-blue -top-11 right-1/5 -translate-x-1/2 " />
+            )}
 
             <div className="flex flex-col items-center justify-between gap-4 border-b-2 border-bg-primary-blue w-full">
               <div className="flex flex-col items-center justify-between gap-4 p-4">
@@ -186,7 +197,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
                 <ArrowDown className="w-8 h-8 text-bg-primary-blue" />
 
                 <h1 className="text-lg font-bold text-bg-primary-blue">
-                  {data.amount.toFixed(2)}
+                  {data.amount + data.profit_amount}
                 </h1>
               </div>
             </div>
@@ -194,16 +205,24 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
             <div className="flex flex-col gap-1 p-2">
               <div className="text-xs space-x-1">
                 <span>DAILY EARN:</span>
-                <span>{data.currentPercentage.toFixed(2)}%</span>
+                <span>
+                  ₱{" "}
+                  {dailyEarn(
+                    data.amount + data.profit_amount,
+                    data.package_days
+                  ).toFixed(2)}
+                </span>
               </div>
               <div className="text-xs space-x-1">
                 <span>PROFIT:</span>
-                <span>{data.currentPercentage.toFixed(2)}%</span>
+                <span>₱ {data.profit_amount.toFixed(2)}</span>
               </div>
 
               <div className="text-xs space-x-1">
                 <span>DAYS LEFT:</span>
-                <span className="text-bg-primary-blue">0</span>
+                <span className="text-bg-primary-blue">
+                  {data.package_days_remaining}
+                </span>
                 <span>Days</span>
               </div>
             </div>
@@ -226,8 +245,10 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
               </DialogTrigger>
               <DialogContent type="earnings">
                 <DialogHeader>
-                  <DialogTitle className="text-bold mb-4">Collect</DialogTitle>
-                  Collect this package to gain your earnings
+                  <DialogTitle className="text-bold mb-4">Generate</DialogTitle>
+                  <DialogDescription>
+                    Generate subscription earnings
+                  </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
                   <Button
@@ -239,10 +260,10 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
                     {isLoading === data.package_connection_id ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        {"Collecting ..."}
+                        {"Generating ..."}
                       </>
                     ) : (
-                      "Collect"
+                      "Generate"
                     )}
                   </Button>
                 </DialogFooter>

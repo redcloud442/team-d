@@ -39,7 +39,7 @@ const Page = async () => {
   }
 
   return (
-    <Suspense fallback={<Skeleton className="h-screen w-full" />}>
+    <Suspense fallback={<Skeleton className="min-h-screen h-full w-full" />}>
       <WithdrawPage />
     </Suspense>
   );

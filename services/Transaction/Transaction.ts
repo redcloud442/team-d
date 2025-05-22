@@ -2,7 +2,7 @@ import { company_transaction_table } from "@/utils/types";
 
 export const getTransactionHistory = async (params: {
   limit: number;
-  status: "EARNINGS" | "WITHDRAWAL" | "DEPOSIT";
+  status: "EARNINGS" | "WITHDRAWAL" | "DEPOSIT" | "REFERRAL";
   page: number;
 }) => {
   const response = await fetch(`/api/v1/transaction`, {

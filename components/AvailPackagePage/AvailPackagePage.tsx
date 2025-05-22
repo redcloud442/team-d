@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, CrownIcon, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
@@ -37,6 +38,8 @@ type Props = {
 };
 
 const AvailPackagePage = ({ selectedPackage }: Props) => {
+  const router = useRouter();
+
   const { teamMemberProfile, setTeamMemberProfile } = useRole();
   const { toast } = useToast();
   const { earnings, setEarnings } = useUserEarningsStore();
@@ -92,8 +95,8 @@ const AvailPackagePage = ({ selectedPackage }: Props) => {
       });
 
       toast({
-        title: "Enrolled Package",
-        description: "You have successfully enrolled in a package",
+        title: "Subscription Success",
+        description: "You will be redirected shortly",
       });
 
       reset({ amount: "", packageId: selectedPackage?.package_id || "" });
@@ -142,6 +145,7 @@ const AvailPackagePage = ({ selectedPackage }: Props) => {
           currentPercentage: Number(0),
           package_percentage: Number(selectedPackage?.package_percentage || 0),
           package_image: selectedPackage?.package_image || "",
+          package_is_highlight: selectedPackage?.package_is_highlight || false,
         },
         ...chartData,
       ]);
@@ -150,6 +154,10 @@ const AvailPackagePage = ({ selectedPackage }: Props) => {
         ...prev,
         company_member_is_active: false,
       }));
+
+      setTimeout(() => {
+        router.push("/digi-dash");
+      }, 1000);
     } catch (e) {
       toast({
         title: "Error",
@@ -300,7 +308,7 @@ const AvailPackagePage = ({ selectedPackage }: Props) => {
               type="text"
               className="text-center text-2xl rounded-full bg-bg-primary-blue text-black dark:placeholder:text-black"
               placeholder="Total Income"
-              value={formatNumberLocale(sumOfTotal) || ""}
+              value={formatNumberLocale(computation) || ""}
             />
 
             <Label

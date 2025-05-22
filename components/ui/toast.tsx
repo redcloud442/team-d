@@ -33,13 +33,13 @@ const toastVariants = cva(
           "gamified group border border-blue-500 shadow-md shadow-blue-400 bg-gradient-to-br from-[#1F1F1F] to-[#2B2B2B] text-blue-400 hover:shadow-lg hover:shadow-blue-500 dark:border-blue-600 dark:bg-[#2A2A2A] dark:text-blue-300",
 
         destructive:
-          "destructive group border-red-500 dark:bg-orange-600 bg-orange-600 text-neutral-50 dark:border-red-900 dark:bg-orange-600 dark:text-neutral-50",
+          "destructive group border-red-500 dark:bg-red-600 bg-red-600 text-neutral-50 dark:border-red-900 dark:bg-red-600 dark:text-neutral-50",
 
         success:
           "gamified group border border-blue-500 shadow-md shadow-blue-400 bg-gradient-to-br from-[#1F1F1F] to-[#2B2B2B] text-blue-400 hover:shadow-lg hover:shadow-blue-500 dark:border-blue-600 dark:bg-[#2A2A2A] dark:text-blue-300",
 
         reject:
-          "reject group border-none shadow-2xs shadow-white bg-[#1E1E1E] text-primaryYellow dark:border-yellow-900 dark:bg-yellow-700 dark:text-neutral-50",
+          "reject group border-none shadow-2xs shadow-white bg-red-500 text-white dark:border-red-900 dark:bg-red-700 dark:text-neutral-50",
       },
     },
     defaultVariants: {

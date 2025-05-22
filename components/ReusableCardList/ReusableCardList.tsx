@@ -1,6 +1,6 @@
 export type ColumnDefinition<T> = {
-  header: string;
-  render: (item: T) => React.ReactNode;
+  header: React.ReactNode;
+  render: (item: T, index?: number) => React.ReactNode;
   show?: boolean;
 };
 
@@ -27,7 +27,7 @@ const GenericTableList = <T extends object>({
     return (
       <div className="space-y-4">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-14 bg-zinc-200 rounded-md animate-pulse" />
+          <div key={i} className="h-14 rounded-md animate-pulse" />
         ))}
       </div>
     );
@@ -39,7 +39,7 @@ const GenericTableList = <T extends object>({
 
   return (
     <div className="overflow-x-auto rounded-lg border border-blue-500 shadow-md bg-blue-500/5">
-      <table className="min-w-full text-sm table-fixed">
+      <table className="min-w-full text-sm table-fixed" border={1}>
         <thead className="bg-[#0f172a] text-white uppercase text-xs">
           <tr>
             {columns
@@ -53,16 +53,13 @@ const GenericTableList = <T extends object>({
         </thead>
 
         <tbody className="divide-y divide-blue-700/20 text-white font-medium">
-          {data.map((item) => (
-            <tr
-              key={getRowId(item)} // ✅ use caller-specified ID
-              className="hover:bg-blue-900/30 transition-colors duration-200"
-            >
+          {data.map((item, rowIndex) => (
+            <tr key={getRowId(item)}>
               {columns
                 .filter((col) => col.show !== false)
-                .map((col, idx) => (
-                  <td key={idx} className="px-4 py-3">
-                    {col.render(item)}
+                .map((col, colIndex) => (
+                  <td key={colIndex} className="px-4 py-3">
+                    {col.render(item, rowIndex)}
                   </td>
                 ))}
             </tr>

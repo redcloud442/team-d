@@ -4,10 +4,10 @@ import { redirect } from "next/navigation";
 const page = async ({
   params,
 }: {
-  params: Promise<{ type: "withdrawal" | "deposit" | "earnings" }>;
+  params: Promise<{ type: "withdrawal" | "deposit" | "earnings" | "referral" }>;
 }) => {
   const { type } = await params;
-  const validTypes = ["withdrawal", "deposit", "earnings"];
+  const validTypes = ["withdrawal", "deposit", "earnings", "referral"];
 
   if (!validTypes.includes(type)) {
     return redirect("/digi-dash");

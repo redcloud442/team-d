@@ -22,6 +22,7 @@ export const PRIVATE_ROUTES = [
   "/referral",
   "/unilevel",
   "/change-password",
+  "avail",
   "/logout",
 ];
 
