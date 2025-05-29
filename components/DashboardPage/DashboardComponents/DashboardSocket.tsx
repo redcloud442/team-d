@@ -20,7 +20,7 @@ const DashboardSocket = () => {
   const displayTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const connectWebSocket = () => {
-    const ws = new WebSocket("ws://localhost:3000/ws");
+    const ws = new WebSocket("wss://api-access.digi-wealth.vip/ws");
     wsRef.current = ws;
 
     ws.onmessage = (event) => {
