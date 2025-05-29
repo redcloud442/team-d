@@ -69,4 +69,4 @@ jobs:
           kubectl set image deployment/team-fe container-teamd-fe=ghcr.io/redcloud442/teamd:prod-${SHORT_SHA} -n teamd
 
           echo "⏳ Waiting for rollout to complete..."
-          kubectl rollout status deployment/teamd-fe -n teamd
+          kubectl rollout status deployment/team-fe -n teamd
