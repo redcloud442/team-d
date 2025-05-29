@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Docker Image CI/CD
 
 on:
   push:
@@ -11,14 +11,16 @@ permissions:
   packages: write
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     environment: Production
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set short SHA
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -32,19 +34,39 @@ jobs:
           docker build \
               --build-arg NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} \
               --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }} \
-              -t ghcr.io/redcloud442/teamd:prod .
-
-      - name: Verify Docker login
-        run: docker info
-
-      - name: Verify image tagging
-        run: docker images
+              -t ghcr.io/redcloud442/teamd:prod-${SHORT_SHA} .
 
       - name: Push Docker image
-        run: |
-          docker push ghcr.io/redcloud442/teamd:prod
+        run: docker push ghcr.io/redcloud442/teamd:prod-${SHORT_SHA}
 
-      # - name: Notify Jenkins
-      #   run: |
-      #     curl -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_PASSWORD }}" \
-      #          "https://${{ secrets.JENKINS_URL }}?token=${{ secrets.JENKINS_TOKEN }}"
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "v1.25.4"
+
+      - name: Create kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
+
+      - name: Show current Kubernetes context
+        run: |
+          kubectl config current-context
+          kubectl cluster-info
+
+      - name: Confirm deployment and container name
+        run: |
+          kubectl get deployment -n teamd
+          kubectl get deployment teamd-fe -n teamd -o jsonpath="{.spec.template.spec.containers[*].name}"
+
+      - name: Check RBAC permissions
+        run: |
+          kubectl auth can-i update deployment -n teamd
+
+      - name: Deploy to Kubernetes
+        run: |
+          echo "🚀 Updating image in deployment 'teamd-fe'..."
+          kubectl set image deployment/teamd-fe container-ptsloy=ghcr.io/redcloud442/teamd:prod-${SHORT_SHA} -n teamd
+
+          echo "⏳ Waiting for rollout to complete..."
+          kubectl rollout status deployment/teamd-fe -n teamd

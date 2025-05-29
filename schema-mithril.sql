@@ -67,10 +67,14 @@ LEFT JOIN withdrawals w ON m.company_member_id = w.member_id
 LEFT JOIN direct_referrals d ON m.company_member_id = d.member_id
 LEFT JOIN indirect_referrals i ON m.company_member_id = i.member_id;
 
+
+grant usage on schema auth to prisma;
 grant usage on schema user_schema to prisma;
 grant usage on schema company_schema to prisma;
 grant usage on schema packages_schema to prisma;
 grant usage on schema merchant_schema to prisma;
+
+grant all on all tables in schema auth to prisma;
 
 grant all on all tables in schema user_schema to prisma;
 grant all on all tables in schema company_schema to prisma;
