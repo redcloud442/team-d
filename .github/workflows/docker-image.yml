@@ -57,7 +57,7 @@ jobs:
       - name: Confirm deployment and container name
         run: |
           kubectl get deployment -n teamd
-          kubectl get deployment teamd-fe -n teamd -o jsonpath="{.spec.template.spec.containers[*].name}"
+          kubectl get deployment team-fe -n teamd -o jsonpath="{.spec.template.spec.containers[*].name}"
 
       - name: Check RBAC permissions
         run: |
@@ -66,7 +66,7 @@ jobs:
       - name: Deploy to Kubernetes
         run: |
           echo "🚀 Updating image in deployment 'teamd-fe'..."
-          kubectl set image deployment/teamd-fe container-teamd-fe=ghcr.io/redcloud442/teamd:prod-${SHORT_SHA} -n teamd
+          kubectl set image deployment/team-fe container-teamd-fe=ghcr.io/redcloud442/teamd:prod-${SHORT_SHA} -n teamd
 
           echo "⏳ Waiting for rollout to complete..."
           kubectl rollout status deployment/teamd-fe -n teamd
