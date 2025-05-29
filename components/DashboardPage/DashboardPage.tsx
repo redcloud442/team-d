@@ -13,7 +13,11 @@ import DashboardReferralLink from "./DashboardComponents/DashboardReferralLink";
 import DashboardSocket from "./DashboardComponents/DashboardSocket";
 import DashboardPackages from "./DashboardPackages";
 
-const DashboardPage = () => {
+type DashboardPageProps = {
+  accessToken: string;
+};
+
+const DashboardPage = ({ accessToken }: DashboardPageProps) => {
   const { earnings } = useUserEarningsStore();
   const { totalEarnings } = useUserDashboardEarningsStore();
   const { chartData } = usePackageChartData();
@@ -58,7 +62,7 @@ const DashboardPage = () => {
         <DashboardReferralLink handleReferralLink={handleReferralLink} />
 
         <div className=" space-y-4">
-          <DashboardSocket />
+          <DashboardSocket accessToken={accessToken} />
 
           <div className="px-6">
             {totalEarningsMap.map((item) => (

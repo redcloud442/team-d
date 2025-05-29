@@ -8,9 +8,13 @@ type NotificationData = {
   data: string;
 };
 
-const DISPLAY_TIME = 4000; // 4 seconds per notification
+type DashboardSocketProps = {
+  accessToken: string;
+};
 
-const DashboardSocket = () => {
+const DISPLAY_TIME = 10000; // 10 seconds per notification
+
+const DashboardSocket = ({ accessToken }: DashboardSocketProps) => {
   const [notificationQueue, setNotificationQueue] = useState<string[]>([]);
   const [currentNotification, setCurrentNotification] = useState<string | null>(
     null
@@ -20,7 +24,10 @@ const DashboardSocket = () => {
   const displayTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const connectWebSocket = () => {
-    const ws = new WebSocket("wss://api-access.digi-wealth.vip/ws");
+    const ws = new WebSocket(
+      `wss://api-access.digi-wealth.vip/ws?access_token=${accessToken}`
+    );
+
     wsRef.current = ws;
 
     ws.onmessage = (event) => {
