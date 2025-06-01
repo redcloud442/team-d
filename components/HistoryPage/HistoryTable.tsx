@@ -1,26 +1,19 @@
 "use client";
 
-import { logError } from "@/services/Error/ErrorLogs";
 import { getTransactionHistory } from "@/services/Transaction/Transaction";
 import { useRole } from "@/utils/context/roleContext";
-import { createClientSide } from "@/utils/supabase/client";
-import { TransactionHistoryData } from "@/utils/types";
-import { useEffect, useState } from "react";
+import { company_transaction_table } from "@/utils/types";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import HistoryCardList from "./HistoryCardList";
 
 type Props = {
   type: "withdrawal" | "deposit" | "earnings" | "referral";
 };
 
-const HistoryTable = ({ type }: Props) => {
-  const supabaseClient = createClientSide();
-  const { teamMemberProfile } = useRole();
+const PAGE_LIMIT = 10;
 
-  const [requestData, setRequestData] = useState<TransactionHistoryData | null>(
-    null
-  );
-  const [activePage, setActivePage] = useState(1);
-  const [isFetchingList, setIsFetchingList] = useState(false);
+const HistoryTable = ({ type }: Props) => {
+  const { teamMemberProfile } = useRole();
 
   const statusKey = type.toUpperCase() as
     | "EARNINGS"
@@ -28,70 +21,51 @@ const HistoryTable = ({ type }: Props) => {
     | "DEPOSIT"
     | "REFERRAL";
 
-  const fetchRequest = async () => {
-    try {
-      if (!teamMemberProfile) return;
-
-      setIsFetchingList(true);
-
-      const { transactionHistory, totalTransactions } =
-        await getTransactionHistory({
-          page: activePage,
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteQuery({
+      queryKey: [
+        "transaction-history",
+        statusKey,
+        teamMemberProfile?.company_member_id,
+      ],
+      queryFn: async ({ pageParam = 1 }) => {
+        const result = await getTransactionHistory({
+          page: pageParam,
           status: statusKey,
-          limit: 10,
+          limit: PAGE_LIMIT,
         });
-
-      setRequestData((prev) => {
-        const initialData = prev?.data ?? {
-          EARNINGS: { data: [], count: 0 },
-          WITHDRAWAL: { data: [], count: 0 },
-          DEPOSIT: { data: [], count: 0 },
-          REFERRAL: { data: [], count: 0 },
-        };
-
-        const merged = [
-          ...(activePage > 1 ? (initialData?.[statusKey]?.data ?? []) : []),
-          ...transactionHistory,
-        ];
-
         return {
-          data: {
-            ...initialData,
-            [statusKey]: {
-              data: merged,
-              count: totalTransactions,
-            },
-          },
+          page: pageParam,
+          transactions: result.transactionHistory,
+          total: result.totalTransactions,
         };
-      });
-    } catch (e) {
-      if (e instanceof Error) {
-        await logError(supabaseClient, {
-          errorMessage: e.message,
-          stackTrace: e.stack,
-          stackPath:
-            "components/TransactionHistoryPage/TransactionHistoryTable.tsx",
-        });
-      }
-    } finally {
-      setIsFetchingList(false);
-    }
-  };
+      },
+      getNextPageParam: (lastPage, allPages) => {
+        const totalLoaded = allPages.flatMap((p) => p.transactions).length;
+        return totalLoaded < (lastPage.total || 0)
+          ? allPages.length + 1
+          : undefined;
+      },
+      enabled: !!teamMemberProfile,
+      initialPageParam: 1,
+    });
 
-  useEffect(() => {
-    if (!teamMemberProfile) return;
-    fetchRequest();
-  }, [teamMemberProfile, activePage]);
+  const allTransactions: company_transaction_table[] =
+    data?.pages.flatMap((page) => page.transactions) || [];
+
+  const totalCount = data?.pages[0]?.total || 0;
 
   const handleLoadMore = async () => {
-    setActivePage((prev) => prev + 1);
+    if (hasNextPage) {
+      fetchNextPage();
+    }
   };
 
   return (
     <HistoryCardList
-      data={requestData?.data?.[statusKey]?.data || []}
-      count={requestData?.data?.[statusKey]?.count || 0}
-      isLoading={isFetchingList}
+      data={allTransactions}
+      count={totalCount}
+      isLoading={isLoading || isFetchingNextPage}
       onLoadMore={handleLoadMore}
       currentStatus={statusKey}
     />

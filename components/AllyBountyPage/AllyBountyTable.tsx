@@ -1,90 +1,59 @@
 "use client";
 
 import { getAllyBounty } from "@/services/Bounty/Member";
-import { useDirectReferralStore } from "@/store/useDirectReferralStore";
 import { useRole } from "@/utils/context/roleContext";
-import { escapeFormData } from "@/utils/function";
-import { user_table } from "@/utils/types";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import GenericTableList from "../ReusableCardList/ReusableCardList";
 import { AllyBountyColumn } from "./AllyBountyColum";
 
-type FilterFormValues = {
-  emailFilter: string;
-};
+const PAGE_LIMIT = 10;
 
 const AllyBountyTable = () => {
-  const [activePage, setActivePage] = useState(1);
-  const [isFetchingList, setIsFetchingList] = useState(false);
-
   const { teamMemberProfile } = useRole();
-  const { directReferral, setDirectReferral } = useDirectReferralStore();
 
   const columnAccessor = "user_date_created";
   const isAscendingSort = true;
 
-  const fetchAdminRequest = async () => {
-    try {
-      if (!teamMemberProfile) return;
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteQuery({
+      queryKey: ["ally-bounty", teamMemberProfile?.company_member_id],
+      queryFn: async ({ pageParam = 1 }) => {
+        return await getAllyBounty({
+          page: pageParam,
+          limit: PAGE_LIMIT,
+          columnAccessor,
+          isAscendingSort,
+          search: "",
+        });
+      },
+      getNextPageParam: (lastPage, allPages) => {
+        const totalLoaded = allPages.flatMap((p) => p.data).length;
+        if (totalLoaded < (lastPage.totalCount || 0)) {
+          return allPages.length + 1;
+        }
+        return undefined;
+      },
 
-      const now = Date.now();
-      const SIXTY_SECONDS = 60 * 1000;
-
-      // Skip if data was fetched less than 60 seconds ago
-      if (
-        directReferral.lastFetchedAt &&
-        now - directReferral.lastFetchedAt < SIXTY_SECONDS
-      ) {
-        return;
-      }
-
-      setIsFetchingList(true);
-
-      const sanitizedData = escapeFormData(getValues());
-
-      const { emailFilter } = sanitizedData;
-
-      const { data, totalCount } = await getAllyBounty({
-        page: activePage,
-        limit: 10,
-        columnAccessor: columnAccessor,
-        isAscendingSort: isAscendingSort,
-        search: emailFilter,
-      });
-
-      setDirectReferral({
-        data: data as unknown as (user_table & {
-          total_bounty_earnings: string;
-          package_ally_bounty_log_date_created: Date;
-          company_referral_date: Date;
-        })[],
-        count: totalCount || 0,
-      });
-    } catch (e) {
-    } finally {
-      setIsFetchingList(false);
-    }
-  };
+      enabled: !!teamMemberProfile,
+      staleTime: 1000 * 60,
+      placeholderData: (previousData) => previousData,
+      initialPageParam: 1,
+    });
 
   const columns = AllyBountyColumn();
 
-  const { getValues } = useForm<FilterFormValues>({
-    defaultValues: {
-      emailFilter: "",
-    },
-  });
-
-  useEffect(() => {
-    fetchAdminRequest();
-  }, [teamMemberProfile, activePage]);
+  const handleNextPage = () => {
+    if (hasNextPage) {
+      fetchNextPage();
+    }
+  };
 
   return (
     <GenericTableList
-      data={directReferral.data}
-      count={directReferral.count}
-      isLoading={isFetchingList}
-      onLoadMore={() => setActivePage(activePage + 1)}
+      data={data?.pages.flatMap((page) => page.data) || []}
+      count={data?.pages[0]?.totalCount || 0}
+      isLoading={isLoading || isFetchingNextPage}
+      onLoadMore={handleNextPage}
       columns={columns}
       emptyMessage="No data found."
       getRowId={(item) => item.user_id}

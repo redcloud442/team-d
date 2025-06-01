@@ -32,7 +32,8 @@ export const getAllyBounty = async (params: {
   return result as {
     data: (user_table & {
       total_bounty_earnings: string;
-      package_ally_bounty_log_date_created: string;
+      package_ally_bounty_log_date_created: Date;
+      company_referral_date: Date;
     })[];
     totalCount: 0;
   };

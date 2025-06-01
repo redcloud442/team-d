@@ -15,6 +15,7 @@ import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { ROLE } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -45,6 +46,8 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const { setChartData } = usePackageChartData();
   const { setIsWithdrawalToday, setCanUserDeposit } =
     useUserHaveAlreadyWithdraw();
+
+  const queryClient = new QueryClient();
 
   const isAdmin = useMemo(
     () => teamMemberProfile.company_member_role === ROLE.ADMIN,
@@ -122,19 +125,21 @@ export default function LayoutContent({ children }: LayoutContentProps) {
 
   if (!isAdmin) {
     return (
-      <div className="flex min-h-screen w-full overflow-hidden relative">
-        <div className="flex-1 flex flex-col overflow-x-auto relative">
-          {topNav}
+      <QueryClientProvider client={queryClient}>
+        <div className="flex min-h-screen w-full overflow-hidden relative">
+          <div className="flex-1 flex flex-col overflow-x-auto relative">
+            {topNav}
 
-          <div className="p-4 relative grow bg-bg-primary">
-            <div className="relative z-10 pb-16">{children}</div>
+            <div className="p-4 relative grow bg-bg-primary">
+              <div className="relative z-10 pb-16">{children}</div>
+            </div>
+
+            {mobileNav}
+
+            {/* <DevMode /> */}
           </div>
-
-          {mobileNav}
-
-          {/* <DevMode /> */}
         </div>
-      </div>
+      </QueryClientProvider>
     );
   } else {
     return (
