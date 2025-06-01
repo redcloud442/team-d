@@ -53,7 +53,7 @@ export const leaderBoardColumn = (
       ),
       cell: ({ row }) => {
         const username = row.getValue("username") as string;
-        return <div className="font-medium text-center  ">{username}</div>;
+        return <div className="font-medium text-center">{username}</div>;
       },
     },
     {

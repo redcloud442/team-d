@@ -33,10 +33,3 @@ export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 export const ACTIVE = "ACTIVE";
 export const ENDED = "ENDED";
-
-export const bankData = [
-  { bank_name: "Gotyme", bank_image: BANK_IMAGE.GOTYME },
-  { bank_name: "Gcash", bank_image: BANK_IMAGE.GOTYME },
-  { bank_name: "BPI", bank_image: BANK_IMAGE.GOTYME },
-  { bank_name: "PayMaya", bank_image: BANK_IMAGE.GOTYME },
-];

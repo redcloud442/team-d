@@ -125,6 +125,7 @@ export type package_table = {
   packages_days: number;
   package_is_disabled: boolean;
   package_minimum_amount: number;
+  package_maximum_amount: number;
   package_image: string | null;
   package_is_popular: boolean;
   package_is_highlight: boolean;

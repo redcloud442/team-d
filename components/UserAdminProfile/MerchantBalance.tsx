@@ -70,7 +70,7 @@ const MerchantBalance = ({ userProfile, profile }: Props) => {
 
       await handleUpdateBalance({
         amount: Number(sanitizedData.balance),
-        memberId: userProfile.merchant_member_id,
+        memberId: userProfile.company_member_id,
         userName: profile.user_username || "",
       });
 

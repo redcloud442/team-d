@@ -51,7 +51,8 @@ const AvailPromoPackage = ({ onClick, selectedPackage }: Props) => {
 
   const formSchema = PromoPackageSchema(
     maxAmount,
-    earnings?.company_combined_earnings ?? 0
+    earnings?.company_combined_earnings ?? 0,
+    selectedPackage?.package_maximum_amount ?? 0
   );
 
   const form = useForm<PromoPackageFormValues>({

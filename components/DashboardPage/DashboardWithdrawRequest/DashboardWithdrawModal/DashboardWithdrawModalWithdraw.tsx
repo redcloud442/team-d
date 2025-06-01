@@ -20,17 +20,21 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import BDO from "@/public/assets/svg/bdo";
+import BPI from "@/public/assets/svg/bpi";
+import Gcash from "@/public/assets/svg/gcash";
+import GoTyme from "@/public/assets/svg/gotyme";
+import Maya from "@/public/assets/svg/maya";
+import MetroB from "@/public/assets/svg/metrob";
 import { getUserEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
-import { bankData } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData, formatNumberLocale } from "@/utils/function";
 import { withdrawalFormSchema, WithdrawalFormValues } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Loader2 } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -240,6 +244,15 @@ const DashboardWithdrawModalWithdraw = () => {
     setValue("bank", value);
   };
 
+  const bankData = [
+    { bank_name: "Gotyme", bank_image: <GoTyme /> },
+    { bank_name: "Gcash", bank_image: <Gcash /> },
+    { bank_name: "BPI", bank_image: <BPI /> },
+    { bank_name: "PayMaya", bank_image: <Maya /> },
+    { bank_name: "Metro Bank", bank_image: <MetroB /> },
+    { bank_name: "BDO", bank_image: <BDO /> },
+  ];
+
   return (
     <div className="w-full flex justify-center">
       <Form {...form}>
@@ -280,26 +293,12 @@ const DashboardWithdrawModalWithdraw = () => {
                           handleSelectedBank(option.bank_name);
                         }}
                         className={cn(
-                          "flex flex-col items-center justify-center rounded-xl p-2 transition-all",
+                          "flex flex-col items-center justify-center rounded-xl p-2 gap-2 transition-all",
                           field.value === option.bank_name &&
                             "border border-bg-primary-blue bg-bg-primary/10"
                         )}
                       >
-                        {/* Logo */}
-                        <div className="w-14 h-14 rounded-lg overflow-hidden">
-                          <Image
-                            src={"/assets/icons/trading.ico"}
-                            alt={option.bank_name}
-                            width={56}
-                            height={56}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-
-                        {/* Bank Name */}
-                        <span className="mt-2 text-xs font-semibold text-white text-center">
-                          {option.bank_name}
-                        </span>
+                        {option.bank_image}
 
                         {/* Select Button */}
                         <span

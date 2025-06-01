@@ -247,7 +247,8 @@ export type ChangePasswordFormValues = z.infer<typeof ChangePasswordSchema>;
 
 export const PromoPackageSchema = (
   maxAmount: number,
-  minimumAmount: number
+  minimumAmount: number,
+  maximumAmount: number
 ) => {
   return z.object({
     amount: z
@@ -259,6 +260,9 @@ export const PromoPackageSchema = (
       })
       .refine((val) => Number(val) <= Number(maxAmount), {
         message: `Amount cannot exceed ${maxAmount}`,
+      })
+      .refine((val) => Number(val) >= maximumAmount, {
+        message: `Amount exceed maximum amount ${maximumAmount}`,
       }),
     packageId: z.string(),
   });

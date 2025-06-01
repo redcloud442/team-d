@@ -51,7 +51,8 @@ const AvailPackagePage = ({ selectedPackage }: Props) => {
 
   const packageSchema = PromoPackageSchema(
     maxAmount ?? 0,
-    selectedPackage?.package_minimum_amount
+    selectedPackage?.package_minimum_amount,
+    selectedPackage?.package_maximum_amount
   );
 
   const form = useForm<z.infer<typeof packageSchema>>({
@@ -75,7 +76,6 @@ const AvailPackagePage = ({ selectedPackage }: Props) => {
   const computation = amount
     ? (Number(amount) * (selectedPackage?.package_percentage ?? 0)) / 100
     : 0;
-  const sumOfTotal = Number(amount) + computation;
 
   const onSubmit = async (data: z.infer<typeof packageSchema>) => {
     try {

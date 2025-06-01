@@ -20,7 +20,9 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { logError } from "@/services/Error/ErrorLogs";
+import Gcash from "@/public/assets/svg/gcash";
+import GoTyme from "@/public/assets/svg/gotyme";
+import Mayab from "@/public/assets/svg/mayab";
 import { handleDepositRequest } from "@/services/TopUp/Member";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { escapeFormData } from "@/utils/function";
@@ -29,7 +31,6 @@ import { createClientSide } from "@/utils/supabase/client";
 import { merchant_table } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -89,7 +90,7 @@ const DashboardDepositModalDeposit = ({
         throw new Error("File upload failed.");
       }
 
-      const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/REQUEST_ATTACHMENTS/${filePath}`;
+      const publicUrl = `https://cdn.digi-wealth.vip/storage/v1/object/public/REQUEST_ATTACHMENTS/${filePath}`;
 
       await handleDepositRequest({
         TopUpFormValues: sanitizedData,
@@ -110,12 +111,6 @@ const DashboardDepositModalDeposit = ({
       }, 1000);
     } catch (e) {
       if (e instanceof Error) {
-        await logError(supabaseClient, {
-          errorMessage: e.message,
-          stackTrace: e.stack,
-          stackPath:
-            "components/DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit.tsx",
-        });
         toast({
           title: "Error",
           description: e.message,
@@ -156,6 +151,19 @@ const DashboardDepositModalDeposit = ({
     });
   };
 
+  const bankimages = (value: string) => {
+    switch (value) {
+      case "GCASH":
+        return <Gcash />;
+      case "GOTYME":
+        return <GoTyme />;
+      case "MAYA BUSINESS":
+        return <Mayab />;
+      default:
+        return <Gcash />;
+    }
+  };
+
   return (
     <div className="w-full flex justify-center">
       <Form {...form}>
@@ -183,20 +191,8 @@ const DashboardDepositModalDeposit = ({
                   )}
                 >
                   {/* Logo */}
-                  <div className="w-14 h-14 rounded-lg overflow-hidden">
-                    <Image
-                      src={"/assets/icons/facebook.webp"}
-                      width={100}
-                      height={100}
-                      alt={option.merchant_account_name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
 
-                  {/* Bank Name */}
-                  <span className="mt-2 text-xs font-semibold text-white text-center">
-                    {option.merchant_account_name}
-                  </span>
+                  {bankimages(option.merchant_account_type)}
 
                   {/* Select Button */}
                   <span

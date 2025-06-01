@@ -131,7 +131,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
             {topNav}
 
             <div className="p-4 relative grow bg-bg-primary">
-              <div className="relative z-10 pb-16">{children}</div>
+              <div className="relative z-10 pb-24">{children}</div>
             </div>
 
             {mobileNav}

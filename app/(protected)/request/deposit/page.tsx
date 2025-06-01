@@ -1,17 +1,13 @@
 import DepositPage from "@/components/DepositPage/DepositPage";
 import { Skeleton } from "@/components/ui/skeleton";
-import { createClientServerSide } from "@/utils/supabase/server";
 import { merchant_table } from "@/utils/types";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-const getInitialData = async (
-  companyMemberId: string,
-  cookieHeader: string
-) => {
+const getInitialData = async (cookieHeader: string) => {
   const [depositRes, merchantRes] = await Promise.all([
-    fetch(`${process.env.API_URL}/api/v1/deposit/user/${companyMemberId}`, {
+    fetch(`${process.env.API_URL}/api/v1/deposit/user`, {
       headers: { cookie: cookieHeader },
     }),
     fetch(`${process.env.API_URL}/api/v1/merchant`, {
@@ -35,20 +31,9 @@ const getInitialData = async (
 };
 
 const Page = async () => {
-  const supabase = await createClientServerSide();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/access/login");
-
-  const companyMemberId = user.user_metadata?.CompanyMemberId;
   const cookieHeader = (await cookies()).toString();
 
-  const { depositData, merchantData } = await getInitialData(
-    companyMemberId,
-    cookieHeader
-  );
+  const { depositData, merchantData } = await getInitialData(cookieHeader);
 
   if (depositData) redirect("/digi-dash");
 

@@ -145,7 +145,9 @@ export const useAdminTopUpApprovalColumns = (
       ),
       cell: ({ row }) => (
         <div
-          onClick={() => router.push(`/admin/users/${row.original.user_id}`)}
+          onClick={() =>
+            router.push(`/admin/users/${row.original.company_member_id}`)
+          }
           className="text-wrap cursor-pointer hover:underline text-blue-500"
         >
           {row.getValue("user_username")}

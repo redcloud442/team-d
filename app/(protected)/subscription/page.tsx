@@ -19,7 +19,7 @@ const page = async () => {
   const { data } = (await packages.json()) || [];
 
   return (
-    <Suspense fallback={<Skeleton className="h-screen w-full" />}>
+    <Suspense fallback={<Skeleton className="min-h-screen h-full w-full" />}>
       <PackagePage
         packages={
           data as (package_table & {
