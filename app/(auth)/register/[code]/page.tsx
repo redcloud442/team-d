@@ -47,13 +47,13 @@ const Page = async ({ params }: { params: Promise<{ code: string }> }) => {
   }
 
   const userData = await fetch(
-    `${process.env.API_URL}/api/v1/user/referral/${code}`,
+    `${process.env.API_URL}/api/v1/auth/register/${code}`,
     {
       method: "GET",
     }
   );
 
-  const { data } = await userData.json();
+  const data = await userData.json();
 
   return (
     <Suspense fallback={<Skeleton className="w-full min-h-screen" />}>
