@@ -1,4 +1,3 @@
-import { formatNumberLocale } from "@/utils/function";
 import { LegionRequestData } from "@/utils/types";
 import { ColumnDefinition } from "../ReusableCardList/ReusableCardList"; // adjust import path as needed
 
@@ -26,14 +25,6 @@ export const LegionBountyColumn = (): ColumnDefinition<LegionRequestData>[] => {
       render: (item) => (
         <div className="text-start text-[10px] sm:text-[12px]">
           {item.referrer_username}
-        </div>
-      ),
-    },
-    {
-      header: "Amount",
-      render: (item) => (
-        <div className="text-start text-[10px] sm:text-[12px]">
-          ₱ {formatNumberLocale(Number(item.total_bounty_earnings))}
         </div>
       ),
     },
