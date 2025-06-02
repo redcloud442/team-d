@@ -85,7 +85,6 @@ const AvailPackagePage = ({ selectedPackage }: Props) => {
         now.getTime() +
           (selectedPackage?.packages_days ?? 0) * 24 * 60 * 60 * 1000
       );
-
       await createPackageConnection({
         packageData: {
           amount: Number(result.amount),
