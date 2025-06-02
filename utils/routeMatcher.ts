@@ -4,7 +4,7 @@ export const PUBLIC_ROUTES = [
   "/login",
   "/register/",
   "/api/v1/auth",
-  "/api/v1/auth/digiAuth",
+  "/api/v1/auth/teamdAuth",
   "/api/health",
   "/digiAuth",
 ];
