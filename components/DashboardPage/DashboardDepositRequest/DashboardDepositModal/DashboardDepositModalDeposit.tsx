@@ -168,7 +168,7 @@ const DashboardDepositModalDeposit = ({
 
   return (
     <div className="w-full flex flex-col gap-2 justify-center">
-      <div className="flex flex-col items-center gap-2 border-3 p-2 border-bg-primary-blue rounded-full">
+      <div className="flex flex-col items-center gap-2 border-3 p-2 border-bg-primary-blue rounded-full w-full max-w-md">
         <h1 className="text-2xl font-bold text-bg-primary-blue">
           AVAILABLE BALANCE
         </h1>
