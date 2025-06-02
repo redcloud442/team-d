@@ -23,7 +23,7 @@ const DashboardCard = ({
       {/* Right: Buttons */}
       <div className="flex flex-col gap-4">
         {buttons.map((btn, index) => (
-          <Link href={btn.disabled ? "" : btn.href} key={index}>
+          <Link href={btn.disabled ? "#" : btn.href} key={index}>
             <Button
               className="bg-bg-primary-blue text-black text-md font-black px-4 h-6 rounded-md hover:brightness-110 transition w-full"
               disabled={btn.disabled}
