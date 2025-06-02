@@ -12,7 +12,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { BoundTurnstileObject } from "react-turnstile";
+import Turnstile, { BoundTurnstileObject } from "react-turnstile";
 import {
   Form,
   FormControl,
@@ -43,25 +43,19 @@ const LoginPage = () => {
   const router = useRouter();
   const supabase = createClientSide();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const handleSignIn = async (data: LoginFormValues) => {
     try {
-      // if (!captchaToken) {
-      //   if (captcha.current) {
-      //     captcha.current.reset();
-      //     captcha.current.execute();
-      //   }
+      if (!captchaToken) {
+        if (captcha.current) {
+          captcha.current.reset();
+          captcha.current.execute();
+        }
 
-      //   return toast({
-      //     title: "Please wait",
-      //     description: "Refreshing CAPTCHA, please try again.",
-      //     variant: "destructive",
-      //   });
-      // }
-      setIsLoading(true);
+        return;
+      }
       const sanitizedData = escapeFormData(data);
 
       const { userName, password } = sanitizedData;
@@ -85,6 +79,10 @@ const LoginPage = () => {
 
       router.push("/digi-dash");
     } catch (e) {
+      if (captcha.current) {
+        captcha.current.reset();
+        captcha.current.execute();
+      }
       if (e instanceof Error) {
         toast({
           title: "Something went wrong",
@@ -98,8 +96,6 @@ const LoginPage = () => {
           variant: "destructive",
         });
       }
-
-      setIsLoading(false); // Stop loader on error
     }
   };
 
@@ -196,6 +192,15 @@ const LoginPage = () => {
                 </FormItem>
               )}
             />
+            <div className="w-full flex flex-1 justify-center">
+              <Turnstile
+                size="flexible"
+                sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                onVerify={(token) => {
+                  setCaptchaToken(token);
+                }}
+              />
+            </div>
 
             <div className="w-full flex justify-center">
               <Button

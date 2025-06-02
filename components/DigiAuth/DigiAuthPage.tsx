@@ -21,7 +21,7 @@ import {
   SubmitHandler,
   useForm,
 } from "react-hook-form";
-import { BoundTurnstileObject } from "react-turnstile";
+import Turnstile, { BoundTurnstileObject } from "react-turnstile";
 import {
   Form,
   FormControl,
@@ -86,13 +86,9 @@ const DigiAuth = () => {
 
   const handleSignIn = async (data: LoginFormValues) => {
     try {
-      // if (!captchaToken) {
-      //   return toast({
-      //     title: "Please wait",
-      //     description: "Captcha is required.",
-      //     variant: "destructive",
-      //   });
-      // }
+      if (!captchaToken) {
+        return;
+      }
       setIsLoading(true);
 
       const sanitizedData = escapeFormData(data);
@@ -136,6 +132,9 @@ const DigiAuth = () => {
       setStep("verify");
       reset();
     } catch (e) {
+      if (captcha.current) {
+        captcha.current.reset();
+      }
       if (e instanceof Error) {
         toast({
           title: e.message,
@@ -273,13 +272,13 @@ const DigiAuth = () => {
                 )}
               />
 
-              {/* <Turnstile
-              size="flexible"
-              sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
-              onVerify={(token) => {
-                setCaptchaToken(token);
-              }}
-            /> */}
+              <Turnstile
+                size="flexible"
+                sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                onVerify={(token) => {
+                  setCaptchaToken(token);
+                }}
+              />
               <div className="w-full flex justify-center">
                 <Button
                   className="rounded-sm font-black p-4"
