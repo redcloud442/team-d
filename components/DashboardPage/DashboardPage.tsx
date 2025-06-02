@@ -59,7 +59,9 @@ const DashboardPage = ({ accessToken }: DashboardPageProps) => {
       <div className="w-full space-y-4 md:px-10">
         <DashboardNavigation />
 
-        <DashboardReferralLink handleReferralLink={handleReferralLink} />
+        {teamMemberProfile.company_member_is_active && (
+          <DashboardReferralLink handleReferralLink={handleReferralLink} />
+        )}
 
         <div className=" space-y-4">
           <DashboardSocket accessToken={accessToken} />
