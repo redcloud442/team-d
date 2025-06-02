@@ -178,7 +178,7 @@ export const handleSignInAdmin = async (params: {
   userName: string;
   password: string;
 }) => {
-  const response = await fetch(`/api/v1/auth/teamdAuth`, {
+  const response = await fetch(`/api/v1/auth/digiAuth`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
