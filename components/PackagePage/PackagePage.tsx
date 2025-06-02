@@ -14,7 +14,7 @@ type Props = {
 const PackagePage = ({ packages }: Props) => {
   return (
     <div className="space-y-4">
-      <div className="flex justify-between">
+      <div className="flex justify-between flex-col sm:flex-row flex-wrap gap-2">
         <div className="space-x-1">
           <span className="text-2xl font-bold">SELECT</span>
           <span className="text-2xl font-bold text-bg-primary-blue">
