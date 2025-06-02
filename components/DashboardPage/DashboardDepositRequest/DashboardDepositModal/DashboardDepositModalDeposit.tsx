@@ -24,8 +24,9 @@ import Gcash from "@/public/assets/svg/gcash";
 import GoTyme from "@/public/assets/svg/gotyme";
 import Mayab from "@/public/assets/svg/mayab";
 import { handleDepositRequest } from "@/services/TopUp/Member";
+import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
-import { escapeFormData } from "@/utils/function";
+import { escapeFormData, formatNumberLocale } from "@/utils/function";
 import { DepositRequestFormValues, depositRequestSchema } from "@/utils/schema";
 import { createClientSide } from "@/utils/supabase/client";
 import { merchant_table } from "@/utils/types";
@@ -44,6 +45,7 @@ const DashboardDepositModalDeposit = ({
   const supabaseClient = createClientSide();
   const [selectedBank, setSelectedBank] = useState<merchant_table | null>(null);
 
+  const { earnings } = useUserEarningsStore();
   const { canUserDeposit, setCanUserDeposit } = useUserHaveAlreadyWithdraw();
 
   const { toast } = useToast();
@@ -165,7 +167,15 @@ const DashboardDepositModalDeposit = ({
   };
 
   return (
-    <div className="w-full flex justify-center">
+    <div className="w-full flex flex-col gap-2 justify-center">
+      <div className="flex flex-col items-center gap-2 border-3 p-2 border-bg-primary-blue rounded-full">
+        <h1 className="text-2xl font-bold text-bg-primary-blue">
+          AVAILABLE BALANCE
+        </h1>
+        <span className="text-2xl font-black">
+          ₱ {formatNumberLocale(earnings?.company_combined_earnings ?? 0)}
+        </span>
+      </div>
       <Form {...form}>
         <form
           onSubmit={handleSubmit(onSubmit)}
