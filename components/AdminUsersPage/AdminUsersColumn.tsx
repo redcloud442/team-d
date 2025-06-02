@@ -100,7 +100,7 @@ export const AdminUsersColumn = (
       cell: ({ row }) => (
         <div
           onClick={() =>
-            router.push(`/admin/users/${row.original.company_member_user_id}`)
+            router.push(`/admin/users/${row.original.company_member_id}`)
           }
           className="text-blue-500 text-wrap cursor-pointer hover:underline"
         >

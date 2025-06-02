@@ -9,10 +9,11 @@ import {
   company_referral_link_table,
   user_table,
 } from "@/utils/types";
-
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+
+export const dynamic = "force-dynamic";
 
 export default async function AppLayout({
   children,
@@ -28,9 +29,9 @@ export default async function AppLayout({
 
   const handleGetUser = async () => {
     const result = await fetch(
-      `${process.env.API_URL}/api/v1/user/user-profile/${authData.user.id}`,
+      `${process.env.API_URL}/api/v1/user/profile-data`,
       {
-        method: "GET",
+        method: "POST",
         headers: {
           cookie: (await cookies()).toString(),
         },

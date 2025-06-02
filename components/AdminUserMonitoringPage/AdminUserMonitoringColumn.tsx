@@ -3,7 +3,11 @@ import { user_table } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 
-export const AdminUserMonitoringColumn = (): ColumnDef<user_table>[] => {
+export const AdminUserMonitoringColumn = (): ColumnDef<
+  user_table & {
+    company_member_id: string;
+  }
+>[] => {
   const router = useRouter();
   return [
     {
@@ -17,7 +21,7 @@ export const AdminUserMonitoringColumn = (): ColumnDef<user_table>[] => {
         </Button>
       ),
       cell: ({ row }) => {
-        const id = row.original.user_id;
+        const id = row.original.company_member_id;
 
         return (
           <div

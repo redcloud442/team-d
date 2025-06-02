@@ -64,7 +64,7 @@ export const getUserWithActiveBalance = async (params: {
   }
 
   return data as {
-    data: user_table[];
+    data: (user_table & { company_member_id: string })[];
     totalCount: 0;
   };
 };

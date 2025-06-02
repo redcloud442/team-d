@@ -133,7 +133,7 @@ const AdminUsersTable = () => {
 
       if (data.url.hashed_token) {
         await navigator.clipboard.writeText(
-          `https://www.digi-wealth.vip/auth/callback?hashed_token=${data.url.hashed_token}`
+          `https://www.digi-wealth.vip/callback?hashed_token=${data.url.hashed_token}`
         );
         setTimeout(() => {
           toast({

@@ -6,7 +6,6 @@ export const PUBLIC_ROUTES = [
   "/api/v1/auth",
   "/api/v1/auth/digiAuth",
   "/api/health",
-  "/api/v1/auth/callback",
   "/digiAuth",
 ];
 

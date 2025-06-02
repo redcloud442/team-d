@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Log in your account",
   description: "Sign in an account",
   openGraph: {
-    url: "https://www.digi-wealth.vip/access/xeloraAccess",
+    url: "https://www.digi-wealth.vip/access/digiAuth",
   },
 };
 

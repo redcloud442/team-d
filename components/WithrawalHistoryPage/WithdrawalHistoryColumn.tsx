@@ -24,7 +24,7 @@ export const WithdrawalHistoryColumn =
   (): ColumnDef<WithdrawalRequestData>[] => {
     return [
       {
-        accessorKey: "alliance_withdrawal_request_status",
+        accessorKey: "company_withdrawal_request_status",
 
         header: ({ column }) => (
           <Button
@@ -36,7 +36,7 @@ export const WithdrawalHistoryColumn =
         ),
         cell: ({ row }) => {
           const status = row.getValue(
-            "alliance_withdrawal_request_status"
+            "company_withdrawal_request_status"
           ) as string;
           const color = statusColorMap[status.toUpperCase()] || "gray"; // Default to gray if status is undefined
           return (
@@ -47,11 +47,11 @@ export const WithdrawalHistoryColumn =
         },
       },
       {
-        accessorKey: "alliance_withdrawal_request_amount",
+        accessorKey: "company_withdrawal_request_amount",
         header: () => <Button variant="ghost">Amount</Button>,
         cell: ({ row }) => {
           const amount = parseFloat(
-            row.getValue("alliance_withdrawal_request_amount")
+            row.getValue("company_withdrawal_request_amount")
           );
           const fee = row.original.company_withdrawal_request_fee;
           const formatted = new Intl.NumberFormat("en-PH", {
@@ -62,7 +62,7 @@ export const WithdrawalHistoryColumn =
         },
       },
       {
-        accessorKey: "alliance_withdrawal_request_type",
+        accessorKey: "company_withdrawal_request_type",
 
         header: ({ column }) => (
           <Button
@@ -76,12 +76,12 @@ export const WithdrawalHistoryColumn =
         ),
         cell: ({ row }) => (
           <div className="text-center">
-            {row.getValue("alliance_withdrawal_request_type")}
+            {row.getValue("company_withdrawal_request_type")}
           </div>
         ),
       },
       {
-        accessorKey: "alliance_withdrawal_request_account",
+        accessorKey: "company_withdrawal_request_account",
 
         header: ({ column }) => (
           <Button
@@ -94,12 +94,12 @@ export const WithdrawalHistoryColumn =
         ),
         cell: ({ row }) => (
           <div className="text-center">
-            {row.getValue("alliance_withdrawal_request_account")}
+            {row.getValue("company_withdrawal_request_account")}
           </div>
         ),
       },
       {
-        accessorKey: "alliance_withdrawal_request_bank_name",
+        accessorKey: "company_withdrawal_request_bank_name",
 
         header: ({ column }) => (
           <Button
@@ -112,12 +112,12 @@ export const WithdrawalHistoryColumn =
         ),
         cell: ({ row }) => (
           <div className="text-center">
-            {row.getValue("alliance_withdrawal_request_bank_name")}
+            {row.getValue("company_withdrawal_request_bank_name")}
           </div>
         ),
       },
       {
-        accessorKey: "alliance_withdrawal_request_date",
+        accessorKey: "company_withdrawal_request_date",
 
         header: ({ column }) => (
           <Button
@@ -130,9 +130,9 @@ export const WithdrawalHistoryColumn =
         cell: ({ row }) => (
           <div className="text-center">
             {formatDateToYYYYMMDD(
-              row.getValue("alliance_withdrawal_request_date")
+              row.getValue("company_withdrawal_request_date")
             )}
-            , {formatTime(row.getValue("alliance_withdrawal_request_date"))}
+            , {formatTime(row.getValue("company_withdrawal_request_date"))}
           </div>
         ),
       },
@@ -154,7 +154,7 @@ export const WithdrawalHistoryColumn =
         ),
       },
       {
-        accessorKey: "alliance_withdrawal_request_date_updated",
+        accessorKey: "company_withdrawal_request_date_updated",
         header: ({ column }) => (
           <Button
             variant="ghost"
@@ -168,24 +168,24 @@ export const WithdrawalHistoryColumn =
         ),
         cell: ({ row }) => (
           <div className="text-wrap">
-            {row.getValue("alliance_withdrawal_request_date_updated")
+            {row.getValue("company_withdrawal_request_date_updated")
               ? formatDateToYYYYMMDD(
-                  row.getValue("alliance_withdrawal_request_date_updated")
+                  row.getValue("company_withdrawal_request_date_updated")
                 ) +
                 "," +
                 formatTime(
-                  row.getValue("alliance_withdrawal_request_date_updated")
+                  row.getValue("company_withdrawal_request_date_updated")
                 )
               : ""}
           </div>
         ),
       },
       {
-        accessorKey: "alliance_withdrawal_request_reject_note",
+        accessorKey: "company_withdrawal_request_reject_note",
         header: () => <div>Rejection Note</div>,
         cell: ({ row }) => {
           const rejectionNote = row.getValue(
-            "alliance_withdrawal_request_reject_note"
+            "company_withdrawal_request_reject_note"
           ) as string;
 
           return rejectionNote ? (

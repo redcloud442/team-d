@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import TopUpHistoryTable from "../TopUpHistoryPage/TopUpHistoryTable";
-import { Separator } from "../ui/separator";
 import { Skeleton } from "../ui/skeleton";
 import WithdrawalHistoryTable from "../WithrawalHistoryPage/WithdrawalHistoryTable";
 import AdminCheckUserReferral from "./AdminCheckUserReferral";
@@ -76,9 +75,7 @@ const UserAdminProfile = ({ userProfile: initialData }: Props) => {
             View all the withdrawal history that are currently in the system.
           </p>
         </header>
-        <Separator className="my-4" />
-        {/* Search Bar */}
-        {/* Search Bar */}
+
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex items-center gap-3 bg-transparent p-2 rounded-lg shadow-md w-full"
@@ -87,7 +84,7 @@ const UserAdminProfile = ({ userProfile: initialData }: Props) => {
           <Input
             type="text"
             placeholder="Search user..."
-            className="flex-grow px-4 py-2 text-gray-900 dark:text-white bg-transparent border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none"
+            className="flex-grow px-4 py-2 dark:text-white bg-transparent border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none"
             {...register("search")}
           />
 
