@@ -57,7 +57,7 @@ jobs:
       - name: Confirm deployment and container name
         run: |
           kubectl get deployment -n teamd
-          kubectl get deployment team-fe -n teamd -o jsonpath="{.spec.template.spec.containers[*].name}"
+          kubectl get deployment teamd-fe -n teamd -o jsonpath="{.spec.template.spec.containers[*].name}"
 
       - name: Check RBAC permissions
         run: |
