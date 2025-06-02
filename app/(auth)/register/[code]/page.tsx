@@ -56,7 +56,7 @@ const Page = async ({ params }: { params: Promise<{ code: string }> }) => {
   const { data } = await userData.json();
 
   return (
-    <Suspense fallback={<Skeleton className="w-full h-screen" />}>
+    <Suspense fallback={<Skeleton className="w-full min-h-screen" />}>
       <RegisterPage referralLink={code} userName={data?.user_username || ""} />
     </Suspense>
   );

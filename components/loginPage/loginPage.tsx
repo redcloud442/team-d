@@ -122,7 +122,7 @@ const LoginPage = () => {
         priority
         className="absolute top-0 left-0 object-cover z-30 rotate-180"
       />
-      <div className="relative z-50 w-full flex flex-col items-center space-y-2 pb-10">
+      <div className="relative z-50 w-full flex flex-col items-center space-y-2">
         {/* Logo */}
         <div className="flex flex-col items-center justify-center">
           <Image
