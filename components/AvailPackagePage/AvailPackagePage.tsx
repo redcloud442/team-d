@@ -78,6 +78,7 @@ const AvailPackagePage = ({ selectedPackage }: Props) => {
     ? (Number(amount) * (selectedPackage?.package_percentage ?? 0)) / 100
     : 0;
 
+  console.log(selectedPackage);
   const onSubmit = async (data: z.infer<typeof packageSchema>) => {
     try {
       const result = escapeFormData({ ...data, amount: Number(data.amount) });
@@ -141,6 +142,7 @@ const AvailPackagePage = ({ selectedPackage }: Props) => {
           package_date_created: new Date().toISOString(),
           package_member_id: teamMemberProfile?.company_member_id,
           package_days: Number(selectedPackage?.packages_days || 0),
+          package_days_remaining: Number(selectedPackage?.packages_days || 0),
           current_amount: Number(amount),
           currentPercentage: Number(0),
           package_percentage: Number(selectedPackage?.package_percentage || 0),
