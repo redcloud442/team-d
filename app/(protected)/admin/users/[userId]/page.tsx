@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 const handleFetchUserProfile = async (userId: string) => {
   const userProfile = await fetch(
-    `${process.env.API_URL}/api/v1/user/${userId}`,
+    `${process.env.API_URL}/api/v1/user/${userId}/user-profile`,
     {
       method: "GET",
       headers: {
