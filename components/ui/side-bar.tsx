@@ -33,7 +33,7 @@ const data = {
   teams: [
     {
       name: "DIGIWEALTH",
-      logo: "/assets/icons/iconGif.webp",
+      logo: "/assets/icons/IconGif.webp",
       plan: "Company",
     },
   ],
