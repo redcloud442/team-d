@@ -122,11 +122,11 @@ export default function LayoutContent({ children }: LayoutContentProps) {
 
   if (!isAdmin) {
     return (
-      <div className="flex min-h-screen w-full overflow-hidden relative">
-        <div className="flex-1 flex flex-col overflow-x-auto relative">
+      <div className="flex min-h-screen w-full overflow-hidden relative bg-bg-primary">
+        <div className="flex-1 flex flex-col overflow-x-auto relative w-full max-w-3xl mx-auto">
           {topNav}
 
-          <div className="p-4 relative grow bg-bg-primary">
+          <div className="p-4 relative grow">
             <div className="relative z-10 pb-24">{children}</div>
           </div>
 

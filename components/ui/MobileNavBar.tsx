@@ -33,7 +33,7 @@ const MobileNavBar = () => {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 shadow-md border-t-2 bg-bg-primary border-bg-primary-blue">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 shadow-md border-2 bg-bg-primary border-bg-primary-blue w-full max-w-3xl mx-auto">
         <ul className="flex items-center justify-between sm:justify-around px-4 py-3 space-x-2 relative">
           <div className="flex items-center justify-center gap-x-2">
             <li className="text-white text-xs font-bold">
