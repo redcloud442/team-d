@@ -8,7 +8,7 @@ import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings"
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { ChartDataMember, company_member_table } from "@/utils/types";
 import { ArrowDown, Crown, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "../ui/button";
 import {
@@ -41,47 +41,6 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
       current_amount: data.current_amount,
     }));
   });
-
-  useEffect(() => {
-    const animationFrames: { [key: string]: number } = {};
-
-    chartData.forEach((data: ChartDataMember, index: number) => {
-      const animate = () => {
-        const now = Date.now();
-        const startDate = new Date(data.package_date_created).getTime();
-        const completionDate = new Date(data.completion_date).getTime();
-        const totalTime = Math.max(completionDate - startDate, 1); // prevent divide by 0
-        const elapsedTime = Math.max(now - startDate, 0);
-
-        const percentage = Math.min((elapsedTime / totalTime) * 100, 100);
-        const finalAmount = data.amount + data.profit_amount;
-        const currentAmount = finalAmount * (percentage / 100);
-
-        setLiveData((prev) => {
-          const updated = [...prev];
-          updated[index] = {
-            ...data,
-            is_ready_to_claim: percentage === 100,
-            currentPercentage: Number(percentage.toFixed(2)),
-            current_amount: currentAmount,
-          };
-          return updated;
-        });
-
-        if (percentage < 100) {
-          animationFrames[data.package_connection_id] =
-            requestAnimationFrame(animate);
-        }
-      };
-
-      animationFrames[data.package_connection_id] =
-        requestAnimationFrame(animate);
-    });
-
-    return () => {
-      Object.values(animationFrames).forEach(cancelAnimationFrame);
-    };
-  }, [chartData]);
 
   const handleClaimPackage = async (packageData: ChartDataMember) => {
     const { amount, profit_amount, package_connection_id } = packageData;
@@ -190,9 +149,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
 
             <div className="flex flex-col items-center justify-between gap-4 border-b-2 border-bg-primary-blue w-full">
               <div className="flex flex-col items-center justify-between gap-4 p-4">
-                <h1 className="text-lg font-bold ">
-                  {data.current_amount.toFixed(2)}
-                </h1>
+                <h1 className="text-lg font-bold ">{data.amount}</h1>
 
                 <ArrowDown className="w-8 h-8 text-bg-primary-blue" />
 
