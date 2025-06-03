@@ -72,7 +72,7 @@ const PersonalInformation = ({ userProfile, type = "ADMIN" }: Props) => {
       return;
     const fetchUserSponsor = async () => {
       try {
-        const userId = params.userId;
+        const userId = userProfile.company_member_user_id;
         const userSponsor = await getUserSponsor({
           userId: userId ? (userId as string) : userProfile.user_id,
         });
