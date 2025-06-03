@@ -8,7 +8,7 @@ const TableLoading = () => {
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="animate-pulse transition-all duration-1000">
           <Image
-            src="/assets/icons/iconGif.webp"
+            src="/assets/icons/IconGif.webp"
             alt="thunder"
             width={100}
             height={100}
