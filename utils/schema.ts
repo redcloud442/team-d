@@ -156,7 +156,7 @@ export const RegisterSchema = z
         .max(11, "Phone number must be at most 11 digits")
         .optional()
     ),
-    gender: z.enum(["MALE", "FEMALE"]),
+    gender: z.enum(["MALE", "FEMALE"]).optional(),
     referralLink: z.string().optional(),
     sponsor: z.string().optional(),
   })
