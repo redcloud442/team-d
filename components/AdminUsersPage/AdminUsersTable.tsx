@@ -213,7 +213,7 @@ const AdminUsersTable = () => {
 
       setRequestData((prev) =>
         prev.map((item) =>
-          item.user_id === memberId
+          item.company_member_id === memberId
             ? { ...item, user_role: role, alliance_member_is_active: true }
             : item
         )
