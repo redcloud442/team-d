@@ -167,8 +167,8 @@ const ReusableTable = <T extends object>({
                   size="sm"
                   className={`${
                     activePage === page
-                      ? "bg-bg-primary text-zinc-900 font-bold shadow-md"
-                      : "border border-zinc-700 text-zinc-300 hover:bg-bg-primary hover:text-white"
+                      ? "bg-bg-primary-blue text-zinc-900 font-bold shadow-md"
+                      : "border bg-bg-primary border-zinc-700 text-zinc-300 hover:bg-bg-primary hover:text-white"
                   } rounded-lg px-3 py-2 transition-all duration-200`}
                 >
                   {page}
@@ -176,7 +176,7 @@ const ReusableTable = <T extends object>({
               ) : (
                 <span
                   key={`ellipsis-${index}`}
-                  className="px-2 py-1 text-zinc-600 dark:text-zinc-400"
+                  className="px-2 py-1 text-zinc-600 dark:text-zinc-400 bg-bg-primary"
                 >
                   {page}
                 </span>
@@ -192,7 +192,7 @@ const ReusableTable = <T extends object>({
             onClick={() =>
               setActivePage((prev) => Math.min(prev + 1, pageCount))
             }
-            className="bg-bg-primary text-white hover:bg-bg-primary transition-all duration-200 rounded-lg shadow-md"
+            className="bg-bg-primary text-white hover:bg-bg-primary-blue transition-all duration-200 rounded-lg shadow-md"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
