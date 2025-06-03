@@ -212,10 +212,14 @@ const AdminUsersTable = () => {
       await handleUpdateRole({ userId: memberId, role });
 
       setRequestData((prev) =>
-        prev.map((item) =>
-          item.company_member_id === memberId
-            ? { ...item, user_role: role, alliance_member_is_active: true }
-            : item
+        prev.map((request) =>
+          request.company_member_id === memberId
+            ? {
+                ...request,
+                company_member_role: role,
+                company_member_is_active: true,
+              }
+            : request
         )
       );
 
