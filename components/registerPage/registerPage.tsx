@@ -57,7 +57,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
 
   const {
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
     control,
   } = form;
 
@@ -198,7 +198,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
   return (
     <div className="overflow-hidden relative min-h-screen w-full flex items-center justify-center">
       <Image
-        src="/assets/bg/loginBg.webp"
+        src="/assets/bg/LoginBg.webp"
         alt="Digi Wealth Logo"
         width={420}
         height={420}
