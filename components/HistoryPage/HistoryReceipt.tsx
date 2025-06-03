@@ -33,7 +33,7 @@ const HistoryReceipt = ({ selectedTransaction }: Props) => {
       </DialogTrigger>
 
       <DialogContent type="earnings" className="max-w-md">
-        <ScrollArea className="h-[80vh] sm:h-auto">
+        <ScrollArea className="h-[50vh] sm:h-auto">
           <DialogHeader>
             <DialogTitle className="text-center text-2xl font-bold text-white">
               Transaction Receipt
