@@ -8,9 +8,10 @@ import { BASE_URL } from "@/utils/constant";
 import { escapeFormData } from "@/utils/function";
 import { RegisterFormData, RegisterSchema } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Resolver, useController, useForm } from "react-hook-form";
 import Turnstile, { BoundTurnstileObject } from "react-turnstile";
 import {
@@ -36,10 +37,8 @@ type Props = {
   userName: string;
 };
 const RegisterPage = ({ referralLink, userName }: Props) => {
-  const [isUsernameLoading, setIsUsernameLoading] = useState(false);
-  const [isUsernameValidated, setIsUsernameValidated] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [username, setUsername] = useState("");
 
   const { toast } = useToast();
   const form = useForm<RegisterFormData>({
@@ -60,8 +59,6 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
     handleSubmit,
     formState: { errors, isSubmitting },
     control,
-    setError,
-    clearErrors,
   } = form;
 
   const debounce = <T extends (...args: Parameters<T>) => void>(
@@ -86,35 +83,37 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
     control,
   });
 
-  const validateUserName = useCallback(
-    debounce(async (value: string) => {
-      if (!value) return;
+  const debounceSetUsername = useMemo(() => {
+    return debounce((val: string) => {
+      setUsername(val);
+    }, 1000); // 300ms delay
+  }, []);
 
-      setIsUsernameLoading(true);
-      setIsUsernameValidated(false); // Reset validation state while loading
+  const {
+    data: usernameStatus,
+    isLoading: isUsernameLoading,
+    isSuccess,
+    isError,
+  } = useQuery({
+    queryKey: ["check-username", username],
+    queryFn: () => checkUserName({ userName: username }),
+    enabled: !!username,
+    staleTime: 1000 * 60 * 2,
+    retry: false,
+  });
 
-      try {
-        const result = await checkUserName({ userName: value });
-
-        if (result.status === 400) {
-          setError("userName", { message: "Username already taken." });
-        } else if (result.status === 200) {
-          clearErrors("userName");
-          setIsUsernameValidated(true);
-        }
-      } catch (e) {
-        form.setError("userName", {
-          message: "Username already taken.",
-        });
-      } finally {
-        setIsUsernameLoading(false); // Ensure loading is reset
-      }
-    }, 3000),
-    [form]
-  );
+  useEffect(() => {
+    if (isError) {
+      form.setError("userName", {
+        message: "Username already taken.",
+      });
+    } else {
+      form.clearErrors("userName");
+    }
+  }, [isError, form]);
 
   const handleRegistrationSubmit = async (data: RegisterFormData) => {
-    if (isUsernameLoading || !isUsernameValidated) {
+    if (isUsernameLoading || isError) {
       return toast({
         title: "Please wait",
         description: "Username validation is still in progress.",
@@ -162,7 +161,6 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
         captcha.current.reset();
       }
 
-      setIsSuccess(true);
       toast({
         title: "DIGIWEALTH Account Created",
         description: "Please wait while we redirect you to your dashboard.",
@@ -170,7 +168,6 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
 
       router.push("/digi-dash");
     } catch (e) {
-      setIsSuccess(false);
       if (captcha.current) {
         captcha.current.reset();
       }
@@ -190,29 +187,37 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
     }
   };
 
+  const passwordValue = form.watch("password");
+  const confirmPasswordValue = form.watch("confirmPassword");
+
+  const passwordsMatch =
+    passwordValue !== "" &&
+    confirmPasswordValue !== "" &&
+    passwordValue === confirmPasswordValue;
+
   return (
-    <>
-      {/* <Image
-        src="/assets/bg/LoginBg.webp"
+    <div className="overflow-hidden relative min-h-screen w-full flex items-center justify-center">
+      <Image
+        src="/assets/bg/loginBg.webp"
         alt="Digi Wealth Logo"
-        width={450}
-        height={450}
+        width={420}
+        height={420}
         priority
-        className="absolute sm:w-full sm:h-full -bottom-1/4 sm:bottom-0 right-0 object-cover z-40 rotate-70"
+        className="absolute -bottom-1/5 left-0 object-cover z-30 rotate-90"
       />
 
       <Image
-        src="/assets/bg/LoginBg.webp"
+        src="/assets/bg/RegisterBgTop.webp"
         alt="Digi Wealth Logo"
-        width={220}
-        height={220}
+        width={420}
+        height={420}
         priority
-        className="absolute sm:w-full sm:h-full -top-20 right-0 object-cover z-40 -rotate-90"
-      /> */}
+        className="absolute -top-2 right-0 object-cover z-30"
+      />
 
       <Form {...form}>
         <form
-          className="space-y-1 w-full z-40"
+          className="space-y-1 w-full z-40 py-10"
           onSubmit={handleSubmit(handleRegistrationSubmit)}
         >
           <div className="flex items-center justify-start">
@@ -280,10 +285,11 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                           placeholder="Username"
                           {...field}
                           onChange={(e) => {
-                            userNameField.onChange(e.target.value);
-                            validateUserName(e.target.value);
+                            const val = e.target.value;
+                            userNameField.onChange(val); // update form field
+
+                            debounceSetUsername(val); // triggers query after delay
                           }}
-                          onBlur={() => validateUserName(userNameField.value)}
                         />
                       </FormControl>
 
@@ -294,55 +300,67 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
 
                 <div
                   className={`w-7 h-7 absolute -right-10 mt-3 top-1/2 -translate-y-1/2  border-2 rounded-full z-50 ${
-                    !isUsernameLoading &&
-                    isUsernameValidated &&
-                    !errors.userName
+                    !isUsernameLoading && usernameStatus && !isError
                       ? " bg-bg-primary-blue "
                       : "bg-transparent"
                   }`}
                 ></div>
               </div>
 
-              <FormField
-                control={control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-start">Password</FormLabel>
-                    <FormControl>
-                      <PasswordInput
-                        id="password"
-                        variant="non-card"
-                        placeholder="Password"
-                        {...field}
-                        className=""
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="relative">
+                <FormField
+                  control={control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-start">Password</FormLabel>
+                      <FormControl>
+                        <PasswordInput
+                          id="password"
+                          variant="non-card"
+                          placeholder="Password"
+                          {...field}
+                          className=""
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />{" "}
+                <div
+                  className={`w-7 h-7 absolute -right-10 mt-3 top-1/2 -translate-y-1/2  border-2 rounded-full z-50 ${
+                    passwordsMatch ? " bg-bg-primary-blue " : "bg-transparent"
+                  }`}
+                ></div>
+              </div>
 
-              <FormField
-                control={control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-start">
-                      Confirm Password
-                    </FormLabel>
-                    <FormControl>
-                      <PasswordInput
-                        id="confirmPassword"
-                        variant="non-card"
-                        placeholder="Confirm Password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="relative">
+                <FormField
+                  control={control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-start">
+                        Confirm Password
+                      </FormLabel>
+                      <FormControl>
+                        <PasswordInput
+                          id="confirmPassword"
+                          variant="non-card"
+                          placeholder="Confirm Password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div
+                  className={`w-7 h-7 absolute -right-10 mt-3 top-1/2 -translate-y-1/2  border-2 rounded-full z-50 ${
+                    passwordsMatch ? " bg-bg-primary-blue " : "bg-transparent"
+                  }`}
+                ></div>
+              </div>
             </div>
           </div>
 
@@ -507,7 +525,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
           </div>
         </form>
       </Form>
-    </>
+    </div>
   );
 };
 
