@@ -93,6 +93,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
     data: usernameStatus,
     isLoading: isUsernameLoading,
     isError,
+    isSuccess,
   } = useQuery({
     queryKey: ["check-username", username],
     queryFn: () => checkUserName({ userName: username }),
@@ -516,7 +517,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
           <div className="w-full flex justify-center mt-4">
             <Button
               className=" font-black rounded-md p-4 shadow-lg border-2 border-black"
-              disabled={isSubmitting || !isError}
+              disabled={isSubmitting || !isSuccess}
               type="submit"
             >
               REGISTER
