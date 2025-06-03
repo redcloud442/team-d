@@ -11,6 +11,7 @@ import { escapeFormData, formatNumberLocale } from "@/utils/function";
 import { PromoPackageSchema } from "@/utils/schema";
 import { package_table } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, CrownIcon, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -28,7 +29,6 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Label } from "../ui/label";
-
 type Props = {
   selectedPackage: package_table & {
     package_features_table: {
@@ -39,6 +39,7 @@ type Props = {
 
 const AvailPackagePage = ({ selectedPackage }: Props) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { teamMemberProfile, setTeamMemberProfile } = useRole();
   const { toast } = useToast();
@@ -153,6 +154,14 @@ const AvailPackagePage = ({ selectedPackage }: Props) => {
         ...prev,
         company_member_is_active: false,
       }));
+
+      queryClient.invalidateQueries({
+        queryKey: [
+          "transaction-history",
+          "PACKAGE",
+          teamMemberProfile?.company_member_id,
+        ],
+      });
 
       setTimeout(() => {
         router.push("/digi-dash");

@@ -34,6 +34,7 @@ import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData, formatNumberLocale } from "@/utils/function";
 import { withdrawalFormSchema, WithdrawalFormValues } from "@/utils/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -41,6 +42,7 @@ import { useForm, useWatch } from "react-hook-form";
 
 const DashboardWithdrawModalWithdraw = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [open, setOpen] = useState(false);
   const { earnings: earningsState, setEarnings } = useUserEarningsStore();
@@ -212,6 +214,14 @@ const DashboardWithdrawModalWithdraw = () => {
       toast({
         title: "Withdrawal Request Successfully",
         description: "You will be redirected shortly",
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [
+          "transaction-history",
+          "WITHDRAW",
+          teamMemberProfile?.company_member_id,
+        ],
       });
 
       reset();

@@ -2,9 +2,8 @@
 
 import { getLegionBounty } from "@/services/Bounty/Member";
 import { useRole } from "@/utils/context/roleContext";
-import { escapeFormData } from "@/utils/function";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useMemo } from "react";
 import GenericTableList from "../ReusableCardList/ReusableCardList";
 import { LegionBountyColumn } from "./LegionBountyColumn";
 
@@ -17,12 +16,6 @@ const PAGE_LIMIT = 10;
 const LegionBountyTable = () => {
   const { teamMemberProfile } = useRole();
 
-  const { getValues } = useForm<FilterFormValues>({
-    defaultValues: {
-      emailFilter: "",
-    },
-  });
-
   const columnAccessor = "user_date_created";
   const isAscendingSort = true;
 
@@ -32,16 +25,13 @@ const LegionBountyTable = () => {
       queryFn: async ({ pageParam = 1 }) => {
         if (!teamMemberProfile) return { data: [], totalCount: 0 };
 
-        const sanitizedData = escapeFormData(getValues());
-        const { emailFilter } = sanitizedData;
-
         return await getLegionBounty({
           teamMemberId: teamMemberProfile.company_member_id,
           page: pageParam,
           limit: PAGE_LIMIT,
           columnAccessor,
           isAscendingSort,
-          search: emailFilter,
+          search: "",
         });
       },
       getNextPageParam: (lastPage, allPages) => {
@@ -52,7 +42,11 @@ const LegionBountyTable = () => {
         return undefined;
       },
       enabled: !!teamMemberProfile,
-      staleTime: 60000,
+      staleTime: 1000 * 60 * 2, // Cache is fresh for 2 mins
+      gcTime: 1000 * 60 * 2, // Cache is stale for 2 mins
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
       initialPageParam: 1,
     });
 
@@ -64,15 +58,19 @@ const LegionBountyTable = () => {
     }
   };
 
+  const flatData = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) || [];
+  }, [data]);
+
   return (
     <GenericTableList
-      data={data?.pages.flatMap((page) => page.data) || []}
+      data={flatData}
       count={data?.pages[0]?.totalCount || 0}
       isLoading={isLoading || isFetchingNextPage}
       onLoadMore={handleNextPage}
       columns={columns}
       emptyMessage="No data found."
-      getRowId={(item) => item.package_ally_bounty_log_id}
+      getRowId={(item) => item.company_member_id}
     />
   );
 };

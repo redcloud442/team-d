@@ -1,3 +1,4 @@
+import QueryClientProvider from "@/components/QueryClientProvider/QueryClientProvider";
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
@@ -39,7 +40,7 @@ export default function RootLayout({
       <body>
         <main>
           {/* <RouterTransition /> */}
-          {children}
+          <QueryClientProvider>{children}</QueryClientProvider>
         </main>
         <Toaster />
       </body>

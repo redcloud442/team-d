@@ -26,11 +26,13 @@ import Mayab from "@/public/assets/svg/mayab";
 import { handleDepositRequest } from "@/services/TopUp/Member";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
+import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData, formatNumberLocale } from "@/utils/function";
 import { DepositRequestFormValues, depositRequestSchema } from "@/utils/schema";
 import { createClientSide } from "@/utils/supabase/client";
 import { merchant_table } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -43,9 +45,11 @@ const DashboardDepositModalDeposit = ({
 }) => {
   const router = useRouter();
   const supabaseClient = createClientSide();
+  const queryClient = useQueryClient();
   const [selectedBank, setSelectedBank] = useState<merchant_table | null>(null);
 
   const { earnings } = useUserEarningsStore();
+  const { teamMemberProfile } = useRole();
   const { canUserDeposit, setCanUserDeposit } = useUserHaveAlreadyWithdraw();
 
   const { toast } = useToast();
@@ -107,6 +111,14 @@ const DashboardDepositModalDeposit = ({
       reset();
 
       setCanUserDeposit(false);
+
+      queryClient.invalidateQueries({
+        queryKey: [
+          "transaction-history",
+          "DEPOSIT",
+          teamMemberProfile?.company_member_id,
+        ],
+      });
 
       setTimeout(() => {
         router.push("/digi-dash");

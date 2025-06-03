@@ -3,6 +3,7 @@
 import { getAllyBounty } from "@/services/Bounty/Member";
 import { useRole } from "@/utils/context/roleContext";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import GenericTableList from "../ReusableCardList/ReusableCardList";
 import { AllyBountyColumn } from "./AllyBountyColum";
 
@@ -35,12 +36,19 @@ const AllyBountyTable = () => {
       },
 
       enabled: !!teamMemberProfile,
-      staleTime: 1000 * 60,
-      placeholderData: (previousData) => previousData,
+      staleTime: 1000 * 60 * 2, // Cache is fresh for 2 mins
+      gcTime: 1000 * 60 * 2, // Cache is stale for 2 mins
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
       initialPageParam: 1,
     });
 
   const columns = AllyBountyColumn();
+
+  const flatData = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) || [];
+  }, [data]);
 
   const handleNextPage = () => {
     if (hasNextPage) {
@@ -50,7 +58,7 @@ const AllyBountyTable = () => {
 
   return (
     <GenericTableList
-      data={data?.pages.flatMap((page) => page.data) || []}
+      data={flatData}
       count={data?.pages[0]?.totalCount || 0}
       isLoading={isLoading || isFetchingNextPage}
       onLoadMore={handleNextPage}

@@ -2,8 +2,8 @@
 
 import { getTransactionHistory } from "@/services/Transaction/Transaction";
 import { useRole } from "@/utils/context/roleContext";
-import { company_transaction_table } from "@/utils/types";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import HistoryCardList from "./HistoryCardList";
 
 type Props = {
@@ -47,11 +47,17 @@ const HistoryTable = ({ type }: Props) => {
           : undefined;
       },
       enabled: !!teamMemberProfile,
+      staleTime: 1000 * 60 * 2, // Cache is fresh for 2 mins
+      gcTime: 1000 * 60 * 2, // Cache is stale for 2 mins
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
       initialPageParam: 1,
     });
 
-  const allTransactions: company_transaction_table[] =
-    data?.pages.flatMap((page) => page.transactions) || [];
+  const flatData = useMemo(() => {
+    return data?.pages.flatMap((page) => page.transactions) || [];
+  }, [data]);
 
   const totalCount = data?.pages[0]?.total || 0;
 
@@ -63,7 +69,7 @@ const HistoryTable = ({ type }: Props) => {
 
   return (
     <HistoryCardList
-      data={allTransactions}
+      data={flatData}
       count={totalCount}
       isLoading={isLoading || isFetchingNextPage}
       onLoadMore={handleLoadMore}
