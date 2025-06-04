@@ -8,11 +8,7 @@ type Props = {
   searchParams: Promise<{ transaction_id?: string }>;
 };
 
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
 const PackageContent = async ({ packageId }: { packageId: string }) => {
-  await delay(2000);
-
   const specificPackage = await fetch(
     `${process.env.API_URL}/api/v1/package/${packageId}`,
     {
@@ -23,13 +19,18 @@ const PackageContent = async ({ packageId }: { packageId: string }) => {
     }
   );
 
-  const { data } = await specificPackage.json();
+  const { data, packagePurchaseSummary } = await specificPackage.json();
 
   if (!data) {
     redirect("/subscription");
   }
 
-  return <AvailPackagePage selectedPackage={data} />;
+  return (
+    <AvailPackagePage
+      selectedPackage={data}
+      packagePurchaseSummary={packagePurchaseSummary}
+    />
+  );
 };
 
 const Page = async ({ searchParams }: Props) => {
