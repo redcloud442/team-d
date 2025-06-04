@@ -54,9 +54,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const pathSegments = pathname.split("/").filter(Boolean);
 
   useEffect(() => {
-    if (!isAdmin) {
-      setTheme("dark");
-    }
+    setTheme("dark");
   }, [isAdmin, setTheme]);
 
   const handleFetchTransaction = useCallback(async () => {
