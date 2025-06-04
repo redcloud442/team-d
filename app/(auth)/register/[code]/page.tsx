@@ -53,7 +53,11 @@ const Page = async ({ params }: { params: Promise<{ code: string }> }) => {
     }
   );
 
-  const data = await userData.json();
+  const { data } = await userData.json();
+
+  if (!data) {
+    redirect("/login");
+  }
 
   return (
     <Suspense fallback={<Skeleton className="w-full min-h-screen" />}>
