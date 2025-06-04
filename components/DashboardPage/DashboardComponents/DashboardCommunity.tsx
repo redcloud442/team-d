@@ -13,14 +13,14 @@ const DashboardCommunity = () => {
         <DashboardCommunityCard
           imageSrc="/assets/icons/facebook.webp"
           imageAlt="Trading"
-          href="https://www.facebook.com/digiwealth.ph"
+          href="https://www.facebook.com/groups/digiwealthofficial"
           label="JOIN"
         />
 
         <DashboardCommunityCard
           imageSrc="/assets/icons/telegram.svg"
           imageAlt="Trading"
-          href="https://t.me/digiwealthph"
+          href="https://t.me/+5EUwi62I_-dmZjJl"
           label="JOIN"
         />
       </div>
