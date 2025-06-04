@@ -1,4 +1,5 @@
-import { package_table } from "@/utils/types";
+import { packageMap } from "@/utils/constant";
+import { package_table, PurchaseSummary } from "@/utils/types";
 import { CrownIcon } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "./badge";
@@ -11,9 +12,10 @@ type Props = {
   };
   type?: "reinvest" | "avail";
   onClick: (packageID: string) => void;
+  purchaseSummary: PurchaseSummary;
 };
 
-const PackageCard = ({ packages, onClick }: Props) => {
+const PackageCard = ({ packages, onClick, purchaseSummary }: Props) => {
   return (
     <div className="relative grid grid-cols-2 gap-6">
       {/* Left: Image */}
@@ -48,6 +50,13 @@ const PackageCard = ({ packages, onClick }: Props) => {
             {packages.package_is_popular && (
               <span className="text-teal-300">★</span>
             )}
+            (
+            {
+              purchaseSummary[
+                packageMap[packages.package_name as keyof typeof packageMap]
+              ]
+            }{" "}
+            / {packages.package_limit})
           </h2>
         </div>
 

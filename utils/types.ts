@@ -129,6 +129,7 @@ export type package_table = {
   package_image: string | null;
   package_is_popular: boolean;
   package_is_highlight: boolean;
+  package_limit?: number;
 };
 
 export type merchant_balance_log = {
@@ -329,6 +330,13 @@ export type HeirarchyData = {
   company_member_id: string;
   user_username: string;
   user_id: string;
+};
+
+export type PurchaseSummary = {
+  member_id: string;
+  standard_count: number;
+  express_count: number;
+  premium_count: number;
 };
 
 export type ModalGuide = {

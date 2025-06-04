@@ -1,5 +1,6 @@
 "use client";
 
+import { revalidateCache } from "@/app/action/action";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +30,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Label } from "../ui/label";
+
 type Props = {
   selectedPackage: package_table & {
     package_features_table: {
@@ -93,13 +95,17 @@ const AvailPackagePage = ({
         now.getTime() +
           (selectedPackage?.packages_days ?? 0) * 24 * 60 * 60 * 1000
       );
-      await createPackageConnection({
-        packageData: {
-          amount: Number(result.amount),
-          packageId: selectedPackage?.package_id || "",
-        },
-        teamMemberId: teamMemberProfile.company_member_id,
-      });
+
+      await Promise.all([
+        createPackageConnection({
+          packageData: {
+            amount: Number(result.amount),
+            packageId: selectedPackage?.package_id || "",
+          },
+          teamMemberId: teamMemberProfile.company_member_id,
+        }),
+        revalidateCache({ path: "packages" }),
+      ]);
 
       toast({
         title: "Subscription Success",

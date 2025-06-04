@@ -1,4 +1,4 @@
-import { package_table } from "@/utils/types";
+import { package_table, PurchaseSummary } from "@/utils/types";
 import Link from "next/link";
 import DashboardDepositModalPackages from "../DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositPackagesModal";
 import { Button } from "../ui/button";
@@ -9,9 +9,10 @@ type Props = {
       package_features_description: { text: string; value: string }[];
     }[];
   })[];
+  purchaseSummary: PurchaseSummary;
 };
 
-const PackagePage = ({ packages }: Props) => {
+const PackagePage = ({ packages, purchaseSummary }: Props) => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between flex-col sm:flex-row flex-wrap gap-2">
@@ -28,7 +29,10 @@ const PackagePage = ({ packages }: Props) => {
           </Button>
         </Link>
       </div>
-      <DashboardDepositModalPackages packages={packages} />
+      <DashboardDepositModalPackages
+        packages={packages}
+        purchaseSummary={purchaseSummary}
+      />
     </div>
   );
 };

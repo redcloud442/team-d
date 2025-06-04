@@ -23,6 +23,12 @@ export const BANK_IMAGE = {
   BYBIT: "/assets/bank/BYBIT.png",
 };
 
+export const packageMap = {
+  PREMIUM: "premium_count",
+  EXPRESS: "express_count",
+  STANDARD: "standard_count",
+} as const;
+
 export const BASE_URL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3000"

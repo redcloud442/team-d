@@ -1,7 +1,7 @@
 "use client";
 
 import PackageCard from "@/components/ui/packageCard";
-import { package_table } from "@/utils/types";
+import { package_table, PurchaseSummary } from "@/utils/types";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -10,9 +10,13 @@ type Props = {
       package_features_description: { text: string; value: string }[];
     }[];
   })[];
+  purchaseSummary: PurchaseSummary;
 };
 
-const DashboardDepositModalPackages = ({ packages }: Props) => {
+const DashboardDepositModalPackages = ({
+  packages,
+  purchaseSummary,
+}: Props) => {
   const router = useRouter();
 
   const generateRandomNumberAndLetter = () => {
@@ -33,6 +37,7 @@ const DashboardDepositModalPackages = ({ packages }: Props) => {
           <PackageCard
             key={pkg.package_id}
             packages={pkg}
+            purchaseSummary={purchaseSummary}
             onClick={() => handlePackageClick(pkg)}
           />
         ))}

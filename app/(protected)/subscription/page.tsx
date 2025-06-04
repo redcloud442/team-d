@@ -12,11 +12,10 @@ const page = async () => {
     headers: {
       cookie: (await cookies()).toString(),
     },
-    next: { revalidate: 60 },
-    credentials: "include",
+    next: { revalidate: 60, tags: ["packages"] },
   });
 
-  const { data } = (await packages.json()) || [];
+  const { data, purchaseSummary } = (await packages.json()) || [];
 
   return (
     <Suspense fallback={<Skeleton className="min-h-screen h-full w-full" />}>
@@ -28,6 +27,7 @@ const page = async () => {
             }[];
           })[]
         }
+        purchaseSummary={purchaseSummary}
       />
     </Suspense>
   );
