@@ -164,10 +164,12 @@ const AvailPackagePage = ({
         ...chartData,
       ]);
 
-      setTeamMemberProfile((prev) => ({
-        ...prev,
-        company_member_is_active: false,
-      }));
+      if (!teamMemberProfile.company_member_is_active) {
+        setTeamMemberProfile((prev) => ({
+          ...prev,
+          company_member_is_active: true,
+        }));
+      }
 
       queryClient.invalidateQueries({
         queryKey: [
