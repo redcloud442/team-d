@@ -36,7 +36,7 @@ const MobileNavBar = () => {
       <nav className="fixed bottom-0 left-0 right-0 z-50 shadow-md border-2 bg-bg-primary border-bg-primary-blue w-full max-w-3xl mx-auto">
         <ul className="flex items-center justify-between sm:justify-around px-4 py-3 space-x-2 relative">
           <div className="flex items-center justify-center gap-x-2">
-            <li className="text-white text-xs font-bold">
+            <li className="text-white text-[10px] font-bold">
               <Link href="/digi-dash">
                 <span className="text-bg-primary-blue">DIGI</span>WEALTH
               </Link>
@@ -46,7 +46,7 @@ const MobileNavBar = () => {
             <li className="border-2 border-bg-primary-blue rounded-lg p-1">
               <Link
                 href="/change-password"
-                className="text-white text-xs font-bold text-center border-bg-primary-blue rounded-full"
+                className="text-white text-[10px] font-bold text-center border-bg-primary-blue rounded-full"
               >
                 <div className="flex flex-col items-center leading-none">
                   <span className="text-bg-primary-blue">Change</span>
@@ -73,7 +73,7 @@ const MobileNavBar = () => {
             <li>
               <Link
                 href="/profile"
-                className="text-white text-xs font-bold px-3 py-2 border-2 border-bg-primary-blue rounded-lg hover:bg-bg-primary-blue/10 transition"
+                className="text-white text-[10px] font-bold px-3 py-2 border-2 border-bg-primary-blue rounded-lg hover:bg-bg-primary-blue/10 transition"
               >
                 Profile
               </Link>
@@ -83,9 +83,9 @@ const MobileNavBar = () => {
             <li>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="text-white text-xs font-bold px-3 py-2 border-2 border-bg-primary-blue rounded-lg hover:bg-bg-primary-blue/10 transition"
+                className="text-white font-bold px-3 text-[10px] py-1.5 border-2 border-bg-primary-blue rounded-lg hover:bg-bg-primary-blue/10 transition"
               >
-                <span className="text-bg-primary-blue">Log</span> Out
+                <span className="text-bg-primary-blue ">Log</span> Out
               </button>
             </li>
           </div>
