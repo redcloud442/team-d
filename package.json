@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/",
     "build-dev": "next build && bunx copyfiles -u 1 \"public/**/*\" .next/standalone/public && bunx copyfiles -u 2 \".next/static/**/*\" .next/standalone/.next/static",
-    "start": "next start",
+    "start": "node .next/standalone/server.js",
     "db": "bun prisma db push && bun prisma generate",
     "migrate-dev": "bun prisma migrate dev && bun prisma generate",
     "lint": "next lint"
