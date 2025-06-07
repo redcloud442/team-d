@@ -6,19 +6,16 @@ import { Suspense } from "react";
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: Promise<{ CODE: string }>;
+  searchParams: Promise<{ code: string }>;
 }) {
-  const { CODE } = await searchParams;
+  const { code } = await searchParams;
 
   return {
     title: "DIGIWEALTH REGISTRATION",
-    description:
-      "Join DIGIWEALTH now — your path to digital prosperity begins here!",
+    description: "DIGIWEALTH REGISTRATION",
     openGraph: {
-      url: `https://www.digi-wealth.vip/access/register/${CODE}`,
+      url: `https://www.digi-wealth.vip/register/${code}`,
       title: `JOIN DIGIWEALTH!`,
-      description:
-        "Unlock exclusive rewards and opportunities by joining DIGIWEALTH today.",
       siteName: "DIGIWEALTH",
       images: [
         {
@@ -33,8 +30,8 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title: `JOIN DIGIWEALTH!`,
-      description: "Be part of the Digi Wealth revolution — register today.",
-      images: ["https://www.digi-wealth.vip/assets/icons/iconGif.webp"], // Same or different from OG
+      description: "DIGIWEALTH REGISTRATION",
+      images: ["https://www.digi-wealth.vip/assets/icons/iconGif.webp"],
     },
   };
 }

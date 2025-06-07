@@ -217,7 +217,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
 
       <Form {...form}>
         <form
-          className="space-y-1 w-full z-40 py-10"
+          className="space-y-1 w-full z-40 py-10 max-w-lg"
           onSubmit={handleSubmit(handleRegistrationSubmit)}
         >
           <div className="flex items-center justify-start">
