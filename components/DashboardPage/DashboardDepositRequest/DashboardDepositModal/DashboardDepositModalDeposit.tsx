@@ -37,6 +37,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import QRViewer from "./QRViewer";
 
 const DashboardDepositModalDeposit = ({
   options: topUpOptions,
@@ -47,6 +48,7 @@ const DashboardDepositModalDeposit = ({
   const supabaseClient = createClientSide();
   const queryClient = useQueryClient();
   const [selectedBank, setSelectedBank] = useState<merchant_table | null>(null);
+  const [selectedMop, setSelectedMop] = useState<merchant_table | null>(null);
 
   const { earnings } = useUserEarningsStore();
   const { teamMemberProfile } = useRole();
@@ -144,8 +146,7 @@ const DashboardDepositModalDeposit = ({
       (option) => option.merchant_id === value
     );
     if (selectedOption) {
-      setSelectedBank(selectedOption);
-
+      setSelectedMop(selectedOption);
       setValue("accountName", selectedOption.merchant_account_name || "");
       setValue("accountNumber", selectedOption.merchant_account_number || "");
     }
@@ -156,6 +157,7 @@ const DashboardDepositModalDeposit = ({
       (option) => option.merchant_id === value
     );
     if (selectedOption) {
+      setSelectedMop(null);
       setSelectedBank(selectedOption);
     }
   };
@@ -275,6 +277,12 @@ const DashboardDepositModalDeposit = ({
               </FormItem>
             )}
           />
+
+          {selectedMop &&
+            selectedMop.merchant_qr_attachment !== "" &&
+            selectedMop.merchant_qr_attachment !== null && (
+              <QRViewer qrImageSrc={selectedMop.merchant_qr_attachment || ""} />
+            )}
           <FormField
             control={control}
             name="accountName"
