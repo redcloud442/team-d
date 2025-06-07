@@ -248,6 +248,18 @@ const AdminDashboardPage = () => {
             adminDashboardDataByDate={adminDashboardByDate!}
           />
         </div>
+
+        <CardAmountAdmin
+          title="Total Withdrawal For Tomorrow"
+          value={
+            <>
+              <PersonStandingIcon />
+              {adminDashboard?.totalWithdrawalForTomorrow}
+            </>
+          }
+          description=""
+          descriptionClassName="text-sm text-gray-500"
+        />
         <div>
           <AdminDashboardChart
             chartData={adminDashboardByDate?.chartData ?? []}
