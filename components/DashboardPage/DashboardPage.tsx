@@ -52,6 +52,11 @@ const DashboardPage = ({ accessToken }: DashboardPageProps) => {
       key: "indirect_referral_amount",
       value: totalEarnings?.indirectReferralAmount,
     },
+    {
+      label: "Total Withdrawal",
+      key: "total_withdrawal",
+      value: totalEarnings?.withdrawalAmount,
+    },
   ];
 
   return (
