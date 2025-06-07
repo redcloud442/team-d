@@ -144,6 +144,8 @@ const DashboardDepositModalDeposit = ({
       (option) => option.merchant_id === value
     );
     if (selectedOption) {
+      setSelectedBank(selectedOption);
+
       setValue("accountName", selectedOption.merchant_account_name || "");
       setValue("accountNumber", selectedOption.merchant_account_number || "");
     }
@@ -208,7 +210,7 @@ const DashboardDepositModalDeposit = ({
                   }}
                   className={cn(
                     "flex flex-col items-center justify-center rounded-xl p-2 transition-all",
-                    selectedBank &&
+                    selectedBank?.merchant_id === option.merchant_id &&
                       " border-2 border-bg-primary-blue bg-bg-primary/10"
                   )}
                 >
@@ -220,7 +222,7 @@ const DashboardDepositModalDeposit = ({
                   <span
                     className={cn(
                       "mt-1 px-2 py-1 rounded-md text-xs font-bold",
-                      selectedBank
+                      selectedBank?.merchant_id === option.merchant_id
                         ? "bg-bg-primary-blue text-black"
                         : "bg-gray-300 text-black"
                     )}
