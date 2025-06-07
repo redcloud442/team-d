@@ -45,7 +45,8 @@ export const withdrawalFormSchema = z.object({
     .string()
     .trim()
     .min(10, "Phone number is required")
-    .max(11, "Phone number must be at most 11 digits"),
+    .max(11, "Phone number must be at most 11 digits")
+    .optional(),
   accountNumber: z
     .string()
     .trim()

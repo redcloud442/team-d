@@ -62,7 +62,7 @@ const DashboardWithdrawModalWithdraw = () => {
       bank: "",
       accountName: "",
       accountNumber: "",
-      phoneNumber: "",
+      phoneNumber: undefined,
     },
   });
 
