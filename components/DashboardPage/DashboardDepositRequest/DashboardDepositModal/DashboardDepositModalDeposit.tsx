@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import Gcash from "@/public/assets/svg/gcash";
 import GoTyme from "@/public/assets/svg/gotyme";
+import Maya from "@/public/assets/svg/maya";
 import Mayab from "@/public/assets/svg/mayab";
 import { handleDepositRequest } from "@/services/TopUp/Member";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
@@ -177,6 +178,8 @@ const DashboardDepositModalDeposit = ({
         return <GoTyme />;
       case "MAYA BUSINESS":
         return <Mayab />;
+      case "MAYA":
+        return <Maya />;
       default:
         return <Gcash />;
     }
