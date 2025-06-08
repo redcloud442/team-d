@@ -253,8 +253,10 @@ const AdminDashboardPage = () => {
           title="Total Withdrawal For Tomorrow"
           value={
             <>
-              <PersonStandingIcon />
-              {adminDashboard?.totalWithdrawalForTomorrow}
+              <PhilippinePeso />
+              {formatNumberLocale(
+                adminDashboard?.totalWithdrawalForTomorrow ?? 0
+              )}
             </>
           }
           description=""
