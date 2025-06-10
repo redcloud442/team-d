@@ -43,7 +43,7 @@ export default async function AppLayout({
     }
 
     const data = await result.json();
-    console.log(data);
+
     const profile = data ?? null;
     const teamMemberProfile = data?.company_member_table?.[0] ?? null;
     const referral =
