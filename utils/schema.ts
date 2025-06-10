@@ -17,10 +17,10 @@ export const depositRequestSchema = z.object({
     .instanceof(File)
     .refine((file) => !!file, { message: "File is required" })
     .refine(
-      (file) =>
-        ["image/jpeg", "image/png", "image/jpg"].includes(file.type) &&
-        file.size <= 12 * 1024 * 1024, // 12MB limit
-      { message: "File must be a valid image and less than 12MB." }
+      (file) => file.type.startsWith("image/") && file.size <= 12 * 1024 * 1024,
+      {
+        message: "File must be a valid image and less than 12MB.",
+      }
     ),
 });
 

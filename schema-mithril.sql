@@ -14,23 +14,17 @@ CREATE OR REPLACE VIEW packages_schema.package_purchase_summary AS
 SELECT
     cmt.company_member_id AS member_id,
     COUNT(*) FILTER (
-        WHERE pt.package_name = 'STANDARD'
+        WHERE pt.package_name = 'TIER 1'
         AND pmc.package_member_status = 'ACTIVE'
         AND pmc.package_member_connection_created >= CURRENT_DATE
         AND pmc.package_member_connection_created < CURRENT_DATE + INTERVAL '1 day'
     ) AS standard_count,
     COUNT(*) FILTER (
-        WHERE pt.package_name = 'EXPRESS'
+        WHERE pt.package_name = 'TRIAL'
         AND pmc.package_member_status = 'ACTIVE'
         AND pmc.package_member_connection_created >= CURRENT_DATE
         AND pmc.package_member_connection_created < CURRENT_DATE + INTERVAL '1 day'
     ) AS express_count,
-    COUNT(*) FILTER (
-        WHERE pt.package_name = 'PREMIUM'
-        AND pmc.package_member_status = 'ACTIVE'
-        AND pmc.package_member_connection_created >= CURRENT_DATE
-        AND pmc.package_member_connection_created < CURRENT_DATE + INTERVAL '1 day'
-    ) AS premium_count
 FROM company_schema.company_member_table cmt
 LEFT JOIN packages_schema.package_member_connection_table pmc 
     ON pmc.package_member_member_id = cmt.company_member_id
