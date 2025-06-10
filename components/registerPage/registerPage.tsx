@@ -13,7 +13,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Resolver, useController, useForm } from "react-hook-form";
-import Turnstile, { BoundTurnstileObject } from "react-turnstile";
+import { BoundTurnstileObject } from "react-turnstile";
 import {
   Form,
   FormControl,
@@ -121,14 +121,14 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
       });
     }
 
-    if (!captchaToken) {
-      if (captcha.current) {
-        captcha.current.reset();
-        captcha.current.execute();
-      }
+    // if (!captchaToken) {
+    //   if (captcha.current) {
+    //     captcha.current.reset();
+    //     captcha.current.execute();
+    //   }
 
-      return;
-    }
+    //   return;
+    // }
 
     const sanitizedData = escapeFormData(data);
 
@@ -504,7 +504,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
             />
           </div>
 
-          <div className="w-full flex flex-1 justify-center">
+          {/* <div className="w-full flex flex-1 justify-center">
             <Turnstile
               size="flexible"
               sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
@@ -512,7 +512,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                 setCaptchaToken(token);
               }}
             />
-          </div>
+          </div> */}
 
           <div className="w-full flex justify-center mt-4">
             <Button

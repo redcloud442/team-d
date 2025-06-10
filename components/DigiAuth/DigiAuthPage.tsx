@@ -21,7 +21,7 @@ import {
   SubmitHandler,
   useForm,
 } from "react-hook-form";
-import Turnstile, { BoundTurnstileObject } from "react-turnstile";
+import { BoundTurnstileObject } from "react-turnstile";
 import {
   Form,
   FormControl,
@@ -86,9 +86,9 @@ const DigiAuth = () => {
 
   const handleSignIn = async (data: LoginFormValues) => {
     try {
-      if (!captchaToken) {
-        return;
-      }
+      // if (!captchaToken) {
+      //   return;
+      // }
       setIsLoading(true);
 
       const sanitizedData = escapeFormData(data);
@@ -272,13 +272,13 @@ const DigiAuth = () => {
                 )}
               />
 
-              <Turnstile
+              {/* <Turnstile
                 size="flexible"
                 sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
                 onVerify={(token) => {
                   setCaptchaToken(token);
                 }}
-              />
+              /> */}
               <div className="w-full flex justify-center">
                 <Button
                   className="rounded-sm font-black p-4"
