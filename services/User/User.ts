@@ -161,3 +161,39 @@ export const getHeirarchy = async (params: { allianceMemberId: string }) => {
 
   return result as HeirarchyData[];
 };
+
+export const updateUserProfileInfo = async (params: {
+  id: string;
+  contactNo: string;
+  gender: string;
+}) => {
+  const response = await fetch(
+    `/api/v1/user/` + params.id + `/update-profile`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contactNo: params.contactNo,
+        gender: params.gender,
+      }),
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.message || "An error occurred while updating the profile."
+    );
+  }
+
+  return result as {
+    message: string;
+    data: {
+      user_phone_number: string;
+      user_gender: string;
+    };
+  };
+};

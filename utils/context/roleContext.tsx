@@ -11,7 +11,9 @@ type RoleContextType = {
   profile: user_table;
   teamMemberProfile: company_member_table;
   referral: company_referral_link_table;
-  setProfile: ({ profile }: { profile: user_table }) => void;
+  setProfile: (
+    updater: { profile: user_table } | ((prev: user_table) => user_table)
+  ) => void;
   setTeamMemberProfile: (
     updater:
       | { teamMemberProfile: company_member_table & user_table }
@@ -46,8 +48,14 @@ export const RoleProvider = ({
     referral: initialReferral,
   });
 
-  const setProfile = ({ profile }: { profile: user_table }) => {
-    setState((prev) => ({ ...prev, profile }));
+  const setProfile = (
+    updater: { profile: user_table } | ((prev: user_table) => user_table)
+  ) => {
+    setState((prev) => ({
+      ...prev,
+      profile:
+        typeof updater === "function" ? updater(prev.profile) : updater.profile,
+    }));
   };
 
   const setTeamMemberProfile = (
