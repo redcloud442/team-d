@@ -12,8 +12,6 @@ export const createTriggerUser = async (params: {
   captchaToken: string;
   botField: string;
   email: string;
-  phoneNumber: string;
-  gender: string;
 }) => {
   const {
     userName,
@@ -25,8 +23,6 @@ export const createTriggerUser = async (params: {
     captchaToken,
     botField,
     email,
-    phoneNumber,
-    gender,
   } = params;
   const supabase = createClientSide();
 
@@ -63,8 +59,6 @@ export const createTriggerUser = async (params: {
     url,
     botField,
     email,
-    phoneNumber,
-    gender,
   };
 
   const response = await fetch(`/api/v1/auth/register`, {

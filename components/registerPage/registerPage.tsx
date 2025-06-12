@@ -23,13 +23,6 @@ import {
   FormMessage,
 } from "../ui/form";
 import { PasswordInput } from "../ui/passwordInput";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Separator } from "../ui/separator";
 
 type Props = {
@@ -51,7 +44,6 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
       userName: "",
       password: "",
       confirmPassword: "",
-      phoneNumber: "",
     },
   });
 
@@ -132,15 +124,8 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
 
     const sanitizedData = escapeFormData(data);
 
-    const {
-      userName,
-      firstName,
-      lastName,
-      botField,
-      referralLink,
-      email,
-      phoneNumber,
-    } = sanitizedData;
+    const { userName, firstName, lastName, botField, referralLink, email } =
+      sanitizedData;
 
     try {
       await createTriggerUser({
@@ -153,8 +138,6 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
         botField: botField || "",
         password: data.password,
         email: email || "",
-        phoneNumber: phoneNumber || "",
-        gender: data.gender || "",
       });
 
       if (captcha.current) {
@@ -410,7 +393,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
               )}
             />
 
-            <FormField
+            {/* <FormField
               control={control}
               name="phoneNumber"
               render={({ field }) => (
@@ -428,9 +411,9 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
-            <FormField
+            {/* <FormField
               control={control}
               name="gender"
               render={({ field }) => (
@@ -453,7 +436,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
           </div>
 
           <h1 className="text-md text-white font-black px-4 pt-2">

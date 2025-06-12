@@ -148,16 +148,16 @@ export const RegisterSchema = z
       (val) => (val === "" || val == null ? undefined : val),
       z.string().email("Invalid email address").optional()
     ),
-    phoneNumber: z.preprocess(
-      (val) => (val === "" || val == null ? undefined : val),
-      z
-        .string()
-        .regex(/^\d+$/, "Phone number must only contain digits")
-        .min(10, "Phone number must be at least 10 digits")
-        .max(11, "Phone number must be at most 11 digits")
-        .optional()
-    ),
-    gender: z.enum(["MALE", "FEMALE"]).optional(),
+    // phoneNumber: z.preprocess(
+    //   (val) => (val === "" || val == null ? undefined : val),
+    //   z
+    //     .string()
+    //     .regex(/^\d+$/, "Phone number must only contain digits")
+    //     .min(10, "Phone number must be at least 10 digits")
+    //     .max(11, "Phone number must be at most 11 digits")
+    //     .optional()
+    // ),
+    // gender: z.enum(["MALE", "FEMALE"]).optional(),
     referralLink: z.string().optional(),
     sponsor: z.string().optional(),
   })
@@ -206,15 +206,15 @@ export const RegisterSchemaType = z.object({
     (val) => (val === "" || val == null ? undefined : val),
     z.string().email("Invalid email address").optional()
   ),
-  phoneNumber: z.preprocess(
-    (val) => (val === "" || val == null ? undefined : val),
-    z
-      .string()
-      .regex(/^\d+$/, "Phone number must only contain digits")
-      .min(10, "Phone number must be at least 10 digits")
-      .max(11, "Phone number must be at most 11 digits")
-      .optional()
-  ),
+  // phoneNumber: z.preprocess(
+  //   (val) => (val === "" || val == null ? undefined : val),
+  //   z
+  //     .string()
+  //     .regex(/^\d+$/, "Phone number must only contain digits")
+  //     .min(10, "Phone number must be at least 10 digits")
+  //     .max(11, "Phone number must be at most 11 digits")
+  //     .optional()
+  // ),
   password: z.string().trim().min(6, "Password must be at least 6 characters"),
   botField: z.string().optional(),
   referralLink: z.string().optional(),
