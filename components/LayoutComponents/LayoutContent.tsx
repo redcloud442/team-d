@@ -128,7 +128,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
             <div className="relative z-10 pb-24">{children}</div>
           </div>
 
-          {mobileNav}
+          {/* {mobileNav} */}
 
           {/* <DevMode /> */}
         </div>

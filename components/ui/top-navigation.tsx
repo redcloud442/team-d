@@ -1,36 +1,32 @@
 import Image from "next/image";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import UserMenu from "./user-menu";
 
 const TopNavigation = () => {
   const pathname = usePathname();
   return (
     <nav
-      className={`flex bg-bg-primary pt-4 ${
-        pathname === "/digi-dash" ? "justify-center" : "justify-start"
+      className={`flex bg-bg-primary pt-14 pb-4 ${
+        pathname === "/digi-dash" ? "justify-center" : "justify-center"
       }`}
     >
+      <UserMenu />
       <div
-        className={`flex items-end relative ${
-          pathname === "/digi-dash"
-            ? "-translate-x-8 justify-center"
-            : "translate-x-1"
+        className={`flex items-center relative ${
+          pathname === "/digi-dash" ? "justify-center" : "justify-center"
         }`}
       >
-        <Link href="/digi-dash">
-          <Image
-            src="/assets/icons/IconGif.webp"
-            alt="DigiWealth Logo"
-            width={100}
-            height={100}
-            className="w-20 h-auto"
-            priority
-          />
-        </Link>
+        <Image
+          src="/assets/icons/digi.webp"
+          alt="DigiWealth Logo"
+          width={80}
+          height={80}
+          className="w-26 h-auto absolute top-0 -left-4 -translate-y-1/2 -translate-x-1/2"
+          priority
+        />
 
-        <div className="flex items-center justify-center absolute bottom-1 left-12">
-          <span className="text-xs font-black text-bg-primary-blue">DIGI</span>
-          <span className="text-xs font-black text-white">WEALTH</span>
+        <div className=" ">
+          <span className="text-2xl font-black text-white ">DIGIWEALTH</span>
         </div>
       </div>
     </nav>

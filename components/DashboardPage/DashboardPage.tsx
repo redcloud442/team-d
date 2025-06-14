@@ -3,22 +3,13 @@
 import { toast } from "@/hooks/use-toast";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
-import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useRole } from "@/utils/context/roleContext";
 import { formatNumberLocale } from "@/utils/function";
 import DashboardCards from "./DashboardComponents/DashboardCards";
-import DashboardCommunity from "./DashboardComponents/DashboardCommunity";
-import DashboardNavigation from "./DashboardComponents/DashboardNavigation";
 import DashboardReferralLink from "./DashboardComponents/DashboardReferralLink";
-import DashboardSocket from "./DashboardComponents/DashboardSocket";
 import DashboardPackages from "./DashboardPackages";
 
-type DashboardPageProps = {
-  accessToken: string;
-};
-
-const DashboardPage = ({ accessToken }: DashboardPageProps) => {
-  const { earnings } = useUserEarningsStore();
+const DashboardPage = () => {
   const { totalEarnings } = useUserDashboardEarningsStore();
   const { chartData } = usePackageChartData();
   const { teamMemberProfile } = useRole();
@@ -33,16 +24,6 @@ const DashboardPage = ({ accessToken }: DashboardPageProps) => {
 
   const totalEarningsMap = [
     {
-      label: "Available Balance",
-      key: "total_available_balance",
-      value: earnings?.company_combined_earnings,
-    },
-    {
-      label: "Subscription Earnings",
-      key: "package_income",
-      value: totalEarnings?.packageEarnings,
-    },
-    {
       label: "Direct Referral Earnings",
       key: "direct_referral_amount",
       value: totalEarnings?.directReferralAmount,
@@ -53,6 +34,11 @@ const DashboardPage = ({ accessToken }: DashboardPageProps) => {
       value: totalEarnings?.indirectReferralAmount,
     },
     {
+      label: "Total Subscription Earnings",
+      key: "package_income",
+      value: totalEarnings?.packageEarnings,
+    },
+    {
       label: "Total Withdrawal",
       key: "total_withdrawal",
       value: totalEarnings?.withdrawalAmount,
@@ -61,42 +47,36 @@ const DashboardPage = ({ accessToken }: DashboardPageProps) => {
 
   return (
     <div className="relative min-h-screen h-full mx-auto">
-      <div className="w-full space-y-4 md:px-10">
-        <DashboardNavigation />
-
+      <div className="w-full space-y-4">
         {teamMemberProfile.company_member_is_active && (
           <DashboardReferralLink handleReferralLink={handleReferralLink} />
         )}
 
         <div className=" space-y-4">
-          <DashboardSocket accessToken={accessToken} />
-
-          <div className="px-6">
+          <div className="text-2xl font-bolde">Dashboard</div>
+          <div className="border-2 border-bg-primary-blue px-4 py-6 rounded-md">
             {totalEarningsMap.map((item) => (
               <div key={item.key} className="mb-3 text-center">
-                <div className="text-sm mb-1">{item.label}</div>
-                <div className="bg-white text-black py-1 rounded-lg font-semibold text-lg">
+                <div className="text-xl mb-1 text-bg-primary-blue">
+                  {item.label}
+                </div>
+                <div className=" text-white py-1 rounded-lg font-semibold text-lg">
                   ₱ {formatNumberLocale(item.value ?? 0)}
                 </div>
               </div>
             ))}
           </div>
 
-          {chartData.length > 0 && (
-            <div>
-              <div className="flex flex-col sm:flex-row justify-between items-start gap-2 pb-2">
-                <h1 className="text-xl font-bold text-bg-primary-blue">
-                  ACTIVE SUBSCRIPTIONS
-                </h1>
-              </div>
-              <DashboardPackages teamMemberProfile={teamMemberProfile} />
-            </div>
-          )}
-
           <DashboardCards />
+          {chartData.length > 0 && (
+            <>
+              <h1 className="text-xl font-bold">ACTIVE SUBSCRIPTIONS</h1>
+              <DashboardPackages teamMemberProfile={teamMemberProfile} />
+            </>
+          )}
         </div>
 
-        <DashboardCommunity />
+        {/* <DashboardCommunity /> */}
       </div>
     </div>
   );

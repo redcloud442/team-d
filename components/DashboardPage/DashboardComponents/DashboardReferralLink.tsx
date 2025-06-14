@@ -11,27 +11,25 @@ const DashboardReferralLink = ({
   const { referral } = useRole();
 
   return (
-    <div className="w-full rounded-md">
-      <div className="flex sm:grid sm:grid-cols-6 gap-2 items-center">
-        <span className="text-xs  font-semibold text-bg-primary-blue sm:col-span-1">
-          Referral Link
-        </span>
-
-        <div className="flex sm:flex-row sm:col-span-5 gap-2 w-full">
-          <div className="flex items-center gap-2 bg-white rounded-md w-full text-black font-semibold px-3 py-1">
-            <span className="text-xs sm:text-lg max-w-[200px] sm:max-w-full truncate overflow-hidden whitespace-nowrap block w-full">
-              {referral.company_referral_link}
-            </span>
-          </div>
-
-          <Button
-            variant="default"
-            className="bg-bg-primary-blue text-black font-bold text-xs sm:text-sm rounded-md px-3"
-            onClick={() => handleReferralLink(referral.company_referral_link)}
-          >
-            COPY
-          </Button>
+    <div className="w-full rounded-md border border-cyan-400 px-4 py-6">
+      <div className="flex items-center w-full h-12 overflow-hidden rounded-md">
+        {/* Label */}
+        <div className="bg-black text-white text-xs font-semibold px-3 h-full flex items-center rounded-l-md">
+          Referral link
         </div>
+
+        {/* Link */}
+        <div className="bg-teal-600 text-white text-xs sm:text-sm px-3 h-full flex items-center w-full truncate">
+          {referral.company_referral_link}
+        </div>
+
+        {/* Copy Button */}
+        <Button
+          onClick={() => handleReferralLink(referral.company_referral_link)}
+          className="bg-bg-primary-blue hover:bg-cyan-300 text-black font-bold text-xs sm:text-sm px-3 h-full rounded-none rounded-r-md"
+        >
+          Copy
+        </Button>
       </div>
     </div>
   );

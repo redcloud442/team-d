@@ -1,33 +1,32 @@
 import { package_table, PurchaseSummary } from "@/utils/types";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import DashboardDepositModalPackages from "../DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositPackagesModal";
 import { Button } from "../ui/button";
 
 type Props = {
-  packages: (package_table & {
-    package_features_table: {
-      package_features_description: { text: string; value: string }[];
-    }[];
-  })[];
+  packages: package_table[];
   purchaseSummary: PurchaseSummary;
 };
 
 const PackagePage = ({ packages, purchaseSummary }: Props) => {
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between flex-col sm:flex-row flex-wrap gap-2">
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
         <div className="space-x-1">
-          <span className="text-2xl font-bold">SELECT</span>
-          <span className="text-2xl font-bold text-bg-primary-blue">
-            SUBSCRIPTION
+          <span className="text-2xl font-normal text-white">
+            Subscription to Earn
           </span>
         </div>
 
-        <Link href={"/history/earnings"}>
-          <Button className="bg-bg-primary-blue text-black text-md font-black px-4 h-6 rounded-md hover:brightness-110 transition w-full">
-            Subscription History
-          </Button>
-        </Link>
+        <div className="flex justify-end items-end">
+          <Link href="/digi-dash">
+            <Button className="font-black rounded-lg px-4 dark:bg-white text-black">
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Button>
+          </Link>
+        </div>
       </div>
       <DashboardDepositModalPackages
         packages={packages}

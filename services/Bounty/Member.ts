@@ -1,20 +1,33 @@
-import { LegionRequestData, user_table } from "@/utils/types";
-export const getAllyBounty = async (params: {
+import { LegionRequestData, ReferralType, user_table } from "@/utils/types";
+
+export const getReferralType = async (params: {
   page: number;
   limit: number;
   search?: string;
   columnAccessor: string;
   isAscendingSort: boolean;
+  date?: Date;
+  type: ReferralType;
 }) => {
+  const { page, limit, search, columnAccessor, isAscendingSort, type, date } =
+    params;
   const urlParams = {
-    page: params.page,
-    limit: params.limit,
-    search: params.search || "",
-    columnAccessor: params.columnAccessor,
-    isAscendingSort: params.isAscendingSort,
+    page: page,
+    limit: limit,
+    search: search || "",
+    columnAccessor: columnAccessor,
+    isAscendingSort: isAscendingSort,
+    date: date || undefined,
   };
 
-  const response = await fetch(`/api/v1/referral/direct`, {
+  const referralType =
+    type === "unilevel"
+      ? "indirect"
+      : type === "direct"
+        ? "direct"
+        : "new-register";
+
+  const response = await fetch(`/api/v1/referral/${referralType}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -31,9 +44,10 @@ export const getAllyBounty = async (params: {
 
   return result as {
     data: (user_table & {
-      total_bounty_earnings: string;
+      total_bounty_earnings: number;
       package_ally_bounty_log_date_created: Date;
       company_referral_date: Date;
+      package_ally_bounty_log_id: string;
     })[];
     totalCount: 0;
   };

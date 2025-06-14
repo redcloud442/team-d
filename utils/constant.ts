@@ -29,6 +29,15 @@ export const packageMap = {
   STANDARD: "standard_count",
 } as const;
 
+export const packageMapImage = {
+  "PREMIUM Subscription":
+    "https://hafqaiewlbmeadmtgzsi.supabase.co/storage/v1/object/public/PACKAGE_IMAGES/uploads/b36af8a76a74d09b24116d67657124c7db12c2ae.png",
+  "EXPRESS Subscription":
+    "https://hafqaiewlbmeadmtgzsi.supabase.co/storage/v1/object/public/PACKAGE_IMAGES/uploads/feb332036cc0da2c68d084f498e4a1491b888143.png",
+  "STANDARD Subscription":
+    "https://hafqaiewlbmeadmtgzsi.supabase.co/storage/v1/object/public/PACKAGE_IMAGES/uploads/0a00ffc2dfb90a5d1849c6fc064ef911e8d5d0cf.png",
+} as const;
+
 export const BASE_URL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3000"

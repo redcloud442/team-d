@@ -1,12 +1,46 @@
-import DashboardCard from "@/components/DashboardCard/DashboardCard";
+import { Button } from "@/components/ui/button";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
+import Link from "next/link";
 
 const DashboardCards = () => {
   const { isWithdrawalToday, canUserDeposit } = useUserHaveAlreadyWithdraw();
 
   return (
-    <div className="px-6">
-      <DashboardCard
+    <div className="flex flex-col gap-3">
+      <Link
+        href={canUserDeposit ? "/request/deposit" : "/digi-dash"}
+        className="w-full"
+      >
+        <Button
+          disabled={!canUserDeposit}
+          className="h-12 text-xl font-bold w-full"
+        >
+          Deposit
+        </Button>
+      </Link>
+
+      <Link href="/subscription" className="w-full">
+        <Button className="h-12 text-xl font-bold w-full">
+          Subscribe to Earn
+        </Button>
+      </Link>
+      <Link
+        href={
+          isWithdrawalToday.referral && isWithdrawalToday.package
+            ? "/request/withdraw"
+            : "/digi-dash"
+        }
+        className="w-full"
+      >
+        <Button
+          disabled={!isWithdrawalToday.referral && !isWithdrawalToday.package}
+          className="h-12 text-xl font-bold w-full"
+        >
+          Withdraw
+        </Button>
+      </Link>
+
+      {/* <DashboardCard
         imageSrc="/assets/icons/deposit.webp"
         imageAlt="Deposit"
         buttons={[
@@ -41,7 +75,7 @@ const DashboardCards = () => {
           { label: "UNILEVEL", href: "/unilevel" },
           { label: "HISTORY", href: "/history/referral" },
         ]}
-      />
+      /> */}
     </div>
   );
 };

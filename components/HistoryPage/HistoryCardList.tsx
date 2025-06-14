@@ -1,3 +1,4 @@
+import { packageMapImage } from "@/utils/constant";
 import {
   colorPicker,
   formateMonthDateYearv2,
@@ -5,23 +6,31 @@ import {
   formatTime,
 } from "@/utils/function";
 import { company_transaction_table } from "@/utils/types";
+import { Triangle } from "lucide-react";
+import Image from "next/image";
 import { Button } from "../ui/button";
+import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
-import HistoryReceipt from "./HistoryReceipt";
 
 type Props = {
   data: company_transaction_table[];
-  count: number;
+  activePage: number;
+  handleSpecificPage: (page: number) => void;
+  handleNextPage: () => void;
+  handlePreviousPage: () => void;
+  pageCount: number;
   isLoading?: boolean;
-  onLoadMore?: () => void;
   currentStatus: string;
 };
 
 const HistoryCardList = ({
   data,
-  count,
+  activePage,
+  handleSpecificPage,
+  handleNextPage,
+  handlePreviousPage,
+  pageCount,
   isLoading = false,
-  onLoadMore,
   currentStatus,
 }: Props) => {
   if (isLoading && data.length === 0) {
@@ -39,88 +48,170 @@ const HistoryCardList = ({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-blue-500 shadow-md bg-blue-500/5">
-      <table className="min-w-full text-sm table-fixed">
-        <thead className="bg-[#0f172a] text-white uppercase text-xs">
-          <tr>
-            <th className="px-4 py-3 font-bold w-full sm:w-1/3 text-left">
-              Date
-            </th>
-            {["WITHDRAWAL", "DEPOSIT"].includes(currentStatus) && (
-              <th className="px-4 py-3 font-bold w-1/4 sm:w-1/3 text-left">
-                Receipt
-              </th>
-            )}
-            {["REFERRAL"].includes(currentStatus) && (
-              <th className="px-4 py-3 font-bold w-full sm:w-1/3 text-left">
-                Username
-              </th>
-            )}
-
-            <th className="px-4 py-3 font-bold w-full sm:w-1/3 text-left">
-              {currentStatus === "REFERRAL" ? "Type" : "Status"}
-            </th>
-            <th className="px-4 py-3 font-bold w-full sm:w-1/3 text-left">
-              Amount
-            </th>
-          </tr>
-        </thead>
-
-        <tbody className="divide-y divide-blue-700/20 text-white font-medium">
-          {data.map((item, index) => {
+    <>
+      <div className="rounded-lg border border-bg-primary-blue shadow-md p-4 space-y-4">
+        <ScrollArea className="h-[600px] space-y-4">
+          {data.map((item) => {
             return (
-              <tr
+              <div
                 key={item.company_transaction_id}
-                className="hover:bg-blue-900/30 transition-colors duration-200"
+                className="hover:bg-blue-900/30 transition-colors duration-200 border-2 my-4 border-bg-primary-blue rounded-md flex justify-start items-center p-4"
               >
-                <td className="px-4 py-3 text-bg-primary-blue">
-                  {index + 1}
-                  {". "}
-                  {formateMonthDateYearv2(item.company_transaction_date)},{" "}
-                  {formatTime(item.company_transaction_date)}
-                </td>
-                {["WITHDRAWAL", "DEPOSIT"].includes(currentStatus) && (
-                  <td className="px-4 py-3 text-bg-primary-blue">
-                    <HistoryReceipt selectedTransaction={item} />
-                  </td>
-                )}
+                <div>
+                  <div
+                    className={`px-4 py-3 text-3xl font-black text-white uppercase `}
+                  >
+                    {currentStatus === "REFERRAL" ? (
+                      item.company_transaction_description
+                    ) : currentStatus === "EARNINGS" ? (
+                      <>
+                        <Image
+                          src={
+                            packageMapImage[
+                              item.company_transaction_description as keyof typeof packageMapImage
+                            ]
+                          }
+                          alt="earnings"
+                          width={100}
+                          height={100}
+                          className="rounded-md"
+                        />
+                      </>
+                    ) : (
+                      item.company_transaction_type
+                    )}
+                  </div>
+                </div>
 
-                {["REFERRAL"].includes(currentStatus) && (
-                  <td className="px-4 py-3">
-                    {item.company_transaction_details}
-                  </td>
-                )}
+                <div className="flex flex-col gap-2 items-center justify-center flex-1">
+                  {/* {["WITHDRAWAL", "DEPOSIT"].includes(currentStatus) && (
+                    <div className="px-4 py-3 text-bg-primary-blue">
+                      <HistoryReceipt selectedTransaction={item} />
+                    </div>
+                  )} */}
 
-                <td
-                  className={`px-4 py-3 ${colorPicker(
-                    item.company_transaction_description
-                  )}`}
-                >
-                  {item.company_transaction_description}
-                </td>
-                <td
-                  className={`px-4 py-3 font-bold whitespace-nowrap text-gray-400`}
-                >
-                  ₱ {formatNumberLocale(item.company_transaction_amount ?? 0)}
-                </td>
-              </tr>
+                  {["WITHDRAWAL", "DEPOSIT"].includes(currentStatus) ? (
+                    <div
+                      className={`px-4 text-2xl font-bold ${colorPicker(
+                        item.company_transaction_description
+                      )}`}
+                    >
+                      {item.company_transaction_description}
+                    </div>
+                  ) : currentStatus === "EARNINGS" ? (
+                    <div className="px-4 text-2xl font-bold text-green-500">
+                      Subscribed
+                    </div>
+                  ) : (
+                    <div className="px-4 text-2xl font-bold text-green-500">
+                      PAID
+                    </div>
+                  )}
+
+                  <div className={`px-4 whitespace-nowrap`}>
+                    ₱ {formatNumberLocale(item.company_transaction_amount ?? 0)}
+                  </div>
+                  <div className="px-4 text-xs text-gray-400">
+                    {formateMonthDateYearv2(item.company_transaction_date)},{" "}
+                    {formatTime(item.company_transaction_date)}
+                  </div>
+                </div>
+              </div>
             );
           })}
-        </tbody>
-      </table>
+        </ScrollArea>
+      </div>
 
-      {count > data.length && (
-        <div className="p-4 text-center">
+      <div className="flex items-center justify-center gap-x-4 py-4">
+        {activePage > 1 && (
           <Button
-            onClick={onLoadMore}
-            disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-full transition"
+            variant="ghost"
+            size="sm"
+            onClick={() => handlePreviousPage()}
+            className="bg-bg-primary text-white hover:bg-bg-primary transition-all duration-200 rounded-lg "
           >
-            {isLoading ? "Loading..." : "Load More"}
+            <Triangle
+              className="h-4 w-4 rotate-270"
+              strokeWidth={2}
+              color="white"
+              fill="white"
+            />
           </Button>
+        )}
+
+        <div className="flex space-x-2">
+          {(() => {
+            const maxVisiblePages = 3;
+            const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
+            let displayedPages = [];
+
+            if (pageCount <= maxVisiblePages) {
+              displayedPages = pages;
+            } else {
+              if (activePage <= 2) {
+                displayedPages = [1, 2, 3, "...", pageCount];
+              } else if (activePage >= pageCount - 1) {
+                displayedPages = [
+                  1,
+                  "...",
+                  pageCount - 2,
+                  pageCount - 1,
+                  pageCount,
+                ];
+              } else {
+                displayedPages = [
+                  activePage - 1,
+                  activePage,
+                  activePage + 1,
+                  "...",
+                  pageCount,
+                ];
+              }
+            }
+
+            return displayedPages.map((page, index) =>
+              typeof page === "number" ? (
+                <Button
+                  key={page}
+                  onClick={() => handleSpecificPage(page)}
+                  size="sm"
+                  className={`${
+                    activePage === page
+                      ? "bg-bg-primary-blue text-zinc-900 font-bold shadow-md"
+                      : "border bg-bg-primary border-zinc-700 text-zinc-300 hover:bg-bg-primary hover:text-white"
+                  } rounded-lg px-3 py-2 transition-all duration-200`}
+                >
+                  {page}
+                </Button>
+              ) : (
+                <span
+                  key={`ellipsis-${index}`}
+                  className="px-2 py-1 text-zinc-600 dark:text-zinc-400 bg-bg-primary"
+                >
+                  {page}
+                </span>
+              )
+            );
+          })()}
         </div>
-      )}
-    </div>
+
+        {activePage < pageCount && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleNextPage()}
+            className="bg-bg-primary text-white hover:bg-bg-primary-blue transition-all duration-200 rounded-lg "
+          >
+            <Triangle
+              className="h-4 w-4 rotate-90"
+              strokeWidth={2}
+              color="white"
+              fill="white"
+            />
+          </Button>
+        )}
+      </div>
+    </>
   );
 };
 
