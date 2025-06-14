@@ -1,7 +1,6 @@
 import LayoutContent from "@/components/LayoutComponents/LayoutContent";
 import { ThemeProvider } from "@/components/theme-provider/theme-provider";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
 import { RoleProvider } from "@/utils/context/roleContext";
 import { createClientServerSide } from "@/utils/supabase/server";
 import {
@@ -9,11 +8,29 @@ import {
   company_referral_link_table,
   user_table,
 } from "@/utils/types";
+import { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
 
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "DIGIWEALTH",
+  description: "Step into Digi Wealth — Your path to digital prosperity.",
+  openGraph: {
+    title: "DIGIWEALTH",
+    description: "Step into Digi Wealth — Your path to digital prosperity.",
+    url: "https://www.digi-wealth.vip",
+    siteName: "DIGIWEALTH",
+    images: [
+      {
+        url: "https://www.digi-wealth.vip/assets/icons/iconGif.webp",
+        width: 1200,
+        height: 630,
+        alt: "DIGIWEALTH",
+      },
+    ],
+    type: "website",
+  },
+};
 
 export default async function AppLayout({
   children,
@@ -77,11 +94,7 @@ export default async function AppLayout({
           initialTeamMemberProfile={teamMemberProfile!}
           initialReferral={referral!}
         >
-          <Suspense
-            fallback={<Skeleton className="h-[calc(100vh-10rem)] w-full" />}
-          >
-            <LayoutContent>{children}</LayoutContent>
-          </Suspense>
+          <LayoutContent>{children}</LayoutContent>
         </RoleProvider>
       </SidebarProvider>
     </ThemeProvider>

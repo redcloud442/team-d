@@ -17,7 +17,7 @@ import { useRole } from "@/utils/context/roleContext";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -26,6 +26,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "../ui/breadcrumb";
+import DigiLoader from "../ui/digi-loader";
 import { Separator } from "../ui/separator";
 import { AppSidebar } from "../ui/side-bar";
 import { ModeToggle } from "../ui/toggleDarkmode";
@@ -44,6 +45,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const { setChartData } = usePackageChartData();
   const { setIsWithdrawalToday, setCanUserDeposit } =
     useUserHaveAlreadyWithdraw();
+  const [showLoader, setShowLoader] = useState(true);
 
   const isAdmin = useMemo(
     () => teamMemberProfile.company_member_role === ROLE.ADMIN,
@@ -112,8 +114,17 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     });
   }, [pathSegments]);
 
+  const handleLottieComplete = () => {
+    // Wait for 3 seconds after animation completes
+    setTimeout(() => {
+      setShowLoader(false);
+    }, 2600);
+  };
+
   if (!isAdmin) {
-    return (
+    return showLoader ? (
+      <DigiLoader onComplete={handleLottieComplete} />
+    ) : (
       <div className="flex min-h-screen w-full overflow-hidden relative bg-bg-primary">
         <div className="flex-1 flex flex-col overflow-x-auto relative w-full max-w-3xl mx-auto">
           {topNav}
@@ -121,10 +132,6 @@ export default function LayoutContent({ children }: LayoutContentProps) {
           <div className="p-4 relative grow">
             <div className="relative z-10 pb-24">{children}</div>
           </div>
-
-          {/* {mobileNav} */}
-
-          {/* <DevMode /> */}
         </div>
       </div>
     );
