@@ -131,6 +131,10 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
     return dailyEarn;
   };
 
+  const sumOfAmount = (amount: number, profit_amount: number) => {
+    return amount + profit_amount;
+  };
+
   return (
     <div className="flex flex-col gap-4 border-2 border-bg-primary-blue rounded-md p-4">
       {liveData.map((data, index) => (
@@ -150,7 +154,10 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
 
           <div className="flex flex-col gap-4 p-2">
             <div className="text-3xl font-normal text-center space-x-1">
-              <span> ₱ {data.amount.toFixed(2)}</span>
+              <span>
+                {" "}
+                ₱ {sumOfAmount(data.amount, data.profit_amount).toFixed(2)}
+              </span>
             </div>
             <div className="space-y-1">
               <div className="text-xs space-x-1">
