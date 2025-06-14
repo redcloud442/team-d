@@ -6,6 +6,7 @@ import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
+import { formatNumberLocale } from "@/utils/function";
 import { ChartDataMember, company_member_table } from "@/utils/types";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
@@ -131,10 +132,6 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
     return dailyEarn;
   };
 
-  const sumOfAmount = (amount: number, profit_amount: number) => {
-    return amount + profit_amount;
-  };
-
   return (
     <div className="flex flex-col gap-4 border-2 border-bg-primary-blue rounded-md p-4">
       {liveData.map((data, index) => (
@@ -154,25 +151,24 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
 
           <div className="flex flex-col gap-4 p-2">
             <div className="text-3xl font-normal text-center space-x-1">
-              <span>
-                {" "}
-                ₱ {sumOfAmount(data.amount, data.profit_amount).toFixed(2)}
-              </span>
+              <span> ₱ {formatNumberLocale(data.current_amount)}</span>
             </div>
             <div className="space-y-1">
               <div className="text-xs space-x-1">
                 <span>DAILY EARN:</span>
                 <span>
                   ₱{" "}
-                  {dailyEarn(
-                    data.amount + data.profit_amount,
-                    data.package_days
-                  ).toFixed(2)}
+                  {formatNumberLocale(
+                    dailyEarn(
+                      data.amount + data.profit_amount,
+                      data.package_days
+                    )
+                  )}
                 </span>
               </div>
               <div className="text-xs space-x-1">
                 <span>PROFIT:</span>
-                <span>₱ {data.profit_amount.toFixed(2)}</span>
+                <span>₱ {formatNumberLocale(data.profit_amount)}</span>
               </div>
 
               <div className="text-xs space-x-1">

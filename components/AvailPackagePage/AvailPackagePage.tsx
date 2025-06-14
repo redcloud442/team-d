@@ -159,7 +159,7 @@ const AvailPackagePage = ({
           package_member_id: teamMemberProfile?.company_member_id,
           package_days: Number(selectedPackage?.packages_days || 0),
           package_days_remaining: Number(selectedPackage?.packages_days || 0),
-          current_amount: Number(amount),
+          current_amount: 0,
           currentPercentage: Number(0),
           package_percentage: Number(selectedPackage?.package_percentage || 0),
           package_image: selectedPackage?.package_image || "",
