@@ -1,6 +1,5 @@
 "use client";
 
-import MobileNavBar from "@/components/ui/MobileNavBar";
 import {
   SidebarInset,
   SidebarProvider,
@@ -93,11 +92,6 @@ export default function LayoutContent({ children }: LayoutContentProps) {
   const sidebar = useMemo(() => {
     if (!isAdmin) return null;
     return <AppSidebar />;
-  }, [isAdmin]);
-
-  const mobileNav = useMemo(() => {
-    if (isAdmin) return null;
-    return <MobileNavBar />;
   }, [isAdmin]);
 
   const topNav = useMemo(() => {

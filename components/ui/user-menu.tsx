@@ -7,7 +7,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
-import { Menu } from "lucide-react";
+import { Coins, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -68,6 +68,11 @@ const UserMenu = () => {
           />
         ),
         href: "/subscription",
+      },
+      {
+        label: "History",
+        icon: <Coins className="w-6 h-6 text-bg-primary-blue" />,
+        href: "/history/deposit",
       },
       {
         label: "Referrals",
@@ -158,7 +163,7 @@ const UserMenu = () => {
 
           <SheetDescription className="hidden"> </SheetDescription>
 
-          <h1 className="text-xl font-bold text-white text-start">MENU</h1>
+          <h1 className="text-xl font-bold wtext-white text-start">MENU</h1>
           <div className="flex flex-col gap-y-4 mb-12">
             {MenuItems.main.map((item) => (
               <Link
