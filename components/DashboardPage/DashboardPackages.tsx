@@ -150,14 +150,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
 
           <div className="flex flex-col gap-4 p-2">
             <div className="text-3xl font-normal text-center space-x-1">
-              <span>
-                {" "}
-                ₱{" "}
-                {dailyEarn(
-                  data.amount + data.profit_amount,
-                  data.package_days
-                ).toFixed(2)}
-              </span>
+              <span> ₱ {data.amount.toFixed(2)}</span>
             </div>
             <div className="space-y-1">
               <div className="text-xs space-x-1">
