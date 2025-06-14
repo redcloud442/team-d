@@ -42,11 +42,11 @@ const DashboardDepositModalPackages = ({
       {!selectedPackage && (
         <div className="relative mt-10">
           <div className="flex items-center justify-around sm:justify-evenly gap-2">
-            <div className="w-10 h-10 bg-gray-100 text-black rounded-full flex items-center justify-center text-sm font-medium">
+            <div className="w-10 h-10 bg-bg-primary-blue text-black rounded-full flex items-center justify-center text-sm font-medium">
               1
             </div>
 
-            <div className="w-10 h-10  bg-bg-primary-blue text-black rounded-full flex items-center justify-center text-sm font-medium">
+            <div className="w-10 h-10  bg-gray-100 text-black rounded-full flex items-center justify-center text-sm font-medium">
               2
             </div>
           </div>
