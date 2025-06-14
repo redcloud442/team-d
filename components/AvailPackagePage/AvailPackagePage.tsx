@@ -56,7 +56,6 @@ const AvailPackagePage = ({
 
   const packageSchema = PromoPackageSchema(
     maxAmount ?? 0,
-    selectedPackage?.package_minimum_amount,
     selectedPackage?.package_maximum_amount
   );
 
