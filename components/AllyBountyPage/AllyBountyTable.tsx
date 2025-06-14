@@ -37,7 +37,7 @@ type FormValues = {
 const PAGE_LIMIT = 10;
 
 const ReferralTable = ({ type }: Props) => {
-  const { teamMemberProfile } = useRole();
+  const { teamMemberProfile, profile } = useRole();
 
   const [countdown, setCountdown] = useState(0);
   const [selectedType, setSelectedType] = useState<ReferralType>(type);
@@ -180,7 +180,6 @@ const ReferralTable = ({ type }: Props) => {
             </Link>
           </div>
         </div>
-
         <div className="space-y-3">
           <Form {...form}>
             <form

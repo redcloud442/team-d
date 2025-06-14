@@ -12,7 +12,7 @@ import DashboardPackages from "./DashboardPackages";
 const DashboardPage = () => {
   const { totalEarnings } = useUserDashboardEarningsStore();
   const { chartData } = usePackageChartData();
-  const { teamMemberProfile } = useRole();
+  const { teamMemberProfile, profile } = useRole();
 
   const handleReferralLink = (referralLink: string) => {
     navigator.clipboard.writeText(referralLink);
@@ -46,7 +46,10 @@ const DashboardPage = () => {
   ];
 
   return (
-    <div className="relative min-h-screen h-full mx-auto">
+    <div className="relative min-h-screen h-full mx-auto space-y-4">
+      <h1 className="text-2xl">
+        Hello, {profile?.user_first_name} {profile?.user_last_name}
+      </h1>
       <div className="w-full space-y-4">
         {teamMemberProfile.company_member_is_active && (
           <DashboardReferralLink handleReferralLink={handleReferralLink} />
