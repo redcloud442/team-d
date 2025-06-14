@@ -3,6 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { ImagePlus } from "lucide-react";
 import Image from "next/image";
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
@@ -58,10 +59,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
         <div
           {...getRootProps()}
           className={cn(
-            "rounded-md h-32 w-40 border-2 flex items-center justify-center text-center cursor-pointer transition",
+            "rounded-md h-44 w-full border-2 flex items-center justify-center text-center cursor-pointer transition",
             isDragActive
-              ? "border-blue-500 bg-blue-100"
-              : "border-gray-300 bg-gray-50"
+              ? "border-2 border-bg-primary-blue"
+              : "border-2 border-bg-primary-blue"
           )}
         >
           <Input
@@ -70,7 +71,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
             className="hidden"
             type="file"
           />
-          <p className="text-xs text-gray-600">Drag or click to upload</p>
+          <ImagePlus className="w-18 h-18" />
         </div>
       )}
 
@@ -88,7 +89,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
               alt="Preview"
               width={200}
               height={200}
-              className="max-w-lg h-full object-contain border-2 rounded-md"
+              className="w-full h-96 object-contain border-2 rounded-md"
             />
           </div>
           <p className="text-md font-bold text-gray-400 text-center">

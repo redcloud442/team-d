@@ -368,3 +368,5 @@ export type TransactionHistoryData = {
     Record<"EARNINGS" | "WITHDRAWAL" | "DEPOSIT" | "REFERRAL", HistoryData>
   >;
 };
+
+export type ReferralType = "direct" | "unilevel" | "new-register";

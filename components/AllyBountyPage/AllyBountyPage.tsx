@@ -1,13 +1,17 @@
 import AllyBountyTable from "./AllyBountyTable";
 
-const AllyBountyPage = () => {
+type Props = {
+  type: "new-register" | "direct" | "unilevel";
+};
+
+const AllyBountyPage = ({ type }: Props) => {
   return (
     <div className="md:p-10">
       <div>
         {/* Header Section */}
 
         <section className=" rounded-lg ">
-          <AllyBountyTable />
+          <AllyBountyTable type={type} />
         </section>
       </div>
     </div>

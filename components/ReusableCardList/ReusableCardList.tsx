@@ -38,21 +38,9 @@ const GenericTableList = <T extends object>({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-blue-500 shadow-md bg-blue-500/5">
+    <div className="overflow-x-auto rounded-lg border border-bg-primary-blue shadow-md ">
       <table className="min-w-full text-sm table-fixed" border={1}>
-        <thead className="bg-[#0f172a] text-white uppercase text-xs">
-          <tr>
-            {columns
-              .filter((col) => col.show !== false)
-              .map((col, idx) => (
-                <th key={idx} className="px-4 py-3 font-bold text-left">
-                  {col.header}
-                </th>
-              ))}
-          </tr>
-        </thead>
-
-        <tbody className="divide-y divide-blue-700/20 text-white font-medium">
+        <tbody className="text-white font-medium">
           {data.map((item, rowIndex) => (
             <tr key={getRowId(item)}>
               {columns
@@ -72,7 +60,7 @@ const GenericTableList = <T extends object>({
           <button
             onClick={onLoadMore}
             disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-full transition"
+            className="bg-bg-primary-blue hover:bg-blue-700 text-black font-bold px-6 py-2 rounded-full transition"
           >
             {isLoading ? "Loading..." : "Load More"}
           </button>

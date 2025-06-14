@@ -351,11 +351,15 @@ export const colorPicker = (text: string) => {
   }
 
   if (text.toUpperCase().includes("PENDING")) {
-    return "text-yellow-500";
+    return "text-bg-primary-blue";
   }
 
   if (text.toUpperCase().includes("APPROVED")) {
     return "text-green-500";
+  }
+
+  if (text.toUpperCase().includes("SUBSCRIBED")) {
+    return "text-yellow-500";
   }
 
   return "text-gray-400";

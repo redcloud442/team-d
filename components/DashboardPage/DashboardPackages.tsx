@@ -7,7 +7,8 @@ import { useUserTransactionHistoryStore } from "@/store/useTransactionStore";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { ChartDataMember, company_member_table } from "@/utils/types";
-import { ArrowDown, Crown, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "../ui/button";
@@ -20,7 +21,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 type DashboardPackagesProps = {
   teamMemberProfile: company_member_table;
@@ -132,34 +132,34 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
   };
 
   return (
-    <ScrollArea className="w-full h-fit px-6">
-      <div className="flex gap-4">
-        {liveData.map((data, index) => (
-          <div
-            key={index}
-            className="flex flex-col items-center justify-between border-2 border-bg-primary-blue max-w-[150px] relative mt-10"
-          >
-            <div className="border-b-2 border-bg-primary-blue w-full text-center">
-              <h1 className="text-lg font-bold ">{data.package}</h1>
+    <div className="flex flex-col gap-4 border-2 border-bg-primary-blue rounded-md p-4">
+      {liveData.map((data, index) => (
+        <div
+          key={index}
+          className="flex items-center justify-around border-2 border-bg-primary-blue relative rounded-md"
+        >
+          <div className="p-2">
+            <Image
+              src={data.package_image}
+              alt={data.package}
+              width={100}
+              height={100}
+              className="w-full h-full"
+            />
+          </div>
+
+          <div className="flex flex-col gap-4 p-2">
+            <div className="text-3xl font-normal text-center space-x-1">
+              <span>
+                {" "}
+                ₱{" "}
+                {dailyEarn(
+                  data.amount + data.profit_amount,
+                  data.package_days
+                ).toFixed(2)}
+              </span>
             </div>
-
-            {data.package_is_highlight && (
-              <Crown className="absolute w-10 h-10 text-bg-primary-blue -top-11 right-1/5 -translate-x-1/2 " />
-            )}
-
-            <div className="flex flex-col items-center justify-between gap-4 border-b-2 border-bg-primary-blue w-full">
-              <div className="flex flex-col items-center justify-between gap-4 p-4">
-                <h1 className="text-lg font-bold ">{data.amount}</h1>
-
-                <ArrowDown className="w-8 h-8 text-bg-primary-blue" />
-
-                <h1 className="text-lg font-bold text-bg-primary-blue">
-                  {data.amount + data.profit_amount}
-                </h1>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-1 p-2">
+            <div className="space-y-1">
               <div className="text-xs space-x-1">
                 <span>DAILY EARN:</span>
                 <span>
@@ -182,56 +182,56 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
                 </span>
                 <span>Days</span>
               </div>
-            </div>
 
-            <Dialog
-              open={openDialogId === data.package_connection_id}
-              onOpenChange={(isOpen) =>
-                setOpenDialogId(isOpen ? data.package_connection_id : null)
-              }
-            >
-              <DialogDescription></DialogDescription>
-              <DialogTrigger asChild>
-                <Button
-                  className=" font-black rounded-md px-2 m-2"
-                  type="submit"
-                  disabled={!data.is_ready_to_claim}
-                >
-                  {data.is_ready_to_claim ? "COMPLETE" : "GENERATING..."}
-                </Button>
-              </DialogTrigger>
-              <DialogContent type="earnings">
-                <DialogHeader>
-                  <DialogTitle className="text-bold mb-4">Generate</DialogTitle>
-                  <DialogDescription>
-                    Generate subscription earnings
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
+              <Dialog
+                open={openDialogId === data.package_connection_id}
+                onOpenChange={(isOpen) =>
+                  setOpenDialogId(isOpen ? data.package_connection_id : null)
+                }
+              >
+                <DialogDescription></DialogDescription>
+                <DialogTrigger asChild>
                   <Button
-                    disabled={isLoading === data.package_connection_id}
-                    onClick={() => handleClaimPackage(data)}
-                    className="w-full"
-                    variant="card"
+                    className=" font-black rounded-md px-2 w-full mt-2"
+                    type="submit"
+                    disabled={!data.is_ready_to_claim}
                   >
-                    {isLoading === data.package_connection_id ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        {"Generating ..."}
-                      </>
-                    ) : (
-                      "Generate"
-                    )}
+                    {data.is_ready_to_claim ? "Collect" : "Generating..."}
                   </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent type="earnings">
+                  <DialogHeader>
+                    <DialogTitle className="text-bold mb-4">
+                      Generate
+                    </DialogTitle>
+                    <DialogDescription>
+                      Generate subscription earnings
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button
+                      disabled={isLoading === data.package_connection_id}
+                      onClick={() => handleClaimPackage(data)}
+                      className="w-full"
+                      variant="card"
+                    >
+                      {isLoading === data.package_connection_id ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          {"Generating ..."}
+                        </>
+                      ) : (
+                        "Generate"
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
-        ))}
-      </div>
-
-      <ScrollBar orientation="horizontal" />
-    </ScrollArea>
+        </div>
+      ))}
+    </div>
   );
 };
 

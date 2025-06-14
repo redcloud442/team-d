@@ -122,7 +122,7 @@ const LoginPage = () => {
         {/* Logo */}
         <div className="flex flex-col items-center justify-center">
           <Image
-            src="/assets/icons/IconGif.webp"
+            src="/assets/icons/digi.webp"
             alt="DigiWealth Logo"
             width={150}
             height={150}
@@ -166,7 +166,6 @@ const LoginPage = () => {
                       variant="non-card"
                       placeholder="Username"
                       {...field}
-                      className="bg-white text-black"
                     />
                   </FormControl>
                   <FormMessage />
@@ -185,7 +184,6 @@ const LoginPage = () => {
                       variant="non-card"
                       placeholder="••••••••"
                       {...field}
-                      className="bg-white text-black z-50"
                     />
                   </FormControl>
                   <FormMessage />

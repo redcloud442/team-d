@@ -13,15 +13,11 @@ export const PRIVATE_ROUTES = [
   "/digi-dash",
   "/api/v1/access",
   "/history",
-  "/profile",
   "/request/withdraw",
   "/request/deposit",
   "/subscription",
-  "/unilevel",
   "/referral",
-  "/unilevel",
   "/change-password",
-  "/avail",
   "/logout",
 ];
 

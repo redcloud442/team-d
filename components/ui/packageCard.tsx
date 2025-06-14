@@ -1,15 +1,10 @@
 import { packageMap } from "@/utils/constant";
 import { package_table, PurchaseSummary } from "@/utils/types";
-import { CrownIcon } from "lucide-react";
 import Image from "next/image";
-import { Badge } from "./badge";
+import { Button } from "./button";
 
 type Props = {
-  packages: package_table & {
-    package_features_table: {
-      package_features_description: { text: string; value: string }[];
-    }[];
-  };
+  packages: package_table;
   type?: "reinvest" | "avail";
   onClick: (packageID: string) => void;
   purchaseSummary: PurchaseSummary;
@@ -17,75 +12,44 @@ type Props = {
 
 const PackageCard = ({ packages, onClick, purchaseSummary }: Props) => {
   return (
-    <div className="relative grid grid-cols-2 gap-6">
+    <div className="relative gap-6 flex flex-col justify-center items-center">
       {/* Left: Image */}
-      <div className="relative flex flex-col justify-center items-center w-full gap-2 sm:w-[180px]">
+      <div className="relative flex flex-col justify-center items-center w-[130px] gap-2">
+        <div className=" text-white">
+          <div className="flex flex-col justify-center items-center sm:items-start">
+            <h2 className="text-xl text-white flex items-center gap-1 uppercase font-black">
+              (
+              {
+                purchaseSummary[
+                  packageMap[packages.package_name as keyof typeof packageMap]
+                ]
+              }{" "}
+              / {packages.package_limit})
+            </h2>
+          </div>
+        </div>
         <Image
           src={packages.package_image || ""}
           alt={packages.package_name}
-          width={200}
-          height={200}
+          width={140}
+          height={140}
           priority
-          className="rounded-lg border-2 cursor-pointer object-contain hover:scale-105 duration-300 transition-transform duration-200 active:scale-95"
-          onClick={() => onClick(packages.package_id)}
+          className="rounded-lg  cursor-pointer object-contain hover:scale-105 duration-300 transition-transform duration-200 active:scale-95 "
         />
-        <Badge className="dark:bg-bg-primary-blue text-md font-bold px-1 rounded">
-          {packages.packages_days} DAYS
-        </Badge>
+        <Button
+          onClick={() => onClick(packages.package_id)}
+          disabled={
+            purchaseSummary[
+              packageMap[packages.package_name as keyof typeof packageMap]
+            ] >= (packages.package_limit ?? 0)
+          }
+          className="px-4 py-2"
+        >
+          Select
+        </Button>
       </div>
 
       {/* Right: Info */}
-      <div className=" text-white">
-        <div className="flex flex-col justify-center items-center sm:items-start">
-          {packages.package_is_popular && (
-            <p className="text-[9px] font-semibold">MOST POPULAR</p>
-          )}
-          {packages.package_is_highlight && (
-            <p className="text-[9px] font-semibold">
-              <CrownIcon className="text-bg-primary-blue" />
-            </p>
-          )}
-          <h2 className="text-xl text-bg-primary-blue flex items-center gap-1 uppercase font-black">
-            {packages.package_name}{" "}
-            {packages.package_is_popular && (
-              <span className="text-teal-300">★</span>
-            )}
-            (
-            {
-              purchaseSummary[
-                packageMap[packages.package_name as keyof typeof packageMap]
-              ]
-            }{" "}
-            / {packages.package_limit})
-          </h2>
-        </div>
-
-        <ul className="mt-2 space-y-1 text-sm">
-          {packages.package_features_table.map((feature, index) => {
-            const description = feature.package_features_description;
-
-            return description.map((item, subIndex) => {
-              const highlighted = item.text.replace(
-                item.value,
-                `<span class='text-bg-primary-blue font-bold'>${item.value}</span>`
-              );
-
-              return (
-                <li
-                  key={`${index}-${subIndex}`}
-                  className="flex items-start gap-1"
-                >
-                  <span className="text-bg-primary-blue font-bold">✓</span>
-                  <span
-                    className="text-white"
-                    dangerouslySetInnerHTML={{ __html: highlighted }}
-                  />
-                </li>
-              );
-            });
-          })}
-        </ul>
-      </div>
     </div>
   );
 };
