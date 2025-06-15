@@ -3,6 +3,7 @@
 import { toast } from "@/hooks/use-toast";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
+import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useRole } from "@/utils/context/roleContext";
 import { formatNumberLocale } from "@/utils/function";
 import DashboardCards from "./DashboardComponents/DashboardCards";
@@ -11,6 +12,7 @@ import DashboardPackages from "./DashboardPackages";
 
 const DashboardPage = () => {
   const { totalEarnings } = useUserDashboardEarningsStore();
+  const { earnings } = useUserEarningsStore();
   const { chartData } = usePackageChartData();
   const { teamMemberProfile, profile } = useRole();
 
@@ -23,6 +25,11 @@ const DashboardPage = () => {
   };
 
   const totalEarningsMap = [
+    {
+      label: "Total Available Balance",
+      key: "total_available_balance",
+      value: earnings?.company_combined_earnings,
+    },
     {
       label: "Direct Referral Earnings",
       key: "direct_referral_amount",
@@ -50,6 +57,7 @@ const DashboardPage = () => {
       <h1 className="text-2xl">
         Hello, {profile?.user_first_name} {profile?.user_last_name}
       </h1>
+      <span className="text-lg">Username : {profile?.user_username}</span>
       <div className="w-full space-y-4">
         {teamMemberProfile.company_member_is_active && (
           <DashboardReferralLink handleReferralLink={handleReferralLink} />
