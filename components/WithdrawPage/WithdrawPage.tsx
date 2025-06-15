@@ -1,6 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import DashboardWithdrawModalWithdraw from "../DashboardPage/DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
+import HistoryTable from "../HistoryPage/HistoryTable";
 import { Button } from "../ui/button";
 
 const WithdrawPage = () => {
@@ -23,6 +24,7 @@ const WithdrawPage = () => {
         </div>
       </div>
       <DashboardWithdrawModalWithdraw />
+      <HistoryTable type="withdrawal" isBackHidden />
     </div>
   );
 };

@@ -31,12 +31,14 @@ import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData, formatNumberLocale } from "@/utils/function";
 import { withdrawalFormSchema, WithdrawalFormValues } from "@/utils/schema";
+import { TransactionHistory } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { v4 as uuidv4 } from "uuid";
 
 const DashboardWithdrawModalWithdraw = () => {
   const router = useRouter();
@@ -208,25 +210,7 @@ const DashboardWithdrawModalWithdraw = () => {
         default:
           break;
       }
-
-      toast({
-        title: "Withdrawal Request Successfully",
-        description: "You will be redirected shortly",
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [
-          "transaction-history",
-          "WITHDRAW",
-          teamMemberProfile?.company_member_id,
-        ],
-      });
-
-      reset();
-      setTimeout(() => {
-        router.push("/digi-dash");
-      }, 1000);
-      setOpen(false);
+      return { data: sanitizedData };
     } catch (e) {
       if (e instanceof Error) {
         toast({
@@ -237,6 +221,74 @@ const DashboardWithdrawModalWithdraw = () => {
       }
     }
   };
+
+  const queryKey = [
+    "transaction-history",
+    "WITHDRAWAL",
+    teamMemberProfile?.company_member_id,
+    1,
+  ];
+
+  const { mutate: WithdrawalRequest, isPending } = useMutation({
+    mutationFn: async (data: WithdrawalFormValues) => {
+      await handleWithdrawalRequest(data);
+    },
+    onMutate: () => {
+      const { accountName, accountNumber, amount } = form.getValues();
+      queryClient.cancelQueries({ queryKey });
+
+      const previousData = queryClient.getQueryData(queryKey);
+
+      const newTransaction = {
+        company_transaction_id: uuidv4(),
+        company_transaction_date: new Date(),
+        company_transaction_description: "Pending",
+        company_transaction_details: `Account Name: ${accountName}, Account Number: ${accountNumber}`,
+        company_transaction_amount: Number(amount),
+        company_transaction_member_id: teamMemberProfile.company_member_id,
+        company_transaction_type: "WITHDRAWAL",
+      };
+
+      queryClient.setQueryData(queryKey, (oldData: TransactionHistory) => {
+        const data = oldData;
+
+        return {
+          ...data,
+          transactions: [newTransaction, ...data.transactions],
+          total: data.total + 1,
+        };
+      });
+
+      return { previousData };
+    },
+    onSuccess: () => {
+      toast({
+        title: "Withdrawal Request Successfully",
+        description: "You will be redirected shortly",
+      });
+      setOpen(false);
+      // setTimeout(() => {
+      //   router.push("/digi-dash");
+      // }, 1000);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey,
+        exact: false,
+      });
+      reset();
+    },
+  });
 
   const handleCalculateTotalWithdrawal = useMemo(() => {
     const totalWithdrawal = Number(amount) - Number(amount) * 0.1;
@@ -261,11 +313,15 @@ const DashboardWithdrawModalWithdraw = () => {
     { bank_name: "BDO", bank_image: <BDO /> },
   ];
 
+  const handleWithdrawalCreate = (data: WithdrawalFormValues) => {
+    WithdrawalRequest(data);
+  };
+
   return (
     <div className="w-full flex justify-center">
       <Form {...form}>
         <form
-          onSubmit={handleSubmit(handleWithdrawalRequest)}
+          onSubmit={handleSubmit(handleWithdrawalCreate)}
           className="space-y-10 w-full max-w-md sm:max-w-4xl"
         >
           {!isWithdrawalToday.referral ||
@@ -507,7 +563,7 @@ const DashboardWithdrawModalWithdraw = () => {
           <div className="w-full flex justify-center">
             <Button
               className=" font-black rounded-lg p-4"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isPending}
               type="submit"
             >
               {isSubmitting ? <Loader2 className="animate-spin" /> : null}{" "}

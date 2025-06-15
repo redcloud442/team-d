@@ -18,11 +18,12 @@ import HistoryCardList from "./HistoryCardList";
 
 type Props = {
   type: "withdrawal" | "deposit" | "earnings" | "referral";
+  isBackHidden?: boolean;
 };
 
 const PAGE_LIMIT = 10;
 
-const HistoryTable = ({ type }: Props) => {
+const HistoryTable = ({ type, isBackHidden = false }: Props) => {
   const { teamMemberProfile } = useRole();
   const [countdown, setCountdown] = useState(0);
   const [selectedType, setSelectedType] = useState<Props["type"]>(type);
@@ -135,14 +136,16 @@ const HistoryTable = ({ type }: Props) => {
             </span>
           </div>
 
-          <div className="flex justify-end items-end">
-            <Link href="/digi-dash">
-              <Button className="font-black rounded-lg px-4 dark:bg-white text-black">
-                <ArrowLeft className="w-4 h-4" />
-                Back
-              </Button>
-            </Link>
-          </div>
+          {!isBackHidden && (
+            <div className="flex justify-end items-end">
+              <Link href="/digi-dash">
+                <Button className="font-black rounded-lg px-4 dark:bg-white text-black">
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-between gap-2">

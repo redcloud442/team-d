@@ -2,6 +2,7 @@ import { merchant_table } from "@/utils/types";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import DashboardDepositModalDeposit from "../DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit";
+import HistoryTable from "../HistoryPage/HistoryTable";
 import { Button } from "../ui/button";
 
 const DepositPage = ({ options }: { options: merchant_table[] }) => {
@@ -24,6 +25,8 @@ const DepositPage = ({ options }: { options: merchant_table[] }) => {
         </div>
       </div>
       <DashboardDepositModalDeposit options={options} />
+
+      <HistoryTable type="deposit" />
     </div>
   );
 };
