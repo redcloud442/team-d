@@ -118,11 +118,7 @@ const HistoryTable = ({ type }: Props) => {
   const handleChangeType = (value: string) => {
     setSelectedType(value as Props["type"]);
 
-    window.history.pushState(
-      {},
-      "",
-      `/digi-dash/history/${value.toLowerCase()}`
-    );
+    window.history.pushState({}, "", `/history/${value.toLowerCase()}`);
   };
   return (
     <div>

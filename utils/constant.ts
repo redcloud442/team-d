@@ -30,11 +30,11 @@ export const packageMap = {
 } as const;
 
 export const packageMapImage = {
-  "PREMIUM Subscription":
+  PREMIUM:
     "https://hafqaiewlbmeadmtgzsi.supabase.co/storage/v1/object/public/PACKAGE_IMAGES/uploads/b36af8a76a74d09b24116d67657124c7db12c2ae.png",
-  "EXPRESS Subscription":
+  EXPRESS:
     "https://hafqaiewlbmeadmtgzsi.supabase.co/storage/v1/object/public/PACKAGE_IMAGES/uploads/feb332036cc0da2c68d084f498e4a1491b888143.png",
-  "STANDARD Subscription":
+  STANDARD:
     "https://hafqaiewlbmeadmtgzsi.supabase.co/storage/v1/object/public/PACKAGE_IMAGES/uploads/0a00ffc2dfb90a5d1849c6fc064ef911e8d5d0cf.png",
 } as const;
 

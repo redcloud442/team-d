@@ -358,8 +358,12 @@ export const colorPicker = (text: string) => {
     return "text-green-500";
   }
 
-  if (text.toUpperCase().includes("SUBSCRIBED")) {
-    return "text-yellow-500";
+  if (text.toUpperCase().includes("SUBSCRIPTION")) {
+    return "text-green-500";
+  }
+
+  if (text.toUpperCase().includes("COLLECTED")) {
+    return "text-red-500";
   }
 
   return "text-gray-400";
