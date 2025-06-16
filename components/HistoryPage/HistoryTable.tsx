@@ -119,11 +119,7 @@ const HistoryTable = ({ type, isBackHidden = false }: Props) => {
   const handleChangeType = (value: string) => {
     setSelectedType(value as Props["type"]);
 
-    window.history.pushState(
-      {},
-      "",
-      `/digi-dash/history/${value.toLowerCase()}`
-    );
+    window.history.pushState({}, "", `/history/${value.toLowerCase()}`);
   };
   return (
     <div>
@@ -148,18 +144,25 @@ const HistoryTable = ({ type, isBackHidden = false }: Props) => {
           )}
         </div>
 
-        <div className="flex justify-between gap-2">
-          <Select onValueChange={handleChangeType} defaultValue={selectedType}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a transaction type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="withdrawal">Withdrawal</SelectItem>
-              <SelectItem value="deposit">Deposit</SelectItem>
-              <SelectItem value="earnings">Earnings</SelectItem>
-              <SelectItem value="referral">Referral</SelectItem>
-            </SelectContent>
-          </Select>
+        <div
+          className={`flex gap-2 ${isBackHidden ? "justify-end" : "justify-between"}`}
+        >
+          {!isBackHidden && (
+            <Select
+              onValueChange={handleChangeType}
+              defaultValue={selectedType}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a transaction type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="withdrawal">Withdrawal</SelectItem>
+                <SelectItem value="deposit">Deposit</SelectItem>
+                <SelectItem value="earnings">Earnings</SelectItem>
+                <SelectItem value="referral">Referral</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
           <Button
             onClick={handleRefresh}
             disabled={isLoading || countdown > 0}

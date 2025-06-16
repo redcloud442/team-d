@@ -7,7 +7,7 @@ import { Button } from "../ui/button";
 
 const DepositPage = ({ options }: { options: merchant_table[] }) => {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
         <div className="space-x-1">
           <span className="text-2xl font-normal text-white">
@@ -26,7 +26,7 @@ const DepositPage = ({ options }: { options: merchant_table[] }) => {
       </div>
       <DashboardDepositModalDeposit options={options} />
 
-      <HistoryTable type="deposit" />
+      <HistoryTable type="deposit" isBackHidden />
     </div>
   );
 };

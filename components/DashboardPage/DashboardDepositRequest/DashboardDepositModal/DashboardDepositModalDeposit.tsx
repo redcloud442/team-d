@@ -19,13 +19,13 @@ import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData } from "@/utils/function";
 import { DepositRequestFormValues, depositRequestSchema } from "@/utils/schema";
 import { createClientSide } from "@/utils/supabase/client";
-import { merchant_table } from "@/utils/types";
+import { merchant_table, TransactionHistory } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { v4 as uuidv4 } from "uuid";
 import QRViewer from "./QRViewer";
 
 const DashboardDepositModalDeposit = ({
@@ -33,7 +33,6 @@ const DashboardDepositModalDeposit = ({
 }: {
   options: merchant_table[];
 }) => {
-  const router = useRouter();
   const supabaseClient = createClientSide();
   const queryClient = useQueryClient();
 
@@ -59,20 +58,11 @@ const DashboardDepositModalDeposit = ({
     control,
     handleSubmit,
     setValue,
-    reset,
     formState: { isSubmitting },
   } = form;
 
   const onSubmit = async (data: DepositRequestFormValues) => {
     try {
-      if (!canUserDeposit) {
-        toast({
-          title: "Error",
-          description: "You have already deposited today.",
-          variant: "destructive",
-        });
-        return;
-      }
       const sanitizedData = escapeFormData(data);
       const file = data.file;
 
@@ -97,22 +87,6 @@ const DashboardDepositModalDeposit = ({
         title: "Request Successfully Submitted",
         description: "You will be redirected shortly",
       });
-
-      reset();
-
-      setCanUserDeposit(false);
-
-      queryClient.invalidateQueries({
-        queryKey: [
-          "transaction-history",
-          "DEPOSIT",
-          teamMemberProfile?.company_member_id,
-        ],
-      });
-
-      setTimeout(() => {
-        router.push("/digi-dash");
-      }, 1000);
     } catch (e) {
       if (e instanceof Error) {
         toast({
@@ -142,11 +116,93 @@ const DashboardDepositModalDeposit = ({
     });
   };
 
+  const queryKey = [
+    "transaction-history",
+    "DEPOSIT",
+    teamMemberProfile?.company_member_id,
+    1,
+  ];
+
+  const { mutate: depositRequest, isPending } = useMutation({
+    mutationFn: onSubmit,
+    onMutate: () => {
+      const { amount } = form.getValues();
+
+      queryClient.cancelQueries({ queryKey });
+
+      const previousData = queryClient.getQueryData(queryKey);
+
+      const newTransaction = {
+        company_transaction_id: uuidv4(),
+        company_transaction_date: new Date(),
+        company_transaction_description: "Pending",
+        company_transaction_details: null,
+        company_transaction_amount: Number(amount),
+        company_transaction_member_id: teamMemberProfile.company_member_id,
+        company_transaction_type: "DEPOSIT",
+      };
+
+      queryClient.setQueryData(queryKey, (oldData: TransactionHistory) => {
+        const data = oldData;
+
+        return {
+          ...data,
+          transactions: [newTransaction, ...data.transactions],
+          total: data.total + 1,
+        };
+      });
+
+      return { previousData };
+    },
+    onSuccess: () => {
+      toast({
+        title: "Deposit Request Submitted",
+        description: "You will be redirected shortly",
+      });
+    },
+    onError: (error, data, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(queryKey, context.previousData);
+      }
+
+      if (error instanceof Error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          "transaction-history",
+          "DEPOSIT",
+          teamMemberProfile?.company_member_id,
+        ],
+      });
+      form.reset();
+      setCanUserDeposit(false);
+    },
+  });
+
+  const handleDeposit = (data: DepositRequestFormValues) => {
+    if (!canUserDeposit) {
+      toast({
+        title: "Error",
+        description: "You have already deposited today.",
+        variant: "destructive",
+      });
+      return;
+    }
+    depositRequest(data);
+  };
+
   return (
     <div className="w-full flex flex-col gap-2 justify-center items-center">
       <Form {...form}>
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(handleDeposit)}
           className="space-y-4 w-full max-w-md sm:max-w-4xl"
         >
           <SelectField
@@ -313,7 +369,7 @@ const DashboardDepositModalDeposit = ({
 
           <Button
             className=" font-black p-4 w-full h-12 text-xl"
-            disabled={isSubmitting || !canUserDeposit}
+            disabled={isSubmitting || !canUserDeposit || isPending}
             type="submit"
           >
             {isSubmitting ? <Loader2 className="animate-spin" /> : null} Submit

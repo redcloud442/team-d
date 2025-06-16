@@ -68,7 +68,15 @@ const HistoryCardList = ({
                         <Image
                           src={
                             packageMapImage[
-                              item.company_transaction_description as keyof typeof packageMapImage
+                              item.company_transaction_description.includes(
+                                "PREMIUM"
+                              )
+                                ? "PREMIUM"
+                                : item.company_transaction_description.includes(
+                                      "EXPRESS"
+                                    )
+                                  ? "EXPRESS"
+                                  : "STANDARD"
                             ]
                           }
                           alt="earnings"
@@ -99,8 +107,16 @@ const HistoryCardList = ({
                       {item.company_transaction_description}
                     </div>
                   ) : currentStatus === "EARNINGS" ? (
-                    <div className="px-4 text-2xl font-bold text-green-500">
-                      Subscribed
+                    <div
+                      className={`px-4 text-2xl font-bold ${colorPicker(
+                        item.company_transaction_description
+                      )}`}
+                    >
+                      {item.company_transaction_description.includes(
+                        "Subscription"
+                      )
+                        ? "Subscribed"
+                        : "Collected"}
                     </div>
                   ) : (
                     <div className="px-4 text-2xl font-bold text-green-500">

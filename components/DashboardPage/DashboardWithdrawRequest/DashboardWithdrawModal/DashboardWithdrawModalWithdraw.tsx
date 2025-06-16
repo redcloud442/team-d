@@ -35,13 +35,11 @@ import { TransactionHistory } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 
 const DashboardWithdrawModalWithdraw = () => {
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const [open, setOpen] = useState(false);
@@ -113,26 +111,6 @@ const DashboardWithdrawModalWithdraw = () => {
 
   const handleWithdrawalRequest = async (data: WithdrawalFormValues) => {
     try {
-      if (!isWithdrawalToday.referral) {
-        toast({
-          title: "Invalid Request",
-          description:
-            "You have already made a Referral withdrawal request today.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (!isWithdrawalToday.package) {
-        toast({
-          title: "Invalid Request",
-          description:
-            "You have already made a Subscription withdrawal request today.",
-          variant: "destructive",
-        });
-        return;
-      }
-
       const sanitizedData = escapeFormData(data);
 
       await createWithdrawalRequest({
@@ -267,11 +245,11 @@ const DashboardWithdrawModalWithdraw = () => {
         description: "You will be redirected shortly",
       });
       setOpen(false);
-      // setTimeout(() => {
-      //   router.push("/digi-dash");
-      // }, 1000);
     },
-    onError: (error) => {
+    onError: (error, data, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(queryKey, context.previousData);
+      }
       toast({
         title: "Error",
         description:
@@ -314,6 +292,26 @@ const DashboardWithdrawModalWithdraw = () => {
   ];
 
   const handleWithdrawalCreate = (data: WithdrawalFormValues) => {
+    if (data.earnings === "REFERRAL" && !isWithdrawalToday.referral) {
+      toast({
+        title: "Invalid Request",
+        description:
+          "You have already made a Referral withdrawal request today.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (data.earnings === "PACKAGE" && !isWithdrawalToday.package) {
+      toast({
+        title: "Invalid Request",
+        description:
+          "You have already made a Subscription withdrawal request today.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     WithdrawalRequest(data);
   };
 
