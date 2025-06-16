@@ -370,3 +370,8 @@ export type TransactionHistoryData = {
 };
 
 export type ReferralType = "direct" | "unilevel" | "new-register";
+
+export type TransactionHistory = {
+  transactions: company_transaction_table[];
+  total: number;
+};

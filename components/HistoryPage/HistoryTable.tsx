@@ -18,11 +18,12 @@ import HistoryCardList from "./HistoryCardList";
 
 type Props = {
   type: "withdrawal" | "deposit" | "earnings" | "referral";
+  isBackHidden?: boolean;
 };
 
 const PAGE_LIMIT = 10;
 
-const HistoryTable = ({ type }: Props) => {
+const HistoryTable = ({ type, isBackHidden = false }: Props) => {
   const { teamMemberProfile } = useRole();
   const [countdown, setCountdown] = useState(0);
   const [selectedType, setSelectedType] = useState<Props["type"]>(type);
@@ -131,28 +132,37 @@ const HistoryTable = ({ type }: Props) => {
             </span>
           </div>
 
-          <div className="flex justify-end items-end">
-            <Link href="/digi-dash">
-              <Button className="font-black rounded-lg px-4 dark:bg-white text-black">
-                <ArrowLeft className="w-4 h-4" />
-                Back
-              </Button>
-            </Link>
-          </div>
+          {!isBackHidden && (
+            <div className="flex justify-end items-end">
+              <Link href="/digi-dash">
+                <Button className="font-black rounded-lg px-4 dark:bg-white text-black">
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
 
-        <div className="flex justify-between gap-2">
-          <Select onValueChange={handleChangeType} defaultValue={selectedType}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a transaction type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="withdrawal">Withdrawal</SelectItem>
-              <SelectItem value="deposit">Deposit</SelectItem>
-              <SelectItem value="earnings">Earnings</SelectItem>
-              <SelectItem value="referral">Referral</SelectItem>
-            </SelectContent>
-          </Select>
+        <div
+          className={`flex gap-2 ${isBackHidden ? "justify-end" : "justify-between"}`}
+        >
+          {!isBackHidden && (
+            <Select
+              onValueChange={handleChangeType}
+              defaultValue={selectedType}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a transaction type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="withdrawal">Withdrawal</SelectItem>
+                <SelectItem value="deposit">Deposit</SelectItem>
+                <SelectItem value="earnings">Earnings</SelectItem>
+                <SelectItem value="referral">Referral</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
           <Button
             onClick={handleRefresh}
             disabled={isLoading || countdown > 0}

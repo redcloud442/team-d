@@ -40,6 +40,10 @@ const DashboardCards = () => {
         </Button>
       </Link>
 
+      <Link href="/history/deposit" className="w-full">
+        <Button className="h-12 text-xl font-bold w-full">History</Button>
+      </Link>
+
       {/* <DashboardCard
         imageSrc="/assets/icons/deposit.webp"
         imageAlt="Deposit"

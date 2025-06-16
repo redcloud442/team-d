@@ -57,7 +57,6 @@ const DashboardPage = () => {
       <h1 className="text-2xl">
         Hello, {profile?.user_first_name} {profile?.user_last_name}
       </h1>
-
       <h1 className="text-xl">Username : {profile?.user_username}</h1>
       <div className="w-full space-y-4">
         {teamMemberProfile.company_member_is_active && (
