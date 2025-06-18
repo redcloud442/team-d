@@ -55,7 +55,7 @@ const HistoryCardList = ({
             return (
               <div
                 key={item.company_transaction_id}
-                className="hover:bg-blue-900/30 transition-colors duration-200 border-2 my-4 border-bg-primary-blue rounded-md flex justify-start items-center p-4"
+                className="hover:bg-blue-900/30 transition-colors duration-200 border-2 my-4 border-bg-primary-blue rounded-md flex flex-col md:flex-row justify-start items-center p-4"
               >
                 <div>
                   <div
