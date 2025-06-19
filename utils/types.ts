@@ -338,6 +338,7 @@ export type PurchaseSummary = {
   standard_count: number;
   express_count: number;
   premium_count: number;
+  vip_count: number;
 };
 
 export type ModalGuide = {

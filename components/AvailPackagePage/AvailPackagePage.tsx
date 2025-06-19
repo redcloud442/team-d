@@ -56,6 +56,7 @@ const AvailPackagePage = ({
 
   const packageSchema = PromoPackageSchema(
     maxAmount ?? 0,
+    selectedPackage?.package_minimum_amount ?? 0,
     selectedPackage?.package_maximum_amount
   );
 
@@ -84,9 +85,9 @@ const AvailPackagePage = ({
   const onSubmit = async (data: z.infer<typeof packageSchema>) => {
     try {
       if (
-        packagePurchaseSummary[
+        (packagePurchaseSummary[
           packageMap[selectedPackage.package_name as keyof typeof packageMap]
-        ] >= (selectedPackage.package_limit ?? 0)
+        ] as number) >= (selectedPackage.package_limit ?? 0)
       ) {
         toast({
           title: "Error",
