@@ -32,6 +32,41 @@ LEFT JOIN packages_schema.package_table pt
     ON pmc.package_member_package_id = pt.package_id
 GROUP BY cmt.company_member_id;
 
+CREATE OR REPLACE VIEW packages_schema.package_purchase_summary AS
+SELECT
+    cmt.company_member_id AS member_id,
+    COUNT(*) FILTER (
+        WHERE pt.package_name = 'STANDARD'
+        AND pmc.package_member_status = 'ACTIVE'
+        AND pmc.package_member_connection_created >= CURRENT_DATE
+        AND pmc.package_member_connection_created < CURRENT_DATE + INTERVAL '1 day'
+    ) AS standard_count,
+    COUNT(*) FILTER (
+        WHERE pt.package_name = 'EXPRESS'
+        AND pmc.package_member_status = 'ACTIVE'
+        AND pmc.package_member_connection_created >= CURRENT_DATE
+        AND pmc.package_member_connection_created < CURRENT_DATE + INTERVAL '1 day'
+    ) AS express_count,
+    COUNT(*) FILTER (
+        WHERE pt.package_name = 'PREMIUM'
+        AND pmc.package_member_status = 'ACTIVE'
+        AND pmc.package_member_connection_created >= CURRENT_DATE
+        AND pmc.package_member_connection_created < CURRENT_DATE + INTERVAL '1 day'
+    ) AS premium_count,
+    COUNT(*) FILTER (
+        WHERE pt.package_name = 'VIP'
+        AND pmc.package_member_status = 'ACTIVE'
+        AND pmc.package_member_connection_created >= CURRENT_DATE
+        AND pmc.package_member_connection_created < CURRENT_DATE + INTERVAL '1 day'
+    ) AS vip_count,
+FROM company_schema.company_member_table cmt
+LEFT JOIN packages_schema.package_member_connection_table pmc 
+    ON pmc.package_member_member_id = cmt.company_member_id
+LEFT JOIN packages_schema.package_table pt 
+    ON pmc.package_member_package_id = pt.package_id
+GROUP BY cmt.company_member_id;
+
+
 
 DROP view company_schema.dashboard_earnings_summary;
 CREATE OR REPLACE VIEW company_schema.dashboard_earnings_summary AS

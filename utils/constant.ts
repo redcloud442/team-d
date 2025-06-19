@@ -27,6 +27,7 @@ export const packageMap = {
   PREMIUM: "premium_count",
   EXPRESS: "express_count",
   STANDARD: "standard_count",
+  VIP: "vip_count",
 } as const;
 
 export const packageMapImage = {
@@ -36,6 +37,7 @@ export const packageMapImage = {
     "https://hafqaiewlbmeadmtgzsi.supabase.co/storage/v1/object/public/PACKAGE_IMAGES/uploads/feb332036cc0da2c68d084f498e4a1491b888143.png",
   STANDARD:
     "https://hafqaiewlbmeadmtgzsi.supabase.co/storage/v1/object/public/PACKAGE_IMAGES/uploads/0a00ffc2dfb90a5d1849c6fc064ef911e8d5d0cf.png",
+  VIP: "https://hafqaiewlbmeadmtgzsi.supabase.co/storage/v1/object/public/PACKAGE_IMAGES/uploads/vip.png",
 } as const;
 
 export const BASE_URL =

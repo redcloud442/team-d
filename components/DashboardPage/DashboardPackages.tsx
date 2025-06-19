@@ -176,7 +176,6 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
                 <span className="text-bg-primary-blue">
                   {data.package_days_remaining}
                 </span>
-                <span>Days</span>
               </div>
 
               <Dialog
