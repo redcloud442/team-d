@@ -20,9 +20,7 @@ const DashboardCards = () => {
       </Link>
 
       <Link href="/subscription" className="w-full">
-        <Button className="h-12 text-xl font-bold w-full">
-          Subscribe to Earn
-        </Button>
+        <Button className="h-12 text-xl font-bold w-full">Select Plan</Button>
       </Link>
       <Link
         href={
