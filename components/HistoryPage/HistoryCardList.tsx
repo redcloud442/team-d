@@ -11,6 +11,7 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
+import ReceiptViewer from "./ReceiptViewer";
 
 type Props = {
   data: company_transaction_table[];
@@ -86,7 +87,17 @@ const HistoryCardList = ({
                         />
                       </>
                     ) : (
-                      item.company_transaction_type
+                      <div className="flex flex-col gap-2">
+                        <div>{item.company_transaction_type}</div>
+                        {currentStatus === "WITHDRAWAL" &&
+                          item.company_transaction_attachment && (
+                            <div className="flex items-center justify-center">
+                              <ReceiptViewer
+                                receipt={item.company_transaction_attachment}
+                              />
+                            </div>
+                          )}
+                      </div>
                     )}
                   </div>
                 </div>

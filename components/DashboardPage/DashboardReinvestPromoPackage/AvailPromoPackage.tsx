@@ -49,10 +49,7 @@ const AvailPromoPackage = ({ onClick, selectedPackage }: Props) => {
     (earnings?.company_referral_earnings ?? 0);
   const [maxAmount, setMaxAmount] = useState(maxReinvestment);
 
-  const formSchema = PromoPackageSchema(
-    maxAmount,
-    selectedPackage?.package_maximum_amount ?? 0
-  );
+  const formSchema = PromoPackageSchema(maxAmount, 0, 0);
 
   const form = useForm<PromoPackageFormValues>({
     resolver: zodResolver(formSchema),
