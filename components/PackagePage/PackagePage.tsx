@@ -28,10 +28,7 @@ const PackagePage = ({ packages, purchaseSummary }: Props) => {
           </Link>
         </div>
       </div>
-      <DashboardDepositModalPackages
-        packages={packages}
-        purchaseSummary={purchaseSummary}
-      />
+      <DashboardDepositModalPackages packages={packages} />
     </div>
   );
 };

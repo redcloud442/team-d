@@ -15,7 +15,7 @@ const page = async () => {
     next: { revalidate: 60, tags: ["packages"] },
   });
 
-  const { data, purchaseSummary } = (await packages.json()) || [];
+  const { data } = (await packages.json()) || [];
 
   return (
     <Suspense fallback={<Skeleton className="min-h-screen h-full w-full" />}>
@@ -27,7 +27,6 @@ const page = async () => {
             }[];
           })[]
         }
-        purchaseSummary={purchaseSummary}
       />
     </Suspense>
   );

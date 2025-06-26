@@ -7,11 +7,10 @@ import { useToast } from "@/hooks/use-toast";
 import { createPackageConnection } from "@/services/Package/Member";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
-import { packageMap } from "@/utils/constant";
 import { useRole } from "@/utils/context/roleContext";
 import { escapeFormData, formatNumberLocale } from "@/utils/function";
 import { PromoPackageSchema } from "@/utils/schema";
-import { package_table, PurchaseSummary } from "@/utils/types";
+import { package_table } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -32,17 +31,10 @@ import { Label } from "../ui/label";
 
 type Props = {
   selectedPackage: package_table;
-  packagePurchaseSummary: PurchaseSummary;
-  setSummary: Dispatch<SetStateAction<PurchaseSummary>>;
   setSelectedPackage: Dispatch<SetStateAction<package_table | null>>;
 };
 
-const AvailPackagePage = ({
-  selectedPackage,
-  packagePurchaseSummary,
-  setSummary,
-  setSelectedPackage,
-}: Props) => {
+const AvailPackagePage = ({ selectedPackage, setSelectedPackage }: Props) => {
   const queryClient = useQueryClient();
 
   const { teamMemberProfile, setTeamMemberProfile } = useRole();
@@ -84,19 +76,6 @@ const AvailPackagePage = ({
 
   const onSubmit = async (data: z.infer<typeof packageSchema>) => {
     try {
-      if (
-        (packagePurchaseSummary[
-          packageMap[selectedPackage.package_name as keyof typeof packageMap]
-        ] as number) >= (selectedPackage.package_limit ?? 0)
-      ) {
-        toast({
-          title: "Error",
-          description: "You have already purchased this package.",
-          variant: "destructive",
-        });
-        return;
-      }
-
       const result = escapeFormData({ ...data, amount: Number(data.amount) });
       const now = new Date();
       const completionDate = new Date(
@@ -175,14 +154,6 @@ const AvailPackagePage = ({
           company_member_is_active: true,
         }));
       }
-
-      setSummary({
-        ...packagePurchaseSummary,
-        [packageMap[selectedPackage.package_name as keyof typeof packageMap]]:
-          (packagePurchaseSummary[
-            packageMap[selectedPackage.package_name as keyof typeof packageMap]
-          ] as number) + 1,
-      });
     } catch (e) {
       toast({
         title: "Error",

@@ -5,23 +5,18 @@ import PackageCard from "@/components/ui/packageCard";
 import { Separator } from "@/components/ui/separator";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { formatNumberLocale } from "@/utils/function";
-import { package_table, PurchaseSummary } from "@/utils/types";
+import { package_table } from "@/utils/types";
 import { useState } from "react";
 
 type Props = {
   packages: package_table[];
-  purchaseSummary: PurchaseSummary;
 };
 
-const DashboardDepositModalPackages = ({
-  packages,
-  purchaseSummary,
-}: Props) => {
+const DashboardDepositModalPackages = ({ packages }: Props) => {
   const { earnings } = useUserEarningsStore();
   const [selectedPackage, setSelectedPackage] = useState<package_table | null>(
     null
   );
-  const [summary, setSummary] = useState<PurchaseSummary>(purchaseSummary);
 
   const handlePackageClick = (pkg: package_table) => {
     setSelectedPackage(pkg);
@@ -70,7 +65,6 @@ const DashboardDepositModalPackages = ({
             <PackageCard
               key={pkg.package_id}
               packages={pkg}
-              purchaseSummary={summary}
               onClick={() => handlePackageClick(pkg)}
             />
           ))}
@@ -100,8 +94,6 @@ const DashboardDepositModalPackages = ({
             </div>
           </div>
           <AvailPackagePage
-            setSummary={setSummary}
-            packagePurchaseSummary={summary}
             selectedPackage={selectedPackage}
             setSelectedPackage={setSelectedPackage}
           />
