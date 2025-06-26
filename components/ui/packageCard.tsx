@@ -27,7 +27,7 @@ const PackageCard = ({ packages, onClick }: Props) => {
         >
           Select
         </Button>
-      </div>
+      </div>  
 
       {/* Right: Info */}
     </div>

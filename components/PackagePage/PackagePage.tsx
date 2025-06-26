@@ -6,10 +6,9 @@ import { Button } from "../ui/button";
 
 type Props = {
   packages: package_table[];
-  purchaseSummary: PurchaseSummary;
 };
 
-const PackagePage = ({ packages, purchaseSummary }: Props) => {
+const PackagePage = ({ packages }: Props) => {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
