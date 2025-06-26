@@ -4,11 +4,11 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 export async function generateMetadata({
-  searchParams,
+  params,
 }: {
-  searchParams: Promise<{ code: string }>;
+  params: Promise<{ code: string }>;
 }) {
-  const { code } = await searchParams;
+  const { code } = await params;
 
   return {
     title: "DIGIWEALTH REGISTRATION",
