@@ -77,7 +77,11 @@ const HistoryCardList = ({
                                       "EXPRESS"
                                     )
                                   ? "EXPRESS"
-                                  : "STANDARD"
+                                  : item.company_transaction_description.includes(
+                                        "VIP"
+                                      )
+                                    ? "VIP"
+                                    : "STANDARD"
                             ]
                           }
                           alt="earnings"
