@@ -1,6 +1,6 @@
 import { useToast } from "@/hooks/use-toast";
 import { hideUser } from "@/services/Withdrawal/Admin";
-import { AdminWithdrawaldata } from "@/utils/types";
+import { AdminWithdrawaldata, UserRequestdata } from "@/utils/types";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Button } from "../ui/button";
@@ -16,8 +16,9 @@ type Props = {
   user_userName: string;
   company_member_id: string;
   hiddenUser: boolean;
-  setRequestData: Dispatch<SetStateAction<AdminWithdrawaldata | null>>;
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  setRequestData?: Dispatch<SetStateAction<AdminWithdrawaldata | null>>;
+  setUserRequestData?: Dispatch<SetStateAction<UserRequestdata[]>>;
+  status?: "PENDING" | "APPROVED" | "REJECTED";
 };
 
 const AdminWithdrawalModal = ({
@@ -25,6 +26,7 @@ const AdminWithdrawalModal = ({
   company_member_id,
   hiddenUser,
   setRequestData,
+  setUserRequestData,
   status,
 }: Props) => {
   const { toast } = useToast();
@@ -38,32 +40,47 @@ const AdminWithdrawalModal = ({
       const actionType = hiddenUser ? "remove" : "add";
       await hideUser({ id: company_member_id, type: actionType });
 
-      setRequestData((prev) => {
-        if (!prev) return prev;
+      if (setRequestData && status) {
+        setRequestData((prev) => {
+          if (!prev) return prev;
 
-        const statusList =
-          prev.data[status as keyof typeof prev.data]?.data ?? [];
-        const updatedItem = statusList.find(
-          (item) => item.company_member_id === company_member_id
-        );
-        const newStatusList = statusList.filter(
-          (item) => item.company_member_id !== company_member_id
-        );
+          const statusList =
+            prev.data[status as keyof typeof prev.data]?.data ?? [];
+          const updatedItem = statusList.find(
+            (item) => item.company_member_id === company_member_id
+          );
+          const newStatusList = statusList.filter(
+            (item) => item.company_member_id !== company_member_id
+          );
 
-        if (!updatedItem) return prev;
+          if (!updatedItem) return prev;
 
-        return {
-          ...prev,
-          data: {
-            ...prev.data,
-            [status]: {
-              ...prev.data[status],
-              data: newStatusList,
-              count: newStatusList.length,
+          return {
+            ...prev,
+            data: {
+              ...prev.data,
+              [status]: {
+                ...prev.data[status],
+                data: newStatusList,
+                count: newStatusList.length,
+              },
             },
-          },
-        };
-      });
+          };
+        });
+      }
+
+      if (setUserRequestData) {
+        setUserRequestData((prev) =>
+          prev.find(
+            (request) => request.company_member_id === company_member_id
+          )
+            ? {
+                ...prev,
+                user_withdrawal_hidden: Boolean(actionType),
+              }
+            : prev
+        );
+      }
 
       toast({
         title: hiddenUser
