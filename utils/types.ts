@@ -177,7 +177,9 @@ export type WithdrawalRequestData = company_withdrawal_request_table & {
 export type UserRequestdata = user_table &
   company_member_table &
   merchant_member_table &
-  dashboard_earnings_summary;
+  dashboard_earnings_summary & {
+    user_withdrawal_hidden: boolean;
+  };
 
 export type LegionRequestData = user_table &
   company_member_table & {

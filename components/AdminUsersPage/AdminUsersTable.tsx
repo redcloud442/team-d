@@ -161,7 +161,7 @@ const AdminUsersTable = () => {
   };
 
   const { columns, isOpenModal, setIsOpenModal, setIsLoading, isLoading } =
-    AdminUsersColumn(handleCopyAccountUrl);
+    AdminUsersColumn(handleCopyAccountUrl, setRequestData);
 
   const table = useReactTable<UserRequestdata>({
     data: requestData,

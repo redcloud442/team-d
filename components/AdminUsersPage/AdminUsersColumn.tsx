@@ -13,12 +13,14 @@ import { UserRequestdata } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
+import AdminWithdrawalModal from "../AdminWithdrawalListPage/AdminWithdrawalModal";
 import TableLoading from "../ui/tableLoading";
 import ActiveTreeModal from "../UserAdminProfile/ActiveTreeModal/ActiveTreeModal";
 
 export const AdminUsersColumn = (
-  handleCopyAccountUrl: (userName: string) => void
+  handleCopyAccountUrl: (userName: string) => void,
+  setRequestData: Dispatch<SetStateAction<UserRequestdata[]>>
 ) => {
   const supabaseClient = createClientSide();
   const router = useRouter();
@@ -98,13 +100,21 @@ export const AdminUsersColumn = (
         </Button>
       ),
       cell: ({ row }) => (
-        <div
-          onClick={() =>
-            router.push(`/admin/users/${row.original.company_member_id}`)
-          }
-          className="text-blue-500 text-wrap cursor-pointer hover:underline"
-        >
-          {row.getValue("user_username")}
+        <div className="flex gap-4">
+          <div
+            onClick={() =>
+              router.push(`/admin/users/${row.original.company_member_id}`)
+            }
+            className="text-blue-500 text-wrap cursor-pointer hover:underline space-x-10"
+          >
+            {row.getValue("user_username")}
+          </div>
+          <AdminWithdrawalModal
+            setUserRequestData={setRequestData}
+            hiddenUser={row.original.user_withdrawal_hidden}
+            user_userName={row.getValue("user_username")}
+            company_member_id={row.original.company_member_id}
+          />
         </div>
       ),
     },
