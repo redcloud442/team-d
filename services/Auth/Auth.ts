@@ -131,6 +131,22 @@ export const checkUserName = async (params: { userName: string }) => {
   return response;
 };
 
+export const checkCode = async (params: { code: string }) => {
+  const response = await fetch(`/api/v1/auth/code?code=${params.code}`, {
+    method: "GET",
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error("Invalid code.");
+  }
+
+  return data as {
+    referralLink: string;
+  };
+};
+
 export const changeUserPassword = async (params: {
   email: string;
   userId: string;

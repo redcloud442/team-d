@@ -22,6 +22,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { PasswordInput } from "../ui/passwordInput";
+import LoginDialog from "./loginDialog";
 
 const LoginPage = () => {
   const captcha = useRef<BoundTurnstileObject>(null);
@@ -148,7 +149,6 @@ const LoginPage = () => {
             </span>
           </div>
         </div>
-
         {/* Login Form */}
         <Form {...form}>
           <form
@@ -211,6 +211,10 @@ const LoginPage = () => {
             </div>
           </form>
         </Form>
+        <div className="w-full flex justify-center">
+          <span className="text-white">or</span>
+        </div>
+        <LoginDialog />
       </div>
     </>
   );
