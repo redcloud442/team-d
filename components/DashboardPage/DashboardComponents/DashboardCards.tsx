@@ -1,46 +1,18 @@
-import { Button } from "@/components/ui/button";
-import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
-import Link from "next/link";
+import DashboardDepositModalDeposit from "../DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit";
+import DashboardDepositModalPackages from "../DashboardDepositRequest/DashboardDepositModal/DashboardDepositPackagesModal";
+import DashboardWithdrawModalWithdraw from "../DashboardWithdrawRequest/DashboardWithdrawModal/DashboardWithdrawModalWithdraw";
+import DashboardHistory from "./DashboardHistory";
 
 const DashboardCards = () => {
-  const { isWithdrawalToday, canUserDeposit } = useUserHaveAlreadyWithdraw();
-
   return (
     <div className="flex flex-col gap-3">
-      <Link
-        href={canUserDeposit ? "/request/deposit" : "/digi-dash"}
-        className="w-full"
-      >
-        <Button
-          disabled={!canUserDeposit}
-          className="h-12 text-xl font-bold w-full"
-        >
-          Deposit
-        </Button>
-      </Link>
+      <DashboardDepositModalDeposit />
 
-      <Link href="/subscription" className="w-full">
-        <Button className="h-12 text-xl font-bold w-full">Select Plan</Button>
-      </Link>
-      <Link
-        href={
-          isWithdrawalToday.referral && isWithdrawalToday.package
-            ? "/request/withdraw"
-            : "/digi-dash"
-        }
-        className="w-full"
-      >
-        <Button
-          disabled={!isWithdrawalToday.referral && !isWithdrawalToday.package}
-          className="h-12 text-xl font-bold w-full"
-        >
-          Withdraw
-        </Button>
-      </Link>
+      <DashboardDepositModalPackages />
 
-      <Link href="/history/deposit" className="w-full">
-        <Button className="h-12 text-xl font-bold w-full">History</Button>
-      </Link>
+      <DashboardWithdrawModalWithdraw />
+
+      <DashboardHistory />
 
       {/* <DashboardCard
         imageSrc="/assets/icons/deposit.webp"

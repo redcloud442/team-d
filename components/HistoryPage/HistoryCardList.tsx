@@ -139,7 +139,7 @@ const HistoryCardList = ({
                     </div>
                   )}
 
-                  <div className={`px-4 whitespace-nowrap`}>
+                  <div className={`px-4 whitespace-nowrap text-white`}>
                     ₱ {formatNumberLocale(item.company_transaction_amount ?? 0)}
                   </div>
                   <div className="px-4 text-xs text-gray-400">

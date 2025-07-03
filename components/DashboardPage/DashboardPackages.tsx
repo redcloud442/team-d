@@ -24,14 +24,6 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
   const { totalEarnings, setTotalEarnings } = useUserDashboardEarningsStore();
   const { setAddTransactionHistory } = useUserTransactionHistoryStore();
   const [isLoading, setIsLoading] = useState<string | null>(null);
-  const [liveData, setLiveData] = useState(() => {
-    return chartData.map((data) => ({
-      ...data,
-      is_ready_to_claim: data.is_ready_to_claim,
-      currentPercentage: data.completion,
-      current_amount: data.current_amount,
-    }));
-  });
 
   const handleClaimPackage = async (packageData: ChartDataMember) => {
     const { amount, profit_amount, package_connection_id } = packageData;
@@ -56,8 +48,8 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
           )
         );
 
-        setLiveData(
-          liveData.filter(
+        setChartData(
+          chartData.filter(
             (data) => data.package_connection_id !== package_connection_id
           )
         );
@@ -123,7 +115,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
 
   return (
     <div className="flex flex-col gap-4 border-2 border-bg-primary-blue rounded-md p-4">
-      {liveData.map((data, index) => (
+      {chartData.map((data, index) => (
         <div
           key={index}
           className="flex items-center justify-around border-2 border-bg-primary-blue relative rounded-md"

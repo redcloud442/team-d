@@ -7,7 +7,7 @@ const HistoryPage = ({
 }) => {
   return (
     <>
-      <HistoryTable type={type} />
+      <HistoryTable type={type} isBackHidden />
     </>
   );
 };

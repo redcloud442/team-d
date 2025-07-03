@@ -118,9 +118,8 @@ const HistoryTable = ({ type, isBackHidden = false }: Props) => {
 
   const handleChangeType = (value: string) => {
     setSelectedType(value as Props["type"]);
-
-    window.history.pushState({}, "", `/history/${value.toLowerCase()}`);
   };
+
   return (
     <div>
       <div className="mb-4 flex flex-col">
@@ -147,22 +146,18 @@ const HistoryTable = ({ type, isBackHidden = false }: Props) => {
         <div
           className={`flex gap-2 ${isBackHidden ? "justify-end" : "justify-between"}`}
         >
-          {!isBackHidden && (
-            <Select
-              onValueChange={handleChangeType}
-              defaultValue={selectedType}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a transaction type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="withdrawal">Withdrawal</SelectItem>
-                <SelectItem value="deposit">Deposit</SelectItem>
-                <SelectItem value="earnings">Earnings</SelectItem>
-                <SelectItem value="referral">Referral</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
+          <Select onValueChange={handleChangeType} defaultValue={selectedType}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a transaction type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="withdrawal">Withdrawal</SelectItem>
+              <SelectItem value="deposit">Deposit</SelectItem>
+              <SelectItem value="earnings">Earnings</SelectItem>
+              <SelectItem value="referral">Referral</SelectItem>
+            </SelectContent>
+          </Select>
+
           <Button
             onClick={handleRefresh}
             disabled={isLoading || countdown > 0}

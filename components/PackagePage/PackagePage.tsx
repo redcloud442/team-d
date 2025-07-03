@@ -1,14 +1,9 @@
-import { package_table, PurchaseSummary } from "@/utils/types";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import DashboardDepositModalPackages from "../DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositPackagesModal";
 import { Button } from "../ui/button";
 
-type Props = {
-  packages: package_table[];
-};
-
-const PackagePage = ({ packages }: Props) => {
+const PackagePage = () => {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -27,7 +22,7 @@ const PackagePage = ({ packages }: Props) => {
           </Link>
         </div>
       </div>
-      <DashboardDepositModalPackages packages={packages} />
+      <DashboardDepositModalPackages />
     </div>
   );
 };

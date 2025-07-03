@@ -114,16 +114,17 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     });
   }, [pathSegments]);
 
-  const handleLottieComplete = () => {
-    // Wait for 3 seconds after animation completes
-    setTimeout(() => {
-      setShowLoader(false);
-    }, 2600);
-  };
+  useEffect(() => {
+    if (!isAdmin) {
+      setTimeout(() => {
+        setShowLoader(false);
+      }, 2600);
+    }
+  }, [isAdmin]);
 
   if (!isAdmin) {
     return showLoader ? (
-      <DigiLoader onComplete={handleLottieComplete} />
+      <DigiLoader />
     ) : (
       <div className="flex min-h-screen w-full overflow-hidden relative bg-bg-primary">
         <div className="flex-1 flex flex-col overflow-x-auto relative w-full max-w-3xl mx-auto">

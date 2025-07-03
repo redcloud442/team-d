@@ -1,11 +1,10 @@
-import { merchant_table } from "@/utils/types";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import DashboardDepositModalDeposit from "../DashboardPage/DashboardDepositRequest/DashboardDepositModal/DashboardDepositModalDeposit";
 import HistoryTable from "../HistoryPage/HistoryTable";
 import { Button } from "../ui/button";
 
-const DepositPage = ({ options }: { options: merchant_table[] }) => {
+const DepositPage = () => {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
@@ -24,7 +23,7 @@ const DepositPage = ({ options }: { options: merchant_table[] }) => {
           </Link>
         </div>
       </div>
-      <DashboardDepositModalDeposit options={options} />
+      <DashboardDepositModalDeposit />
 
       <HistoryTable type="deposit" isBackHidden />
     </div>

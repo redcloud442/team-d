@@ -2,6 +2,14 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Form,
   FormControl,
   FormField,
@@ -9,6 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -180,7 +189,7 @@ const DashboardWithdrawModalWithdraw = () => {
 
           setIsWithdrawalToday({
             ...isWithdrawalToday,
-            referral: true,
+            referral: false,
           });
 
           break;
@@ -227,17 +236,19 @@ const DashboardWithdrawModalWithdraw = () => {
         company_transaction_type: "WITHDRAWAL",
       };
 
-      queryClient.setQueryData(queryKey, (oldData: TransactionHistory) => {
-        const data = oldData;
+      if (previousData) {
+        queryClient.setQueryData(queryKey, (oldData: TransactionHistory) => {
+          const data = oldData;
 
-        return {
-          ...data,
-          transactions: [newTransaction, ...data.transactions],
-          total: data.total + 1,
-        };
-      });
+          return {
+            ...data,
+            transactions: [newTransaction, ...(data.transactions || [])],
+            total: data.total + 1,
+          };
+        });
 
-      return { previousData };
+        return { previousData };
+      }
     },
     onSuccess: () => {
       toast({
@@ -316,240 +327,273 @@ const DashboardWithdrawModalWithdraw = () => {
   };
 
   return (
-    <div className="w-full flex justify-center">
-      <Form {...form}>
-        <form
-          onSubmit={handleSubmit(handleWithdrawalCreate)}
-          className="space-y-10 w-full max-w-md sm:max-w-4xl"
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          disabled={!isWithdrawalToday.referral && !isWithdrawalToday.package}
+          className="h-12 text-xl font-bold w-full"
         >
-          {!isWithdrawalToday.referral ||
-            (!isWithdrawalToday.package && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Notice</AlertTitle>
-                <AlertDescription>
-                  You have already made a{" "}
-                  {!isWithdrawalToday.referral ? "Referral " : "Subscription "}
-                  withdrawal request today. Try again tomorrow.
-                </AlertDescription>
-              </Alert>
-            ))}
-
-          <div className="space-y-4">
-            <SelectField
-              name="bank"
-              label="Select Bank"
-              control={control}
-              onChange={handleSelectedBank}
-              options={bankData.map((option) => ({
-                label: option.bank_name,
-                value: option.bank_name,
-              }))}
-            />
-
-            <FormField
-              control={control}
-              name="earnings"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-
-                        // Set the withdrawal amount based on the selected type
-                        if (value === "PACKAGE") {
-                          setValue(
-                            "amount",
-                            earningsState?.company_package_earnings.toFixed(
-                              2
-                            ) ?? "0"
-                          );
-                        } else if (value === "REFERRAL") {
-                          setValue(
-                            "amount",
-                            earningsState?.company_referral_earnings.toFixed(
-                              2
-                            ) ?? "0"
-                          );
-                        }
-                      }}
-                      value={field.value}
-                    >
-                      <SelectTrigger className="w-auto rounded-lg dark:bg-teal-500 h-12 text-white">
-                        <SelectValue placeholder="Select Earnings">
-                          {field.value === "PACKAGE"
-                            ? `₱ ${formatNumberLocale(
-                                earningsState?.company_package_earnings ?? 0
-                              )}`
-                            : `₱ ${formatNumberLocale(
-                                earningsState?.company_referral_earnings ?? 0
-                              )}`}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem className="text-xs" value="PACKAGE">
-                          Subscription Earnings ₱{" "}
-                          {formatNumberLocale(
-                            earningsState?.company_package_earnings ?? 0
-                          )}
-                        </SelectItem>
-
-                        <SelectItem className="text-xs" value="REFERRAL">
-                          Referral And Unilevel Earnings ₱{" "}
-                          {formatNumberLocale(
-                            earningsState?.company_referral_earnings ?? 0
-                          )}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          Withdraw
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader className="hidden">
+          <DialogTitle>Withdraw Request</DialogTitle>
+          <DialogDescription>
+            Please fill out the form below to request a withdrawal.
+          </DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="sm:h-auto h-[600px] space-y-4">
+          <div className="flex justify-between items-center pb-4">
+            <div className="space-x-1">
+              <span className="text-2xl font-normal text-white">
+                Withdraw Request
+              </span>
+            </div>
           </div>
+          <div className="w-full flex justify-center">
+            <Form {...form}>
+              <form
+                onSubmit={handleSubmit(handleWithdrawalCreate)}
+                className="space-y-10 w-full max-w-md sm:max-w-4xl"
+              >
+                {!isWithdrawalToday.referral ||
+                  (!isWithdrawalToday.package && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Notice</AlertTitle>
+                      <AlertDescription>
+                        You have already made a{" "}
+                        {!isWithdrawalToday.referral
+                          ? "Referral "
+                          : "Subscription "}
+                        withdrawal request today. Try again tomorrow.
+                      </AlertDescription>
+                    </Alert>
+                  ))}
 
-          <div className="space-y-4">
-            <FormField
-              control={control}
-              name="accountName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      id="accountName"
-                      className="rounded-lg w-full bg-teal-500 text-white dark:placeholder:text-white h-12"
-                      placeholder="Enter Full Name"
-                      {...field}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+                <div className="space-y-4">
+                  <SelectField
+                    name="bank"
+                    label="Select Bank"
+                    control={control}
+                    onChange={handleSelectedBank}
+                    options={bankData.map((option) => ({
+                      label: option.bank_name,
+                      value: option.bank_name,
+                    }))}
+                  />
 
-            <FormField
-              control={control}
-              name="accountNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      className="rounded-lg w-full bg-teal-500 text-white dark:placeholder:text-white h-12"
-                      id="accountNumber"
-                      placeholder="Enter Account Number"
-                      {...field}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
+                  <FormField
+                    control={control}
+                    name="earnings"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
 
-          <div className="space-y-4">
-            <FormField
-              control={control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem className="w-full flex flex-col items-stretch">
-                  <div className="flex w-full gap-2">
-                    <FormControl className="flex-1">
-                      <Input
-                        type="text"
-                        id="amount"
-                        className="rounded-lg w-full bg-teal-500 text-white dark:placeholder:text-white h-12"
-                        placeholder="Enter Amount"
-                        {...field}
-                        value={field.value}
-                        onChange={(e) => {
-                          let value = e.target.value;
+                              // Set the withdrawal amount based on the selected type
+                              if (value === "PACKAGE") {
+                                setValue(
+                                  "amount",
+                                  earningsState?.company_package_earnings.toFixed(
+                                    2
+                                  ) ?? "0"
+                                );
+                              } else if (value === "REFERRAL") {
+                                setValue(
+                                  "amount",
+                                  earningsState?.company_referral_earnings.toFixed(
+                                    2
+                                  ) ?? "0"
+                                );
+                              }
+                            }}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="w-auto rounded-lg dark:bg-teal-500 h-12 text-white">
+                              <SelectValue placeholder="Select Earnings">
+                                {field.value === "PACKAGE"
+                                  ? `₱ ${formatNumberLocale(
+                                      earningsState?.company_package_earnings ??
+                                        0
+                                    )}`
+                                  : `₱ ${formatNumberLocale(
+                                      earningsState?.company_referral_earnings ??
+                                        0
+                                    )}`}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem className="text-xs" value="PACKAGE">
+                                Subscription Earnings ₱{" "}
+                                {formatNumberLocale(
+                                  earningsState?.company_package_earnings ?? 0
+                                )}
+                              </SelectItem>
 
-                          if (value === "") {
-                            field.onChange("");
-                            return;
-                          }
+                              <SelectItem className="text-xs" value="REFERRAL">
+                                Referral And Unilevel Earnings ₱{" "}
+                                {formatNumberLocale(
+                                  earningsState?.company_referral_earnings ?? 0
+                                )}
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
 
-                          value = value.replace(/[^0-9.]/g, "");
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                          const parts = value.split(".");
-                          if (parts.length > 2) {
-                            value = `${parts[0]}.${parts[1]}`;
-                          }
+                <div className="space-y-4">
+                  <FormField
+                    control={control}
+                    name="accountName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            id="accountName"
+                            className="rounded-lg w-full bg-teal-500 text-white dark:placeholder:text-white h-12"
+                            placeholder="Enter Full Name"
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
 
-                          if (parts[1]?.length > 2) {
-                            value = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                          }
+                  <FormField
+                    control={control}
+                    name="accountNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            className="rounded-lg w-full bg-teal-500 text-white dark:placeholder:text-white h-12"
+                            id="accountNumber"
+                            placeholder="Enter Account Number"
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                          if (value.startsWith("0")) {
-                            value = value.replace(/^0+/, "");
-                          }
+                <div className="space-y-4">
+                  <FormField
+                    control={control}
+                    name="amount"
+                    render={({ field }) => (
+                      <FormItem className="w-full flex flex-col items-stretch">
+                        <div className="flex w-full gap-2">
+                          <FormControl className="flex-1">
+                            <Input
+                              type="text"
+                              id="amount"
+                              className="rounded-lg w-full bg-teal-500 text-white dark:placeholder:text-white h-12"
+                              placeholder="Enter Amount"
+                              {...field}
+                              value={field.value}
+                              onChange={(e) => {
+                                let value = e.target.value;
 
-                          if (Math.floor(Number(value)).toString().length > 7) {
-                            value = value.substring(0, 7);
-                          }
+                                if (value === "") {
+                                  field.onChange("");
+                                  return;
+                                }
 
-                          if (Number(value) > getMaxAmount()) {
-                            value = getMaxAmount().toString();
-                          }
+                                value = value.replace(/[^0-9.]/g, "");
 
-                          field.onChange(value);
-                        }}
-                      />
-                    </FormControl>
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="rounded-lg px-4 h-12 bg-teal-500 text-white"
-                      onClick={() => {
-                        if (!selectedEarnings) {
-                          toast({
-                            title: "No Income To Withdraw",
-                            description: "Please select an earnings",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-                        setValue("amount", getMaxAmount().toFixed(2));
-                      }}
-                    >
-                      MAX
-                    </Button>
-                  </div>
+                                const parts = value.split(".");
+                                if (parts.length > 2) {
+                                  value = `${parts[0]}.${parts[1]}`;
+                                }
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Input
-              type="text"
-              className="rounded-lg w-full bg-teal-500 text-white dark:placeholder:text-white h-12"
-              id="totalVAT"
-              placeholder="Total VAT:"
-              value={
-                handleCalculateVAT === "0.00" ? "Total VAT" : handleCalculateVAT
-              }
-              readOnly
-            />
+                                if (parts[1]?.length > 2) {
+                                  value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                                }
 
-            <Input
-              type="text"
-              className="rounded-lg w-full bg-teal-500 text-white dark:placeholder:text-white h-12"
-              id="amountToRecieve"
-              placeholder="Amount to Recieve:"
-              value={
-                handleCalculateTotalWithdrawal === "0.00"
-                  ? "Amount to Recieve"
-                  : handleCalculateTotalWithdrawal
-              }
-              readOnly
-            />
-          </div>
-          {/* Submit Button */}
+                                if (value.startsWith("0")) {
+                                  value = value.replace(/^0+/, "");
+                                }
 
-          {/* <div className="w-full flex items-center justify-center">
+                                if (
+                                  Math.floor(Number(value)).toString().length >
+                                  7
+                                ) {
+                                  value = value.substring(0, 7);
+                                }
+
+                                if (Number(value) > getMaxAmount()) {
+                                  value = getMaxAmount().toString();
+                                }
+
+                                field.onChange(value);
+                              }}
+                            />
+                          </FormControl>
+                          <Button
+                            type="button"
+                            size="sm"
+                            className="rounded-lg px-4 h-12 bg-teal-500 text-white"
+                            onClick={() => {
+                              if (!selectedEarnings) {
+                                toast({
+                                  title: "No Income To Withdraw",
+                                  description: "Please select an earnings",
+                                  variant: "destructive",
+                                });
+                                return;
+                              }
+                              setValue("amount", getMaxAmount().toFixed(2));
+                            }}
+                          >
+                            MAX
+                          </Button>
+                        </div>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Input
+                    type="text"
+                    className="rounded-lg w-full bg-teal-500 text-white dark:placeholder:text-white h-12"
+                    id="totalVAT"
+                    placeholder="Total VAT:"
+                    value={
+                      handleCalculateVAT === "0.00"
+                        ? "Total VAT"
+                        : handleCalculateVAT
+                    }
+                    readOnly
+                  />
+
+                  <Input
+                    type="text"
+                    className="rounded-lg w-full bg-teal-500 text-white dark:placeholder:text-white h-12"
+                    id="amountToRecieve"
+                    placeholder="Amount to Recieve:"
+                    value={
+                      handleCalculateTotalWithdrawal === "0.00"
+                        ? "Amount to Recieve"
+                        : handleCalculateTotalWithdrawal
+                    }
+                    readOnly
+                  />
+                </div>
+                {/* Submit Button */}
+
+                {/* <div className="w-full flex items-center justify-center">
           <Turnstile
             size="flexible"
             sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""}
@@ -558,19 +602,22 @@ const DashboardWithdrawModalWithdraw = () => {
             }}
           />
         </div> */}
-          <div className="w-full flex justify-center">
-            <Button
-              className=" font-black rounded-lg p-4"
-              disabled={isSubmitting || isPending}
-              type="submit"
-            >
-              {isSubmitting ? <Loader2 className="animate-spin" /> : null}{" "}
-              Submit
-            </Button>
+                <div className="w-full flex justify-center">
+                  <Button
+                    className=" font-black rounded-lg p-4"
+                    disabled={isSubmitting || isPending}
+                    type="submit"
+                  >
+                    {isSubmitting ? <Loader2 className="animate-spin" /> : null}{" "}
+                    Submit
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </div>
-        </form>
-      </Form>
-    </div>
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
   );
 };
 

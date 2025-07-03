@@ -13,7 +13,7 @@ import { PromoPackageSchema } from "@/utils/schema";
 import { package_table } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -32,9 +32,14 @@ import { Label } from "../ui/label";
 type Props = {
   selectedPackage: package_table;
   setSelectedPackage: Dispatch<SetStateAction<package_table | null>>;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-const AvailPackagePage = ({ selectedPackage, setSelectedPackage }: Props) => {
+const AvailPackagePage = ({
+  selectedPackage,
+  setSelectedPackage,
+  setOpen,
+}: Props) => {
   const queryClient = useQueryClient();
 
   const { teamMemberProfile, setTeamMemberProfile } = useRole();
@@ -154,6 +159,7 @@ const AvailPackagePage = ({ selectedPackage, setSelectedPackage }: Props) => {
           company_member_is_active: true,
         }));
       }
+      setOpen(false);
     } catch (e) {
       toast({
         title: "Error",
@@ -296,6 +302,10 @@ const AvailPackagePage = ({ selectedPackage, setSelectedPackage }: Props) => {
             </div>
           </form>
         </Form>
+        <Button className="w-full" onClick={() => setSelectedPackage(null)}>
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </Button>
       </div>
     </div>
   );
