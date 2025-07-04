@@ -6,6 +6,7 @@ import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings"
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useRole } from "@/utils/context/roleContext";
 import { formatNumberLocale } from "@/utils/function";
+import { useMemo } from "react";
 import DashboardCards from "./DashboardComponents/DashboardCards";
 import DashboardReferralLink from "./DashboardComponents/DashboardReferralLink";
 import DashboardPackages from "./DashboardPackages";
@@ -15,6 +16,10 @@ const DashboardPage = () => {
   const { earnings } = useUserEarningsStore();
   const { chartData } = usePackageChartData();
   const { teamMemberProfile, profile } = useRole();
+
+  const vatAmount = useMemo(() => {
+    return (totalEarnings?.withdrawalAmount ?? 0) * 0.1;
+  }, [totalEarnings?.withdrawalAmount]);
 
   const handleReferralLink = (referralLink: string) => {
     navigator.clipboard.writeText(referralLink);
@@ -50,6 +55,11 @@ const DashboardPage = () => {
       key: "total_withdrawal",
       value: totalEarnings?.withdrawalAmount,
     },
+    {
+      label: "VAT Refund",
+      key: "total_vat",
+      value: vatAmount,
+    },
   ];
 
   return (
@@ -65,7 +75,7 @@ const DashboardPage = () => {
 
         <div className=" space-y-4">
           <div className="text-2xl font-bolde">Dashboard</div>
-          <div className="border-2 border-bg-primary-blue px-4 py-6 rounded-md">
+          <div className="border-2 grid grid-cols-2 gap-4 border-bg-primary-blue px-4 py-6 rounded-md">
             {totalEarningsMap.map((item) => (
               <div key={item.key} className="mb-3 text-center">
                 <div className="text-xl mb-1 text-bg-primary-blue">

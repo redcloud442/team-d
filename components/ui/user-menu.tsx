@@ -7,7 +7,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
-import { Coins, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -29,50 +29,6 @@ const UserMenu = () => {
           />
         ),
         href: "/digi-dash",
-      },
-      {
-        label: "Deposit",
-        icon: (
-          <Image
-            src="/assets/icons/deposit.ico"
-            alt="Dashboard"
-            width={24}
-            height={24}
-            className="w-6 h-6 text-bg-primary-blue"
-          />
-        ),
-        href: "/request/deposit",
-      },
-      {
-        label: "Withdraw",
-        icon: (
-          <Image
-            src="/assets/icons/withdrawal.ico"
-            alt="Dashboard"
-            width={24}
-            height={24}
-            className="w-6 h-6 text-bg-primary-blue"
-          />
-        ),
-        href: "/request/withdraw",
-      },
-      {
-        label: "Subscribe to Earn",
-        icon: (
-          <Image
-            src="/assets/icons/subscribe.ico"
-            alt="Dashboard"
-            width={24}
-            height={24}
-            className="w-6 h-6 text-bg-primary-blue"
-          />
-        ),
-        href: "/subscription",
-      },
-      {
-        label: "History",
-        icon: <Coins className="w-6 h-6 text-bg-primary-blue" />,
-        href: "/history/deposit",
       },
       {
         label: "Referrals",
