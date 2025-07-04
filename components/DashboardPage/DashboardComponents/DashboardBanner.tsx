@@ -41,8 +41,7 @@ const DashboardGuidesModal = () => {
 
   return (
     !isLoading &&
-    banners?.length &&
-    banners?.length > 0 && (
+    !!banners?.length && (
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="flex flex-col justify-center items-center">
           <DialogHeader className="hidden">
