@@ -378,3 +378,9 @@ export type TransactionHistory = {
   transactions: company_transaction_table[];
   total: number;
 };
+
+export type company_promo_table = {
+  company_promo_id: string;
+  company_promo_image: string;
+  company_promo_date: Date;
+};
