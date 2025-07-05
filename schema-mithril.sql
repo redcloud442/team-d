@@ -67,6 +67,7 @@ LEFT JOIN packages_schema.package_table pt
 GROUP BY cmt.company_member_id;
 
 
+CREATE
 
 DROP view company_schema.dashboard_earnings_summary;
 CREATE OR REPLACE VIEW company_schema.dashboard_earnings_summary AS
