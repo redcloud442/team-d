@@ -14,6 +14,7 @@ import {
   SquareTerminal,
   Trophy,
   User,
+  VideoIcon,
 } from "lucide-react";
 import * as React from "react";
 
@@ -137,6 +138,11 @@ const data = {
           title: "Banner",
           url: "/admin/banner",
           icon: ImageIcon,
+        },
+        {
+          title: "Testimonials",
+          url: "/admin/testimonials",
+          icon: VideoIcon,
         },
       ],
     },

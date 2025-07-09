@@ -11,20 +11,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { GetBanners } from "@/services/Banner/Banner";
-import { useQuery } from "@tanstack/react-query";
+import { company_promo_table } from "@/utils/types";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const DashboardGuidesModal = () => {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
-  const { data: banners, isLoading } = useQuery({
-    queryKey: ["banners"],
-    queryFn: GetBanners,
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 5,
-  });
+  const queryClient = useQueryClient();
+  const banners = queryClient.getQueryData([
+    "banners",
+  ]) as company_promo_table[];
 
   const [api, setApi] = useState<CarouselApi>();
   useEffect(() => {
@@ -40,7 +38,6 @@ const DashboardGuidesModal = () => {
   }, [api]);
 
   return (
-    !isLoading &&
     !!banners?.length && (
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="flex flex-col justify-center items-center">

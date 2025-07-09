@@ -4,6 +4,7 @@ DELETE FROM storage.buckets;
 CREATE POLICY buckets_policy ON storage.buckets FOR ALL TO PUBLIC USING (true) WITH CHECK (true);
 
 INSERT INTO storage.buckets (id, name) VALUES ('REQUEST_ATTACHMENTS', 'REQUEST_ATTACHMENTS');
+INSERT INTO storage.buckets (id, name) VALUES ('TESTIMONIAL_BUCKET', 'TESTIMONIAL_BUCKET');
 
 CREATE EXTENSION IF NOT EXISTS plv8;
 

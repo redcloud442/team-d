@@ -384,3 +384,10 @@ export type company_promo_table = {
   company_promo_image: string;
   company_promo_date: Date;
 };
+
+export type company_proof_table = {
+  company_proof_id: string;
+  company_proof_date: Date;
+  company_proof_thumbnail: string;
+  company_proof_video: string;
+};

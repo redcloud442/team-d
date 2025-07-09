@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils"; // Utility for merging classes, or replace with classNames if preferred
-import Image from "next/image";
+import { UploadCloud } from "lucide-react";
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 
@@ -45,12 +45,7 @@ const FileUploadVideo: React.FC<FileUploadProps> = ({
           type="file"
           multiple={true}
         />
-        <Image
-          src="/assets/upload-file.svg"
-          alt="upload"
-          width={130}
-          height={130}
-        />
+        <UploadCloud className="w-10 h-10" />
         {/* Display selected file count */}
       </div>
     </div>
