@@ -22,7 +22,9 @@ type Props = {
 const DashboardCarousel = ({ totalEarningsMap }: Props) => {
   const queryClient = useQueryClient();
 
-  const banner = queryClient.getQueryData(["banners"]) as company_promo_table[];
+  const banners = queryClient.getQueryData([
+    "banners",
+  ]) as company_promo_table[];
   const { data: proofOfEarnings } = useQuery({
     queryKey: ["proof-of-earnings"],
     queryFn: () => getProofOfEarninggetsVideo(),
@@ -54,22 +56,20 @@ const DashboardCarousel = ({ totalEarningsMap }: Props) => {
     }
   };
 
-  const CarouselItems = [
+  const carouselSlides: { id: string; content: React.ReactNode }[] = [
     {
-      id: "1",
+      id: "dashboard",
       content: (
         <>
-          <div className="text-2xl font-bold">Dashboard</div>
-          <div className="space-y-4 h-full flex flex-col justify-center w-full">
-            <div className="grid grid-cols-2 gap-4 w-full">
-              {totalEarningsMap?.map((item) => (
-                <div key={item.key} className="mb-3 text-center w-full">
-                  <div className="text-xl mb-1 text-bg-primary-blue">
-                    {item.label}
-                  </div>
-                  <div className=" text-white py-1 rounded-lg font-semibold text-lg">
-                    ₱ {formatNumberLocale(item.value ?? 0)}
-                  </div>
+          <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
+          <div className="flex justify-center h-full">
+            <div className="grid grid-cols-2 gap-4 justify-center w-full">
+              {totalEarningsMap.map(({ key, label, value }) => (
+                <div key={key} className="text-center">
+                  <p className="text-xl text-bg-primary-blue">{label}</p>
+                  <p className="text-lg font-semibold">
+                    ₱ {formatNumberLocale(value ?? 0)}
+                  </p>
                 </div>
               ))}
             </div>
@@ -78,74 +78,77 @@ const DashboardCarousel = ({ totalEarningsMap }: Props) => {
       ),
     },
 
-    {
-      id: "2",
-      content: proofOfEarnings?.length ? (
-        <div className="h-full space-y-4">
-          <div className="flex justify-between gap-2">
-            <div className="text-2xl font-bold">Proof of Earnings</div>
-            <DashboardProofOfEarnings
-              openVideoFullscreen={openVideoFullscreen}
-            />
-          </div>
+    /* 2 ––– Proof-of-earnings video ––– */
+    proofOfEarnings?.length
+      ? {
+          id: "proof-of-earnings",
+          content: (
+            <div className="space-y-4 h-full">
+              <div className="flex justify-between items-center gap-2">
+                <h2 className="text-2xl font-bold">Proof of Earnings</h2>
+                <DashboardProofOfEarnings
+                  openVideoFullscreen={openVideoFullscreen}
+                />
+              </div>
 
-          <div
-            key={proofOfEarnings[0].company_proof_id}
-            className="h-full relative"
-          >
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg cursor-pointer">
-              <Button>▶</Button>
+              <div className="relative h-full">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg cursor-pointer">
+                  <Button>▶</Button>
+                </div>
+
+                <video
+                  src={proofOfEarnings[0].company_proof_video}
+                  preload="none"
+                  poster={
+                    proofOfEarnings[0].company_proof_thumbnail ?? undefined
+                  }
+                  className="w-full h-full object-cover aspect-auto md:aspect-square rounded-lg"
+                  onClick={openVideoFullscreen}
+                />
+              </div>
             </div>
+          ),
+        }
+      : null,
+    /* nothing else added here; banners get appended below */
+  ].filter(Boolean) as { id: string; content: React.ReactNode }[];
 
-            <video
-              src={proofOfEarnings[0].company_proof_video}
-              preload="none"
-              poster={proofOfEarnings[0].company_proof_thumbnail ?? undefined}
-              className="w-full h-full object-cover aspect-auto md:aspect-square rounded-lg dark:bg-transparent"
-              onClick={openVideoFullscreen}
-            />
-          </div>
-        </div>
-      ) : null,
-    },
-
-    {
-      id: "3",
-      content: banner?.length ? (
-        <div className="h-full">
-          <div className="text-2xl font-bold">Promotional</div>
-          {banner.map((item) => (
+  /* 3 ––– 1 slide *per* banner ––– */
+  if (banners?.length) {
+    banners.forEach((promo) => {
+      carouselSlides.push({
+        id: `promo-${promo.company_promo_id}`,
+        content: (
+          <>
+            <h2 className="text-2xl font-bold mb-4">Promotional</h2>
             <Image
-              src={item.company_promo_image}
-              alt={`${item.company_promo_id} - promo`}
-              width={300}
-              height={300}
-              key={item.company_promo_id}
-              className="w-full h-full object-contain"
+              src={promo.company_promo_image}
+              alt={`${promo.company_promo_id} – promo`}
+              width={600}
+              height={600}
+              className="w-full h-full object-contain rounded-lg"
             />
-          ))}
-        </div>
-      ) : null,
-    },
-  ];
+          </>
+        ),
+      });
+    });
+  }
 
+  /** =========================
+   *  Render
+   * ========================= */
   return (
-    <div className="border-2 border-bg-primary-blue px-4 py-6 rounded-md relative overflow-hidden">
+    <div className="border-2 border-bg-primary-blue px-4 py-6 rounded-md overflow-hidden">
       <Carousel
-        className="w-full overflow-hidden min-h-fit flex flex-col items-center justify-center"
-        opts={{
-          align: "center",
-        }}
+        className="w-full min-h-fit flex flex-col items-center justify-center"
+        opts={{ align: "center" }}
       >
         <CarouselContent className="h-[500px] w-full">
-          {CarouselItems?.map(
-            (item) =>
-              item.content !== null && (
-                <CarouselItem className="w-full" key={item.id}>
-                  {item.content}
-                </CarouselItem>
-              )
-          )}
+          {carouselSlides.map(({ id, content }) => (
+            <CarouselItem key={id} className="w-full">
+              {content}
+            </CarouselItem>
+          ))}
         </CarouselContent>
       </Carousel>
     </div>
