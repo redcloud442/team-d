@@ -35,6 +35,7 @@ import Maya from "@/public/assets/svg/maya";
 import MetroB from "@/public/assets/svg/metrob";
 import { getUserEarnings } from "@/services/User/User";
 import { createWithdrawalRequest } from "@/services/Withdrawal/Member";
+import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useUserHaveAlreadyWithdraw } from "@/store/useWithdrawalToday";
 import { useRole } from "@/utils/context/roleContext";
@@ -53,7 +54,12 @@ const DashboardWithdrawModalWithdraw = () => {
 
   const [open, setOpen] = useState(false);
   const { earnings: earningsState, setEarnings } = useUserEarningsStore();
+  const { totalEarnings } = useUserDashboardEarningsStore();
   const { teamMemberProfile } = useRole();
+
+  const vatAmount = useMemo(() => {
+    return (totalEarnings?.withdrawalAmount ?? 0) * 0.1;
+  }, [totalEarnings?.withdrawalAmount]);
 
   const { isWithdrawalToday, setIsWithdrawalToday } =
     useUserHaveAlreadyWithdraw();
@@ -339,16 +345,25 @@ const DashboardWithdrawModalWithdraw = () => {
       <DialogContent>
         <DialogHeader className="hidden">
           <DialogTitle>Withdraw Request</DialogTitle>
+
           <DialogDescription>
             Please fill out the form below to request a withdrawal.
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="sm:h-auto h-[600px] space-y-4">
-          <div className="flex justify-between items-center pb-4">
+          <div className="flex flex-col pb-4">
             <div className="space-x-1">
               <span className="text-2xl font-normal text-white">
                 Withdraw Request
               </span>
+              <div className="flex justify-between items-center">
+                <span className="text-md font-normal text-white">
+                  Total Vat:
+                </span>
+                <span className="text-md font-normal text-white">
+                  ₱ {formatNumberLocale(vatAmount)}
+                </span>
+              </div>
             </div>
           </div>
           <div className="w-full flex justify-center">
