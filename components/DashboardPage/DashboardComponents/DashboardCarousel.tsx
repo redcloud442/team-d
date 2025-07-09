@@ -120,7 +120,6 @@ const DashboardCarousel = ({ totalEarningsMap }: Props) => {
         id: `promo-${promo.company_promo_id}`,
         content: (
           <>
-            <h2 className="text-2xl font-bold mb-4">Promotional</h2>
             <Image
               src={promo.company_promo_image}
               alt={`${promo.company_promo_id} – promo`}
@@ -143,7 +142,7 @@ const DashboardCarousel = ({ totalEarningsMap }: Props) => {
         className="w-full min-h-fit flex flex-col items-center justify-center"
         opts={{ align: "center" }}
       >
-        <CarouselContent className="h-[500px] w-full">
+        <CarouselContent className="h-[500px] w-full min-w-xl max-w-2xl">
           {carouselSlides.map(({ id, content }) => (
             <CarouselItem key={id} className="w-full">
               {content}

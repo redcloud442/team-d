@@ -71,7 +71,7 @@ const DashboardGuidesModal = ({ openVideoFullscreen }: Props) => {
 
                       <video
                         src={`${proofOfEarnings?.[index]?.company_proof_video || ""}`}
-                        className="w-full h-full object-cover"
+                        className="h-full w-96 object-cover"
                         poster={
                           proofOfEarnings?.[index]?.company_proof_thumbnail ||
                           "/images/default-video-thumbnail.jpg"
