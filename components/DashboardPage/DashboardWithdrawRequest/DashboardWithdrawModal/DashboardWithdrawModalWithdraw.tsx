@@ -329,6 +329,15 @@ const DashboardWithdrawModalWithdraw = () => {
       return;
     }
 
+    if (data.earnings === "VAT") {
+      toast({
+        title: "Invalid , Non - Withdrawable Earnings",
+        description: "You cannott withdraw your VAT.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     WithdrawalRequest(data);
   };
 
@@ -356,14 +365,6 @@ const DashboardWithdrawModalWithdraw = () => {
               <span className="text-2xl font-normal text-white">
                 Withdraw Request
               </span>
-              <div className="flex justify-between items-center">
-                <span className="text-md font-normal text-white">
-                  Total Vat:
-                </span>
-                <span className="text-md font-normal text-white">
-                  ₱ {formatNumberLocale(vatAmount)}
-                </span>
-              </div>
             </div>
           </div>
           <div className="w-full flex justify-center">
@@ -435,10 +436,12 @@ const DashboardWithdrawModalWithdraw = () => {
                                       earningsState?.company_package_earnings ??
                                         0
                                     )}`
-                                  : `₱ ${formatNumberLocale(
-                                      earningsState?.company_referral_earnings ??
-                                        0
-                                    )}`}
+                                  : field.value === "REFERRAL"
+                                    ? `₱ ${formatNumberLocale(
+                                        earningsState?.company_combined_earnings ??
+                                          0
+                                      )}`
+                                    : `₱ ${formatNumberLocale(vatAmount ?? 0)}`}
                               </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
@@ -454,6 +457,10 @@ const DashboardWithdrawModalWithdraw = () => {
                                 {formatNumberLocale(
                                   earningsState?.company_referral_earnings ?? 0
                                 )}
+                              </SelectItem>
+
+                              <SelectItem className="text-xs" value="VAT">
+                                Total VAT ₱ {formatNumberLocale(vatAmount ?? 0)}
                               </SelectItem>
                             </SelectContent>
                           </Select>
