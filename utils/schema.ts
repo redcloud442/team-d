@@ -261,9 +261,6 @@ export const PromoPackageSchema = (
       })
       .refine((val) => Number(val) <= Number(maxAmount.toFixed(2)), {
         message: `Amount cannot exceed ${maxAmount}`,
-      })
-      .refine((val) => Number(val) <= maximumAmount, {
-        message: `Amount exceed maximum amount ${maximumAmount}`,
       }),
     packageId: z.string(),
   });
