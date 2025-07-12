@@ -70,10 +70,15 @@ const AvailPackagePage = ({
     control,
     reset,
     watch,
+    setValue,
     formState: { isSubmitting },
   } = form;
 
   const amount = watch("amount");
+
+  const getMaxAmount = () => {
+    return maxAmount ?? 0;
+  };
 
   const computation = amount
     ? (Number(amount) * (selectedPackage?.package_percentage ?? 0)) / 100
@@ -204,7 +209,7 @@ const AvailPackagePage = ({
                 control={control}
                 name="amount"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="space-y-2">
                     <FormLabel className="text-start font-normal text-xl">
                       Amount
                     </FormLabel>
@@ -253,6 +258,17 @@ const AvailPackagePage = ({
                       />
                     </FormControl>
                     <FormMessage />
+
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="rounded-lg px-4 h-12 bg-teal-500 text-white"
+                      onClick={() => {
+                        setValue("amount", getMaxAmount().toFixed(2));
+                      }}
+                    >
+                      MAX
+                    </Button>
                   </FormItem>
                 )}
               />
