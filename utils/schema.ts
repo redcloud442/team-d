@@ -7,7 +7,7 @@ export const depositRequestSchema = z.object({
     .min(3, "Deposit at least 150 pesos")
     .max(6, "Amount must be less than 6 digits")
     .regex(/^\d+$/, "Amount must be a number")
-    .refine((amount) => parseInt(amount, 10) >= 150, {
+    .refine((amount) => parseInt(amount, 10) >= 100, {
       message: "Amount must be at least 100 pesos",
     }),
   topUpMode: z.string().min(1, "MOP is required"),
