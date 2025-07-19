@@ -4,7 +4,7 @@ export const depositRequestSchema = z.object({
   amount: z
     .string()
     .trim()
-    .min(3, "Deposit at least 150 pesos")
+    .min(3, "Deposit at least 100 pesos")
     .max(6, "Amount must be less than 6 digits")
     .regex(/^\d+$/, "Amount must be a number")
     .refine((amount) => parseInt(amount, 10) >= 100, {
