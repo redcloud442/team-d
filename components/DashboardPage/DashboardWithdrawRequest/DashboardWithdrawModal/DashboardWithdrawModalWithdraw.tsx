@@ -432,35 +432,35 @@ const DashboardWithdrawModalWithdraw = () => {
                             <SelectTrigger className="w-auto rounded-lg dark:bg-teal-500 h-12 text-white">
                               <SelectValue placeholder="Select Earnings">
                                 {field.value === "PACKAGE"
-                                  ? `₱ ${formatNumberLocale(
+                                  ? ` ${formatNumberLocale(
                                       earningsState?.company_package_earnings ??
                                         0
                                     )}`
                                   : field.value === "REFERRAL"
-                                    ? `₱ ${formatNumberLocale(
+                                    ? ` ${formatNumberLocale(
                                         earningsState?.company_combined_earnings ??
                                           0
                                       )}`
-                                    : `₱ ${formatNumberLocale(vatAmount ?? 0)}`}
+                                    : ` ${formatNumberLocale(vatAmount ?? 0)}`}
                               </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem className="text-xs" value="PACKAGE">
-                                Subscription Earnings ₱{" "}
+                                Subscription Earnings{" "}
                                 {formatNumberLocale(
                                   earningsState?.company_package_earnings ?? 0
                                 )}
                               </SelectItem>
 
                               <SelectItem className="text-xs" value="REFERRAL">
-                                Referral And Unilevel Earnings ₱{" "}
+                                Referral And Unilevel Earnings{" "}
                                 {formatNumberLocale(
                                   earningsState?.company_referral_earnings ?? 0
                                 )}
                               </SelectItem>
 
                               <SelectItem className="text-xs" value="VAT">
-                                Total VAT ₱ {formatNumberLocale(vatAmount ?? 0)}
+                                Total VAT {formatNumberLocale(vatAmount ?? 0)}
                               </SelectItem>
                             </SelectContent>
                           </Select>

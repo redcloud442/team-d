@@ -132,13 +132,13 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
 
           <div className="flex flex-col gap-4 p-2">
             <div className="text-3xl font-normal text-center space-x-1">
-              <span> ₱ {formatNumberLocale(data.current_amount)}</span>
+              <span> {formatNumberLocale(data.current_amount)}</span>
             </div>
             <div className="space-y-1">
               <div className="text-xs space-x-1">
                 <span>DAILY EARN:</span>
                 <span>
-                  ₱{" "}
+                  {" "}
                   {formatNumberLocale(
                     dailyEarn(
                       data.amount + data.profit_amount,
@@ -149,7 +149,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
               </div>
               <div className="text-xs space-x-1">
                 <span>PROFIT:</span>
-                <span>₱ {formatNumberLocale(data.profit_amount)}</span>
+                <span> {formatNumberLocale(data.profit_amount)}</span>
               </div>
 
               {!data.is_ready_to_claim && (

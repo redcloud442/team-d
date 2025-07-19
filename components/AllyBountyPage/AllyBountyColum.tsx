@@ -34,7 +34,7 @@ export const AllyBountyColumn = (
             header: "Username",
             render: (item: AllyBountyRow) => (
               <div className="text-start text-[10px] sm:text-[12px]">
-                ₱ {formatNumberLocale(item?.total_bounty_earnings)}
+                {formatNumberLocale(item?.total_bounty_earnings)}
               </div>
             ),
           },

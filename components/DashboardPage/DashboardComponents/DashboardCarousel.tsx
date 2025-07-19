@@ -68,7 +68,7 @@ const DashboardCarousel = ({ totalEarningsMap }: Props) => {
                 <div key={key} className="text-center">
                   <p className="text-xl text-bg-primary-blue">{label}</p>
                   <p className="text-lg font-semibold">
-                    ₱ {formatNumberLocale(value ?? 0)}
+                    {formatNumberLocale(value ?? 0)}
                   </p>
                 </div>
               ))}

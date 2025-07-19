@@ -48,7 +48,7 @@ const HistoryReceipt = ({ selectedTransaction }: Props) => {
                   {selectedTransaction.company_transaction_type}
                 </div>
                 <div className="text-3xl font-bold text-primary mt-2">
-                  ₱{" "}
+                  {" "}
                   {formatNumberLocale(
                     selectedTransaction.company_transaction_amount ?? 0
                   )}

@@ -202,7 +202,7 @@ const RegisterPage = ({ referralLink, userName }: Props) => {
           <div className="bg-gradient-to-r from-bg-primary to-bg-primary-blue text-white text-center py-4 px-6 rounded-xl mb-4 shadow-lg border border-green-400/30 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
             <div className="relative z-10 flex items-center justify-center gap-2">
-              <span className="font-bold text-xl tracking-wide">₱50 BONUS</span>
+              <span className="font-bold text-xl tracking-wide">50 BONUS</span>
             </div>
             <p className="text-sm opacity-90 mt-1 relative z-10">
               Upon Registration
