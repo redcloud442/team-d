@@ -43,7 +43,6 @@ const HistoryCardList = ({
   isLoading = false,
   currentStatus,
 }: Props) => {
-  console.log(currentStatus);
   if (isLoading && data.length === 0) {
     return (
       <div className="space-y-4">
