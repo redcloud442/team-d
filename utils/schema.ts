@@ -114,7 +114,7 @@ export const RegisterSchema = z
     lastName: z
       .string()
       .trim()
-      .min(3, "Last name is required")
+      .min(1, "Last name is required")
       .max(50, "Last name must be less than 50 characters"),
     userName: z
       .string()
