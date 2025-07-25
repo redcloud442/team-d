@@ -9,8 +9,17 @@ import { company_transaction_table } from "@/utils/types";
 import { Triangle } from "lucide-react";
 import Image from "next/image";
 import { Button } from "../ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
+import { Textarea } from "../ui/textarea";
 import ReceiptViewer from "./ReceiptViewer";
 
 type Props = {
@@ -34,6 +43,7 @@ const HistoryCardList = ({
   isLoading = false,
   currentStatus,
 }: Props) => {
+  console.log(currentStatus);
   if (isLoading && data.length === 0) {
     return (
       <div className="space-y-4">
@@ -56,7 +66,7 @@ const HistoryCardList = ({
             return (
               <div
                 key={item.company_transaction_id}
-                className="hover:bg-blue-900/30 transition-colors duration-200 border-2 my-4 border-bg-primary-blue rounded-md flex flex-col md:flex-row justify-start items-center p-4"
+                className="hover:bg-blue-900/30 transition-colors duration-200 border-2 my-4 space-y-4 border-bg-primary-blue rounded-md flex flex-col md:flex-row justify-start items-center p-4"
               >
                 <div>
                   <div
@@ -147,6 +157,32 @@ const HistoryCardList = ({
                     {formatTime(item.company_transaction_date)}
                   </div>
                 </div>
+
+                {["DEPOSIT"].includes(currentStatus) &&
+                  item.company_transaction_note && (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="rounded-md" variant="destructive">
+                          Reason
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent type="table">
+                        <DialogHeader>
+                          <DialogTitle>Attachment</DialogTitle>
+                        </DialogHeader>
+                        <div className="flex justify-center items-center">
+                          <Textarea
+                            className="text-white"
+                            value={item.company_transaction_note ?? ""}
+                            readOnly
+                          />
+                        </div>
+                        <DialogClose asChild>
+                          <Button variant="secondary">Close</Button>
+                        </DialogClose>
+                      </DialogContent>
+                    </Dialog>
+                  )}
               </div>
             );
           })}

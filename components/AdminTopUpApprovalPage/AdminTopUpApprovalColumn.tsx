@@ -365,11 +365,11 @@ export const useAdminTopUpApprovalColumns = (
     ...(status !== "PENDING"
       ? [
           {
-            accessorKey: "alliance_top_up_request_reject_note",
+            accessorKey: "company_deposit_request_reject_note",
             header: () => <div>Rejection Note</div>,
             cell: ({ row }: { row: Row<TopUpRequestData> }) => {
               const rejectionNote = row.getValue(
-                "alliance_top_up_request_reject_note"
+                "company_deposit_request_reject_note"
               ) as string;
 
               return rejectionNote ? (
@@ -384,7 +384,11 @@ export const useAdminTopUpApprovalColumns = (
                       <DialogTitle>Attachment</DialogTitle>
                     </DialogHeader>
                     <div className="flex justify-center items-center">
-                      <Textarea value={rejectionNote} readOnly />
+                      <Textarea
+                        className="text-white"
+                        value={rejectionNote}
+                        readOnly
+                      />
                     </div>
                     <DialogClose asChild>
                       <Button variant="secondary">Close</Button>
