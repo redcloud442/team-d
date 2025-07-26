@@ -64,7 +64,7 @@ const DashboardProof = () => {
 
   return (
     <div className="border-2 border-bg-primary-blue px-4 py-6 rounded-md overflow-hidden">
-      <h2 className="text-2xl font-bold">Proof of Earnings</h2>
+      <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
       <Carousel
         className="w-full min-h-fit flex flex-col items-center justify-center"
         plugins={[
