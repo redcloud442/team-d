@@ -30,7 +30,7 @@ const DashboardCarousel = ({ totalEarningsMap }: Props) => {
         <>
           <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
           <div className="flex justify-center h-full">
-            <div className="grid grid-cols-2 gap-4 justify-center w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 justify-center w-full">
               {totalEarningsMap.map(({ key, label, value }) => (
                 <div key={key} className="text-center">
                   <p className="text-xl text-bg-primary-blue">{label}</p>
