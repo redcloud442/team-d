@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/carousel";
 import { getProofOfEarninggetsVideo } from "@/services/Dasboard/Member";
 import { useQuery } from "@tanstack/react-query";
-import DashboardProofOfEarnings from "./DashboardProofOfEarnings";
 
 const DashboardProof = () => {
   const { data: proofOfEarnings } = useQuery({
@@ -40,41 +39,27 @@ const DashboardProof = () => {
     }
   };
 
-  const carouselSlides: { id: string; content: React.ReactNode }[] = [
-    /* 2 ––– Proof-of-earnings video ––– */
-    proofOfEarnings?.length
-      ? {
-          id: "proof-of-earnings",
-          content: (
-            <div className="space-y-4 h-full">
-              <div className="flex justify-between items-center gap-2">
-                <h2 className="text-2xl font-bold">Proof of Earnings</h2>
-                <DashboardProofOfEarnings
-                  openVideoFullscreen={openVideoFullscreen}
-                />
-              </div>
-
-              <div className="relative h-full">
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg cursor-pointer">
-                  <Button>▶</Button>
-                </div>
-
-                <video
-                  src={proofOfEarnings[0].company_proof_video}
-                  preload="none"
-                  poster={
-                    proofOfEarnings[0].company_proof_thumbnail ?? undefined
-                  }
-                  className="w-full h-full object-cover aspect-auto md:aspect-square rounded-lg"
-                  onClick={openVideoFullscreen}
-                />
-              </div>
+  const carouselSlides: { id: string; content: React.ReactNode }[] =
+    proofOfEarnings?.map((proof, index) => ({
+      id: `proof-of-earnings-${index}`,
+      content: (
+        <div className="space-y-4 h-full">
+          <div className="relative h-full">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg cursor-pointer">
+              <Button>▶</Button>
             </div>
-          ),
-        }
-      : null,
-    /* nothing else added here; banners get appended below */
-  ].filter(Boolean) as { id: string; content: React.ReactNode }[];
+
+            <video
+              src={proof.company_proof_video}
+              preload="none"
+              poster={proof.company_proof_thumbnail ?? undefined}
+              className="w-full h-full object-cover aspect-auto md:aspect-square rounded-lg"
+              onClick={openVideoFullscreen}
+            />
+          </div>
+        </div>
+      ),
+    })) ?? [];
 
   return (
     <div className="border-2 border-bg-primary-blue px-4 py-6 rounded-md overflow-hidden">
