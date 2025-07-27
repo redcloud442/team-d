@@ -2,12 +2,11 @@
 
 import { toast } from "@/hooks/use-toast";
 import { GetBanners } from "@/services/Banner/Banner";
-import { getProofOfEarninggetsVideo } from "@/services/Dasboard/Member";
 import { usePackageChartData } from "@/store/usePackageChartData";
 import { useUserDashboardEarningsStore } from "@/store/useUserDashboardEarnings";
 import { useUserEarningsStore } from "@/store/useUserEarningsStore";
 import { useRole } from "@/utils/context/roleContext";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useMemo } from "react";
 import { Button } from "../ui/button";
@@ -23,7 +22,6 @@ const DashboardPage = () => {
   const { earnings } = useUserEarningsStore();
   const { chartData } = usePackageChartData();
   const { teamMemberProfile, profile } = useRole();
-  const queryClient = useQueryClient();
 
   const vatAmount = useMemo(() => {
     return (totalEarnings?.withdrawalAmount ?? 0) * 0.1;
@@ -36,13 +34,6 @@ const DashboardPage = () => {
       variant: "success",
     });
   };
-
-  const { data: proofOfEarnings } = useQuery({
-    queryKey: ["proof-of-earnings"],
-    queryFn: () => getProofOfEarninggetsVideo(),
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 5,
-  });
 
   const totalEarningsMap: {
     label: string;
@@ -96,30 +87,6 @@ const DashboardPage = () => {
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 5,
   });
-
-  const openVideoFullscreen = (event: React.MouseEvent<HTMLVideoElement>) => {
-    const video = event.currentTarget;
-    const applyObjectContain = () => video.classList.add("object-contain");
-    const removeObjectContain = () => video.classList.remove("object-cover");
-    const applyObjectCover = () => video.classList.add("object-cover");
-
-    video.addEventListener("fullscreenchange", () => {
-      removeObjectContain();
-      if (document.fullscreenElement) {
-        applyObjectContain();
-      } else {
-        applyObjectCover();
-        video.muted = true;
-        video.pause();
-      }
-    });
-
-    if (video.requestFullscreen) {
-      video.requestFullscreen();
-      video.muted = false;
-      video.play();
-    }
-  };
 
   return (
     <div className="relative min-h-screen h-full mx-auto space-y-4">
@@ -187,7 +154,7 @@ const DashboardPage = () => {
         )}
 
         <DashboardProof />
-        <div className=" space-y-4">
+        <div className=" space-y-4 h-full">
           <DashboardCarousel
             totalEarningsMap={totalEarningsMap?.map((item) => ({
               ...item,

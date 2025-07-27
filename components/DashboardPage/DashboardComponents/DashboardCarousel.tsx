@@ -28,9 +28,9 @@ const DashboardCarousel = ({ totalEarningsMap }: Props) => {
       id: "dashboard",
       content: (
         <>
-          <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
+          <h2 className="text-2xl font-bold mb-6 sm:block hidden">Dashboard</h2>
           <div className="flex justify-center h-full">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 justify-center w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 justify-center w-full h-full">
               {totalEarningsMap.map(({ key, label, value }) => (
                 <div key={key} className="text-center">
                   <p className="text-xl text-bg-primary-blue">{label}</p>
@@ -56,8 +56,8 @@ const DashboardCarousel = ({ totalEarningsMap }: Props) => {
             <Image
               src={promo.company_promo_image}
               alt={`${promo.company_promo_id} – promo`}
-              width={600}
-              height={600}
+              width={300}
+              height={300}
               className="w-full h-full object-contain rounded-lg"
             />
           </>
@@ -70,12 +70,12 @@ const DashboardCarousel = ({ totalEarningsMap }: Props) => {
    *  Render
    * ========================= */
   return (
-    <div className="border-2 border-bg-primary-blue px-4 py-6 rounded-md overflow-hidden">
+    <div className="border-2 border-bg-primary-blue px-4 py-6 rounded-md overflow-hidden h-full">
       <Carousel
-        className="w-full min-h-fit flex flex-col items-center justify-center"
+        className="w-full flex flex-col items-center justify-center h-full"
         opts={{ align: "center" }}
       >
-        <CarouselContent className="h-[500px] w-full min-w-xl max-w-2xl">
+        <CarouselContent className="h-full w-full min-w-xl max-w-2xl">
           {carouselSlides.map(({ id, content }) => (
             <CarouselItem key={id} className="w-full">
               {content}
