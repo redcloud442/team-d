@@ -65,6 +65,7 @@ const AdminWithdrawalHideAll = ({
       });
     } finally {
       setIsLoading(false);
+      setIsOpen(false);
     }
   };
 
