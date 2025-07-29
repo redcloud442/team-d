@@ -317,7 +317,7 @@ export const supremePlanBonus = (amount: number) => {
 };
 
 export const formatNumberLocale = (number: number) => {
-  return number.toLocaleString("en-US", {
+  return Number(number).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });

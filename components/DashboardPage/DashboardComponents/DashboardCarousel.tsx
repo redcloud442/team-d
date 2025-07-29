@@ -66,9 +66,6 @@ const DashboardCarousel = ({ totalEarningsMap }: Props) => {
     });
   }
 
-  /** =========================
-   *  Render
-   * ========================= */
   return (
     <div className="border-2 border-bg-primary-blue px-4 py-6 rounded-md overflow-hidden h-full">
       <Carousel

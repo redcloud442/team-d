@@ -114,7 +114,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
   };
 
   return (
-    <div className="flex flex-col gap-4 border-2 border-bg-primary-blue rounded-md p-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 border-2 border-bg-primary-blue rounded-md p-4">
       {chartData.map((data, index) => (
         <div
           key={index}
@@ -132,7 +132,7 @@ const DashboardPackages = ({ teamMemberProfile }: DashboardPackagesProps) => {
 
           <div className="flex flex-col gap-4 p-2">
             <div className="text-3xl font-normal text-center space-x-1">
-              <span> {formatNumberLocale(data.current_amount)}</span>
+              <span>{formatNumberLocale(data.current_amount)}</span>
             </div>
             <div className="space-y-1">
               <div className="text-xs space-x-1">
