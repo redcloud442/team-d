@@ -60,3 +60,29 @@ export const getMemberWithdrawalRequest = async (params: {
     totalCount: 0;
   };
 };
+
+export const hideAllWithdrawalRequest = async (params: {
+  take: number;
+  skip: number;
+}) => {
+  const response = await fetch(`/api/v1/withdraw/hide-all`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || "An error occurred while hiding the withdrawal request."
+    );
+  }
+
+  return result as {
+    message: string;
+    count: number;
+  };
+};

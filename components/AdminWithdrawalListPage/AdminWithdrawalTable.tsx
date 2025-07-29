@@ -47,6 +47,7 @@ import { Switch } from "../ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Textarea } from "../ui/textarea";
 import { AdminWithdrawalHistoryColumn } from "./AdminWithdrawalColumn";
+import AdminWithdrawalHideAll from "./AdminWithdrawalHideAll";
 import AdminWithdrawalTabs from "./AdminWithdrawalTabs";
 
 type FilterFormValues = {
@@ -464,6 +465,7 @@ const AdminWithdrawalHistoryTable = () => {
                 <RefreshCw />
                 Refresh
               </Button>
+              <AdminWithdrawalHideAll setRequestData={setRequestData} />
               <div className="flex items-center space-x-2">
                 <Switch
                   id="filter-switch"
